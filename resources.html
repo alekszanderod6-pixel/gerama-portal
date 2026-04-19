@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Resource Library | GERAMA</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         .filter-bar { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; }
@@ -57,9 +60,12 @@
                 <option value="Civil">Civil Engineering</option>
                 <option value="Environmental">Environmental Engineering</option>
             </select>
-            <select id="courseSelect" style="min-width: 200px;">
-                <option value="">-- Select Course --</option>
-            </select>
+            <div style="position: relative; min-width: 200px;">
+                <input type="text" id="courseSelect" placeholder="Type or select course..." 
+                       style="width: 100%; padding: 0.6rem 1.2rem; border-radius: 40px; border: 1px solid #ccc; background: white;">
+                <div id="courseDropdown" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-radius: 8px; margin-top: 4px; max-height: 200px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                </div>
+            </div>
             <button id="loadBtn" class="btn">Load Materials</button>
         </div>
 
@@ -144,7 +150,7 @@
         
         <div class="footer-bottom">
             <div class="footer-bottom-content">
-                <p>© 2026 GERAMA Academic Resources. Empowering Engineering Excellence</p>
+                <p> 2026 GERAMA Academic Resources. Empowering Engineering Excellence</p>
                 <p>Developed by: <span class="developer">Alexander O. Dwumaah</span> | Editor: <span class="editor">Edem H.K Prince</span></p>
             </div>
         </div>
@@ -153,88 +159,176 @@
     <script src="js/main.js"></script>
     <script>
         const BASE_PATH = "materials/"; // change to your actual folder
-
-        // ========== DATA STRUCTURE: Level → Program → Course → Categories ==========
-        const materialsDB = {
-            L100: {
-                Mechanical: {
-                    "Engineering Mechanics": {
-                        slides: [
-                            { name: "Basic Mechanics Slides", file: "L100/Mechanical/basic_mechanics_aleks_slides.pptx" },
-                            { name: "Engineering Mechanics (Hibbeler)", file: "L100/Mechanical/engineering_mechanics_stats_r_c_hibbeler.pdf" }
-                        ],
-                        books: [
-                            { name: "Solution Manual A", file: "L100/Mechanical/solution_manual_a.pdf" },
-                            { name: "Solution Manual Mech", file: "L100/Mechanical/solution_manualmech.pdf" }
-                        ],
-                        pastq: [
-                            { name: "Quiz 1", file: "L100/Mechanical/quiz_1.pdf" },
-                            { name: "Assignment 3", file: "L100/Mechanical/assignment3_thealeksvibes.pdf" },
-                            { name: "Assignment 4", file: "L100/Mechanical/assignment4.pdf" }
-                        ],
-                        videos: []
+        
+        // Dynamic folder structure - will be populated from actual folders
+        let materialsDB = {};
+        
+        // Function to scan folders dynamically (for development)
+        async function scanMaterialsFolder() {
+            // This would ideally be done server-side, but for now we'll use a fallback structure
+            // You can add new folders to this structure as needed
+            materialsDB = {
+                L100: {
+                    Mechanical: {
+                        "Engineering Mechanics": {
+                            slides: [
+                                { name: "Basic Mechanics Slides", file: "L100/Mechanical/basic_mechanics_aleks_slides.pptx" },
+                                { name: "Engineering Mechanics (Hibbeler)", file: "L100/Mechanical/engineering_mechanics_stats_r_c_hibbeler.pdf" }
+                            ],
+                            books: [
+                                { name: "Solution Manual A", file: "L100/Mechanical/solution_manual_a.pdf" },
+                                { name: "Solution Manual Mech", file: "L100/Mechanical/solution_manualmech.pdf" }
+                            ],
+                            pastq: [
+                                { name: "Quiz 1", file: "L100/Mechanical/quiz_1.pdf" },
+                                { name: "Assignment 3", file: "L100/Mechanical/assignment3_thealeksvibes.pdf" },
+                                { name: "Assignment 4", file: "L100/Mechanical/assignment4.pdf" }
+                            ],
+                            videos: []
+                        }
+                    },
+                    Electrical: {
+                        "Circuit Theory": {
+                            slides: [ { name: "Intro to Circuits", file: "L100/Electrical/intro_circuits.pdf" } ],
+                            books: [],
+                            pastq: [],
+                            videos: []
+                        }
                     }
                 },
-                Electrical: {
-                    "Circuit Theory": {
-                        slides: [ { name: "Intro to Circuits", file: "L100/Electrical/intro_circuits.pdf" } ],
-                        books: [],
-                        pastq: [],
-                        videos: []
+                L200: {
+                    Electrical: {
+                        "Solid State Devices": {
+                            slides: [
+                                { name: "Introduction", file: "L200/Electrical/Solid State Devices/introduction-01.pptx" },
+                                { name: "Fundamentals of Semiconductors - Part 1", file: "L200/Electrical/Solid State Devices/lect1-fundamentals-of-semiconductors.pptx" },
+                                { name: "Fundamentals of Semiconductors - Part 2", file: "L200/Electrical/Solid State Devices/lect2-fundamentals-of-semiconductors.pptx" },
+                                { name: "Carrier Flow", file: "L200/Electrical/Solid State Devices/lect3-carrier-flow.pptx" },
+                                { name: "PN Junction - Part 1", file: "L200/Electrical/Solid State Devices/lect4-pnjunction.pptx" },
+                                { name: "PN Junction - Part 2", file: "L200/Electrical/Solid State Devices/lect5-pn-junction.pptx" },
+                                { name: "Metal-Semiconductor Junction", file: "L200/Electrical/Solid State Devices/lect6-metal-semiconductor-junction.pptx" }
+                            ],
+                            books: [
+                                { name: "Written Notes", file: "L200/Electrical/Solid State Devices/written_notes.pdf" }
+                            ],
+                            pastq: [],
+                            videos: [
+                                { name: "Lecture 1 - Introduction", file: "L200/Electrical/videos/Lecture - 1.mp4" },
+                                { name: "Lecture 2 - Evolution", file: "L200/Electrical/videos/Lecture - 2.mp4" },
+                                { name: "Lecture 3 - Equilibrium", file: "L200/Electrical/videos/Lecture - 3.mp4" }
+                            ]
+                        },
+                        "Power Systems": {
+                            slides: [ { name: "Power System Basics", file: "L200/Electrical/power_systems_intro.pdf" } ],
+                            books: [],
+                            pastq: [],
+                            videos: []
+                        }
                     }
                 }
-            },
-            L200: {
-                Electrical: {
-                    "Solid State Devices": {
-                        slides: [
-                            { name: "Introduction", file: "L200/Electrical/Solid State Devices/introduction-01.pptx" },
-                            { name: "Fundamentals of Semiconductors - Part 1", file: "L200/Electrical/Solid State Devices/lect1-fundamentals-of-semiconductors.pptx" },
-                            { name: "Fundamentals of Semiconductors - Part 2", file: "L200/Electrical/Solid State Devices/lect2-fundamentals-of-semiconductors.pptx" },
-                            { name: "Carrier Flow", file: "L200/Electrical/Solid State Devices/lect3-carrier-flow.pptx" },
-                            { name: "PN Junction - Part 1", file: "L200/Electrical/Solid State Devices/lect4-pnjunction.pptx" },
-                            { name: "PN Junction - Part 2", file: "L200/Electrical/Solid State Devices/lect5-pn-junction.pptx" },
-                            { name: "Metal-Semiconductor Junction", file: "L200/Electrical/Solid State Devices/lect6-metal-semiconductor-junction.pptx" }
-                        ],
-                        books: [
-                            { name: "Written Notes", file: "L200/Electrical/Solid State Devices/written_notes.pdf" }
-                        ],
-                        pastq: [],
-                        videos: [
-                            { name: "Lecture 1 - Introduction", file: "L200/Electrical/videos/Lecture - 1.mp4" },
-                            { name: "Lecture 2 - Evolution", file: "L200/Electrical/videos/Lecture - 2.mp4" },
-                            { name: "Lecture 3 - Equilibrium", file: "L200/Electrical/videos/Lecture - 3.mp4" }
-                        ]
-                    },
-                    "Power Systems": {
-                        slides: [ { name: "Power System Basics", file: "L200/Electrical/power_systems_intro.pdf" } ],
-                        books: [],
-                        pastq: [],
-                        videos: []
-                    }
-                }
+            };
+            
+            // Add more levels/programs/courses as needed
+            // Example: Add L300, L400, other programs, etc.
+        }
+        
+        // Function to add new course dynamically
+        function addNewCourse(level, program, courseName, materials = {}) {
+            if (!materialsDB[level]) materialsDB[level] = {};
+            if (!materialsDB[level][program]) materialsDB[level][program] = {};
+            
+            materialsDB[level][program][courseName] = {
+                slides: materials.slides || [],
+                books: materials.books || [],
+                pastq: materials.pastq || [],
+                videos: materials.videos || []
+            };
+            
+            // Refresh the dropdown
+            updateCourseDropdown();
+        }
+        
+        // Function to add material to existing course
+        function addMaterial(level, program, courseName, category, materialName, fileName) {
+            if (materialsDB[level] && materialsDB[level][program] && materialsDB[level][program][courseName]) {
+                materialsDB[level][program][courseName][category].push({
+                    name: materialName,
+                    file: fileName
+                });
             }
-        };
+        }
 
         let currentLevel = "L100";
         let currentProgram = "Mechanical";
         let currentCourse = "";
         let currentCategory = "slides";
 
-        // Populate course dropdown based on level & program
+        // Populate course dropdown with autocomplete functionality
         function updateCourseDropdown() {
             const courseSelect = document.getElementById('courseSelect');
+            const courseDropdown = document.getElementById('courseDropdown');
             const courses = materialsDB[currentLevel]?.[currentProgram] || {};
-            courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
-            Object.keys(courses).forEach(course => {
-                const option = document.createElement('option');
-                option.value = course;
-                option.textContent = course;
-                courseSelect.appendChild(option);
-            });
+            
+            // Clear current selection
             currentCourse = "";
             courseSelect.value = "";
+            courseDropdown.style.display = 'none';
         }
+        
+        // Show autocomplete suggestions
+        function showCourseSuggestions(query) {
+            const courseDropdown = document.getElementById('courseDropdown');
+            const courses = materialsDB[currentLevel]?.[currentProgram] || {};
+            
+            if (query.length < 1) {
+                courseDropdown.style.display = 'none';
+                return;
+            }
+            
+            const filteredCourses = Object.keys(courses).filter(course => 
+                course.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            if (filteredCourses.length === 0) {
+                courseDropdown.style.display = 'none';
+                return;
+            }
+            
+            let html = '';
+            filteredCourses.forEach(course => {
+                html += `
+                    <div class="course-option" style="padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.2s;" 
+                         onmouseover="this.style.background='#f8f9fa'" 
+                         onmouseout="this.style.background='white'"
+                         onclick="selectCourse('${course}')">
+                        ${course}
+                    </div>
+                `;
+            });
+            
+            courseDropdown.innerHTML = html;
+            courseDropdown.style.display = 'block';
+        }
+        
+        // Select course from dropdown
+        function selectCourse(courseName) {
+            const courseSelect = document.getElementById('courseSelect');
+            const courseDropdown = document.getElementById('courseDropdown');
+            
+            currentCourse = courseName;
+            courseSelect.value = courseName;
+            courseDropdown.style.display = 'none';
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const courseSelect = document.getElementById('courseSelect');
+            const courseDropdown = document.getElementById('courseDropdown');
+            
+            if (!courseSelect.contains(e.target) && !courseDropdown.contains(e.target)) {
+                courseDropdown.style.display = 'none';
+            }
+        });
 
         // Render materials for selected course and category
         function renderMaterials() {
@@ -281,8 +375,14 @@
             currentProgram = document.getElementById('programSelect').value;
             updateCourseDropdown();
         });
-        document.getElementById('courseSelect').addEventListener('change', (e) => {
+        document.getElementById('courseSelect').addEventListener('input', (e) => {
             currentCourse = e.target.value;
+            showCourseSuggestions(e.target.value);
+        });
+        document.getElementById('courseSelect').addEventListener('focus', (e) => {
+            if (e.target.value.length >= 1) {
+                showCourseSuggestions(e.target.value);
+            }
         });
         document.getElementById('loadBtn').addEventListener('click', () => {
             currentLevel = document.getElementById('levelSelect').value;
