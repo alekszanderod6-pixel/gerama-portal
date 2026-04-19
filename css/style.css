@@ -578,3 +578,245 @@ footer {
 .dashboard-action-btn i {
     margin-right: 0.5rem;
 }
+
+/* Profile Emoji */
+.profile-emoji {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    background: linear-gradient(135deg, #1B5E20, #2E7D32);
+    border: 2px solid rgba(255,255,255,0.2);
+    margin: 0 auto 1rem;
+}
+
+/* Welcome Section */
+.welcome-section {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.welcome-section h4 {
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.welcome-section p {
+    color: rgba(255,255,255,0.8);
+    font-size: 0.9rem;
+}
+
+/* Quick Stats */
+.quick-stats {
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem 0;
+}
+
+.quick-stat {
+    text-align: center;
+    color: white;
+}
+
+.quick-stat-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.3rem;
+}
+
+.quick-stat-label {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* Resources Section */
+.resources-section h4 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.resource-link {
+    display: block;
+    padding: 1rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    margin-bottom: 1rem;
+    transition: all 0.3s;
+}
+
+.resource-link:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+.resource-link i {
+    display: block;
+    font-size: 2rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.resource-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    padding: 0 1rem;
+}
+
+.resource-stat {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.8rem;
+}
+
+.resource-stat i {
+    color: var(--accent);
+    margin-right: 0.5rem;
+}
+
+/* About Section */
+.about-section h4 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.about-section p {
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.about-info {
+    padding: 0 1rem;
+}
+
+.about-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.about-item i {
+    color: var(--accent);
+    margin-right: 0.5rem;
+    width: 20px;
+}
+
+.learn-more-btn {
+    display: block;
+    margin: 1rem;
+    padding: 0.8rem;
+    background: var(--accent);
+    color: var(--primary-dark);
+    text-decoration: none;
+    text-align: center;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.learn-more-btn:hover {
+    background: #FFD54F;
+    transform: translateY(-1px);
+}
+
+/* Contact Section */
+.contact-section h4 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.contact-info {
+    padding: 0 1rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.contact-item i {
+    color: var(--accent);
+    margin-right: 0.5rem;
+    width: 20px;
+}
+
+.contact-btn {
+    display: block;
+    margin: 1rem;
+    padding: 0.8rem;
+    background: var(--accent);
+    color: var(--primary-dark);
+    text-decoration: none;
+    text-align: center;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.contact-btn:hover {
+    background: #FFD54F;
+    transform: translateY(-1px);
+}
+
+/* Bottom Tabs */
+.drawer-bottom-tabs {
+    display: flex;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 0.5rem 0;
+}
+
+.bottom-tab-btn {
+    flex: 1;
+    padding: 0.8rem 0.5rem;
+    background: transparent;
+    border: none;
+    border-top: 2px solid transparent;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.bottom-tab-btn:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+}
+
+.bottom-tab-btn.active {
+    color: var(--accent);
+    border-top-color: var(--accent);
+    background: rgba(255,255,255,0.05);
+}
+
+.bottom-tab-btn i {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+}

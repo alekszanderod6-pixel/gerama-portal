@@ -80,54 +80,81 @@
         const sidebarHTML = `
             <div id="sidebarDrawer" class="sidebar-drawer">
                 <div class="drawer-header">
-                    <img id="drawerAvatar" src="https://via.placeholder.com/80?text=Avatar" alt="Profile">
+                    <div id="drawerAvatar" class="profile-emoji">👤</div>
                     <h3 id="drawerName">Student</h3>
                     <p id="drawerProgram">Program: --</p>
                 </div>
                 
                 <!-- Sidebar Tabs -->
                 <div class="drawer-tabs">
-                    <button class="tab-btn active" data-tab="stats">
-                        <i class="fas fa-chart-bar"></i> Dashboard
+                    <button class="tab-btn active" data-tab="home">
+                        <i class="fas fa-home"></i> Home
+                    </button>
+                    <button class="tab-btn" data-tab="resources">
+                        <i class="fas fa-book"></i> Resources
                     </button>
                     <button class="tab-btn" data-tab="profile">
                         <i class="fas fa-user"></i> Profile
                     </button>
-                    <button class="tab-btn" data-tab="nav">
-                        <i class="fas fa-compass"></i> Navigate
+                    <button class="tab-btn" data-tab="about">
+                        <i class="fas fa-users"></i> About
+                    </button>
+                    <button class="tab-btn" data-tab="contact">
+                        <i class="fas fa-envelope"></i> Contact
                     </button>
                 </div>
                 
                 <!-- Tab Content -->
                 <div class="drawer-content">
-                    <!-- Dashboard Tab -->
-                    <div class="tab-content active" id="stats-tab">
-                        <div class="drawer-stats">
-                            <div class="stat-item">
-                                <i class="fas fa-download"></i>
-                                <div class="stat-info">
-                                    <span class="stat-number" id="downloadCount">0</span>
-                                    <span class="stat-label">Downloads</span>
-                                </div>
+                    <!-- Home Tab -->
+                    <div class="tab-content active" id="home-tab">
+                        <div class="welcome-section">
+                            <h4>Welcome to GERAMA Portal</h4>
+                            <p>Your gateway to academic excellence at UENR</p>
+                        </div>
+                        <div class="quick-stats">
+                            <div class="quick-stat">
+                                <span class="quick-stat-number" id="quickDownloadCount">0</span>
+                                <span class="quick-stat-label">Downloads</span>
                             </div>
-                            <div class="stat-item">
-                                <i class="fas fa-upload"></i>
-                                <div class="stat-info">
-                                    <span class="stat-number" id="contributionCount">0</span>
-                                    <span class="stat-label">Contributions</span>
-                                </div>
+                            <div class="quick-stat">
+                                <span class="quick-stat-number" id="quickContributionCount">0</span>
+                                <span class="quick-stat-label">Contributions</span>
                             </div>
                         </div>
-                        <div class="dashboard-actions">
-                            <a href="resources.html" class="dashboard-action-btn">
-                                <i class="fas fa-book"></i> Browse Resources
-                            </a>
+                    </div>
+                    
+                    <!-- Resources Tab -->
+                    <div class="tab-content" id="resources-tab">
+                        <div class="resources-section">
+                            <h4>Resource Library</h4>
+                            <div class="resource-categories">
+                                <a href="resources.html" class="resource-link">
+                                    <i class="fas fa-book-open"></i>
+                                    <span>Browse All Resources</span>
+                                </a>
+                                <div class="resource-stats">
+                                    <div class="resource-stat">
+                                        <i class="fas fa-file-pdf"></i>
+                                        <span>PDFs Available</span>
+                                    </div>
+                                    <div class="resource-stat">
+                                        <i class="fas fa-video"></i>
+                                        <span>Video Lectures</span>
+                                    </div>
+                                    <div class="resource-stat">
+                                        <i class="fas fa-question-circle"></i>
+                                        <span>Past Questions</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Profile Tab -->
                     <div class="tab-content" id="profile-tab">
                         <div class="profile-edit-section">
+                            <h4>Edit Profile</h4>
                             <div class="profile-field">
                                 <label>Name</label>
                                 <input type="text" id="profileNameInput" placeholder="Enter your name">
@@ -152,15 +179,64 @@
                         </div>
                     </div>
                     
-                    <!-- Navigation Tab -->
-                    <div class="tab-content" id="nav-tab">
-                        <div class="drawer-nav">
-                            <a href="index.html"><i class="fas fa-home"></i> Home</a>
-                            <a href="resources.html"><i class="fas fa-book"></i> Resources</a>
-                            <a href="about.html"><i class="fas fa-users"></i> About</a>
-                            <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
+                    <!-- About Tab -->
+                    <div class="tab-content" id="about-tab">
+                        <div class="about-section">
+                            <h4>About GERAMA</h4>
+                            <p>Team GERAMA is dedicated to promoting academic excellence among students across all fields of study at UENR.</p>
+                            <div class="about-info">
+                                <div class="about-item">
+                                    <i class="fas fa-eye"></i>
+                                    <span><strong>Vision:</strong> Academic Excellence</span>
+                                </div>
+                                <div class="about-item">
+                                    <i class="fas fa-bullseye"></i>
+                                    <span><strong>Mission:</strong> Empower Students</span>
+                                </div>
+                                <div class="about-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span><strong>Motto:</strong> Promoting Excellence</span>
+                                </div>
+                            </div>
+                            <a href="about.html" class="learn-more-btn">
+                                <i class="fas fa-arrow-right"></i> Learn More
+                            </a>
                         </div>
                     </div>
+                    
+                    <!-- Contact Tab -->
+                    <div class="tab-content" id="contact-tab">
+                        <div class="contact-section">
+                            <h4>Contact GERAMA</h4>
+                            <div class="contact-info">
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>gerama.uenr@gmail.com</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>+233 55 574 9497</span>
+                                </div>
+                                <div class="contact-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>UENR, Sunyani</span>
+                                </div>
+                            </div>
+                            <a href="contact.html" class="contact-btn">
+                                <i class="fas fa-paper-plane"></i> Send Message
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bottom Tabs -->
+                <div class="drawer-bottom-tabs">
+                    <button class="bottom-tab-btn" data-bottom-tab="downloads">
+                        <i class="fas fa-download"></i> Downloads
+                    </button>
+                    <button class="bottom-tab-btn" data-bottom-tab="uploads">
+                        <i class="fas fa-upload"></i> Uploads
+                    </button>
                 </div>
                 
                 <div class="drawer-footer">
@@ -178,7 +254,18 @@
         const avatar = document.getElementById('drawerAvatar');
         const nameSpan = document.getElementById('drawerName');
         const progSpan = document.getElementById('drawerProgram');
-        if (avatar) avatar.src = profile.img || 'https://via.placeholder.com/80?text=Avatar';
+        
+        // Use emoji for unknown users, otherwise use first letter
+        if (avatar) {
+            if (profile.name && profile.name.trim()) {
+                avatar.textContent = profile.name.charAt(0).toUpperCase();
+                avatar.style.background = 'linear-gradient(135deg, #1B5E20, #2E7D32)';
+            } else {
+                avatar.textContent = '👤';
+                avatar.style.background = 'transparent';
+            }
+        }
+        
         if (nameSpan) nameSpan.innerText = profile.name || 'Student';
         if (progSpan) progSpan.innerText = profile.program || 'Not set';
     }
@@ -201,6 +288,27 @@
                 const targetContent = document.getElementById(targetTab + '-tab');
                 if (targetContent) {
                     targetContent.classList.add('active');
+                }
+            });
+        });
+        
+        // Bottom tabs functionality
+        const bottomTabButtons = document.querySelectorAll('.bottom-tab-btn');
+        bottomTabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.getAttribute('data-bottom-tab');
+                
+                // Remove active class from all bottom tabs
+                bottomTabButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Handle bottom tab actions
+                if (targetTab === 'downloads') {
+                    alert('📥 Downloads feature coming soon!');
+                } else if (targetTab === 'uploads') {
+                    alert('📤 Uploads feature coming soon!');
                 }
             });
         });
@@ -254,11 +362,16 @@
         const downloads = localStorage.getItem('gerama_downloads') || '0';
         const contributions = localStorage.getItem('gerama_contributions') || '0';
         
+        // Update both old and new stat displays
         const downloadCount = document.getElementById('downloadCount');
         const contributionCount = document.getElementById('contributionCount');
+        const quickDownloadCount = document.getElementById('quickDownloadCount');
+        const quickContributionCount = document.getElementById('quickContributionCount');
         
         if (downloadCount) downloadCount.textContent = downloads;
         if (contributionCount) contributionCount.textContent = contributions;
+        if (quickDownloadCount) quickDownloadCount.textContent = downloads;
+        if (quickContributionCount) quickContributionCount.textContent = contributions;
     }
 
     // Attach overlay close
