@@ -160,8 +160,8 @@
                     img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
                 }));
                 
-                // Redirect to dashboard
-                window.location.href = 'dashboard.html';
+                // Redirect to home page
+                window.location.href = 'index.html';
                 
             } catch (err) {
                 errorMsg.innerText = 'Login failed. Please try again.';
@@ -175,7 +175,7 @@
         // Check if user is already logged in
         window.geramaSupabase.auth.getSession().then(({ data: { session } }) => {
             if (session) {
-                window.location.href = 'dashboard.html';
+                window.location.href = 'index.html';
             }
         });
     </script>

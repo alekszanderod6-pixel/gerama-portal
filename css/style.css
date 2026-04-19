@@ -443,3 +443,138 @@ footer {
 .edit-profile-btn i {
     margin-right: 0.5rem;
 }
+
+/* Sidebar Tabs */
+.drawer-tabs {
+    display: flex;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.8rem 0.5rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.tab-btn:hover {
+    color: white;
+    background: rgba(255,255,255,0.1);
+}
+
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(255,255,255,0.05);
+}
+
+.tab-btn i {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+}
+
+/* Tab Content */
+.drawer-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none;
+    padding: 0 1rem;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Profile Editing */
+.profile-edit-section {
+    padding: 1rem 0;
+}
+
+.profile-field {
+    margin-bottom: 1rem;
+}
+
+.profile-field label {
+    display: block;
+    color: white;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.profile-field input,
+.profile-field select {
+    width: 100%;
+    padding: 0.6rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.profile-field input::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+.profile-field select option {
+    background: var(--primary);
+    color: white;
+}
+
+.save-profile-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: var(--primary-dark);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    margin-top: 0.5rem;
+}
+
+.save-profile-btn:hover {
+    background: #FFD54F;
+    transform: translateY(-1px);
+}
+
+/* Dashboard Actions */
+.dashboard-actions {
+    padding: 1rem 0;
+}
+
+.dashboard-action-btn {
+    display: block;
+    width: 100%;
+    padding: 0.8rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.dashboard-action-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-1px);
+}
+
+.dashboard-action-btn i {
+    margin-right: 0.5rem;
+}
