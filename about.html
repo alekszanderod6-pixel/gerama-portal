@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About GERAMA | UENR</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .member-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .member-card:hover { transform: translateY(-5px); }
+        .member-card img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 3px solid #FFC107;
+        }
+        .values-list { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+        .value-item { background: #f0f7e8; padding: 0.5rem 1rem; border-radius: 50px; font-weight: 500; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/geramalogo.jpg" alt="GERAMA">
+            <img src="images/uenr logo.png" alt="UENR">
+            <h2>GERAMA ACADEMIC RESOURCES</h2>
+        </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="resources.html">Resources</a>
+            <a href="about.html" class="active">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Our Identity</h2>
+            <div class="grid-2">
+                <div>
+                    <h3>Vision</h3>
+                    <p>Team GERAMA is dedicated to promoting academic excellence among students across all fields of study.</p>
+                    <h3>Mission</h3>
+                    <p>To inspire and empower students to reach their full academic potential through collaboration, mentorship, and innovative learning strategies.</p>
+                    <h3>Motto</h3>
+                    <p><strong>Promoting Academic Excellence</strong></p>
+                </div>
+                <div>
+                    <img src="https://via.placeholder.com/300x200?text=GERAMA+Eagle+Logo" alt="Eagle Logo" style="width:100%; border-radius:16px;">
+                    <p><em>The eagle symbolizes visionary focus, strength, resilience, and leadership.</em></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Core Values</h2>
+            <div class="values-list">
+                <span class="value-item">🏅 Excellence</span>
+                <span class="value-item">🤝 Teamwork</span>
+                <span class="value-item">⚖️ Integrity</span>
+                <span class="value-item">💡 Innovation</span>
+                <span class="value-item">🚀 Empowerment</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Our History</h2>
+            <p>Team GERAMA started in 2023 with 5 students (Gad, Edem, Aaron, Rashida, Mawuli) as a small group study. Later, Aleks joined, and the name evolved from GERMA to GERAMA. The study group grew rapidly, especially before exams, attracting many classmates. By L400 (2025), the group had become a well‑known academic community. After graduation, the founding members ensured the legacy continued, with batch leaders carrying forward the mission. Today, GERAMA is a large community across all levels of engineering at UENR.</p>
+        </div>
+
+        <div class="card">
+            <h2>Founding Members & Leaders</h2>
+            <div class="grid-3">
+                <div class="member-card"><img src="https://via.placeholder.com/120?text=Gad"><h4>Gad Mawunyo (G)</h4><p><strong>Co-founder, Head of Academics</strong></p><p>Led curriculum design, mentored 50+ students.</p><p>📧 gad@gerama.org</p></div>
+                <div class="member-card"><img src="https://via.placeholder.com/120?text=Edem"><h4>Edem (E)</h4><p><strong>Co-founder, Finance Lead</strong></p><p>Managed resources and funded study materials.</p><p>📧 edem@gerama.org</p></div>
+                <div class="member-card"><img src="https://via.placeholder.com/120?text=Aaron"><h4>Aaron (A)</h4><p><strong>Co-founder, IT Director</strong></p><p>Built first digital resource repository.</p><p>📧 aaron@gerama.org</p></div>
+                <div class="member-card"><img src="https://via.placeholder.com/120?text=Rashida"><h4>Rashida (R)</h4><p><strong>Co-founder, Welfare</strong></p><p>Supported members' academic well-being.</p><p>📧 rashida@gerama.org</p></div>
+                <div class="member-card"><img src="https://via.placeholder.com/120?text=Mawuli"><h4>Mawuli (M)</h4><p><strong>Co-founder, Public Relations</strong></p><p>Expanded GERAMA's reach across campus.</p><p>📧 mawuli@gerama.org</p></div>
+                <div class="member-card"><img src="https://via.placeholder.com/120?text=Aleks"><h4>Aleks (A)</h4><p><strong>Core Member, Resource Manager</strong></p><p>Curated and organized study materials.</p><p>📧 aleks@gerama.org</p></div>
+                <div class="member-card"><img src="https://via.placeholder.com/120?text=Mavis"><h4>Mavis (M)</h4><p><strong>Core Member, Secretary</strong></p><p>Documented meeting notes and academic guides.</p><p>📧 mavis@gerama.org</p></div>
+                <div class="member-card"><img src="https://via.placeholder.com/120?text=Abena"><h4>Abena (M)</h4><p><strong>Core Member, Events Lead</strong></p><p>Organized study marathons and workshops.</p><p>📧 abena@gerama.org</p></div>
+                <div class="member-card"><img src="https://via.placeholder.com/120?text=Alma"><h4>Alma (A)</h4><p><strong>Core Member, Alumni Relations</strong></p><p>Maintains connection with graduated members.</p><p>📧 alma@gerama.org</p></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section"><h4>GERAMA @ UENR</h4><p>📍 Sunyani, Ghana</p><p>📧 gerama.uenr@gmail.com</p></div>
+            <div class="footer-section"><h4>Quick Links</h4><p><a href="index.html">Home</a> | <a href="about.html">About</a> | <a href="resources.html">Resources</a> | <a href="contact.html">Contact</a></p></div>
+        </div>
+        <div class="footer-bottom"><p>© 2026 GERAMA. Designed by Alexander O. Dwumaah / Edem H.K. Prince</p></div>
+    </footer>
+</body>
+</html>

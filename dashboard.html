@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | GERAMA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .profile-card img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #FFC107;
+            margin-bottom: 1rem;
+        }
+        .edit-form { margin-top: 1.5rem; text-align: left; }
+        .edit-form input, .edit-form select { width: 100%; margin-bottom: 0.8rem; padding: 0.6rem; border-radius: 12px; border: 1px solid #ccc; }
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #1B5E20; }
+        @media (max-width: 768px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="https://uenr.edu.gh/themes/custom/uenr/logo.svg" alt="UENR">
+            <h2>GERAMA ACADEMIC RESOURCES</h2>
+        </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="resources.html">Resources</a>
+            <a href="contact.html">Contact</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container" style="max-width: 1200px; margin: auto; padding: 2rem;">
+        <h1>My Dashboard</h1>
+        <div class="dashboard-grid">
+            <div class="profile-card">
+                <img id="profileImg" src="https://via.placeholder.com/120?text=Avatar" alt="Profile">
+                <h3 id="displayName">Not set</h3>
+                <p id="displayProgram">Program: --</p>
+                <button id="editBtn" class="btn btn-outline">Edit Profile</button>
+                <div id="editForm" class="edit-form" style="display: none;">
+                    <input type="file" id="profileUpload" accept="image/*">
+                    <input type="text" id="fullName" placeholder="Full Name">
+                    <select id="programStudy">
+                        <option value="">Select Program</option>
+                        <option>Electrical Engineering</option><option>Mechanical Engineering</option>
+                        <option>Computer Engineering</option><option>Agricultural Engineering</option>
+                        <option>Petroleum Engineering</option><option>Renewable Energy Engineering</option>
+                        <option>Civil Engineering</option><option>Environmental Engineering</option>
+                    </select>
+                    <button id="saveProfile" class="btn">Save</button>
+                    <button id="cancelEdit" class="btn btn-outline">Cancel</button>
+                </div>
+            </div>
+            <div>
+                <div class="stat-card">
+                    <div class="stat-number" id="downloadCount">0</div>
+                    <p>Materials Downloaded</p>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="uploadCount">0</div>
+                    <p>Contributions Pending</p>
+                </div>
+                <div class="stat-card">
+                    <a href="resources.html" class="btn" style="width:100%;">Browse Resource Library →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>...</footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Profile management
+        let userProfile = JSON.parse(localStorage.getItem('gerama_profile')) || { name: '', program: '', img: '' };
+        function updateUI() {
+            document.getElementById('displayName').innerText = userProfile.name || 'Not set';
+            document.getElementById('displayProgram').innerHTML = `Program: ${userProfile.program || '--'}`;
+            if (userProfile.img) document.getElementById('profileImg').src = userProfile.img;
+            document.getElementById('fullName').value = userProfile.name;
+            document.getElementById('programStudy').value = userProfile.program;
+        }
+        updateUI();
+
+        document.getElementById('editBtn').addEventListener('click', () => {
+            document.getElementById('editForm').style.display = 'block';
+        });
+        document.getElementById('cancelEdit').addEventListener('click', () => {
+            document.getElementById('editForm').style.display = 'none';
+        });
+        document.getElementById('saveProfile').addEventListener('click', () => {
+            userProfile.name = document.getElementById('fullName').value;
+            userProfile.program = document.getElementById('programStudy').value;
+            localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
+            updateUI();
+            document.getElementById('editForm').style.display = 'none';
+            alert('Profile saved successfully!');
+        });
+        document.getElementById('profileUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    userProfile.img = ev.target.result;
+                    localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
+                    document.getElementById('profileImg').src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Stats
+        let downloads = localStorage.getItem('gerama_downloads') || 0;
+        let uploads = JSON.parse(localStorage.getItem('gerama_uploads'))?.length || 0;
+        document.getElementById('downloadCount').innerText = downloads;
+        document.getElementById('uploadCount').innerText = uploads;
+    </script>
+</body>
+</html>

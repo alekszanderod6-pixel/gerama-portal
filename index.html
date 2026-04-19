@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GERAMA | Home</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .news-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            box-shadow: var(--shadow);
+        }
+        .news-card:hover { transform: translateY(-5px); }
+                .news-content { padding: 1.5rem; }
+        .announcement {
+            background: #fff8e7;
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="images/geramalogo.jpg" alt="GERAMA">
+            <img src="images/uenr logo.png" alt="UENR">
+            <h2>GERAMA ACADEMIC RESOURCES</h2>
+        </div>
+        <nav>
+            <a href="index.html" class="active">Home</a>
+            <a href="resources.html">Resources</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome to GERAMA Academic Hub</h1>
+            <p>Empowering UENR students with free academic resources, past questions, and collaborative learning.</p>
+            <a href="resources.html" class="btn" style="margin-top: 1rem;">Explore Resources →</a>
+        </div>
+    </section>
+
+    <div class="container">
+        <h2>Latest News & Updates</h2>
+        <div class="grid-3" style="margin-top: 1.5rem;">
+            <div class="news-card">
+                <div class="news-content">
+                    <h3>📢 Mid-Semester Tutorials</h3>
+                    <p>Date: 4th April 2026 | Venue: Syndicate Block, SH2</p>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content">
+                    <h3>📚 New L100 Materials Added</h3>
+                    <p>All first-year engineering students can now access slides, books, past questions and video tutorial.</p>
+                </div>
+            </div>
+            <div class="news-card">
+                <div class="news-content">
+                    <h3>🎓 Team Gerama Group Studies Meeting with Bediser</h3>
+                    <p>Saturday, 18th April, 5:00 PM @ Syndicate Block.</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <h2>Announcements</h2>
+            <div class="announcement"><strong>📅 Mentorship Program</strong> – Coming Soon</div>
+            <div class="announcement"><strong>📢 Call for Tutors</strong> – Volunteer tutors needed for L100 and L200 Electrical Engineering.</div>
+            <div class="announcement"><strong>🎉 New Upload Feature</strong> – Students can now contribute their own study materials for review!</div>
+        </div>
+
+        <div class="card" style="text-align: center; margin-top: 2rem;">
+            <h3>“Promoting Academic Excellence”</h3>
+            <p>Join a community of over 300+ active members across all engineering disciplines.</p>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section"><h4>GERAMA @ UENR</h4><p>📍 Sunyani, Ghana</p><p>📧 gerama.uenr@gmail.com</p></div>
+            <div class="footer-section"><h4>Quick Links</h4><p><a href="index.html">Home</a> | <a href="about.html">About</a> | <a href="resources.html">Resources</a> | <a href="contact.html">Contact</a></p></div>
+        </div>
+        <div class="footer-bottom"><p>© 2026 GERAMA. Designed by <span class="developer">Alexander O. Dwumaah / Edem H.K. Prince</span></p></div>
+    </footer>
+</body>
+</html>

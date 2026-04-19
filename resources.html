@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resource Library | GERAMA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .filter-bar { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; }
+        .filter-bar select, .filter-bar button { padding: 0.6rem 1.2rem; border-radius: 40px; border: 1px solid #ccc; }
+        .category-tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; flex-wrap: wrap; }
+        .category-tab { padding: 0.5rem 1.2rem; cursor: pointer; border-radius: 30px; transition: 0.3s; }
+        .category-tab.active { background: #1B5E20; color: white; }
+        .material-list { background: white; border-radius: 20px; padding: 1rem; min-height: 300px; }
+        .material-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; gap: 0.5rem; }
+        .upload-section { margin-top: 2rem; background: #f8fafc; border-radius: 20px; padding: 1.5rem; }
+        .btn-sm { padding: 0.2rem 0.8rem; font-size: 0.8rem; margin-left: 0.5rem; }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="https://uenr.edu.gh/themes/custom/uenr/logo.svg" alt="UENR">
+            <h2>GERAMA ACADEMIC RESOURCES</h2>
+        </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="about.html">About</a>
+            <a href="resources.html" class="active">Resources</a>
+            <a href="contact.html">Contact</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="hero" style="min-height: 200px; padding: 2rem; margin-bottom: 2rem;">
+            <h1>📚 Academic Resource Library</h1>
+            <p>Select level, program, and course to access study materials</p>
+        </div>
+
+        <div class="filter-bar">
+            <select id="levelSelect">
+                <option value="L100">Level 100</option>
+                <option value="L200">Level 200</option>
+                <option value="L300">Level 300</option>
+                <option value="L400">Level 400</option>
+            </select>
+            <select id="programSelect">
+                <option value="Mechanical">Mechanical Engineering</option>
+                <option value="Electrical">Electrical Engineering</option>
+                <option value="Computer">Computer Engineering</option>
+                <option value="Agricultural">Agricultural Engineering</option>
+                <option value="Petroleum">Petroleum Engineering</option>
+                <option value="Renewable">Renewable Energy Engineering</option>
+                <option value="Civil">Civil Engineering</option>
+                <option value="Environmental">Environmental Engineering</option>
+            </select>
+            <select id="courseSelect" style="min-width: 200px;">
+                <option value="">-- Select Course --</option>
+            </select>
+            <button id="loadBtn" class="btn">Load Materials</button>
+        </div>
+
+        <div class="category-tabs">
+            <div class="category-tab active" data-cat="slides">📖 Slides / Reading</div>
+            <div class="category-tab" data-cat="books">📚 Books</div>
+            <div class="category-tab" data-cat="pastq">📝 Past Questions</div>
+            <div class="category-tab" data-cat="videos">🎥 Video Lectures</div>
+        </div>
+
+        <div id="materialsContainer" class="material-list">
+            <p>Select level, program, course, then click "Load Materials".</p>
+        </div>
+
+        <div class="upload-section">
+            <h3>📤 Contribute Materials (Pending Approval)</h3>
+            <form id="uploadForm" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
+                <input type="text" id="courseName" placeholder="Course Name" required style="flex:2; padding:0.6rem;">
+                <select id="uploadLevel"><option>L100</option><option>L200</option><option>L300</option><option>L400</option></select>
+                <select id="uploadProgram"><option>Mechanical</option><option>Electrical</option><option>Computer</option><option>Agricultural</option><option>Petroleum</option><option>Renewable</option><option>Civil</option><option>Environmental</option></select>
+                <select id="materialType"><option>Slides</option><option>Books</option><option>Past Questions</option><option>Videos</option></select>
+                <input type="file" id="uploadFile" style="flex:1;">
+                <button type="submit" class="btn">Submit for Review</button>
+            </form>
+            <div id="uploadStatus" style="margin-top: 0.5rem; color: green;"></div>
+        </div>
+    </div>
+
+    <footer>...</footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        const BASE_PATH = "materials/"; // change to your actual folder
+
+        // ========== DATA STRUCTURE: Level → Program → Course → Categories ==========
+        const materialsDB = {
+            L100: {
+                Mechanical: {
+                    "Engineering Mechanics": {
+                        slides: [
+                            { name: "Basic Mechanics Slides", file: "L100/Mechanical/basic_mechanics_aleks_slides.pptx" },
+                            { name: "Engineering Mechanics (Hibbeler)", file: "L100/Mechanical/engineering_mechanics_stats_r_c_hibbeler.pdf" }
+                        ],
+                        books: [
+                            { name: "Solution Manual A", file: "L100/Mechanical/solution_manual_a.pdf" },
+                            { name: "Solution Manual Mech", file: "L100/Mechanical/solution_manualmech.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Quiz 1", file: "L100/Mechanical/quiz_1.pdf" },
+                            { name: "Assignment 3", file: "L100/Mechanical/assignment3_thealeksvibes.pdf" },
+                            { name: "Assignment 4", file: "L100/Mechanical/assignment4.pdf" }
+                        ],
+                        videos: []
+                    }
+                },
+                Electrical: {
+                    "Circuit Theory": {
+                        slides: [ { name: "Intro to Circuits", file: "L100/Electrical/intro_circuits.pdf" } ],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                }
+            },
+            L200: {
+                Electrical: {
+                    "Solid State Devices": {
+                        slides: [
+                            { name: "Introduction", file: "L200/Electrical/Solid State Devices/introduction-01.pptx" },
+                            { name: "Fundamentals of Semiconductors - Part 1", file: "L200/Electrical/Solid State Devices/lect1-fundamentals-of-semiconductors.pptx" },
+                            { name: "Fundamentals of Semiconductors - Part 2", file: "L200/Electrical/Solid State Devices/lect2-fundamentals-of-semiconductors.pptx" },
+                            { name: "Carrier Flow", file: "L200/Electrical/Solid State Devices/lect3-carrier-flow.pptx" },
+                            { name: "PN Junction - Part 1", file: "L200/Electrical/Solid State Devices/lect4-pnjunction.pptx" },
+                            { name: "PN Junction - Part 2", file: "L200/Electrical/Solid State Devices/lect5-pn-junction.pptx" },
+                            { name: "Metal-Semiconductor Junction", file: "L200/Electrical/Solid State Devices/lect6-metal-semiconductor-junction.pptx" }
+                        ],
+                        books: [
+                            { name: "Written Notes", file: "L200/Electrical/Solid State Devices/written_notes.pdf" }
+                        ],
+                        pastq: [],
+                        videos: [
+                            { name: "Lecture 1 - Introduction", file: "L200/Electrical/videos/Lecture - 1.mp4" },
+                            { name: "Lecture 2 - Evolution", file: "L200/Electrical/videos/Lecture - 2.mp4" },
+                            { name: "Lecture 3 - Equilibrium", file: "L200/Electrical/videos/Lecture - 3.mp4" }
+                        ]
+                    },
+                    "Power Systems": {
+                        slides: [ { name: "Power System Basics", file: "L200/Electrical/power_systems_intro.pdf" } ],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                }
+            }
+        };
+
+        let currentLevel = "L100";
+        let currentProgram = "Mechanical";
+        let currentCourse = "";
+        let currentCategory = "slides";
+
+        // Populate course dropdown based on level & program
+        function updateCourseDropdown() {
+            const courseSelect = document.getElementById('courseSelect');
+            const courses = materialsDB[currentLevel]?.[currentProgram] || {};
+            courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+            Object.keys(courses).forEach(course => {
+                const option = document.createElement('option');
+                option.value = course;
+                option.textContent = course;
+                courseSelect.appendChild(option);
+            });
+            currentCourse = "";
+            courseSelect.value = "";
+        }
+
+        // Render materials for selected course and category
+        function renderMaterials() {
+            if (!currentCourse) {
+                document.getElementById('materialsContainer').innerHTML = '<p>Please select a course.</p>';
+                return;
+            }
+            const courseData = materialsDB[currentLevel]?.[currentProgram]?.[currentCourse];
+            if (!courseData || !courseData[currentCategory] || courseData[currentCategory].length === 0) {
+                document.getElementById('materialsContainer').innerHTML = `<p>No ${currentCategory} materials available for ${currentCourse} (${currentProgram}, ${currentLevel}).</p>`;
+                return;
+            }
+            let html = '<div>';
+            courseData[currentCategory].forEach(item => {
+                const fileUrl = BASE_PATH + item.file;
+                html += `
+                    <div class="material-item">
+                        <span><strong>${item.name}</strong></span>
+                        <span>
+                            <a href="${fileUrl}" class="btn-sm view-btn" style="background:#eef2ff; padding:0.2rem 0.8rem; border-radius:6px; text-decoration:none;" target="_blank">View</a>
+                            <a href="${fileUrl}" class="btn-sm download-btn" style="background:#1B5E20; color:white; padding:0.2rem 0.8rem; border-radius:6px; text-decoration:none;" download>Download</a>
+                        </span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            document.getElementById('materialsContainer').innerHTML = html;
+
+            // Track downloads (optional)
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    let current = parseInt(localStorage.getItem('gerama_downloads') || '0');
+                    localStorage.setItem('gerama_downloads', current + 1);
+                });
+            });
+        }
+
+        // Event listeners
+        document.getElementById('levelSelect').addEventListener('change', () => {
+            currentLevel = document.getElementById('levelSelect').value;
+            updateCourseDropdown();
+        });
+        document.getElementById('programSelect').addEventListener('change', () => {
+            currentProgram = document.getElementById('programSelect').value;
+            updateCourseDropdown();
+        });
+        document.getElementById('courseSelect').addEventListener('change', (e) => {
+            currentCourse = e.target.value;
+        });
+        document.getElementById('loadBtn').addEventListener('click', () => {
+            currentLevel = document.getElementById('levelSelect').value;
+            currentProgram = document.getElementById('programSelect').value;
+            currentCourse = document.getElementById('courseSelect').value;
+            if (!currentCourse) {
+                alert('Please select a course.');
+                return;
+            }
+            renderMaterials();
+        });
+
+        // Category tabs
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentCategory = tab.dataset.cat;
+                if (currentCourse) renderMaterials();
+            });
+        });
+
+        // Upload simulation (same as before)
+        let pendingUploads = JSON.parse(localStorage.getItem('gerama_uploads')) || [];
+        document.getElementById('uploadForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const course = document.getElementById('courseName').value;
+            const level = document.getElementById('uploadLevel').value;
+            const program = document.getElementById('uploadProgram').value;
+            const type = document.getElementById('materialType').value;
+            const fileInput = document.getElementById('uploadFile');
+            let fileName = fileInput.files[0]?.name || 'sample.pdf';
+            pendingUploads.push({ course, level, program, type, fileName, date: new Date().toLocaleString() });
+            localStorage.setItem('gerama_uploads', JSON.stringify(pendingUploads));
+            document.getElementById('uploadStatus').innerHTML = '✓ Thank you! Your contribution has been submitted for review.';
+            setTimeout(() => document.getElementById('uploadStatus').innerHTML = '', 3000);
+            e.target.reset();
+        });
+
+        // Initial load
+        updateCourseDropdown();
+    </script>
+</body>
+</html>
