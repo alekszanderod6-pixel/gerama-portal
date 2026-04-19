@@ -308,38 +308,436 @@ nav a:hover:before, nav a.active:before {
 
 /* Footer */
 footer {
-    background: var(--primary-dark);
-    color: #c0d6c0;
-    padding: 3rem 5% 1.5rem;
-    margin-top: 3rem;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+    color: white;
+    padding: 4rem 5% 2rem;
+    margin-top: 4rem;
+    position: relative;
+    overflow: hidden;
 }
+
+footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), #FFD54F, var(--accent));
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+}
+
 .footer-content {
     max-width: 1300px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 3rem;
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 1;
 }
-.footer-section h4 { color: white; margin-bottom: 1rem; }
-.footer-section a { color: #c0d6c0; text-decoration: none; }
-.footer-section a:hover { color: var(--accent); }
+
+.footer-section {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s ease;
+}
+
+.footer-section:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,0.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.footer-section h4 { 
+    color: var(--accent); 
+    margin-bottom: 1.5rem; 
+    font-size: 1.2rem;
+    position: relative;
+    padding-bottom: 0.8rem;
+}
+
+.footer-section h4::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+}
+
+.footer-section p {
+    color: rgba(255,255,255,0.9);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 0.8rem;
+}
+
+.footer-section a { 
+    color: rgba(255,255,255,0.8); 
+    text-decoration: none; 
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.footer-section a:hover { 
+    color: var(--accent); 
+    transform: translateX(5px);
+}
+
+.footer-section a i {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.footer-section a:hover i {
+    opacity: 1;
+}
+
+.footer-social {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.footer-social a {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.footer-social a:hover {
+    background: var(--accent);
+    color: var(--primary-dark);
+    transform: translateY(-3px);
+}
+
 .footer-bottom {
     text-align: center;
-    padding-top: 1.5rem;
+    padding-top: 2rem;
     border-top: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+    z-index: 1;
 }
-.developer { color: var(--accent); font-weight: 600; }
+
+.footer-bottom p {
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 0.5rem;
+}
+
+.developer { 
+    color: var(--accent); 
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.developer:hover {
+    text-decoration: underline;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
-    header { flex-direction: column; gap: 1rem; text-align: center; }
-    nav { justify-content: center; }
-    h1 { font-size: 2rem; }
-    .hero { padding: 2rem 1rem; }
-    .container { padding: 1rem; }
-    .sidebar-drawer { width: 280px; }
+    header { 
+        flex-direction: column; 
+        gap: 1rem; 
+        text-align: center; 
+        padding: 1rem 3%;
+    }
+    
+    .logo-container {
+        margin-bottom: 0.5rem;
+    }
+    
+    .logo-container h2 {
+        font-size: 1rem;
+    }
+    
+    .logo-container img {
+        width: 40px;
+        height: 40px;
+    }
+    
+    nav { 
+        justify-content: center; 
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    nav a {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    h1 { 
+        font-size: 2rem; 
+        margin-bottom: 1rem;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    h3 {
+        font-size: 1.2rem;
+    }
+    
+    .hero { 
+        padding: 3rem 1rem 2rem;
+        min-height: 300px;
+    }
+    
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+    
+    .hero p {
+        font-size: 1rem;
+    }
+    
+    .container { 
+        padding: 1rem 3%;
+    }
+    
+    .sidebar-drawer { 
+        width: 85%;
+        max-width: 320px;
+    }
+    
+    .sidebar-drawer.open {
+        left: 0;
+    }
+    
+    .drawer-header {
+        padding: 1.5rem 1rem;
+    }
+    
+    .drawer-header img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .drawer-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .drawer-header p {
+        font-size: 0.8rem;
+    }
+    
+    .tab-btn {
+        font-size: 0.7rem;
+        padding: 0.6rem 0.3rem;
+    }
+    
+    .tab-btn i {
+        font-size: 0.9rem;
+    }
+    
+    .card {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .grid-2 { 
+        grid-template-columns: 1fr; 
+        gap: 1.5rem;
+    }
+    
+    .grid-3 { 
+        grid-template-columns: 1fr; 
+        gap: 1rem;
+    }
+    
+    /* Footer Mobile Styles */
+    footer {
+        padding: 3rem 3% 1.5rem;
+        margin-top: 3rem;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .footer-section {
+        padding: 1.5rem;
+    }
+    
+    .footer-section h4 {
+        font-size: 1.1rem;
+    }
+    
+    .footer-section p,
+    .footer-section a {
+        font-size: 0.9rem;
+    }
+    
+    .footer-social a {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .footer-bottom p {
+        font-size: 0.8rem;
+    }
+    
+    /* Forms Mobile */
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Profile Section Mobile */
+    .profile-field input,
+    .profile-field select {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .save-profile-btn {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Bottom Tabs Mobile */
+    .bottom-tab-btn {
+        font-size: 0.7rem;
+        padding: 0.6rem 0.3rem;
+    }
+    
+    .bottom-tab-btn i {
+        font-size: 0.9rem;
+    }
 }
+
+@media (max-width: 480px) {
+    header {
+        padding: 0.8rem 2%;
+    }
+    
+    .logo-container img {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .logo-container h2 {
+        font-size: 0.9rem;
+    }
+    
+    nav {
+        gap: 0.5rem;
+    }
+    
+    nav a {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+    }
+    
+    .hero {
+        padding: 2rem 1rem 1.5rem;
+        min-height: 250px;
+    }
+    
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+    
+    .hero p {
+        font-size: 0.9rem;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    h2 {
+        font-size: 1.3rem;
+    }
+    
+    .sidebar-drawer {
+        width: 90%;
+    }
+    
+    .drawer-header {
+        padding: 1rem;
+    }
+    
+    .drawer-header img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .tab-btn {
+        font-size: 0.65rem;
+        padding: 0.5rem 0.2rem;
+    }
+    
+    .tab-btn i {
+        font-size: 0.8rem;
+    }
+    
+    .card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.85rem;
+    }
+    
+    footer {
+        padding: 2rem 2% 1rem;
+    }
+    
+    .footer-section {
+        padding: 1rem;
+    }
+    
+    .footer-section h4 {
+        font-size: 1rem;
+    }
+    
+    .footer-section p,
+    .footer-section a {
+        font-size: 0.85rem;
+    }
+}
+
 /* Edit profile panel inside drawer */
 .edit-profile-panel {
     background: white;
@@ -444,43 +842,81 @@ footer {
     margin-right: 0.5rem;
 }
 
-/* Sidebar Tabs */
+/* Sidebar Tabs - Professional Design */
 .drawer-tabs {
     display: flex;
     padding: 0 1rem;
     margin-bottom: 1rem;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 2px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.1);
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
 }
 
 .tab-btn {
     flex: 1;
-    padding: 0.8rem 0.5rem;
+    padding: 1rem 0.5rem;
     background: transparent;
     border: none;
-    border-bottom: 2px solid transparent;
-    color: rgba(255,255,255,0.9);
+    border-bottom: 3px solid transparent;
+    color: rgba(255,255,255,0.7);
     cursor: pointer;
-    transition: all 0.3s;
-    font-size: 0.8rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.75rem;
     text-align: center;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    position: relative;
+    font-weight: 500;
+}
+
+.tab-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .tab-btn:hover {
     color: white;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.08);
+    transform: translateY(-1px);
+}
+
+.tab-btn:hover::before {
+    opacity: 1;
 }
 
 .tab-btn.active {
     color: var(--accent);
     border-bottom-color: var(--accent);
-    background: rgba(255,255,255,0.05);
+    background: rgba(255,193,7,0.1);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    font-weight: 600;
+}
+
+.tab-btn.active::before {
+    opacity: 1;
+    background: linear-gradient(135deg, rgba(255,193,7,0.1), rgba(255,193,7,0.05));
 }
 
 .tab-btn i {
     display: block;
-    font-size: 1rem;
-    margin-bottom: 0.3rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+    transition: transform 0.3s ease;
+}
+
+.tab-btn:hover i {
+    transform: scale(1.1);
+}
+
+.tab-btn.active i {
+    transform: scale(1.15);
 }
 
 /* Tab Content */
@@ -552,6 +988,73 @@ footer {
 .save-profile-btn:hover {
     background: #FFD54F;
     transform: translateY(-1px);
+}
+
+/* Profile Picture Upload */
+.profile-picture-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-picture-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.profile-picture-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1B5E20, #2E7D32);
+    border: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.profile-picture-preview:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255,193,7,0.3);
+}
+
+.profile-picture-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-picture-preview i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.profile-picture-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.8rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.profile-picture-upload-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+.profile-picture-upload-btn i {
+    font-size: 0.9rem;
 }
 
 /* Dashboard Actions */

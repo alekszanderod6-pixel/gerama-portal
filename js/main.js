@@ -155,6 +155,20 @@
                     <div class="tab-content" id="profile-tab">
                         <div class="profile-edit-section">
                             <h4>Edit Profile</h4>
+                            
+                            <!-- Profile Picture Upload -->
+                            <div class="profile-picture-section">
+                                <div class="profile-picture-container">
+                                    <div id="profilePicturePreview" class="profile-picture-preview">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <label for="profilePictureInput" class="profile-picture-upload-btn">
+                                        <i class="fas fa-camera"></i> Change Photo
+                                    </label>
+                                    <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+                                </div>
+                            </div>
+                            
                             <div class="profile-field">
                                 <label>Name</label>
                                 <input type="text" id="profileNameInput" placeholder="Enter your name">
@@ -255,13 +269,19 @@
         const nameSpan = document.getElementById('drawerName');
         const progSpan = document.getElementById('drawerProgram');
         
-        // Use emoji for unknown users, otherwise use first letter
+        // Handle avatar display
         if (avatar) {
-            if (profile.name && profile.name.trim()) {
+            if (profile.img && profile.img.startsWith('data:')) {
+                // Custom uploaded image
+                avatar.innerHTML = `<img src="${profile.img}" alt="Profile" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                avatar.style.background = 'transparent';
+            } else if (profile.name && profile.name.trim()) {
+                // Use first letter with gradient
                 avatar.textContent = profile.name.charAt(0).toUpperCase();
                 avatar.style.background = 'linear-gradient(135deg, #1B5E20, #2E7D32)';
             } else {
-                avatar.textContent = '👤';
+                // Default emoji
+                avatar.textContent = 'ð';
                 avatar.style.background = 'transparent';
             }
         }
@@ -319,11 +339,53 @@
         const profile = JSON.parse(localStorage.getItem('gerama_profile') || '{"name":"","program":"","img":""}');
         const profileNameInput = document.getElementById('profileNameInput');
         const profileProgramSelect = document.getElementById('profileProgramSelect');
+        const profilePicturePreview = document.getElementById('profilePicturePreview');
         
         if (profileNameInput) profileNameInput.value = profile.name || '';
         if (profileProgramSelect) profileProgramSelect.value = profile.program || '';
+        
+        // Load profile picture
+        if (profilePicturePreview) {
+            if (profile.img && profile.img.startsWith('data:')) {
+                profilePicturePreview.innerHTML = `<img src="${profile.img}" alt="Profile">`;
+            } else if (profile.name && profile.name.trim()) {
+                profilePicturePreview.innerHTML = profile.name.charAt(0).toUpperCase();
+                profilePicturePreview.style.background = 'linear-gradient(135deg, #1B5E20, #2E7D32)';
+            } else {
+                profilePicturePreview.innerHTML = '<i class="fas fa-user"></i>';
+                profilePicturePreview.style.background = 'transparent';
+            }
+        }
     }
 
+    // Profile picture upload functionality
+    function setupProfilePictureUpload() {
+        const profilePictureInput = document.getElementById('profilePictureInput');
+        const profilePicturePreview = document.getElementById('profilePicturePreview');
+        
+        if (profilePictureInput && profilePicturePreview) {
+            profilePictureInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imageData = e.target.result;
+                        profilePicturePreview.innerHTML = `<img src="${imageData}" alt="Profile">`;
+                        
+                        // Save to localStorage
+                        const profile = JSON.parse(localStorage.getItem('gerama_profile') || '{"name":"","program":"","img":""}');
+                        profile.img = imageData;
+                        localStorage.setItem('gerama_profile', JSON.stringify(profile));
+                        
+                        // Update sidebar avatar
+                        updateSidebarProfile();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    }
+    
     // Save profile functionality
     function setupProfileSave() {
         const saveProfileBtn = document.getElementById('saveProfileBtn');
@@ -335,7 +397,10 @@
                 
                 if (profileNameInput && profileNameInput.value.trim()) {
                     profile.name = profileNameInput.value.trim();
-                    profile.img = 'https://via.placeholder.com/80?text=' + profile.name.charAt(0).toUpperCase();
+                    // Only update img if it's not already a custom image
+                    if (!profile.img || !profile.img.startsWith('data:')) {
+                        profile.img = 'https://via.placeholder.com/80?text=' + profile.name.charAt(0).toUpperCase();
+                    }
                 }
                 
                 if (profileProgramSelect && profileProgramSelect.value) {
@@ -344,6 +409,7 @@
                 
                 localStorage.setItem('gerama_profile', JSON.stringify(profile));
                 updateSidebarProfile();
+                loadProfileData(); // Reload to update preview
                 
                 // Show success message
                 const originalText = saveProfileBtn.innerHTML;
@@ -420,6 +486,7 @@
         updateSidebarProfile();
         initializeTabs();
         loadProfileData();
+        setupProfilePictureUpload();
         setupProfileSave();
         updateStats();
     }, 100);
