@@ -418,12 +418,9 @@
                             videos: [
                                 { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
                                 { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
-                        },
-                        "Engineering Mathematics": {
-                            slides: [],
-                            books: [],
-                            pastq: [],
-                            videos: []
+                                { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" },
+                                { name: "Relative Min/Max Points 3", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points3aleks.mp4" }
+                            ]
                         },
                         "Differential Equations": {
                             slides: [],
@@ -492,8 +489,8 @@
         document.addEventListener('click', (e) => {
             const courseSelect = document.getElementById('courseSelect');
             
-            if (!courseSelect.contains(e.target) && !courseDropdown.contains(e.target)) {
-                courseDropdown.style.display = 'none';
+            if (!courseSelect.contains(e.target)) {
+                courseSelect.style.display = 'none';
             }
         });
 
