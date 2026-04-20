@@ -357,6 +357,42 @@
             }
         }
     }
+    
+    // Enhanced profile save functionality
+    function saveProfileData() {
+        const profileNameInput = document.getElementById('profileNameInput');
+        const profileProgramSelect = document.getElementById('profileProgramSelect');
+        const profilePicturePreview = document.getElementById('profilePicturePreview');
+        
+        // Get current profile data
+        let profile = JSON.parse(localStorage.getItem('gerama_profile') || '{"name":"","program":"","img":""}');
+        
+        // Update profile data
+        if (profileNameInput && profileNameInput.value.trim()) {
+            profile.name = profileNameInput.value.trim();
+        }
+        if (profileProgramSelect && profileProgramSelect.value) {
+            profile.program = profileProgramSelect.value;
+        }
+        
+        // Save the updated profile
+        localStorage.setItem('gerama_profile', JSON.stringify(profile));
+        
+        // Update sidebar profile display
+        updateSidebarProfile();
+        
+        // Show success message
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        if (saveProfileBtn) {
+            const originalText = saveProfileBtn.innerHTML;
+            saveProfileBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+            saveProfileBtn.style.background = '#4CAF50';
+            setTimeout(() => {
+                saveProfileBtn.innerHTML = originalText;
+                saveProfileBtn.style.background = '';
+            }, 2000);
+        }
+    }
 
     // Profile picture upload functionality
     function setupProfilePictureUpload() {
