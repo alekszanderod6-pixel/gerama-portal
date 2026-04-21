@@ -168,7 +168,7 @@
             messageDiv.innerHTML = '<span class="success">⏳ Creating account...</span>';
             
             try {
-                // Sign up with Supabase
+                // Sign up with Supabase (auto-confirm for testing)
                 const { data, error } = await window.geramaSupabase.auth.signUp({
                     email: email,
                     password: password,
@@ -176,7 +176,8 @@
                         data: {
                             username: username,
                             invite_code_verified: true
-                        }
+                        },
+                        emailRedirectTo: window.location.origin + '/login.html'
                     }
                 });
                 
@@ -192,7 +193,7 @@
                     img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
                 }));
                 
-                messageDiv.innerHTML = '<span class="success">✅ Account created! Check your email to verify, then login.</span>';
+                messageDiv.innerHTML = '<span class="success">✅ Account created! You can now login immediately.</span>';
                 
                 // Redirect to login after 3 seconds
                 setTimeout(() => { window.location.href = 'login.html'; }, 3000);
