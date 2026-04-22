@@ -3,61 +3,66 @@
     const currentPage = window.location.pathname.split('/').pop();
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html';
     
-    // Force redirect to login for new visitors (clear all sessions)
-    if (!isAuthPage) {
-        // Clear all possible session storage
-        sessionStorage.clear();
-        localStorage.removeItem('gerama_loggedIn');
-        localStorage.removeItem('gerama_profile');
-        // Force redirect to login
-        window.location.href = 'login.html';
-        return;
-    }
+    // Prevent infinite redirects by checking if we just came from auth page
+    const cameFromAuth = sessionStorage.getItem('gerama_came_from_auth') === 'true';
     
-    // Initialize Supabase if available
-    if (typeof window.geramaSupabase !== 'undefined') {
-        // Check current session
-        window.geramaSupabase.auth.getSession().then(({ data: { session } }) => {
-            const isLoggedIn = !!session;
-            
-            // Always redirect to login if not on auth page, unless user is actually logged in
-            if (!isAuthPage) {
-                if (!isLoggedIn) {
-                    window.location.href = 'login.html';
-                    return;
+    // Add a small delay to stabilize page loading
+    setTimeout(() => {
+        // Initialize Supabase if available
+        if (typeof window.geramaSupabase !== 'undefined') {
+            // Check current session
+            window.geramaSupabase.auth.getSession().then(({ data: { session } }) => {
+                const isLoggedIn = !!session;
+                
+                // Handle redirects more carefully
+                if (!isAuthPage) {
+                    if (!isLoggedIn && !cameFromAuth) {
+                        // Only redirect if not logged in and didn't just come from auth
+                        sessionStorage.setItem('gerama_came_from_auth', 'true');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    // Clear the flag after successful auth check
+                    if (isLoggedIn) {
+                        sessionStorage.removeItem('gerama_came_from_auth');
+                        // If logged in, show sidebar elements
+                        initializeSidebar();
+                        updateSidebarProfile();
+                    }
                 }
-                // If logged in, show sidebar elements
-                initializeSidebar();
-                updateSidebarProfile();
-            }
-        });
-        
-        // Listen for auth changes
-        window.geramaSupabase.auth.onAuthStateChange((event, session) => {
-            const isLoggedIn = !!session;
+            });
             
-            if (event === 'SIGNED_OUT' && !isAuthPage) {
-                sessionStorage.removeItem('gerama_loggedIn');
-                window.location.href = 'login.html';
-            } else if (event === 'SIGNED_IN' && !isAuthPage) {
-                sessionStorage.setItem('gerama_loggedIn', 'true');
-                initializeSidebar();
-                updateSidebarProfile();
-            }
-        });
-    } else {
-        // Fallback to sessionStorage if Supabase not loaded
-        const isLoggedIn = sessionStorage.getItem('gerama_loggedIn') === 'true';
-        if (!isAuthPage) {
-            if (!isLoggedIn) {
+            // Listen for auth changes
+            window.geramaSupabase.auth.onAuthStateChange((event, session) => {
+                const isLoggedIn = !!session;
+                
+                if (event === 'SIGNED_OUT' && !isAuthPage) {
+                    sessionStorage.clear();
+                    localStorage.removeItem('gerama_loggedIn');
+                    localStorage.removeItem('gerama_profile');
+                    window.location.href = 'login.html';
+                } else if (event === 'SIGNED_IN' && !isAuthPage) {
+                    sessionStorage.setItem('gerama_loggedIn', 'true');
+                    sessionStorage.removeItem('gerama_came_from_auth');
+                    initializeSidebar();
+                    updateSidebarProfile();
+                }
+            });
+        } else {
+            // Fallback to sessionStorage if Supabase not loaded
+            const isLoggedIn = sessionStorage.getItem('gerama_loggedIn') === 'true';
+            if (!isAuthPage && !isLoggedIn && !cameFromAuth) {
+                sessionStorage.setItem('gerama_came_from_auth', 'true');
                 window.location.href = 'login.html';
                 return;
             }
-            // If logged in, show sidebar
-            initializeSidebar();
-            updateSidebarProfile();
+            if (isLoggedIn && !isAuthPage) {
+                sessionStorage.removeItem('gerama_came_from_auth');
+                initializeSidebar();
+                updateSidebarProfile();
+            }
         }
-    }
+    }, 100); // 100ms delay to stabilize
 
     function initializeSidebar() {
         const header = document.querySelector('header');
