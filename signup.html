@@ -159,8 +159,10 @@
                         friendlyMessage = 'This email is already registered. Please login instead.';
                     } else if (error.message.toLowerCase().includes('password')) {
                         friendlyMessage = 'Password is too weak. Please choose a stronger password.';
+                    } else if (error.message.toLowerCase().includes('invalid') && error.message.toLowerCase().includes('email')) {
+                        friendlyMessage = 'Email format issue. Please check your email and try again.';
                     } else if (error.message.toLowerCase().includes('invalid')) {
-                        friendlyMessage = 'Invalid email format. Please check your email.';
+                        friendlyMessage = 'Registration failed. Please check your information and try again.';
                     }
                     messageDiv.innerHTML = `<span class="error"> ${friendlyMessage}</span>`;
                     return;
