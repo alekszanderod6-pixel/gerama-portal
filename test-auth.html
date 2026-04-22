@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Test | GERAMA Portal</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+</head>
+<body>
+    <h1>Authentication Test</h1>
+    <div id="results"></div>
+    
+    <button onclick="testSupabaseConnection()">Test Supabase Connection</button>
+    <button onclick="testSignup()">Test Signup</button>
+    <button onclick="testLogin()">Test Login</button>
+    
+    <script>
+        async function testSupabaseConnection() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Testing Supabase Connection...</h2>';
+            
+            try {
+                if (typeof window.geramaSupabase === 'undefined') {
+                    results.innerHTML += '<p>❌ Supabase not loaded</p>';
+                    return;
+                }
+                
+                results.innerHTML += '<p>✅ Supabase loaded</p>';
+                
+                // Test basic connection
+                const { data, error } = await window.geramaSupabase.auth.getSession();
+                if (error) {
+                    results.innerHTML += `<p>❌ Connection error: ${error.message}</p>`;
+                } else {
+                    results.innerHTML += '<p>✅ Connection successful</p>';
+                }
+                
+            } catch (err) {
+                results.innerHTML += `<p>❌ Test error: ${err.message}</p>`;
+            }
+        }
+        
+        async function testSignup() {
+            const results = document.getElementById('results');
+            results.innerHTML += '<h2>Testing Signup...</h2>';
+            
+            try {
+                const { data, error } = await window.geramaSupabase.auth.signUp({
+                    email: 'test' + Date.now() + '@example.com',
+                    password: 'password123',
+                    options: {
+                        data: {
+                            username: 'testuser',
+                            invite_code_verified: true
+                        }
+                    }
+                });
+                
+                if (error) {
+                    results.innerHTML += `<p>❌ Signup error: ${error.message}</p>`;
+                } else {
+                    results.innerHTML += '<p>✅ Signup successful</p>';
+                    results.innerHTML += `<p>User ID: ${data.user?.id}</p>`;
+                    results.innerHTML += `<p>Email confirmed: ${data.user?.email_confirmed_at ? 'Yes' : 'No'}</p>`;
+                }
+                
+            } catch (err) {
+                results.innerHTML += `<p>❌ Signup test error: ${err.message}</p>`;
+            }
+        }
+        
+        async function testLogin() {
+            const results = document.getElementById('results');
+            results.innerHTML += '<h2>Testing Login...</h2>';
+            
+            try {
+                const { data, error } = await window.geramaSupabase.auth.signInWithPassword({
+                    email: 'test' + Date.now() + '@example.com',
+                    password: 'password123'
+                });
+                
+                if (error) {
+                    results.innerHTML += `<p>❌ Login error: ${error.message}</p>`;
+                } else {
+                    results.innerHTML += '<p>✅ Login successful</p>';
+                    results.innerHTML += `<p>User ID: ${data.user?.id}</p>`;
+                    results.innerHTML += `<p>Session: ${data.session ? 'Active' : 'None'}</p>`;
+                }
+                
+            } catch (err) {
+                results.innerHTML += `<p>❌ Login test error: ${err.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
