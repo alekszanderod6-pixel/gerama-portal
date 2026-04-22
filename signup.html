@@ -183,7 +183,16 @@
                 });
                 
                 if (error) {
-                    messageDiv.innerHTML = `<span class="error">❌ ${error.message}</span>`;
+                    // Hide technical errors from users, show friendly messages
+                    let friendlyMessage = 'Registration failed. Please try again.';
+                    if (error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('already')) {
+                        friendlyMessage = 'This email is already registered. Please login instead.';
+                    } else if (error.message.toLowerCase().includes('api') || error.message.toLowerCase().includes('pin')) {
+                        friendlyMessage = 'Registration temporarily unavailable. Please try again in a few minutes.';
+                    } else if (error.message.toLowerCase().includes('password')) {
+                        friendlyMessage = 'Password is too weak. Please choose a stronger password.';
+                    }
+                    messageDiv.innerHTML = `<span class="error"> ${friendlyMessage}</span>`;
                     return;
                 }
                 

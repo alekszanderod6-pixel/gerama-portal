@@ -136,7 +136,14 @@
                 });
                 
                 if (error) {
-                    errorMsg.innerText = error.message;
+                    // Hide technical errors from users, show friendly messages
+                    if (error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('credentials')) {
+                        errorMsg.innerText = 'Invalid email or password. Please try again.';
+                    } else if (error.message.toLowerCase().includes('api') || error.message.toLowerCase().includes('pin')) {
+                        errorMsg.innerText = 'Login temporarily unavailable. Please try again in a few minutes.';
+                    } else {
+                        errorMsg.innerText = 'Login failed. Please check your credentials and try again.';
+                    }
                     loginCard.classList.add('shake');
                     setTimeout(() => loginCard.classList.remove('shake'), 500);
                     document.getElementById('password').value = '';
