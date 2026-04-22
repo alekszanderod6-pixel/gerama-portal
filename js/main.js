@@ -3,10 +3,15 @@
     const currentPage = window.location.pathname.split('/').pop();
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html';
     
-    // Clear any existing sessions for new visitors (except on auth pages)
-    if (!isAuthPage && !sessionStorage.getItem('gerama_session_checked')) {
-        sessionStorage.removeItem('gerama_loggedIn');
-        sessionStorage.setItem('gerama_session_checked', 'true');
+    // Force redirect to login for new visitors (clear all sessions)
+    if (!isAuthPage) {
+        // Clear all possible session storage
+        sessionStorage.clear();
+        localStorage.removeItem('gerama_loggedIn');
+        localStorage.removeItem('gerama_profile');
+        // Force redirect to login
+        window.location.href = 'login.html';
+        return;
     }
     
     // Initialize Supabase if available
