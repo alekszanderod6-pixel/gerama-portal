@@ -3,34 +3,25 @@
     const currentPage = window.location.pathname.split('/').pop();
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html';
     
-    // Force login page as landing page - redirect all non-auth pages to login
+    // Only run auth logic on non-auth pages to prevent conflicts
     if (!isAuthPage) {
-        window.location.href = 'login.html';
-        return;
-    }
-    
-    // Only run auth logic on auth pages
-    if (isAuthPage) {
-        // Initialize Supabase if available
-        if (typeof window.geramaSupabase !== 'undefined') {
-            // Listen for auth changes
-            window.geramaSupabase.auth.onAuthStateChange((event, session) => {
-                const isLoggedIn = !!session;
-                
-                if (event === 'SIGNED_IN') {
-                    sessionStorage.setItem('gerama_loggedIn', 'true');
-                    window.location.href = 'index.html';
-                } else if (event === 'SIGNED_OUT') {
-                    sessionStorage.clear();
-                    localStorage.removeItem('gerama_loggedIn');
-                    localStorage.removeItem('gerama_profile');
-                }
-            });
+        // Check if user is logged in
+        const isLoggedIn = sessionStorage.getItem('gerama_loggedIn') === 'true';
+        
+        if (!isLoggedIn) {
+            // Only redirect if not logged in and not on auth page
+            window.location.href = 'login.html';
+            return;
         }
         
-        // Add logout functionality for logged-in users on other pages
+        // Initialize sidebar for logged-in users
+        initializeSidebar();
+        updateSidebarProfile();
+        
+        // Add logout functionality
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
+            logoutBtn.style.display = 'inline-block';
             logoutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 if (typeof window.geramaSupabase !== 'undefined') {
@@ -40,6 +31,18 @@
                 localStorage.removeItem('gerama_loggedIn');
                 localStorage.removeItem('gerama_profile');
                 window.location.href = 'login.html';
+            });
+        }
+        
+        // Listen for auth changes only on non-auth pages
+        if (typeof window.geramaSupabase !== 'undefined') {
+            window.geramaSupabase.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_OUT') {
+                    sessionStorage.clear();
+                    localStorage.removeItem('gerama_loggedIn');
+                    localStorage.removeItem('gerama_profile');
+                    window.location.href = 'login.html';
+                }
             });
         }
     }
