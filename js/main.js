@@ -5,37 +5,34 @@
     
     // Only run auth logic on non-auth pages to prevent conflicts
     if (!isAuthPage) {
-        // Check if user is logged in
-        const isLoggedIn = sessionStorage.getItem('gerama_loggedIn') === 'true';
-        
-        if (!isLoggedIn) {
-            // Only redirect if not logged in and not on auth page
-            window.location.href = 'login.html';
-            return;
-        }
-        
-        // Initialize sidebar for logged-in users
-        initializeSidebar();
-        updateSidebarProfile();
-        
-        // Add logout functionality
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.style.display = 'inline-block';
-            logoutBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                if (typeof window.geramaSupabase !== 'undefined') {
-                    await window.geramaSupabase.auth.signOut();
-                }
-                sessionStorage.clear();
-                localStorage.removeItem('gerama_loggedIn');
-                localStorage.removeItem('gerama_profile');
-                window.location.href = 'login.html';
-            });
-        }
-        
-        // Listen for auth changes only on non-auth pages
+        // Check if user is logged in using Supabase
         if (typeof window.geramaSupabase !== 'undefined') {
+            window.geramaSupabase.auth.getSession().then(({ data: { session } }) => {
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                // Initialize sidebar for logged-in users
+                initializeSidebar();
+                updateSidebarProfile();
+                
+                // Add logout functionality
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.style.display = 'inline-block';
+                    logoutBtn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        await window.geramaSupabase.auth.signOut();
+                        sessionStorage.clear();
+                        localStorage.removeItem('gerama_loggedIn');
+                        localStorage.removeItem('gerama_profile');
+                        window.location.href = 'login.html';
+                    });
+                }
+            });
+            
+            // Listen for auth changes only on non-auth pages
             window.geramaSupabase.auth.onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_OUT') {
                     sessionStorage.clear();

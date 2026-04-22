@@ -129,31 +129,40 @@
             errorMsg.innerText = 'Signing in...';
             
             try {
-                // Use fallback authentication since Supabase key is invalid
-                const storedUser = localStorage.getItem('fallback_user_' + email);
-                if (storedUser) {
-                    const user = JSON.parse(storedUser);
-                    // Store session and profile
-                    sessionStorage.setItem('gerama_loggedIn', 'true');
-                    
-                    // Update profile in localStorage for sidebar
-                    const username = user.user_metadata.username || email.split('@')[0];
-                    localStorage.setItem('gerama_profile', JSON.stringify({
-                        name: username,
-                        program: 'GERAMA Member',
-                        img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
-                    }));
-                    
-                    // Redirect to home page
-                    window.location.href = 'index.html';
-                    return;
-                } else {
-                    errorMsg.innerText = 'User not found. Please sign up first.';
+                // Use proper Supabase authentication
+                const { data, error } = await window.geramaSupabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    errorMsg.innerText = error.message;
                     loginCard.classList.add('shake');
                     setTimeout(() => loginCard.classList.remove('shake'), 500);
                     document.getElementById('password').value = '';
                     return;
                 }
+                
+                // Check if user has invite code verified
+                if (!data.user.user_metadata.invite_code_verified) {
+                    errorMsg.innerText = 'Account not verified. Please contact admin.';
+                    await window.geramaSupabase.auth.signOut();
+                    return;
+                }
+                
+                // Store session and profile
+                sessionStorage.setItem('gerama_loggedIn', 'true');
+                
+                // Update profile in localStorage for sidebar
+                const username = data.user.user_metadata.username || email.split('@')[0];
+                localStorage.setItem('gerama_profile', JSON.stringify({
+                    name: username,
+                    program: 'GERAMA Member',
+                    img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
+                }));
+                
+                // Redirect to home page
+                window.location.href = 'index.html';
                 
             } catch (err) {
                 errorMsg.innerText = 'Login failed. Please try again.';
