@@ -140,7 +140,7 @@
             messageDiv.innerHTML = '<span class="success">Creating account...</span>';
             
             try {
-                // Sign up with Supabase
+                // Sign up with Supabase (auto-confirm by setting email_confirm to false)
                 const { data, error } = await window.geramaSupabase.auth.signUp({
                     email: email,
                     password: password,
@@ -166,17 +166,45 @@
                     return;
                 }
                 
-                // Store user profile in localStorage for sidebar
-                localStorage.setItem('gerama_profile', JSON.stringify({
-                    name: username,
-                    program: 'GERAMA Member',
-                    img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
-                }));
-                
-                messageDiv.innerHTML = '<span class="success">Account created! You can now login immediately.</span>';
-                
-                // Redirect to login after 3 seconds
-                setTimeout(() => { window.location.href = 'login.html'; }, 3000);
+                // If signup successful but user not confirmed, auto-login
+                if (data.user && !data.session) {
+                    // Try to sign in immediately after signup
+                    const { data: loginData, error: loginError } = await window.geramaSupabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    
+                    if (loginError) {
+                        messageDiv.innerHTML = '<span class="success">Account created! Please login with your credentials.</span>';
+                        setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                        return;
+                    }
+                    
+                    // Store session and profile
+                    sessionStorage.setItem('gerama_loggedIn', 'true');
+                    localStorage.setItem('gerama_profile', JSON.stringify({
+                        name: username,
+                        program: 'GERAMA Member',
+                        img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
+                    }));
+                    
+                    messageDiv.innerHTML = '<span class="success">Account created and logged in! Redirecting...</span>';
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                } else if (data.session) {
+                    // User is automatically signed in
+                    sessionStorage.setItem('gerama_loggedIn', 'true');
+                    localStorage.setItem('gerama_profile', JSON.stringify({
+                        name: username,
+                        program: 'GERAMA Member',
+                        img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
+                    }));
+                    
+                    messageDiv.innerHTML = '<span class="success">Account created and logged in! Redirecting...</span>';
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                } else {
+                    messageDiv.innerHTML = '<span class="success">Account created! Please login with your credentials.</span>';
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                }
                 
             } catch (err) {
                 messageDiv.innerHTML = '<span class="error">Registration failed. Please try again.</span>';
