@@ -3,66 +3,46 @@
     const currentPage = window.location.pathname.split('/').pop();
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html';
     
-    // Prevent infinite redirects by checking if we just came from auth page
-    const cameFromAuth = sessionStorage.getItem('gerama_came_from_auth') === 'true';
+    // Force login page as landing page - redirect all non-auth pages to login
+    if (!isAuthPage) {
+        window.location.href = 'login.html';
+        return;
+    }
     
-    // Add a small delay to stabilize page loading
-    setTimeout(() => {
+    // Only run auth logic on auth pages
+    if (isAuthPage) {
         // Initialize Supabase if available
         if (typeof window.geramaSupabase !== 'undefined') {
-            // Check current session
-            window.geramaSupabase.auth.getSession().then(({ data: { session } }) => {
-                const isLoggedIn = !!session;
-                
-                // Handle redirects more carefully
-                if (!isAuthPage) {
-                    if (!isLoggedIn && !cameFromAuth) {
-                        // Only redirect if not logged in and didn't just come from auth
-                        sessionStorage.setItem('gerama_came_from_auth', 'true');
-                        window.location.href = 'login.html';
-                        return;
-                    }
-                    // Clear the flag after successful auth check
-                    if (isLoggedIn) {
-                        sessionStorage.removeItem('gerama_came_from_auth');
-                        // If logged in, show sidebar elements
-                        initializeSidebar();
-                        updateSidebarProfile();
-                    }
-                }
-            });
-            
             // Listen for auth changes
             window.geramaSupabase.auth.onAuthStateChange((event, session) => {
                 const isLoggedIn = !!session;
                 
-                if (event === 'SIGNED_OUT' && !isAuthPage) {
+                if (event === 'SIGNED_IN') {
+                    sessionStorage.setItem('gerama_loggedIn', 'true');
+                    window.location.href = 'index.html';
+                } else if (event === 'SIGNED_OUT') {
                     sessionStorage.clear();
                     localStorage.removeItem('gerama_loggedIn');
                     localStorage.removeItem('gerama_profile');
-                    window.location.href = 'login.html';
-                } else if (event === 'SIGNED_IN' && !isAuthPage) {
-                    sessionStorage.setItem('gerama_loggedIn', 'true');
-                    sessionStorage.removeItem('gerama_came_from_auth');
-                    initializeSidebar();
-                    updateSidebarProfile();
                 }
             });
-        } else {
-            // Fallback to sessionStorage if Supabase not loaded
-            const isLoggedIn = sessionStorage.getItem('gerama_loggedIn') === 'true';
-            if (!isAuthPage && !isLoggedIn && !cameFromAuth) {
-                sessionStorage.setItem('gerama_came_from_auth', 'true');
-                window.location.href = 'login.html';
-                return;
-            }
-            if (isLoggedIn && !isAuthPage) {
-                sessionStorage.removeItem('gerama_came_from_auth');
-                initializeSidebar();
-                updateSidebarProfile();
-            }
         }
-    }, 100); // 100ms delay to stabilize
+        
+        // Add logout functionality for logged-in users on other pages
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                if (typeof window.geramaSupabase !== 'undefined') {
+                    await window.geramaSupabase.auth.signOut();
+                }
+                sessionStorage.clear();
+                localStorage.removeItem('gerama_loggedIn');
+                localStorage.removeItem('gerama_profile');
+                window.location.href = 'login.html';
+            });
+        }
+    }
 
     function initializeSidebar() {
         const header = document.querySelector('header');
