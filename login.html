@@ -125,28 +125,23 @@
             const errorMsg = document.getElementById('errorMsg');
             const loginCard = document.getElementById('loginCard');
             
+            // Check if Supabase is loaded
+            if (typeof window.geramaSupabase === 'undefined') {
+                errorMsg.innerText = 'Authentication service not available. Please refresh.';
+                return;
+            }
+            
             // Show loading state
             errorMsg.innerText = 'Signing in...';
             
             try {
-                // Debug: Log Supabase client state
-                console.log('Login attempt - Supabase client available:', !!window.geramaSupabase);
-                console.log('Login attempt - Supabase URL:', window.geramaSupabase.supabaseUrl);
-                console.log('Login attempt - Email:', email);
-                
                 // Use proper Supabase authentication
                 const { data, error } = await window.geramaSupabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
                 
-                // Debug: Log the response
-                console.log('Login response:', { data, error });
-                
                 if (error) {
-                    // Debug: Log the exact error
-                    console.error('Login error details:', error);
-                    
                     // Hide technical errors from users, show friendly messages
                     if (error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('credentials')) {
                         errorMsg.innerText = 'Invalid email or password. Please try again.';

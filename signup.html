@@ -113,12 +113,9 @@
         // Check if Supabase is loaded
         window.addEventListener('DOMContentLoaded', () => {
             console.log('DOM loaded');
-            console.log('Supabase available:', typeof window.geramaSupabase !== 'undefined');
-            console.log('GERAMA_SECRET_CODE available:', typeof window.GERAMA_SECRET_CODE !== 'undefined');
         });
 
         document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            console.log('Form submitted!');
             e.preventDefault();
             
             const inviteCode = document.getElementById('inviteCode').value.trim();
@@ -127,53 +124,23 @@
             const password = document.getElementById('password').value;
             const messageDiv = document.getElementById('message');
             
-            console.log('Form values:', { inviteCode, email, username, password: '***' });
-            
             // Check if Supabase is loaded
             if (typeof window.geramaSupabase === 'undefined') {
-                messageDiv.innerHTML = '<span class="error">Supabase not loaded. Check console for errors.</span>';
-                console.error('Supabase client not available');
+                messageDiv.innerHTML = '<span class="error">Authentication service not available. Please refresh.</span>';
                 return;
             }
-            
-            if (typeof window.GERAMA_SECRET_CODE === 'undefined') {
-                messageDiv.innerHTML = '<span class="error">Secret code not configured.</span>';
-                console.error('GERAMA_SECRET_CODE not available');
-                return;
-            }
-            
-            // Debug: Log the values to see what's happening
-            console.log('Invite code entered:', inviteCode);
-            console.log('Expected code:', window.GERAMA_SECRET_CODE);
-            console.log('Are they equal?', inviteCode === window.GERAMA_SECRET_CODE);
-            console.log('Length of entered:', inviteCode.length);
-            console.log('Length of expected:', window.GERAMA_SECRET_CODE.length);
-            console.log('Char codes entered:', [...inviteCode].map(c => c.charCodeAt(0)));
-            console.log('Char codes expected:', [...window.GERAMA_SECRET_CODE].map(c => c.charCodeAt(0)));
-            
-            // Try case-insensitive comparison and trim
-            const normalizedInput = inviteCode.trim().toUpperCase();
-            const normalizedExpected = window.GERAMA_SECRET_CODE.trim().toUpperCase();
-            
-            console.log('Normalized input:', normalizedInput);
-            console.log('Normalized expected:', normalizedExpected);
-            console.log('Are normalized equal?', normalizedInput === normalizedExpected);
             
             // Verify secret code first
-            if (normalizedInput !== normalizedExpected) {
-                messageDiv.innerHTML = `<span class="error">❌ Invalid invite code. Access denied. Entered: "${inviteCode}"</span>`;
+            if (inviteCode !== 'GERAMA2026') {
+                messageDiv.innerHTML = `<span class="error">Invalid invite code. Access denied.</span>`;
                 return;
             }
             
             // Show loading state
-            messageDiv.innerHTML = '<span class="success">⏳ Creating account...</span>';
+            messageDiv.innerHTML = '<span class="success">Creating account...</span>';
             
             try {
-                // Debug: Log Supabase client state
-                console.log('Supabase client available:', !!window.geramaSupabase);
-                console.log('Supabase URL:', window.geramaSupabase.supabaseUrl);
-                
-                // Sign up with Supabase (auto-confirm for testing)
+                // Sign up with Supabase
                 const { data, error } = await window.geramaSupabase.auth.signUp({
                     email: email,
                     password: password,
@@ -186,23 +153,14 @@
                     }
                 });
                 
-                // Debug: Log the response
-                console.log('Signup response:', { data, error });
-                
                 if (error) {
-                    // Debug: Log the exact error
-                    console.error('Signup error details:', error);
-                    
-                    // Hide technical errors from users, show friendly messages
                     let friendlyMessage = 'Registration failed. Please try again.';
-                    if (error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('already')) {
+                    if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already in use')) {
                         friendlyMessage = 'This email is already registered. Please login instead.';
-                    } else if (error.message.toLowerCase().includes('api') || error.message.toLowerCase().includes('pin')) {
-                        friendlyMessage = 'Registration temporarily unavailable. Please try again in a few minutes.';
                     } else if (error.message.toLowerCase().includes('password')) {
                         friendlyMessage = 'Password is too weak. Please choose a stronger password.';
-                    } else if (error.message.toLowerCase().includes('over')) {
-                        friendlyMessage = 'Too many requests. Please wait and try again.';
+                    } else if (error.message.toLowerCase().includes('invalid')) {
+                        friendlyMessage = 'Invalid email format. Please check your email.';
                     }
                     messageDiv.innerHTML = `<span class="error"> ${friendlyMessage}</span>`;
                     return;
@@ -215,13 +173,13 @@
                     img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
                 }));
                 
-                messageDiv.innerHTML = '<span class="success">✅ Account created! You can now login immediately.</span>';
+                messageDiv.innerHTML = '<span class="success">Account created! You can now login immediately.</span>';
                 
                 // Redirect to login after 3 seconds
                 setTimeout(() => { window.location.href = 'login.html'; }, 3000);
                 
             } catch (err) {
-                messageDiv.innerHTML = '<span class="error">❌ Registration failed. Please try again.</span>';
+                messageDiv.innerHTML = '<span class="error">Registration failed. Please try again.</span>';
                 console.error('Signup error:', err);
             }
         });
