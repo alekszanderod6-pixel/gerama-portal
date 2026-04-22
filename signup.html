@@ -86,8 +86,8 @@
         <div class="signup-body">
             <form id="signupForm">
                 <div class="form-group">
-                    <label>Email or Phone Number</label>
-                    <input type="text" id="emailOrPhone" placeholder="Enter email or phone number" required>
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="your@email.com" required>
                 </div>
                 <div class="form-group">
                     <label>Username</label>
@@ -119,7 +119,7 @@
             e.preventDefault();
             
             const inviteCode = document.getElementById('inviteCode').value.trim();
-            const emailOrPhone = document.getElementById('emailOrPhone').value.trim();
+            const email = document.getElementById('email').value.trim();
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const messageDiv = document.getElementById('message');
@@ -136,48 +136,31 @@
                 return;
             }
             
-            // Determine if input is email or phone
-            const isEmail = emailOrPhone.includes('@');
-            const isPhone = /^\+?\d{10,15}$/.test(emailOrPhone.replace(/\s/g, ''));
-            
-            if (!isEmail && !isPhone) {
-                messageDiv.innerHTML = '<span class="error">Please enter a valid email or phone number.</span>';
-                return;
-            }
-            
             // Show loading state
             messageDiv.innerHTML = '<span class="success">Creating account...</span>';
             
             try {
-                let authData = {
+                // Sign up with Supabase using email only
+                const { data, error } = await window.geramaSupabase.auth.signUp({
+                    email: email,
                     password: password,
                     options: {
                         data: {
                             username: username,
                             invite_code_verified: true
-                        }
+                        },
+                        emailRedirectTo: window.location.origin + '/login.html'
                     }
-                };
-                
-                // Set email or phone based on input
-                if (isEmail) {
-                    authData.email = emailOrPhone;
-                    authData.options.emailRedirectTo = window.location.origin + '/login.html';
-                } else {
-                    authData.phone = emailOrPhone;
-                }
-                
-                // Sign up with Supabase
-                const { data, error } = await window.geramaSupabase.auth.signUp(authData);
+                });
                 
                 if (error) {
                     let friendlyMessage = 'Registration failed. Please try again.';
                     if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('already in use')) {
-                        friendlyMessage = 'This ' + (isEmail ? 'email' : 'phone number') + ' is already registered. Please login instead.';
+                        friendlyMessage = 'This email is already registered. Please login instead.';
                     } else if (error.message.toLowerCase().includes('password')) {
                         friendlyMessage = 'Password is too weak. Please choose a stronger password.';
                     } else if (error.message.toLowerCase().includes('invalid')) {
-                        friendlyMessage = 'Invalid ' + (isEmail ? 'email' : 'phone') + ' format. Please check your input.';
+                        friendlyMessage = 'Invalid email format. Please check your email.';
                     }
                     messageDiv.innerHTML = `<span class="error"> ${friendlyMessage}</span>`;
                     return;
