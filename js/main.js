@@ -3,9 +3,16 @@
     const currentPage = window.location.pathname.split('/').pop();
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html';
     
-    // Only run auth logic on non-auth pages to prevent conflicts
+    // Force redirect to login for any non-auth page immediately
     if (!isAuthPage) {
-        // Check if user is logged in using Supabase
+        // Check sessionStorage first for immediate redirect
+        const isLoggedIn = sessionStorage.getItem('gerama_loggedIn') === 'true';
+        if (!isLoggedIn) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // Then verify with Supabase session
         if (typeof window.geramaSupabase !== 'undefined') {
             window.geramaSupabase.auth.getSession().then(({ data: { session } }) => {
                 if (!session) {

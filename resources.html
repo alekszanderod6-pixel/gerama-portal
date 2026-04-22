@@ -73,7 +73,7 @@
                 <option value="Environmental">Environmental Engineering</option>
             </select>
             <select id="courseSelect" style="width: 100%; padding: 0.6rem 1.2rem; border-radius: 40px; border: 1px solid #ccc; background: white;">
-                <option value="">-- Select Course --</option>
+                <option value="">-- All Available Courses --</option>
             </select>
             <button id="loadBtn" class="btn">Load Materials</button>
         </div>
@@ -479,22 +479,55 @@
         let currentCourse = "";
         let currentCategory = "slides";
 
-        // Populate course dropdown with actual courses
+        // Populate course dropdown with all available courses across all programs
         function updateCourseDropdown() {
             const courseSelect = document.getElementById('courseSelect');
-            const courses = materialsDB[currentLevel]?.[currentProgram] || {};
             
             // Clear current selection
             currentCourse = "";
-            courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
+            courseSelect.innerHTML = '<option value="">-- All Available Courses --</option>';
+            
+            // Collect all courses from all programs and levels
+            const allCourses = new Set();
+            
+            // Iterate through all levels and programs to find courses with materials
+            Object.keys(materialsDB).forEach(level => {
+                Object.keys(materialsDB[level]).forEach(program => {
+                    Object.keys(materialsDB[level][program]).forEach(course => {
+                        // Check if course has any materials
+                        const courseData = materialsDB[level][program][course];
+                        const hasMaterials = courseData.slides.length > 0 || 
+                                         courseData.books.length > 0 || 
+                                         courseData.pastq.length > 0 || 
+                                         courseData.videos.length > 0;
+                        
+                        if (hasMaterials) {
+                            // Add course with program info for clarity
+                            allCourses.add(`${course} (${program})`);
+                        }
+                    });
+                });
+            });
+            
+            // Sort courses alphabetically
+            const sortedCourses = Array.from(allCourses).sort();
             
             // Add courses to dropdown
-            Object.keys(courses).forEach(course => {
+            sortedCourses.forEach(courseWithProgram => {
                 const option = document.createElement('option');
-                option.value = course;
-                option.textContent = course;
+                option.value = courseWithProgram;
+                option.textContent = courseWithProgram;
                 courseSelect.appendChild(option);
             });
+            
+            // If no courses found, show message
+            if (sortedCourses.length === 0) {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "No courses available";
+                option.disabled = true;
+                courseSelect.appendChild(option);
+            }
         }
         
         // Close dropdown when clicking outside
@@ -512,13 +545,41 @@
                 document.getElementById('materialsContainer').innerHTML = '<p>Please select a course.</p>';
                 return;
             }
-            const courseData = materialsDB[currentLevel]?.[currentProgram]?.[currentCourse];
-            if (!courseData || !courseData[currentCategory] || courseData[currentCategory].length === 0) {
-                document.getElementById('materialsContainer').innerHTML = `<p>No ${currentCategory} materials available for ${currentCourse} (${currentProgram}, ${currentLevel}).</p>`;
+            
+            // Parse course and program from selection (format: "Course Name (Program)")
+            let courseName = currentCourse;
+            let programName = currentProgram;
+            
+            if (currentCourse.includes(' (') && currentCourse.includes(')')) {
+                const match = currentCourse.match(/(.+) \((.+)\)/);
+                if (match) {
+                    courseName = match[1];
+                    programName = match[2];
+                }
+            }
+            
+            // Search for course across all levels and programs
+            let foundCourse = null;
+            let foundLevel = null;
+            let foundProgram = null;
+            
+            Object.keys(materialsDB).forEach(level => {
+                Object.keys(materialsDB[level]).forEach(program => {
+                    if (materialsDB[level][program][courseName]) {
+                        foundCourse = materialsDB[level][program][courseName];
+                        foundLevel = level;
+                        foundProgram = program;
+                    }
+                });
+            });
+            
+            if (!foundCourse || !foundCourse[currentCategory] || foundCourse[currentCategory].length === 0) {
+                document.getElementById('materialsContainer').innerHTML = `<p>No ${currentCategory} materials available for ${courseName}.</p>`;
                 return;
             }
+            
             let html = '<div>';
-            courseData[currentCategory].forEach(item => {
+            foundCourse[currentCategory].forEach(item => {
                 const fileUrl = BASE_PATH + item.file;
                 html += `
                     <div class="material-item">
