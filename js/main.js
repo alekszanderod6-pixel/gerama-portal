@@ -3,20 +3,25 @@
     const currentPage = window.location.pathname.split('/').pop();
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html';
     
+    // Clear any existing sessions for new visitors (except on auth pages)
+    if (!isAuthPage && !sessionStorage.getItem('gerama_session_checked')) {
+        sessionStorage.removeItem('gerama_loggedIn');
+        sessionStorage.setItem('gerama_session_checked', 'true');
+    }
+    
     // Initialize Supabase if available
     if (typeof window.geramaSupabase !== 'undefined') {
         // Check current session
         window.geramaSupabase.auth.getSession().then(({ data: { session } }) => {
             const isLoggedIn = !!session;
             
-            // Redirect only if not on auth page and not logged in
-            if (!isLoggedIn && !isAuthPage) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            // If logged in, show sidebar elements
-            if (isLoggedIn && !isAuthPage) {
+            // Always redirect to login if not on auth page, unless user is actually logged in
+            if (!isAuthPage) {
+                if (!isLoggedIn) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                // If logged in, show sidebar elements
                 initializeSidebar();
                 updateSidebarProfile();
             }
@@ -38,11 +43,12 @@
     } else {
         // Fallback to sessionStorage if Supabase not loaded
         const isLoggedIn = sessionStorage.getItem('gerama_loggedIn') === 'true';
-        if (!isLoggedIn && !isAuthPage) {
-            window.location.href = 'login.html';
-            return;
-        }
-        if (isLoggedIn && !isAuthPage) {
+        if (!isAuthPage) {
+            if (!isLoggedIn) {
+                window.location.href = 'login.html';
+                return;
+            }
+            // If logged in, show sidebar
             initializeSidebar();
             updateSidebarProfile();
         }
