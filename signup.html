@@ -169,6 +169,10 @@
             messageDiv.innerHTML = '<span class="success">⏳ Creating account...</span>';
             
             try {
+                // Debug: Log Supabase client state
+                console.log('Supabase client available:', !!window.geramaSupabase);
+                console.log('Supabase URL:', window.geramaSupabase.supabaseUrl);
+                
                 // Sign up with Supabase (auto-confirm for testing)
                 const { data, error } = await window.geramaSupabase.auth.signUp({
                     email: email,
@@ -182,7 +186,13 @@
                     }
                 });
                 
+                // Debug: Log the response
+                console.log('Signup response:', { data, error });
+                
                 if (error) {
+                    // Debug: Log the exact error
+                    console.error('Signup error details:', error);
+                    
                     // Hide technical errors from users, show friendly messages
                     let friendlyMessage = 'Registration failed. Please try again.';
                     if (error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('already')) {
@@ -191,6 +201,8 @@
                         friendlyMessage = 'Registration temporarily unavailable. Please try again in a few minutes.';
                     } else if (error.message.toLowerCase().includes('password')) {
                         friendlyMessage = 'Password is too weak. Please choose a stronger password.';
+                    } else if (error.message.toLowerCase().includes('over')) {
+                        friendlyMessage = 'Too many requests. Please wait and try again.';
                     }
                     messageDiv.innerHTML = `<span class="error"> ${friendlyMessage}</span>`;
                     return;
