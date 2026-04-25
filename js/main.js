@@ -16,6 +16,9 @@
         if (typeof window.geramaSupabase !== 'undefined') {
             window.geramaSupabase.auth.getSession().then(({ data: { session } }) => {
                 if (!session) {
+                    // Clear sessionStorage if no Supabase session
+                    sessionStorage.removeItem('gerama_loggedIn');
+                    localStorage.removeItem('gerama_profile');
                     window.location.href = 'login.html';
                     return;
                 }
