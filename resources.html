@@ -34,6 +34,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/main.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
     <header>
@@ -627,9 +628,9 @@
             });
         });
 
-        // Upload simulation (same as before)
+        // Material upload with EmailJS notifications
         let pendingUploads = JSON.parse(localStorage.getItem('gerama_uploads')) || [];
-        document.getElementById('uploadForm').addEventListener('submit', (e) => {
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const course = document.getElementById('courseName').value;
             const level = document.getElementById('uploadLevel').value;
@@ -637,10 +638,37 @@
             const type = document.getElementById('materialType').value;
             const fileInput = document.getElementById('uploadFile');
             let fileName = fileInput.files[0]?.name || 'sample.pdf';
+            
+            // Store in admin dashboard
             pendingUploads.push({ course, level, program, type, fileName, date: new Date().toLocaleString() });
             localStorage.setItem('gerama_uploads', JSON.stringify(pendingUploads));
-            document.getElementById('uploadStatus').innerHTML = '✓ Thank you! Your contribution has been submitted for review.';
-            setTimeout(() => document.getElementById('uploadStatus').innerHTML = '', 3000);
+            
+            // Send email notification to admin
+            try {
+                if (typeof emailjs !== 'undefined') {
+                    const templateParams = {
+                        course: course,
+                        level: level,
+                        program: program,
+                        type: type,
+                        fileName: fileName,
+                        timestamp: new Date().toLocaleString(),
+                        from_name: 'GERAMA Portal',
+                        to_email: 'gerama.uenr@gmail.com',
+                        subject: 'New Material Submission for Review'
+                    };
+                    
+                    await emailjs.send('Gerama_Gmail_Service', 'geramareset_ei9ahk9', templateParams);
+                    document.getElementById('uploadStatus').innerHTML = '✓ Thank you! Your contribution has been submitted for review. Admin notified.';
+                } else {
+                    document.getElementById('uploadStatus').innerHTML = '✓ Thank you! Your contribution has been submitted for review.';
+                }
+            } catch (emailError) {
+                console.log('EmailJS failed for upload notification:', emailError);
+                document.getElementById('uploadStatus').innerHTML = '✓ Thank you! Your contribution has been submitted for review.';
+            }
+            
+            setTimeout(() => document.getElementById('uploadStatus').innerHTML = '', 5000);
             e.target.reset();
         });
 

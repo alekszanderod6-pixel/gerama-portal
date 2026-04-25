@@ -159,7 +159,7 @@
             submitBtn.disabled = true;
             
             try {
-                // Store assistance request (you can also integrate EmailJS here)
+                // Store assistance request in admin dashboard
                 const requests = JSON.parse(localStorage.getItem('gerama_assistance_requests') || '[]');
                 requests.push({
                     course: course,
@@ -169,7 +169,24 @@
                 });
                 localStorage.setItem('gerama_assistance_requests', JSON.stringify(requests));
                 
-                alert('📚 Your assistance request has been recorded. A GERAMA tutor will contact you shortly.');
+                // Send email notification via EmailJS
+                const templateParams = {
+                    course: course,
+                    challenge: challenge,
+                    timestamp: new Date().toLocaleString(),
+                    from_name: 'GERAMA Portal',
+                    to_email: 'gerama.uenr@gmail.com',
+                    subject: 'New Academic Assistance Request'
+                };
+                
+                try {
+                    await emailjs.send('Gerama_Gmail_Service', 'geramareset_ei9ahk9', templateParams);
+                    alert('📚 Your assistance request has been submitted. A GERAMA tutor will contact you shortly!');
+                } catch (emailError) {
+                    console.log('EmailJS failed for assistance, using fallback:', emailError);
+                    alert('📚 Your assistance request has been recorded. A GERAMA tutor will contact you shortly.');
+                }
+                
                 e.target.reset();
                 
             } catch (error) {
