@@ -65,7 +65,7 @@
     <script>
         // Initialize EmailJS
         (function() {
-            emailjs.init("YOUR_PUBLIC_KEY"); // You'll need to get this from EmailJS
+            emailjs.init("pFgWBm_9mi8sQ5Zdb"); // Your actual Public Key
         })();
 
         // Contact form handler
@@ -112,8 +112,8 @@
                 
                 // Send emails (fallback to local storage if EmailJS fails)
                 try {
-                    await emailjs.send('YOUR_SERVICE_ID', 'YOUR_ADMIN_TEMPLATE_ID', adminNotification.template_params);
-                    await emailjs.send('YOUR_SERVICE_ID', 'YOUR_USER_TEMPLATE_ID', userConfirmation.template_params);
+                    await emailjs.send('Gerama_Gmail_Service', 'geramareset_ei9ahk9', adminNotification.template_params);
+                    await emailjs.send('Gerama_Gmail_Service', 'geramauser_90nauyj', userConfirmation.template_params);
                     
                     alert('✅ Message sent successfully! We will get back to you within 48 hours.');
                 } catch (emailError) {
