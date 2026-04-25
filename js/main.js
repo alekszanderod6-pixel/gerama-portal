@@ -57,9 +57,10 @@
     function initializeSidebar() {
         const header = document.querySelector('header');
         if (header && !document.querySelector('.menu-icon')) {
+            console.log('Creating menu icon for page:', currentPage);
             const menuIcon = document.createElement('div');
             menuIcon.className = 'menu-icon';
-            menuIcon.innerHTML = 'â°';
+            menuIcon.innerHTML = '<div style="display:flex;flex-direction:column;gap:3px;"><div style="width:20px;height:2px;background:white;border-radius:1px;"></div><div style="width:20px;height:2px;background:white;border-radius:1px;"></div><div style="width:20px;height:2px;background:white;border-radius:1px;"></div></div>';
             menuIcon.style.cssText = 'font-size:1.8rem; cursor:pointer; background:rgba(255,255,255,0.2); width:45px; height:45px; display:flex; align-items:center; justify-content:center; border-radius:12px; transition:0.3s; margin-right:1rem;';
             menuIcon.onclick = toggleSidebar;
             const logo = document.querySelector('.logo-container');
@@ -83,6 +84,7 @@
 
     // Inject sidebar HTML if not present
     if (!document.getElementById('sidebarDrawer') && !isAuthPage) {
+        console.log('Injecting sidebar for page:', currentPage);
         const sidebarHTML = `
             <div id="sidebarDrawer" class="sidebar-drawer">
                 <div class="drawer-header">

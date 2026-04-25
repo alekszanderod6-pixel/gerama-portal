@@ -7,31 +7,9 @@
     <meta http-equiv="Expires" content="0">
     <title>Resource Library | GERAMA</title>
     <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
-    <link rel="stylesheet" href="css/style.css?v=1.1">
+    <link rel="stylesheet" href="css/style.css?v=1.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        .filter-bar { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; }
-        .filter-bar select, .filter-bar button { padding: 0.6rem 1.2rem; border-radius: 40px; border: 1px solid #ccc; min-width: 150px; }
-        @media (max-width: 768px) {
-            .filter-bar { flex-direction: column; align-items: stretch; }
-            .filter-bar select, .filter-bar button { width: 100%; margin-bottom: 0.5rem; }
-            .category-tabs { flex-direction: column; gap: 0.5rem; }
-            .material-item { flex-direction: column; align-items: flex-start; gap: 1rem; }
-        }
-        @media (max-width: 480px) {
-            .container { padding: 1rem; }
-            .hero { padding: 1rem !important; }
-            .filter-bar select, .filter-bar button { font-size: 0.9rem; }
-        }
-        .category-tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; flex-wrap: wrap; }
-        .category-tab { padding: 0.5rem 1.2rem; cursor: pointer; border-radius: 30px; transition: 0.3s; }
-        .category-tab.active { background: #1B5E20; color: white; }
-        .material-list { background: white; border-radius: 20px; padding: 1rem; min-height: 300px; }
-        .material-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; gap: 0.5rem; }
-        .upload-section { margin-top: 2rem; background: #f8fafc; border-radius: 20px; padding: 1.5rem; }
-        .btn-sm { padding: 0.2rem 0.8rem; font-size: 0.8rem; margin-left: 0.5rem; }
-    </style>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+        <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/main.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -39,7 +17,8 @@
 <body>
     <header>
         <div class="logo-container">
-            <img src="https://uenr.edu.gh/themes/custom/uenr/logo.svg" alt="UENR">
+            <img src="images/geramalogo.jpg" alt="GERAMA">
+            <img src="images/uenr logo.png" alt="UENR">
             <h2>GERAMA ACADEMIC RESOURCES</h2>
         </div>
         <nav>
@@ -51,9 +30,9 @@
     </header>
 
     <div class="container">
-        <div class="hero" style="min-height: 200px; padding: 2rem; margin-bottom: 2rem;">
+        <div class="hero" style="min-height: 250px; padding: 2rem; margin-bottom: 2rem;">
             <h1>📚 Academic Resource Library</h1>
-            <p>Select level, program, and course to access study materials</p>
+            <p>Select level, program, and category to access comprehensive study materials</p>
         </div>
 
         <div class="filter-bar">
@@ -73,34 +52,41 @@
                 <option value="Civil">Civil Engineering</option>
                 <option value="Environmental">Environmental Engineering</option>
             </select>
-            <select id="courseSelect" style="width: 100%; padding: 0.6rem 1.2rem; border-radius: 40px; border: 1px solid #ccc; background: white;">
-                <option value="">-- All Available Courses --</option>
-            </select>
             <button id="loadBtn" class="btn">Load Materials</button>
         </div>
 
         <div class="category-tabs">
-            <div class="category-tab active" data-cat="slides">📖 Slides / Reading</div>
+            <div class="category-tab active" data-cat="slides">📖 Lecture Materials</div>
             <div class="category-tab" data-cat="books">📚 Books</div>
-            <div class="category-tab" data-cat="pastq">📝 Past Questions</div>
-            <div class="category-tab" data-cat="videos">🎥 Video Lectures</div>
+            <div class="category-tab" data-cat="pastq">📝 Questions Bank & Past Questions</div>
+            <div class="category-tab" data-cat="videos">🎥 Video Tutorials</div>
         </div>
 
         <div id="materialsContainer" class="material-list">
-            <p>Select level, program, course, then click "Load Materials".</p>
+            <div class="no-materials">
+                <i class="fas fa-folder-open"></i>
+                <p>Select level, program, and click "Load Materials" to begin</p>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 3rem 0;">
+            <a href="https://drive.google.com/drive/folders/1fBOWVczN8OEBU4dUKWACYF9gOPwQQ6dK" target="_blank" class="google-drive-btn">
+                <i class="fab fa-google-drive"></i>
+                Access Google Drive Alternative
+            </a>
         </div>
 
         <div class="upload-section">
             <h3>📤 Contribute Materials (Pending Approval)</h3>
-            <form id="uploadForm" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
-                <input type="text" id="courseName" placeholder="Course Name" required style="flex:2; padding:0.6rem;">
-                <select id="uploadLevel"><option>L100</option><option>L200</option><option>L300</option><option>L400</option></select>
-                <select id="uploadProgram"><option>Mechanical</option><option>Electrical</option><option>Computer</option><option>Agricultural</option><option>Petroleum</option><option>Renewable</option><option>Civil</option><option>Environmental</option></select>
-                <select id="materialType"><option>Slides</option><option>Books</option><option>Past Questions</option><option>Videos</option></select>
-                <input type="file" id="uploadFile" style="flex:1;">
+            <form id="uploadForm" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem;">
+                <input type="text" id="courseName" placeholder="Course Name" required style="flex:2; padding:0.8rem;" class="form-group">
+                <select id="uploadLevel" class="form-group"><option>L100</option><option>L200</option><option>L300</option><option>L400</option></select>
+                <select id="uploadProgram" class="form-group"><option>Mechanical</option><option>Electrical</option><option>Computer</option><option>Agricultural</option><option>Petroleum</option><option>Renewable</option><option>Civil</option><option>Environmental</option></select>
+                <select id="materialType" class="form-group"><option>Slides</option><option>Books</option><option>Past Questions</option><option>Videos</option></select>
+                <input type="file" id="uploadFile" style="flex:1;" class="form-group">
                 <button type="submit" class="btn">Submit for Review</button>
             </form>
-            <div id="uploadStatus" style="margin-top: 0.5rem; color: green;"></div>
+            <div id="uploadStatus" style="margin-top: 1rem; color: var(--primary); font-weight: 600;"></div>
         </div>
     </div>
 
@@ -160,461 +146,622 @@
         
         <div class="footer-bottom">
             <div class="footer-bottom-content">
-                <p> 2026 GERAMA Academic Resources. Empowering Engineering Excellence</p>
+                <p>© 2026 GERAMA Academic Resources. Empowering Engineering Excellence</p>
                 <p>Developed by: <span class="developer">Alexander O. Dwumaah</span> | Editor: <span class="editor">Edem H.K Prince</span></p>
             </div>
         </div>
     </footer>
 
-    <script src="js/main.js"></script>
     <script>
-        const BASE_PATH = "materials/"; // updated to use materials folder
+        // GitHub Raw URL Base
+        const GITHUB_BASE = "https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/materials/";
         
-        // Dynamic folder structure - will be populated from actual folders
-        let materialsDB = {};
-        
-        // Function to scan folders dynamically (for development)
-        async function scanMaterialsFolder() {
-            // This would ideally be done server-side, but for now we'll use a fallback structure
-            // You can add new folders to this structure as needed
-            materialsDB = {
-                L100: {
-                    Mechanical: {
-                        "Engineering Mechanics": {
-                            slides: [
-                                { name: "Basic Mechanics Slides", file: "l100/basic_mechanics/slides/basic_mechanics_aleks_slides.pptx" }
-                            ],
-                            books: [
-                                { name: "Hibbeler Solution Manual Ch 1", file: "l100/basic_mechanics/manual_questions/95628-HIBBELER_ISM_01.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 4", file: "l100/basic_mechanics/manual_questions/95631-hibbeler_ism_04.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 10", file: "l100/basic_mechanics/manual_questions/95637-HIBBELER_ISM_10.pdf" },
-                                { name: "Solution Manual Ch 5", file: "l100/basic_mechanics/manual_questions/9789810682460_sm_05.pdf" },
-                                { name: "Solution Manual Mech", file: "l100/basic_mechanics/manual_questions/solution_manualmech.PDF" },
-                                { name: "Solution Midterm", file: "l100/basic_mechanics/manual_questions/solution_mid.pdf" },
-                                { name: "Basic Mechanics PDF", file: "l100/basic_mechanics/manual_questions/basicmechanics_aleks_slides.pdf" }
-                            ],
-                            pastq: [
-                                { name: "Quiz 1", file: "l100/basic_mechanics/manual_questions/quiz_1.pdf" },
-                                { name: "Assignment 3", file: "l100/basic_mechanics/manual_questions/assignment3_thealeksvibes.pdf" },
-                                { name: "Assignment 4", file: "l100/basic_mechanics/manual_questions/assignment4.pdf" }
-                            ],
-                            videos: []
-                        },
-                        "Engineering Mathematics": {
-                            slides: [],
-                            books: [],
-                            pastq: [],
-                            videos: [
-                                { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
-                                { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
-                                { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
-                            ]
-                        }
+        // Materials database structure
+        const materialsDB = {
+            L100: {
+                // L100 materials cut across all programs
+                Mechanical: {
+                    "Engineering Mechanics": {
+                        slides: [
+                            { name: "Engineering Mechanics Lecture Slides", file: "l100/basic_mechanics/slides/engineering_mechanics_lecture_presentation_l4_l5_l6.pptx" }
+                        ],
+                        books: [
+                            { name: "Engineering Mechanics Textbook", file: "l100/basic_mechanics/books/engineering_mechanics_textbook.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Engineering Mechanics Quiz 1", file: "l100/basic_mechanics/questions/quiz_1.pdf" },
+                            { name: "Engineering Mechanics Assignment 3", file: "l100/basic_mechanics/questions/assignment3_thealeksvibes.pdf" },
+                            { name: "Engineering Mechanics Assignment 4", file: "l100/basic_mechanics/questions/assignment4.pdf" }
+                        ],
+                        videos: []
                     },
-                    Electrical: {
-                        "Engineering Mechanics": {
-                            slides: [
-                                { name: "Basic Mechanics Slides", file: "l100/basic_mechanics/slides/basic_mechanics_aleks_slides.pptx" }
-                            ],
-                            books: [
-                                { name: "Hibbeler Solution Manual Ch 1", file: "l100/basic_mechanics/manual_questions/95628-HIBBELER_ISM_01.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 4", file: "l100/basic_mechanics/manual_questions/95631-hibbeler_ism_04.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 10", file: "l100/basic_mechanics/manual_questions/95637-HIBBELER_ISM_10.pdf" },
-                                { name: "Solution Manual Ch 5", file: "l100/basic_mechanics/manual_questions/9789810682460_sm_05.pdf" },
-                                { name: "Solution Manual Mech", file: "l100/basic_mechanics/manual_questions/solution_manualmech.PDF" },
-                                { name: "Solution Midterm", file: "l100/basic_mechanics/manual_questions/solution_mid.pdf" },
-                                { name: "Basic Mechanics PDF", file: "l100/basic_mechanics/manual_questions/basicmechanics_aleks_slides.pdf" }
-                            ],
-                            pastq: [
-                                { name: "Quiz 1", file: "l100/basic_mechanics/manual_questions/quiz_1.pdf" },
-                                { name: "Assignment 3", file: "l100/basic_mechanics/manual_questions/assignment3_thealeksvibes.pdf" },
-                                { name: "Assignment 4", file: "l100/basic_mechanics/manual_questions/assignment4.pdf" }
-                            ],
-                            videos: []
-                        },
-                        "Engineering Mathematics": {
-                            slides: [],
-                            books: [],
-                            pastq: [],
-                            videos: [
-                                { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
-                                { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
-                                { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
-                            ]
-                        }
+                    "Engineering Mathematics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: [
+                            { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
+                            { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
+                            { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
+                        ]
                     },
-                    Computer: {
-                        "Engineering Mechanics": {
-                            slides: [
-                                { name: "Basic Mechanics Slides", file: "l100/basic_mechanics/slides/basic_mechanics_aleks_slides.pptx" }
-                            ],
-                            books: [
-                                { name: "Hibbeler Solution Manual Ch 1", file: "l100/basic_mechanics/manual_questions/95628-HIBBELER_ISM_01.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 4", file: "l100/basic_mechanics/manual_questions/95631-hibbeler_ism_04.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 10", file: "l100/basic_mechanics/manual_questions/95637-HIBBELER_ISM_10.pdf" },
-                                { name: "Solution Manual Ch 5", file: "l100/basic_mechanics/manual_questions/9789810682460_sm_05.pdf" },
-                                { name: "Solution Manual Mech", file: "l100/basic_mechanics/manual_questions/solution_manualmech.PDF" },
-                                { name: "Solution Midterm", file: "l100/basic_mechanics/manual_questions/solution_mid.pdf" },
-                                { name: "Basic Mechanics PDF", file: "l100/basic_mechanics/manual_questions/basicmechanics_aleks_slides.pdf" }
-                            ],
-                            pastq: [
-                                { name: "Quiz 1", file: "l100/basic_mechanics/manual_questions/quiz_1.pdf" },
-                                { name: "Assignment 3", file: "l100/basic_mechanics/manual_questions/assignment3_thealeksvibes.pdf" },
-                                { name: "Assignment 4", file: "l100/basic_mechanics/manual_questions/assignment4.pdf" }
-                            ],
-                            videos: []
-                        },
-                        "Engineering Mathematics": {
-                            slides: [],
-                            books: [],
-                            pastq: [],
-                            videos: [
-                                { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
-                                { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
-                                { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
-                            ]
-                        }
+                    "French": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
                     },
-                    Agricultural: {
-                        "Engineering Mechanics": {
-                            slides: [
-                                { name: "Basic Mechanics Slides", file: "l100/basic_mechanics/slides/basic_mechanics_aleks_slides.pptx" }
-                            ],
-                            books: [
-                                { name: "Hibbeler Solution Manual Ch 1", file: "l100/basic_mechanics/manual_questions/95628-HIBBELER_ISM_01.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 4", file: "l100/basic_mechanics/manual_questions/95631-hibbeler_ism_04.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 10", file: "l100/basic_mechanics/manual_questions/95637-HIBBELER_ISM_10.pdf" },
-                                { name: "Solution Manual Ch 5", file: "l100/basic_mechanics/manual_questions/9789810682460_sm_05.pdf" },
-                                { name: "Solution Manual Mech", file: "l100/basic_mechanics/manual_questions/solution_manualmech.PDF" },
-                                { name: "Solution Midterm", file: "l100/basic_mechanics/manual_questions/solution_mid.pdf" },
-                                { name: "Basic Mechanics PDF", file: "l100/basic_mechanics/manual_questions/basicmechanics_aleks_slides.pdf" }
-                            ],
-                            pastq: [
-                                { name: "Quiz 1", file: "l100/basic_mechanics/manual_questions/quiz_1.pdf" },
-                                { name: "Assignment 3", file: "l100/basic_mechanics/manual_questions/assignment3_thealeksvibes.pdf" },
-                                { name: "Assignment 4", file: "l100/basic_mechanics/manual_questions/assignment4.pdf" }
-                            ],
-                            videos: []
-                        },
-                        "Engineering Mathematics": {
-                            slides: [],
-                            books: [],
-                            pastq: [],
-                            videos: [
-                                { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
-                                { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
-                                { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
-                            ]
-                        }
+                    "Basic Electronics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
                     },
-                    Petroleum: {
-                        "Engineering Mechanics": {
-                            slides: [
-                                { name: "Basic Mechanics Slides", file: "l100/basic_mechanics/slides/basic_mechanics_aleks_slides.pptx" }
-                            ],
-                            books: [
-                                { name: "Hibbeler Solution Manual Ch 1", file: "l100/basic_mechanics/manual_questions/95628-HIBBELER_ISM_01.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 4", file: "l100/basic_mechanics/manual_questions/95631-hibbeler_ism_04.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 10", file: "l100/basic_mechanics/manual_questions/95637-HIBBELER_ISM_10.pdf" },
-                                { name: "Solution Manual Ch 5", file: "l100/basic_mechanics/manual_questions/9789810682460_sm_05.pdf" },
-                                { name: "Solution Manual Mech", file: "l100/basic_mechanics/manual_questions/solution_manualmech.PDF" },
-                                { name: "Solution Midterm", file: "l100/basic_mechanics/manual_questions/solution_mid.pdf" },
-                                { name: "Basic Mechanics PDF", file: "l100/basic_mechanics/manual_questions/basicmechanics_aleks_slides.pdf" }
-                            ],
-                            pastq: [
-                                { name: "Quiz 1", file: "l100/basic_mechanics/manual_questions/quiz_1.pdf" },
-                                { name: "Assignment 3", file: "l100/basic_mechanics/manual_questions/assignment3_thealeksvibes.pdf" },
-                                { name: "Assignment 4", file: "l100/basic_mechanics/manual_questions/assignment4.pdf" }
-                            ],
-                            videos: []
-                        },
-                        "Engineering Mathematics": {
-                            slides: [],
-                            books: [],
-                            pastq: [],
-                            videos: [
-                                { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
-                                { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
-                                { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
-                            ]
-                        }
+                    "African Studies": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Electrical: {
+                    "Engineering Mechanics": {
+                        slides: [
+                            { name: "Engineering Mechanics Lecture Slides", file: "l100/basic_mechanics/slides/engineering_mechanics_lecture_presentation_l4_l5_l6.pptx" }
+                        ],
+                        books: [
+                            { name: "Engineering Mechanics Textbook", file: "l100/basic_mechanics/books/engineering_mechanics_textbook.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Engineering Mechanics Quiz 1", file: "l100/basic_mechanics/questions/quiz_1.pdf" },
+                            { name: "Engineering Mechanics Assignment 3", file: "l100/basic_mechanics/questions/assignment3_thealeksvibes.pdf" },
+                            { name: "Engineering Mechanics Assignment 4", file: "l100/basic_mechanics/questions/assignment4.pdf" }
+                        ],
+                        videos: []
                     },
-                    Renewable: {
-                        "Engineering Mechanics": {
-                            slides: [
-                                { name: "Basic Mechanics Slides", file: "l100/basic_mechanics/slides/basic_mechanics_aleks_slides.pptx" }
-                            ],
-                            books: [
-                                { name: "Hibbeler Solution Manual Ch 1", file: "l100/basic_mechanics/manual_questions/95628-HIBBELER_ISM_01.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 4", file: "l100/basic_mechanics/manual_questions/95631-hibbeler_ism_04.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 10", file: "l100/basic_mechanics/manual_questions/95637-HIBBELER_ISM_10.pdf" },
-                                { name: "Solution Manual Ch 5", file: "l100/basic_mechanics/manual_questions/9789810682460_sm_05.pdf" },
-                                { name: "Solution Manual Mech", file: "l100/basic_mechanics/manual_questions/solution_manualmech.PDF" },
-                                { name: "Solution Midterm", file: "l100/basic_mechanics/manual_questions/solution_mid.pdf" },
-                                { name: "Basic Mechanics PDF", file: "l100/basic_mechanics/manual_questions/basicmechanics_aleks_slides.pdf" }
-                            ],
-                            pastq: [
-                                { name: "Quiz 1", file: "l100/basic_mechanics/manual_questions/quiz_1.pdf" },
-                                { name: "Assignment 3", file: "l100/basic_mechanics/manual_questions/assignment3_thealeksvibes.pdf" },
-                                { name: "Assignment 4", file: "l100/basic_mechanics/manual_questions/assignment4.pdf" }
-                            ],
-                            videos: []
-                        },
-                        "Engineering Mathematics": {
-                            slides: [],
-                            books: [],
-                            pastq: [],
-                            videos: [
-                                { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
-                                { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
-                                { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
-                            ]
-                        }
+                    "Engineering Mathematics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: [
+                            { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
+                            { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
+                            { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
+                        ]
                     },
-                    Civil: {
-                        "Engineering Mechanics": {
-                            slides: [
-                                { name: "Basic Mechanics Slides", file: "l100/basic_mechanics/slides/basic_mechanics_aleks_slides.pptx" }
-                            ],
-                            books: [
-                                { name: "Hibbeler Solution Manual Ch 1", file: "l100/basic_mechanics/manual_questions/95628-HIBBELER_ISM_01.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 4", file: "l100/basic_mechanics/manual_questions/95631-hibbeler_ism_04.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 10", file: "l100/basic_mechanics/manual_questions/95637-HIBBELER_ISM_10.pdf" },
-                                { name: "Solution Manual Ch 5", file: "l100/basic_mechanics/manual_questions/9789810682460_sm_05.pdf" },
-                                { name: "Solution Manual Mech", file: "l100/basic_mechanics/manual_questions/solution_manualmech.PDF" },
-                                { name: "Solution Midterm", file: "l100/basic_mechanics/manual_questions/solution_mid.pdf" },
-                                { name: "Basic Mechanics PDF", file: "l100/basic_mechanics/manual_questions/basicmechanics_aleks_slides.pdf" }
-                            ],
-                            pastq: [
-                                { name: "Quiz 1", file: "l100/basic_mechanics/manual_questions/quiz_1.pdf" },
-                                { name: "Assignment 3", file: "l100/basic_mechanics/manual_questions/assignment3_thealeksvibes.pdf" },
-                                { name: "Assignment 4", file: "l100/basic_mechanics/manual_questions/assignment4.pdf" }
-                            ],
-                            videos: []
-                        },
-                        "Engineering Mathematics": {
-                            slides: [],
-                            books: [],
-                            pastq: [],
-                            videos: [
-                                { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
-                                { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
-                                { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
-                            ]
-                        }
+                    "Computer Programming": {
+                        slides: [],
+                        books: [],
+                        pastq: [
+                            { name: "Computer Programming Passco", file: "l100/computer-programming/passco/computer_programming_passco.pdf" }
+                        ],
+                        videos: []
                     },
-                    Environmental: {
-                        "Engineering Mechanics": {
-                            slides: [
-                                { name: "Basic Mechanics Slides", file: "l100/basic_mechanics/slides/basic_mechanics_aleks_slides.pptx" }
-                            ],
-                            books: [
-                                { name: "Hibbeler Solution Manual Ch 1", file: "l100/basic_mechanics/manual_questions/95628-HIBBELER_ISM_01.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 4", file: "l100/basic_mechanics/manual_questions/95631-hibbeler_ism_04.pdf" },
-                                { name: "Hibbeler Solution Manual Ch 10", file: "l100/basic_mechanics/manual_questions/95637-HIBBELER_ISM_10.pdf" },
-                                { name: "Solution Manual Ch 5", file: "l100/basic_mechanics/manual_questions/9789810682460_sm_05.pdf" },
-                                { name: "Solution Manual Mech", file: "l100/basic_mechanics/manual_questions/solution_manualmech.PDF" },
-                                { name: "Solution Midterm", file: "l100/basic_mechanics/manual_questions/solution_mid.pdf" },
-                                { name: "Basic Mechanics PDF", file: "l100/basic_mechanics/manual_questions/basicmechanics_aleks_slides.pdf" }
-                            ],
-                            pastq: [
-                                { name: "Quiz 1", file: "l100/basic_mechanics/manual_questions/quiz_1.pdf" },
-                                { name: "Assignment 3", file: "l100/basic_mechanics/manual_questions/assignment3_thealeksvibes.pdf" },
-                                { name: "Assignment 4", file: "l100/basic_mechanics/manual_questions/assignment4.pdf" }
-                            ],
-                            videos: []
-                        },
-                        "Engineering Mathematics": {
-                            slides: [],
-                            books: [],
-                            pastq: [],
-                            videos: [
-                                { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
-                                { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
-                                { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" },
-                                { name: "Relative Min/Max Points 3", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points3aleks.mp4" }
-                            ]
-                        },
-                        "Differential Equations": {
-                            slides: [],
-                            books: [],
-                            pastq: [],
-                            videos: []
-                        }
+                    "French": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "Basic Electronics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "African Studies": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Computer: {
+                    "Engineering Mechanics": {
+                        slides: [
+                            { name: "Engineering Mechanics Lecture Slides", file: "l100/basic_mechanics/slides/engineering_mechanics_lecture_presentation_l4_l5_l6.pptx" }
+                        ],
+                        books: [
+                            { name: "Engineering Mechanics Textbook", file: "l100/basic_mechanics/books/engineering_mechanics_textbook.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Engineering Mechanics Quiz 1", file: "l100/basic_mechanics/questions/quiz_1.pdf" },
+                            { name: "Engineering Mechanics Assignment 3", file: "l100/basic_mechanics/questions/assignment3_thealeksvibes.pdf" },
+                            { name: "Engineering Mechanics Assignment 4", file: "l100/basic_mechanics/questions/assignment4.pdf" }
+                        ],
+                        videos: []
+                    },
+                    "Engineering Mathematics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: [
+                            { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
+                            { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
+                            { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
+                        ]
+                    },
+                    "Computer Programming": {
+                        slides: [],
+                        books: [],
+                        pastq: [
+                            { name: "Computer Programming Passco", file: "l100/computer-programming/passco/computer_programming_passco.pdf" }
+                        ],
+                        videos: []
+                    },
+                    "French": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "Basic Electronics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "African Studies": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Agricultural: {
+                    "Engineering Mechanics": {
+                        slides: [
+                            { name: "Engineering Mechanics Lecture Slides", file: "l100/basic_mechanics/slides/engineering_mechanics_lecture_presentation_l4_l5_l6.pptx" }
+                        ],
+                        books: [
+                            { name: "Engineering Mechanics Textbook", file: "l100/basic_mechanics/books/engineering_mechanics_textbook.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Engineering Mechanics Quiz 1", file: "l100/basic_mechanics/questions/quiz_1.pdf" },
+                            { name: "Engineering Mechanics Assignment 3", file: "l100/basic_mechanics/questions/assignment3_thealeksvibes.pdf" },
+                            { name: "Engineering Mechanics Assignment 4", file: "l100/basic_mechanics/questions/assignment4.pdf" }
+                        ],
+                        videos: []
+                    },
+                    "Engineering Mathematics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: [
+                            { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
+                            { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
+                            { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
+                        ]
+                    },
+                    "French": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "Basic Electronics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "African Studies": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Petroleum: {
+                    "Engineering Mechanics": {
+                        slides: [
+                            { name: "Engineering Mechanics Lecture Slides", file: "l100/basic_mechanics/slides/engineering_mechanics_lecture_presentation_l4_l5_l6.pptx" }
+                        ],
+                        books: [
+                            { name: "Engineering Mechanics Textbook", file: "l100/basic_mechanics/books/engineering_mechanics_textbook.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Engineering Mechanics Quiz 1", file: "l100/basic_mechanics/questions/quiz_1.pdf" },
+                            { name: "Engineering Mechanics Assignment 3", file: "l100/basic_mechanics/questions/assignment3_thealeksvibes.pdf" },
+                            { name: "Engineering Mechanics Assignment 4", file: "l100/basic_mechanics/questions/assignment4.pdf" }
+                        ],
+                        videos: []
+                    },
+                    "Engineering Mathematics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: [
+                            { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
+                            { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
+                            { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
+                        ]
+                    },
+                    "French": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "Basic Electronics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "African Studies": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Renewable: {
+                    "Engineering Mechanics": {
+                        slides: [
+                            { name: "Engineering Mechanics Lecture Slides", file: "l100/basic_mechanics/slides/engineering_mechanics_lecture_presentation_l4_l5_l6.pptx" }
+                        ],
+                        books: [
+                            { name: "Engineering Mechanics Textbook", file: "l100/basic_mechanics/books/engineering_mechanics_textbook.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Engineering Mechanics Quiz 1", file: "l100/basic_mechanics/questions/quiz_1.pdf" },
+                            { name: "Engineering Mechanics Assignment 3", file: "l100/basic_mechanics/questions/assignment3_thealeksvibes.pdf" },
+                            { name: "Engineering Mechanics Assignment 4", file: "l100/basic_mechanics/questions/assignment4.pdf" }
+                        ],
+                        videos: []
+                    },
+                    "Engineering Mathematics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: [
+                            { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
+                            { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
+                            { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
+                        ]
+                    },
+                    "French": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "Basic Electronics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "African Studies": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Civil: {
+                    "Engineering Mechanics": {
+                        slides: [
+                            { name: "Engineering Mechanics Lecture Slides", file: "l100/basic_mechanics/slides/engineering_mechanics_lecture_presentation_l4_l5_l6.pptx" }
+                        ],
+                        books: [
+                            { name: "Engineering Mechanics Textbook", file: "l100/basic_mechanics/books/engineering_mechanics_textbook.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Engineering Mechanics Quiz 1", file: "l100/basic_mechanics/questions/quiz_1.pdf" },
+                            { name: "Engineering Mechanics Assignment 3", file: "l100/basic_mechanics/questions/assignment3_thealeksvibes.pdf" },
+                            { name: "Engineering Mechanics Assignment 4", file: "l100/basic_mechanics/questions/assignment4.pdf" }
+                        ],
+                        videos: []
+                    },
+                    "Engineering Mathematics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: [
+                            { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
+                            { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
+                            { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
+                        ]
+                    },
+                    "French": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "Basic Electronics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "African Studies": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Environmental: {
+                    "Engineering Mechanics": {
+                        slides: [
+                            { name: "Engineering Mechanics Lecture Slides", file: "l100/basic_mechanics/slides/engineering_mechanics_lecture_presentation_l4_l5_l6.pptx" }
+                        ],
+                        books: [
+                            { name: "Engineering Mechanics Textbook", file: "l100/basic_mechanics/books/engineering_mechanics_textbook.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Engineering Mechanics Quiz 1", file: "l100/basic_mechanics/questions/quiz_1.pdf" },
+                            { name: "Engineering Mechanics Assignment 3", file: "l100/basic_mechanics/questions/assignment3_thealeksvibes.pdf" },
+                            { name: "Engineering Mechanics Assignment 4", file: "l100/basic_mechanics/questions/assignment4.pdf" }
+                        ],
+                        videos: []
+                    },
+                    "Engineering Mathematics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: [
+                            { name: "Partial Differentiation", file: "l100/engin-maths-1/videos/partial-differentiation-engineering-maths1aleks.mp4" },
+                            { name: "Relative Min/Max Points 1", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points1aleks.mp4" },
+                            { name: "Relative Min/Max Points 2", file: "l100/engin-maths-1/videos/relative-minimum-and-maximum-points2aleks.mp4" }
+                        ]
+                    },
+                    "French": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "Basic Electronics": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "African Studies": {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
                     }
                 }
-            };
-
-            // Add more levels/programs/courses as needed
-            // Example: Add L300, L400, other programs, etc.
-        }
-        
-        // Function to add new course dynamically
-        function addNewCourse(level, program, courseName, materials = {}) {
-            if (!materialsDB[level]) materialsDB[level] = {};
-            if (!materialsDB[level][program]) materialsDB[level][program] = {};
-            
-            materialsDB[level][program][courseName] = {
-                slides: materials.slides || [],
-                books: materials.books || [],
-                pastq: materials.pastq || [],
-                videos: materials.videos || []
-            };
-            
-            // Refresh the dropdown
-            updateCourseDropdown();
-        }
-        
-        // Function to add material to existing course
-        function addMaterial(level, program, courseName, category, materialName, fileName) {
-            if (materialsDB[level] && materialsDB[level][program] && materialsDB[level][program][courseName]) {
-                materialsDB[level][program][courseName][category].push({
-                    name: materialName,
-                    file: fileName
-                });
-            }
-        }
+            },
+            L200: {
+                // L200 materials - French across all programs, SSD & Electrical Machines only for Electrical & Computer
+                Mechanical: {
+                    "French": {
+                        slides: [
+                            { name: "Passé Composé", file: "l200/french/slides/passe-compose.ppt" }
+                        ],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Agricultural: {
+                    "French": {
+                        slides: [
+                            { name: "Passé Composé", file: "l200/french/slides/passe-compose.ppt" }
+                        ],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Petroleum: {
+                    "French": {
+                        slides: [
+                            { name: "Passé Composé", file: "l200/french/slides/passe-compose.ppt" }
+                        ],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Renewable: {
+                    "French": {
+                        slides: [
+                            { name: "Passé Composé", file: "l200/french/slides/passe-compose.ppt" }
+                        ],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Civil: {
+                    "French": {
+                        slides: [
+                            { name: "Passé Composé", file: "l200/french/slides/passe-compose.ppt" }
+                        ],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Environmental: {
+                    "French": {
+                        slides: [
+                            { name: "Passé Composé", file: "l200/french/slides/passe-compose.ppt" }
+                        ],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    }
+                },
+                Electrical: {
+                    "French": {
+                        slides: [
+                            { name: "Passé Composé", file: "l200/french/slides/passe-compose.ppt" }
+                        ],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "Solid State Electronics": {
+                        slides: [
+                            { name: "Introduction to Solid State Electronics", file: "l200/solid-state-electronics/slides/introduction-01.pptx" },
+                            { name: "Fundamentals of Semiconductors", file: "l200/solid-state-electronics/slides/lect1-fundamentals-of-semiconductors.pptx" },
+                            { name: "Fundamentals of Semiconductors 2", file: "l200/solid-state-electronics/slides/lect2-fundamentals-of-semiconductors.pptx" },
+                            { name: "Carrier Flow", file: "l200/solid-state-electronics/slides/lect3-carrier-flow.pptx" },
+                            { name: "PN Junction", file: "l200/solid-state-electronics/slides/lect4-pnjunction.pptx" },
+                            { name: "PN Junction 2", file: "l200/solid-state-electronics/slides/lect5-pn-junction.pptx" },
+                            { name: "Metal-Semiconductor Junction", file: "l200/solid-state-electronics/slides/lect6-metal-semiconductor-junction.pptx" }
+                        ],
+                        books: [
+                            { name: "Solid State Electronic Devices", file: "l200/solid-state-electronics/books/solid-state-electronic-devices-6th-edition.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Solid State Exams 2021", file: "l200/solid-state-electronics/passco/solid-state-exams-2021.pdf" },
+                            { name: "Solid State Questions PDF", file: "l200/solid-state-electronics/passco/solid-state-questions.pdf" }
+                        ],
+                        videos: []
+                    },
+                    "Electrical Machines & Transformers": {
+                        slides: [
+                            { name: "DC Machines Lecture", file: "l200/electrical-machines-transformers/slides/lecture 1_dc-machines.pdf" },
+                            { name: "Transformers", file: "l200/electrical-machines-transformers/slides/transformers_.pdf" },
+                            { name: "Transformer Tap Changing", file: "l200/electrical-machines-transformers/slides/transformer_tap-changing _auto.pptx" }
+                        ],
+                        books: [
+                            { name: "Transformers EEE Technology", file: "l200/electrical-machines-transformers/books-notes/transformers-eee-technology-electrical-and-electronic-principles.pdf" },
+                            { name: "32 Transformers", file: "l200/electrical-machines-transformers/books-notes/32-transformers.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Transformers 2020 Exams", file: "l200/electrical-machines-transformers/questions/transformers-2020-exams.pdf" },
+                            { name: "Transformers Question Bank", file: "l200/electrical-machines-transformers/questions/transformers-questions-bank.pdf" }
+                        ],
+                        videos: []
+                    }
+                },
+                Computer: {
+                    "French": {
+                        slides: [
+                            { name: "Passé Composé", file: "l200/french/slides/passe-compose.ppt" }
+                        ],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    },
+                    "Solid State Electronics": {
+                        slides: [
+                            { name: "Introduction to Solid State Electronics", file: "l200/solid-state-electronics/slides/introduction-01.pptx" },
+                            { name: "Fundamentals of Semiconductors", file: "l200/solid-state-electronics/slides/lect1-fundamentals-of-semiconductors.pptx" },
+                            { name: "Fundamentals of Semiconductors 2", file: "l200/solid-state-electronics/slides/lect2-fundamentals-of-semiconductors.pptx" },
+                            { name: "Carrier Flow", file: "l200/solid-state-electronics/slides/lect3-carrier-flow.pptx" },
+                            { name: "PN Junction", file: "l200/solid-state-electronics/slides/lect4-pnjunction.pptx" },
+                            { name: "PN Junction 2", file: "l200/solid-state-electronics/slides/lect5-pn-junction.pptx" },
+                            { name: "Metal-Semiconductor Junction", file: "l200/solid-state-electronics/slides/lect6-metal-semiconductor-junction.pptx" }
+                        ],
+                        books: [
+                            { name: "Solid State Electronic Devices", file: "l200/solid-state-electronics/books/solid-state-electronic-devices-6th-edition.pdf" }
+                        ],
+                        pastq: [
+                            { name: "Solid State Exams 2021", file: "l200/solid-state-electronics/passco/solid-state-exams-2021.pdf" },
+                            { name: "Solid State Questions PDF", file: "l200/solid-state-electronics/passco/solid-state-questions.pdf" }
+                        ],
+                        videos: []
+                    }
+                }
+            },
+            L300: {},
+            L400: {}
+        };
 
         let currentLevel = "L100";
         let currentProgram = "Mechanical";
-        let currentCourse = "";
         let currentCategory = "slides";
 
-        // Populate course dropdown based on selected level and program
-        function updateCourseDropdown() {
-            const courseSelect = document.getElementById('courseSelect');
-            const levelSelect = document.getElementById('levelSelect');
-            const programSelect = document.getElementById('programSelect');
-            
-            // Get current selections
-            currentLevel = levelSelect.value;
-            currentProgram = programSelect.value;
-            
-            // Clear current selection
-            currentCourse = "";
-            courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
-            
-            // Collect courses for the selected level and program
-            const availableCourses = [];
-            
-            // Check if level and program exist in database
-            if (materialsDB[currentLevel] && materialsDB[currentLevel][currentProgram]) {
-                Object.keys(materialsDB[currentLevel][currentProgram]).forEach(course => {
-                    // Check if course has any materials
-                    const courseData = materialsDB[currentLevel][currentProgram][course];
-                    const hasMaterials = courseData.slides.length > 0 || 
-                                     courseData.books.length > 0 || 
-                                     courseData.pastq.length > 0 || 
-                                     courseData.videos.length > 0;
-                    
-                    if (hasMaterials) {
-                        availableCourses.push(course);
-                    }
-                });
-            }
-            
-            // Sort courses alphabetically
-            const sortedCourses = availableCourses.sort();
-            
-            // Add courses to dropdown
-            sortedCourses.forEach(courseName => {
-                const option = document.createElement('option');
-                option.value = courseName;
-                option.textContent = courseName;
-                courseSelect.appendChild(option);
-            });
-            
-            // If no courses found, show message
-            if (sortedCourses.length === 0) {
-                const option = document.createElement('option');
-                option.value = "";
-                option.textContent = `No courses available for ${currentProgram} ${currentLevel}`;
-                option.disabled = true;
-                courseSelect.appendChild(option);
-            }
+        // Get GitHub raw URL
+        function getGitHubUrl(filePath) {
+            return GITHUB_BASE + filePath;
         }
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            const courseSelect = document.getElementById('courseSelect');
-            
-            if (!courseSelect.contains(e.target)) {
-                courseSelect.style.display = 'none';
-            }
-        });
 
-        // Render materials for selected course and category
+        // Render materials
         function renderMaterials() {
-            if (!currentCourse) {
-                document.getElementById('materialsContainer').innerHTML = '<p>Please select a course.</p>';
-                return;
-            }
+            const container = document.getElementById('materialsContainer');
             
-            // Use current course name directly (no parsing needed now)
-            const courseName = currentCourse;
-            
-            // Find course in the current level and program
-            let foundCourse = null;
-            
-            if (materialsDB[currentLevel] && 
-                materialsDB[currentLevel][currentProgram] && 
-                materialsDB[currentLevel][currentProgram][courseName]) {
-                foundCourse = materialsDB[currentLevel][currentProgram][courseName];
-            }
-            
-            if (!foundCourse || !foundCourse[currentCategory] || foundCourse[currentCategory].length === 0) {
-                document.getElementById('materialsContainer').innerHTML = `<p>No ${currentCategory} materials available for ${courseName}.</p>`;
-                return;
-            }
-            
-            let html = '<div>';
-            foundCourse[currentCategory].forEach(item => {
-                const fileUrl = BASE_PATH + item.file;
-                html += `
-                    <div class="material-item">
-                        <span><strong>${item.name}</strong></span>
-                        <span>
-                            <a href="${fileUrl}" class="btn-sm view-btn" style="background:#eef2ff; padding:0.2rem 0.8rem; border-radius:6px; text-decoration:none;" target="_blank">View</a>
-                            <a href="${fileUrl}" class="btn-sm download-btn" style="background:#1B5E20; color:white; padding:0.2rem 0.8rem; border-radius:6px; text-decoration:none;" download>Download</a>
-                        </span>
+            if (!materialsDB[currentLevel] || !materialsDB[currentLevel][currentProgram]) {
+                container.innerHTML = `
+                    <div class="no-materials">
+                        <i class="fas fa-folder-open"></i>
+                        <p>No materials available for ${currentProgram} ${currentLevel}</p>
                     </div>
                 `;
-            });
-            html += '</div>';
-            document.getElementById('materialsContainer').innerHTML = html;
+                return;
+            }
 
-            // Track downloads (optional)
-            document.querySelectorAll('.download-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    let current = parseInt(localStorage.getItem('gerama_downloads') || '0');
-                    localStorage.setItem('gerama_downloads', current + 1);
-                });
+            const programData = materialsDB[currentLevel][currentProgram];
+            let html = '';
+            let hasMaterials = false;
+
+            Object.keys(programData).forEach(courseName => {
+                const courseData = programData[courseName];
+                const categoryMaterials = courseData[currentCategory] || [];
+
+                if (categoryMaterials.length > 0) {
+                    hasMaterials = true;
+                    html += `
+                        <div class="course-group">
+                            <h3>📚 ${courseName}</h3>
+                            <div class="course-materials">
+                    `;
+
+                    categoryMaterials.forEach(item => {
+                        const fileUrl = getGitHubUrl(item.file);
+                        html += `
+                            <div class="material-item">
+                                <span class="material-name">${item.name}</span>
+                                <div class="material-actions">
+                                    <a href="${fileUrl}" class="btn-download" download>
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                    <a href="${fileUrl}" class="btn-view" target="_blank">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
             });
+
+            if (!hasMaterials) {
+                const categoryNames = {
+                    slides: "Lecture Materials",
+                    books: "Books",
+                    pastq: "Questions Bank & Past Questions",
+                    videos: "Video Tutorials"
+                };
+                html = `
+                    <div class="no-materials">
+                        <i class="fas fa-folder-open"></i>
+                        <p>No ${categoryNames[currentCategory]} available for ${currentProgram} ${currentLevel}</p>
+                        <p style="font-size: 0.9rem; margin-top: 1rem;">${currentCategory === 'videos' ? '🎥 Video tutorials coming soon!' : 'Check back later for updates.'}</p>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
         }
 
         // Event listeners
-        document.getElementById('levelSelect').addEventListener('change', () => {
-            currentLevel = document.getElementById('levelSelect').value;
-            updateCourseDropdown();
+        document.getElementById('levelSelect').addEventListener('change', (e) => {
+            currentLevel = e.target.value;
         });
-        document.getElementById('programSelect').addEventListener('change', () => {
-            currentProgram = document.getElementById('programSelect').value;
-            updateCourseDropdown();
+
+        document.getElementById('programSelect').addEventListener('change', (e) => {
+            currentProgram = e.target.value;
         });
-        document.getElementById('courseSelect').addEventListener('change', () => {
-            currentCourse = document.getElementById('courseSelect').value;
-            if (currentCourse) {
-                renderMaterials();
-            }
-        });
+
         document.getElementById('loadBtn').addEventListener('click', () => {
-            currentLevel = document.getElementById('levelSelect').value;
-            currentProgram = document.getElementById('programSelect').value;
-            currentCourse = document.getElementById('courseSelect').value;
-            if (!currentCourse) {
-                alert('Please select a course.');
-                return;
-            }
             renderMaterials();
         });
 
@@ -624,7 +771,7 @@
                 document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 currentCategory = tab.dataset.cat;
-                if (currentCourse) renderMaterials();
+                renderMaterials();
             });
         });
 
@@ -639,11 +786,9 @@
             const fileInput = document.getElementById('uploadFile');
             let fileName = fileInput.files[0]?.name || 'sample.pdf';
             
-            // Store in admin dashboard
             pendingUploads.push({ course, level, program, type, fileName, date: new Date().toLocaleString() });
             localStorage.setItem('gerama_uploads', JSON.stringify(pendingUploads));
             
-            // Send email notification to admin
             try {
                 if (typeof emailjs !== 'undefined') {
                     const templateParams = {
@@ -659,21 +804,21 @@
                     };
                     
                     await emailjs.send('Gerama_Gmail_Service', 'geramareset_ei9ahk9', templateParams);
-                    document.getElementById('uploadStatus').innerHTML = '✓ Thank you! Your contribution has been submitted for review. Admin notified.';
+                    document.getElementById('uploadStatus').innerHTML = '✅ Thank you! Your contribution has been submitted for review. Admin notified.';
                 } else {
-                    document.getElementById('uploadStatus').innerHTML = '✓ Thank you! Your contribution has been submitted for review.';
+                    document.getElementById('uploadStatus').innerHTML = '✅ Thank you! Your contribution has been submitted for review.';
                 }
             } catch (emailError) {
                 console.log('EmailJS failed for upload notification:', emailError);
-                document.getElementById('uploadStatus').innerHTML = '✓ Thank you! Your contribution has been submitted for review.';
+                document.getElementById('uploadStatus').innerHTML = '✅ Thank you! Your contribution has been submitted for review.';
             }
             
             setTimeout(() => document.getElementById('uploadStatus').innerHTML = '', 5000);
             e.target.reset();
         });
 
-        // Initial load
-        updateCourseDropdown();
+        // Initial render
+        renderMaterials();
     </script>
 </body>
 </html>

@@ -157,9 +157,14 @@
                 });
                 
                 if (error) {
-                    // Hide technical errors from users, show friendly messages
-                    if (error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('credentials')) {
-                        errorMsg.innerText = 'Invalid email or password. Please try again.';
+                    console.log('Login error details:', error);
+                    if (error.message.toLowerCase().includes('invalid login credentials') || 
+                        error.message.toLowerCase().includes('invalid') || 
+                        error.message.toLowerCase().includes('credentials')) {
+                        errorMsg.innerText = 'Invalid email or password. Please check your credentials and try again.';
+                    } else if (error.message.toLowerCase().includes('email not confirmed') || 
+                             error.message.toLowerCase().includes('not confirmed')) {
+                        errorMsg.innerText = 'Email not confirmed. Please check your email for the confirmation link.';
                     } else if (error.message.toLowerCase().includes('api') || error.message.toLowerCase().includes('pin')) {
                         errorMsg.innerText = 'Login temporarily unavailable. Please try again in a few minutes.';
                     } else if (error.message.toLowerCase().includes('not found')) {
@@ -176,7 +181,7 @@
                 // Check if user has invite code verified (handle both confirmed and unconfirmed users)
                 const userMetadata = data.user.user_metadata || {};
                 if (userMetadata.invite_code_verified !== true) {
-                    errorMsg.innerText = 'Account not verified. Please check your email for confirmation link.';
+                    errorMsg.innerText = 'Invalid secret code verification. Please contact support.';
                     await window.geramaSupabase.auth.signOut();
                     return;
                 }
@@ -207,32 +212,9 @@
         // Forgot password handler
         document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
             e.preventDefault();
-            const email = prompt('Enter your email address for password reset:');
-            if (email && email.trim()) {
-                resetPassword(email.trim());
-            }
+            // Redirect to code-based password reset
+            window.location.href = 'reset-code.html';
         });
-
-        async function resetPassword(email) {
-            const errorMsg = document.getElementById('errorMsg');
-            
-            try {
-                errorMsg.innerText = 'Sending reset link...';
-                
-                const { data, error } = await window.geramaSupabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: `${window.location.origin}/reset-password.html`
-                });
-                
-                if (error) {
-                    errorMsg.innerText = 'Failed to send reset link. Please check your email.';
-                } else {
-                    errorMsg.innerText = 'Password reset link sent! Check your email.';
-                }
-            } catch (err) {
-                errorMsg.innerText = 'Error sending reset link. Please try again.';
-                console.error('Reset password error:', err);
-            }
-        }
     </script>
 </body>
 </html>

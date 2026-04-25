@@ -5,27 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GERAMA | Home</title>
     <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=1.3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        .news-card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            transition: transform 0.3s;
-            box-shadow: var(--shadow);
-        }
-        .news-card:hover { transform: translateY(-5px); }
-                .news-content { padding: 1.5rem; }
-        .announcement {
-            background: #fff8e7;
-            border-left: 4px solid var(--accent);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 12px;
-        }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/main.js"></script>
 </head>
@@ -41,60 +23,173 @@
             <a href="resources.html">Resources</a>
             <a href="about.html">About</a>
             <a href="contact.html">Contact</a>
-            <a href="#" id="logoutBtn" style="display:none;">Logout</a>
         </nav>
     </header>
 
     <section class="hero">
         <div class="hero-content">
             <h1>Welcome to GERAMA Academic Hub</h1>
-            <p>Empowering UENR students with free academic resources, past questions, and collaborative learning.</p>
-            <a href="resources.html" class="btn" style="margin-top: 1rem;">Explore Resources →</a>
+            <p>Empowering UENR engineering students with comprehensive academic resources, collaborative learning, and excellence-driven education.</p>
+            <div class="hero-buttons">
+                <a href="resources.html" class="btn-hero btn-primary">
+                    <i class="fas fa-book-open"></i> Explore Resources
+                </a>
+                <a href="dashboard.html" class="btn-hero btn-secondary">
+                    <i class="fas fa-user"></i> My Dashboard
+                </a>
+            </div>
         </div>
     </section>
 
     <div class="container">
-        <h2>Latest News & Updates</h2>
-        <div class="grid-3" style="margin-top: 1.5rem;">
-            <div class="news-card">
-                <div class="news-content">
-                    <h3>📢 Mid-Semester Tutorials</h3>
-                    <p>Date: 4th April 2026 | Venue: Syndicate Block, SH2</p>
+        <section class="features-section">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Academic Excellence</h3>
+                    <p>Access comprehensive study materials, past questions, and video tutorials across all engineering disciplines.</p>
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <span class="stat-number">1000+</span>
+                            <span class="stat-label">Study Materials</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">300+</span>
+                            <span class="stat-label">Active Students</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="news-card">
-                <div class="news-content">
-                    <h3>📚 New L100 Materials Added</h3>
-                    <p>All first-year engineering students can now access slides, books, past questions and video tutorial.</p>
-                </div>
-            </div>
-            <div class="news-card">
-                <div class="news-content">
-                    <h3>🎓 Team Gerama Group Studies Meeting with Bediser</h3>
-                    <p>Saturday, 18th April, 5:00 PM @ Syndicate Block.</p>
-                </div>
-            </div>
-        </div>
 
-        <div style="margin-top: 2rem;">
-            <h2>Announcements</h2>
-            <div class="announcement"><strong>📅 Mentorship Program</strong> – Coming Soon</div>
-            <div class="announcement"><strong>📢 Call for Tutors</strong> – Volunteer tutors needed for L100 and L200 Electrical Engineering.</div>
-            <div class="announcement"><strong>🎉 New Upload Feature</strong> – Students can now contribute their own study materials for review!</div>
-        </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Community Learning</h3>
+                    <p>Join a vibrant community of engineering students sharing knowledge and supporting each other's academic journey.</p>
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <span class="stat-number">8</span>
+                            <span class="stat-label">Engineering Programs</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">Expert Tutors</span>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="card" style="text-align: center; margin-top: 2rem;">
-            <h3>“Promoting Academic Excellence”</h3>
-            <p>Join a community of over 300+ active members across all engineering disciplines.</p>
-        </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Innovation Hub</h3>
+                    <p>Experience cutting-edge learning tools, mentorship programs, and career development opportunities.</p>
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <span class="stat-number">24/7</span>
+                            <span class="stat-label">Resource Access</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">Free</span>
+                            <span class="stat-label">For All Students</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="news-section">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary); font-size: 2rem;">
+                <i class="fas fa-newspaper"></i> Latest Updates & Announcements
+            </h2>
+            <div class="news-grid">
+                <div class="news-item">
+                    <div class="news-date">
+                        <i class="fas fa-calendar"></i> April 25, 2026
+                    </div>
+                    <h3>🎓 Mid-Semester Tutorials</h3>
+                    <p>Comprehensive tutorial sessions for all L100 and L200 courses starting next week. Venue: Syndicate Block, SH2.</p>
+                </div>
+                <div class="news-item">
+                    <div class="news-date">
+                        <i class="fas fa-calendar"></i> April 20, 2026
+                    </div>
+                    <h3>📚 New Materials Uploaded</h3>
+                    <p>Extensive collection of L200 Electrical Machines and Solid State Electronics materials now available.</p>
+                </div>
+                <div class="news-item">
+                    <div class="news-date">
+                        <i class="fas fa-calendar"></i> April 15, 2026
+                    </div>
+                    <h3>🤝 Mentorship Program Launch</h3>
+                    <p>Connect with senior students and alumni for guidance and career advice. Registration now open!</p>
+                </div>
+            </div>
+        </section>
     </div>
 
     <footer>
         <div class="footer-content">
-            <div class="footer-section"><h4>GERAMA @ UENR</h4><p>📍 Sunyani, Ghana</p><p>📧 gerama.uenr@gmail.com</p></div>
-            <div class="footer-section"><h4>Quick Links</h4><p><a href="index.html">Home</a> | <a href="about.html">About</a> | <a href="resources.html">Resources</a> | <a href="contact.html">Contact</a></p></div>
+            <div class="footer-section">
+                <h4><i class="fas fa-book-open"></i> GERAMA Resources</h4>
+                <p>Your gateway to academic excellence with comprehensive study materials, past questions, and collaborative learning resources.</p>
+                <div class="footer-stats">
+                    <div class="stat">
+                        <span class="stat-number">300+</span>
+                        <span class="stat-label">Active Students</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">Study Materials</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-rocket"></i> Quick Access</h4>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="resources.html"><i class="fas fa-download"></i> Download Center</a></li>
+                    <li><a href="about.html"><i class="fas fa-info-circle"></i> About GERAMA</a></li>
+                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-graduation-cap"></i> Academic Support</h4>
+                <ul>
+                    <li><a href="#"><i class="fas fa-video"></i> Video Tutorials</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Study Groups</a></li>
+                    <li><a href="#"><i class="fas fa-chalkboard-teacher"></i> Mentorship Program</a></li>
+                    <li><a href="#"><i class="fas fa-calendar"></i> Tutorial Schedule</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-share-alt"></i> Connect With Us</h4>
+                <p>Join our growing community of engineering students</p>
+                <div class="footer-social">
+                    <a href="https://wa.me/233555749497" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.linkedin.com/in/alexander-opoku-dwumaah" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+                <div class="footer-contact">
+                    <p><i class="fas fa-envelope"></i> gerama.uenr@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> UENR, Sunyani - Ghana</p>
+                </div>
+            </div>
         </div>
-        <div class="footer-bottom"><p>© 2026 GERAMA. Developed by: <span class="developer">Alexander O. Dwumaah</span> | Editor: <span class="editor">Edem H.K Prince</span></p></div>
+        
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <p>© 2026 GERAMA Academic Resources. Empowering Engineering Excellence</p>
+                <p>Developed by: <span class="developer">Alexander O. Dwumaah</span> | Editor: <span class="editor">Edem H.K Prince</span></p>
+            </div>
+        </div>
     </footer>
 </body>
 </html>

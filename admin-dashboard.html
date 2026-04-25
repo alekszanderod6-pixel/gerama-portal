@@ -252,6 +252,28 @@
     </style>
 </head>
 <body>
+    <script>
+        // Check if user is logged in and has admin access
+        window.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await window.geramaSupabase.auth.getUser();
+            
+            if (!user) {
+                alert('Access denied. Please login first.');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Check if user has admin privileges (you can modify this logic)
+            const userEmail = user.email;
+            const adminEmails = ['gerama.uenr@gmail.com', 'admin@gerama.com']; // Add admin emails
+            
+            if (!adminEmails.includes(userEmail)) {
+                alert('Access denied. Admin privileges required.');
+                window.location.href = 'index.html';
+                return;
+            }
+        });
+    </script>
     <!-- Login Screen -->
     <div id="loginScreen" class="login-container">
         <div class="login-header">

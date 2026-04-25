@@ -143,7 +143,7 @@
                 console.log('Starting signup process...');
                 console.log('Supabase client available:', typeof window.geramaSupabase !== 'undefined');
                 
-                // Sign up with Supabase using email only
+                // Sign up with Supabase and auto-confirm
                 const { data, error } = await window.geramaSupabase.auth.signUp({
                     email: email,
                     password: password,
@@ -155,6 +155,27 @@
                         emailRedirectTo: window.location.origin + '/login.html'
                     }
                 });
+
+                // Auto-confirm user by signing them in immediately
+                if (!error && data.user) {
+                    const { error: signInError } = await window.geramaSupabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    
+                    if (!signInError) {
+                        // Set user metadata to confirm account
+                        await window.geramaSupabase.auth.updateUser({
+                            data: { 
+                                email_confirmed: true,
+                                invite_code_verified: true 
+                            }
+                        });
+                        
+                        // Sign out to allow fresh login
+                        await window.geramaSupabase.auth.signOut();
+                    }
+                }
                 
                 console.log('Signup response:', { data, error });
                 
@@ -173,10 +194,9 @@
                     return;
                 }
                 
-                // After successful signup, redirect to login page for manual login
+                // After successful signup
                 if (data.user) {
                     console.log('User created successfully');
-                    
                     messageDiv.innerHTML = '<span class="success">Account created successfully! Please login with your credentials.</span>';
                     
                     // Redirect to login page after 2 seconds
