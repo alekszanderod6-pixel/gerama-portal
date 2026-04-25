@@ -173,53 +173,14 @@
                     return;
                 }
                 
-                // Try to auto-login the user immediately after signup
+                // After successful signup, redirect to login page for manual login
                 if (data.user) {
-                    console.log('User created successfully, attempting auto-login...');
+                    console.log('User created successfully');
                     
-                    // Try to sign in immediately after signup
-                    try {
-                        const { data: loginData, error: loginError } = await window.geramaSupabase.auth.signInWithPassword({
-                            email: email,
-                            password: password
-                        });
-                        
-                        console.log('Auto-login attempt:', { loginData, loginError });
-                        
-                        if (!loginError && loginData.user) {
-                            // Store session and profile
-                            sessionStorage.setItem('gerama_loggedIn', 'true');
-                            
-                            // Store user profile in localStorage for sidebar
-                            localStorage.setItem('gerama_profile', JSON.stringify({
-                                name: username,
-                                program: 'GERAMA Member',
-                                img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
-                            }));
-                            
-                            messageDiv.innerHTML = '<span class="success">Account created! Redirecting to dashboard...</span>';
-                            
-                            // Redirect to home page immediately
-                            setTimeout(() => { window.location.href = 'index.html'; }, 1500);
-                        } else {
-                            // If auto-login fails, user needs to verify email first
-                            messageDiv.innerHTML = '<span class="success">Account created! Please check your email to verify, then login.</span>';
-                            
-                            // Store user profile in localStorage for sidebar
-                            localStorage.setItem('gerama_profile', JSON.stringify({
-                                name: username,
-                                program: 'GERAMA Member',
-                                img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
-                            }));
-                            
-                            // Redirect to login after 3 seconds
-                            setTimeout(() => { window.location.href = 'login.html'; }, 3000);
-                        }
-                    } catch (autoLoginErr) {
-                        console.error('Auto-login error:', autoLoginErr);
-                        messageDiv.innerHTML = '<span class="success">Account created! Please check your email to verify, then login.</span>';
-                        setTimeout(() => { window.location.href = 'login.html'; }, 3000);
-                    }
+                    messageDiv.innerHTML = '<span class="success">Account created successfully! Please login with your credentials.</span>';
+                    
+                    // Redirect to login page after 2 seconds
+                    setTimeout(() => { window.location.href = 'login.html'; }, 2000);
                 } else {
                     messageDiv.innerHTML = '<span class="error">Account creation failed. Please try again.</span>';
                 }
