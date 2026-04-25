@@ -158,8 +158,9 @@
                     return;
                 }
                 
-                // Check if user has invite code verified
-                if (!data.user.user_metadata.invite_code_verified) {
+                // Check if user has invite code verified (handle both confirmed and unconfirmed users)
+                const userMetadata = data.user.user_metadata || {};
+                if (userMetadata.invite_code_verified !== true) {
                     errorMsg.innerText = 'Account not verified. Please contact admin.';
                     await window.geramaSupabase.auth.signOut();
                     return;

@@ -140,6 +140,9 @@
             messageDiv.innerHTML = '<span class="success">Creating account...</span>';
             
             try {
+                console.log('Starting signup process...');
+                console.log('Supabase client available:', typeof window.geramaSupabase !== 'undefined');
+                
                 // Sign up with Supabase using email only
                 const { data, error } = await window.geramaSupabase.auth.signUp({
                     email: email,
@@ -152,6 +155,8 @@
                         emailRedirectTo: window.location.origin + '/login.html'
                     }
                 });
+                
+                console.log('Signup response:', { data, error });
                 
                 if (error) {
                     let friendlyMessage = 'Registration failed. Please try again.';
@@ -168,17 +173,56 @@
                     return;
                 }
                 
-                // Store user profile in localStorage for sidebar
-                localStorage.setItem('gerama_profile', JSON.stringify({
-                    name: username,
-                    program: 'GERAMA Member',
-                    img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
-                }));
-                
-                messageDiv.innerHTML = '<span class="success">Account created! You can now login immediately.</span>';
-                
-                // Redirect to login after 2 seconds
-                setTimeout(() => { window.location.href = 'login.html'; }, 2000);
+                // Try to auto-login the user immediately after signup
+                if (data.user) {
+                    console.log('User created successfully, attempting auto-login...');
+                    
+                    // Try to sign in immediately after signup
+                    try {
+                        const { data: loginData, error: loginError } = await window.geramaSupabase.auth.signInWithPassword({
+                            email: email,
+                            password: password
+                        });
+                        
+                        console.log('Auto-login attempt:', { loginData, loginError });
+                        
+                        if (!loginError && loginData.user) {
+                            // Store session and profile
+                            sessionStorage.setItem('gerama_loggedIn', 'true');
+                            
+                            // Store user profile in localStorage for sidebar
+                            localStorage.setItem('gerama_profile', JSON.stringify({
+                                name: username,
+                                program: 'GERAMA Member',
+                                img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
+                            }));
+                            
+                            messageDiv.innerHTML = '<span class="success">Account created! Redirecting to dashboard...</span>';
+                            
+                            // Redirect to home page immediately
+                            setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                        } else {
+                            // If auto-login fails, user needs to verify email first
+                            messageDiv.innerHTML = '<span class="success">Account created! Please check your email to verify, then login.</span>';
+                            
+                            // Store user profile in localStorage for sidebar
+                            localStorage.setItem('gerama_profile', JSON.stringify({
+                                name: username,
+                                program: 'GERAMA Member',
+                                img: 'https://via.placeholder.com/80?text=' + username.charAt(0).toUpperCase()
+                            }));
+                            
+                            // Redirect to login after 3 seconds
+                            setTimeout(() => { window.location.href = 'login.html'; }, 3000);
+                        }
+                    } catch (autoLoginErr) {
+                        console.error('Auto-login error:', autoLoginErr);
+                        messageDiv.innerHTML = '<span class="success">Account created! Please check your email to verify, then login.</span>';
+                        setTimeout(() => { window.location.href = 'login.html'; }, 3000);
+                    }
+                } else {
+                    messageDiv.innerHTML = '<span class="error">Account creation failed. Please try again.</span>';
+                }
                 
             } catch (err) {
                 messageDiv.innerHTML = '<span class="error">Registration failed. Please try again.</span>';
