@@ -479,44 +479,47 @@
         let currentCourse = "";
         let currentCategory = "slides";
 
-        // Populate course dropdown with all available courses across all programs
+        // Populate course dropdown based on selected level and program
         function updateCourseDropdown() {
             const courseSelect = document.getElementById('courseSelect');
+            const levelSelect = document.getElementById('levelSelect');
+            const programSelect = document.getElementById('programSelect');
+            
+            // Get current selections
+            currentLevel = levelSelect.value;
+            currentProgram = programSelect.value;
             
             // Clear current selection
             currentCourse = "";
-            courseSelect.innerHTML = '<option value="">-- All Available Courses --</option>';
+            courseSelect.innerHTML = '<option value="">-- Select Course --</option>';
             
-            // Collect all courses from all programs and levels
-            const allCourses = new Set();
+            // Collect courses for the selected level and program
+            const availableCourses = [];
             
-            // Iterate through all levels and programs to find courses with materials
-            Object.keys(materialsDB).forEach(level => {
-                Object.keys(materialsDB[level]).forEach(program => {
-                    Object.keys(materialsDB[level][program]).forEach(course => {
-                        // Check if course has any materials
-                        const courseData = materialsDB[level][program][course];
-                        const hasMaterials = courseData.slides.length > 0 || 
-                                         courseData.books.length > 0 || 
-                                         courseData.pastq.length > 0 || 
-                                         courseData.videos.length > 0;
-                        
-                        if (hasMaterials) {
-                            // Add course with program info for clarity
-                            allCourses.add(`${course} (${program})`);
-                        }
-                    });
+            // Check if level and program exist in database
+            if (materialsDB[currentLevel] && materialsDB[currentLevel][currentProgram]) {
+                Object.keys(materialsDB[currentLevel][currentProgram]).forEach(course => {
+                    // Check if course has any materials
+                    const courseData = materialsDB[currentLevel][currentProgram][course];
+                    const hasMaterials = courseData.slides.length > 0 || 
+                                     courseData.books.length > 0 || 
+                                     courseData.pastq.length > 0 || 
+                                     courseData.videos.length > 0;
+                    
+                    if (hasMaterials) {
+                        availableCourses.push(course);
+                    }
                 });
-            });
+            }
             
             // Sort courses alphabetically
-            const sortedCourses = Array.from(allCourses).sort();
+            const sortedCourses = availableCourses.sort();
             
             // Add courses to dropdown
-            sortedCourses.forEach(courseWithProgram => {
+            sortedCourses.forEach(courseName => {
                 const option = document.createElement('option');
-                option.value = courseWithProgram;
-                option.textContent = courseWithProgram;
+                option.value = courseName;
+                option.textContent = courseName;
                 courseSelect.appendChild(option);
             });
             
@@ -524,7 +527,7 @@
             if (sortedCourses.length === 0) {
                 const option = document.createElement('option');
                 option.value = "";
-                option.textContent = "No courses available";
+                option.textContent = `No courses available for ${currentProgram} ${currentLevel}`;
                 option.disabled = true;
                 courseSelect.appendChild(option);
             }
@@ -546,32 +549,17 @@
                 return;
             }
             
-            // Parse course and program from selection (format: "Course Name (Program)")
-            let courseName = currentCourse;
-            let programName = currentProgram;
+            // Use current course name directly (no parsing needed now)
+            const courseName = currentCourse;
             
-            if (currentCourse.includes(' (') && currentCourse.includes(')')) {
-                const match = currentCourse.match(/(.+) \((.+)\)/);
-                if (match) {
-                    courseName = match[1];
-                    programName = match[2];
-                }
-            }
-            
-            // Search for course across all levels and programs
+            // Find course in the current level and program
             let foundCourse = null;
-            let foundLevel = null;
-            let foundProgram = null;
             
-            Object.keys(materialsDB).forEach(level => {
-                Object.keys(materialsDB[level]).forEach(program => {
-                    if (materialsDB[level][program][courseName]) {
-                        foundCourse = materialsDB[level][program][courseName];
-                        foundLevel = level;
-                        foundProgram = program;
-                    }
-                });
-            });
+            if (materialsDB[currentLevel] && 
+                materialsDB[currentLevel][currentProgram] && 
+                materialsDB[currentLevel][currentProgram][courseName]) {
+                foundCourse = materialsDB[currentLevel][currentProgram][courseName];
+            }
             
             if (!foundCourse || !foundCourse[currentCategory] || foundCourse[currentCategory].length === 0) {
                 document.getElementById('materialsContainer').innerHTML = `<p>No ${currentCategory} materials available for ${courseName}.</p>`;

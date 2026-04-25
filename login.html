@@ -112,7 +112,8 @@
                 <div id="errorMsg" class="error-message"></div>
             </form>
             <div class="signup-link">
-                Don't have an account? <a href="signup.html">Join GERAMA</a>
+                Don't have an account? <a href="signup.html">Join GERAMA</a><br>
+                <a href="#" id="forgotPasswordLink" style="color: #666; font-size: 0.85rem; margin-top: 0.5rem; display: inline-block;">Forgot Password?</a>
             </div>
         </div>
     </div>
@@ -188,6 +189,36 @@
                 console.error('Login error:', err);
             }
         });
+
+        // Forgot password handler
+        document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = prompt('Enter your email address for password reset:');
+            if (email && email.trim()) {
+                resetPassword(email.trim());
+            }
+        });
+
+        async function resetPassword(email) {
+            const errorMsg = document.getElementById('errorMsg');
+            
+            try {
+                errorMsg.innerText = 'Sending reset link...';
+                
+                const { data, error } = await window.geramaSupabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/reset-password.html`
+                });
+                
+                if (error) {
+                    errorMsg.innerText = 'Failed to send reset link. Please check your email.';
+                } else {
+                    errorMsg.innerText = 'Password reset link sent! Check your email.';
+                }
+            } catch (err) {
+                errorMsg.innerText = 'Error sending reset link. Please try again.';
+                console.error('Reset password error:', err);
+            }
+        }
     </script>
 </body>
 </html>

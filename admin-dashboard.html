@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | GERAMA Portal</title>
+    <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a2f1f 0%, #1B5E20 100%);
+            min-height: 100vh;
+        }
+        .admin-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-header h1 {
+            color: #1B5E20;
+            font-size: 1.5rem;
+        }
+        .admin-nav {
+            display: flex;
+            gap: 1rem;
+        }
+        .nav-btn {
+            padding: 0.5rem 1rem;
+            background: #1B5E20;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: #FFC107;
+            color: #1B5E20;
+        }
+        .admin-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1B5E20;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            color: #1B5E20;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .admin-table th {
+            background: #f8fafc;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #1B5E20;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .admin-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .admin-table tr:hover {
+            background: #f8fafc;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-action {
+            padding: 0.25rem 0.75rem;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+        .btn-approve {
+            background: #10b981;
+            color: white;
+        }
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-view {
+            background: #3b82f6;
+            color: white;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+        .announcement-form {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1B5E20;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: inherit;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .btn-primary {
+            background: #1B5E20;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: #FFC107;
+            color: #1B5E20;
+            transform: translateY(-2px);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 5rem auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-header img {
+            width: 80px;
+            margin-bottom: 1rem;
+        }
+        .login-header h2 {
+            color: #1B5E20;
+            margin-bottom: 0.5rem;
+        }
+        .login-header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            .admin-container { padding: 0 1rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .admin-header { flex-direction: column; gap: 1rem; }
+            .admin-nav { flex-wrap: wrap; justify-content: center; }
+            .section-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-header">
+            <img src="images/geramalogo.jpg" alt="GERAMA">
+            <h2>Admin Access</h2>
+            <p>Enter your admin credentials to access the dashboard</p>
+        </div>
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label>Admin Username</label>
+                <input type="text" id="adminUsername" required placeholder="Enter admin username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="adminPassword" required placeholder="Enter admin password">
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%;">Login to Dashboard</button>
+        </form>
+        <div id="loginError" style="color: #ef4444; margin-top: 1rem; text-align: center;"></div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="dashboardScreen" style="display: none;">
+        <header class="admin-header">
+            <h1><i class="fas fa-cog"></i> GERAMA Admin Dashboard</h1>
+            <div class="admin-nav">
+                <button class="nav-btn active" data-section="overview">Overview</button>
+                <button class="nav-btn" data-section="materials">Materials</button>
+                <button class="nav-btn" data-section="contacts">Contacts</button>
+                <button class="nav-btn" data-section="assistance">Assistance</button>
+                <button class="nav-btn" data-section="announcements">Announcements</button>
+                <button class="nav-btn" id="logoutBtn">Logout</button>
+            </div>
+        </header>
+
+        <div class="admin-container">
+            <!-- Overview Section -->
+            <section id="overview" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalMaterials">0</div>
+                        <div class="stat-label">Pending Materials</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalContacts">0</div>
+                        <div class="stat-label">Contact Messages</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalAssistance">0</div>
+                        <div class="stat-label">Assistance Requests</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalUsers">0</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Materials Section -->
+            <section id="materials" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Material Submissions</h2>
+                    <span id="materialsCount"></span>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Level</th>
+                                <th>Program</th>
+                                <th>Type</th>
+                                <th>File Name</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="materialsTableBody">
+                            <tr>
+                                <td colspan="8" class="empty-state">
+                                    <i class="fas fa-folder-open"></i>
+                                    <p>No material submissions found</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Contacts Section -->
+            <section id="contacts" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Contact Messages</h2>
+                    <span id="contactsCount"></span>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contactsTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <i class="fas fa-envelope"></i>
+                                    <p>No contact messages found</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Assistance Section -->
+            <section id="assistance" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Academic Assistance Requests</h2>
+                    <span id="assistanceCount"></span>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Challenge</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assistanceTableBody">
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <p>No assistance requests found</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Announcements Section -->
+            <section id="announcements" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Manage Announcements</h2>
+                    <button class="btn-primary" id="addAnnouncementBtn">+ New Announcement</button>
+                </div>
+                
+                <div class="announcement-form" id="announcementForm" style="display: none;">
+                    <h3>Create New Announcement</h3>
+                    <form id="newAnnouncementForm">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="announcementTitle" required placeholder="Enter announcement title">
+                        </div>
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea id="announcementMessage" required placeholder="Enter announcement message"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Priority</label>
+                            <select id="announcementPriority" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 10px;">
+                                <option value="normal">Normal</option>
+                                <option value="important">Important</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="btn-primary">Publish Announcement</button>
+                            <button type="button" class="btn-action" id="cancelAnnouncementBtn" style="background: #6b7280; color: white;">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Message</th>
+                                <th>Priority</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="announcementsTableBody">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <i class="fas fa-bullhorn"></i>
+                                    <p>No announcements found</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Admin credentials (you should change these)
+        const ADMIN_CREDENTIALS = {
+            username: 'gerama_admin',
+            password: 'GERAMA2026_admin!'
+        };
+
+        // Check if already logged in
+        if (sessionStorage.getItem('gerama_admin_logged_in') === 'true') {
+            showDashboard();
+        }
+
+        // Login handler
+        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                sessionStorage.setItem('gerama_admin_logged_in', 'true');
+                showDashboard();
+            } else {
+                errorDiv.textContent = 'Invalid credentials. Please try again.';
+            }
+        });
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('gerama_admin_logged_in');
+            showLogin();
+        });
+
+        function showLogin() {
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('dashboardScreen').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboardScreen').style.display = 'block';
+            loadDashboardData();
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-btn[data-section]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const section = btn.dataset.section;
+                
+                // Update active button
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Show corresponding section
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+            });
+        });
+
+        // Load dashboard data
+        function loadDashboardData() {
+            loadMaterials();
+            loadContacts();
+            loadAssistance();
+            loadAnnouncements();
+            updateStats();
+        }
+
+        // Load material submissions
+        function loadMaterials() {
+            const materials = JSON.parse(localStorage.getItem('gerama_uploads') || '[]');
+            const tbody = document.getElementById('materialsTableBody');
+            const count = document.getElementById('materialsCount');
+            
+            if (materials.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-folder-open"></i><p>No material submissions found</p></td></tr>';
+                count.textContent = '0 submissions';
+                return;
+            }
+            
+            tbody.innerHTML = materials.map((material, index) => `
+                <tr>
+                    <td>${material.course}</td>
+                    <td>${material.level}</td>
+                    <td>${material.program}</td>
+                    <td>${material.type}</td>
+                    <td>${material.fileName}</td>
+                    <td>${new Date(material.date).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-pending">Pending</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-approve" onclick="approveMaterial(${index})">Approve</button>
+                            <button class="btn-action btn-reject" onclick="rejectMaterial(${index})">Reject</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            count.textContent = `${materials.length} submissions`;
+        }
+
+        // Load contact messages
+        function loadContacts() {
+            const contacts = JSON.parse(localStorage.getItem('gerama_contacts') || '[]');
+            const tbody = document.getElementById('contactsTableBody');
+            const count = document.getElementById('contactsCount');
+            
+            if (contacts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-envelope"></i><p>No contact messages found</p></td></tr>';
+                count.textContent = '0 messages';
+                return;
+            }
+            
+            tbody.innerHTML = contacts.map((contact, index) => `
+                <tr>
+                    <td>${contact.name}</td>
+                    <td>${contact.email}</td>
+                    <td>${contact.message.substring(0, 100)}${contact.message.length > 100 ? '...' : ''}</td>
+                    <td>${new Date(contact.timestamp).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-pending">Pending</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-view" onclick="viewContact(${index})">View</button>
+                            <button class="btn-action btn-approve" onclick="markContactResolved(${index})">Resolve</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            count.textContent = `${contacts.length} messages`;
+        }
+
+        // Load assistance requests
+        function loadAssistance() {
+            const requests = JSON.parse(localStorage.getItem('gerama_assistance_requests') || '[]');
+            const tbody = document.getElementById('assistanceTableBody');
+            const count = document.getElementById('assistanceCount');
+            
+            if (requests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fas fa-graduation-cap"></i><p>No assistance requests found</p></td></tr>';
+                count.textContent = '0 requests';
+                return;
+            }
+            
+            tbody.innerHTML = requests.map((request, index) => `
+                <tr>
+                    <td>${request.course}</td>
+                    <td>${request.challenge.substring(0, 100)}${request.challenge.length > 100 ? '...' : ''}</td>
+                    <td>${new Date(request.timestamp).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-pending">Pending</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-view" onclick="viewAssistance(${index})">View</button>
+                            <button class="btn-action btn-approve" onclick="assignTutor(${index})">Assign Tutor</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            count.textContent = `${requests.length} requests`;
+        }
+
+        // Load announcements
+        function loadAnnouncements() {
+            const announcements = JSON.parse(localStorage.getItem('gerama_announcements') || '[]');
+            const tbody = document.getElementById('announcementsTableBody');
+            
+            if (announcements.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-bullhorn"></i><p>No announcements found</p></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = announcements.map((announcement, index) => `
+                <tr>
+                    <td>${announcement.title}</td>
+                    <td>${announcement.message.substring(0, 100)}${announcement.message.length > 100 ? '...' : ''}</td>
+                    <td><span class="status-badge">${announcement.priority}</span></td>
+                    <td>${new Date(announcement.date).toLocaleDateString()}</td>
+                    <td><span class="status-badge ${announcement.active ? 'status-approved' : 'status-rejected'}">${announcement.active ? 'Active' : 'Inactive'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-view" onclick="viewAnnouncement(${index})">View</button>
+                            <button class="btn-action ${announcement.active ? 'btn-reject' : 'btn-approve'}" onclick="toggleAnnouncement(${index})">${announcement.active ? 'Deactivate' : 'Activate'}</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Update statistics
+        function updateStats() {
+            const materials = JSON.parse(localStorage.getItem('gerama_uploads') || '[]');
+            const contacts = JSON.parse(localStorage.getItem('gerama_contacts') || '[]');
+            const assistance = JSON.parse(localStorage.getItem('gerama_assistance_requests') || '[]');
+            
+            document.getElementById('totalMaterials').textContent = materials.length;
+            document.getElementById('totalContacts').textContent = contacts.length;
+            document.getElementById('totalAssistance').textContent = assistance.length;
+            document.getElementById('totalUsers').textContent = '127'; // Simulated user count
+        }
+
+        // Material actions
+        function approveMaterial(index) {
+            const materials = JSON.parse(localStorage.getItem('gerama_uploads') || '[]');
+            materials[index].status = 'approved';
+            localStorage.setItem('gerama_uploads', JSON.stringify(materials));
+            loadMaterials();
+            alert('Material approved and added to the resource library!');
+        }
+
+        function rejectMaterial(index) {
+            if (confirm('Are you sure you want to reject this material?')) {
+                const materials = JSON.parse(localStorage.getItem('gerama_uploads') || '[]');
+                materials.splice(index, 1);
+                localStorage.setItem('gerama_uploads', JSON.stringify(materials));
+                loadMaterials();
+                alert('Material rejected and removed.');
+            }
+        }
+
+        // Contact actions
+        function viewContact(index) {
+            const contacts = JSON.parse(localStorage.getItem('gerama_contacts') || '[]');
+            const contact = contacts[index];
+            alert(`Full Message:\n\nFrom: ${contact.name}\nEmail: ${contact.email}\n\n${contact.message}`);
+        }
+
+        function markContactResolved(index) {
+            const contacts = JSON.parse(localStorage.getItem('gerama_contacts') || '[]');
+            contacts[index].status = 'resolved';
+            localStorage.setItem('gerama_contacts', JSON.stringify(contacts));
+            loadContacts();
+            alert('Contact marked as resolved!');
+        }
+
+        // Assistance actions
+        function viewAssistance(index) {
+            const requests = JSON.parse(localStorage.getItem('gerama_assistance_requests') || '[]');
+            const request = requests[index];
+            alert(`Full Request:\n\nCourse: ${request.course}\n\nChallenge:\n${request.challenge}`);
+        }
+
+        function assignTutor(index) {
+            const requests = JSON.parse(localStorage.getItem('gerama_assistance_requests') || '[]');
+            requests[index].status = 'assigned';
+            localStorage.setItem('gerama_assistance_requests', JSON.stringify(requests));
+            loadAssistance();
+            alert('Tutor assigned to this request!');
+        }
+
+        // Announcement actions
+        document.getElementById('addAnnouncementBtn').addEventListener('click', () => {
+            document.getElementById('announcementForm').style.display = 'block';
+        });
+
+        document.getElementById('cancelAnnouncementBtn').addEventListener('click', () => {
+            document.getElementById('announcementForm').style.display = 'none';
+            document.getElementById('newAnnouncementForm').reset();
+        });
+
+        document.getElementById('newAnnouncementForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('announcementTitle').value;
+            const message = document.getElementById('announcementMessage').value;
+            const priority = document.getElementById('announcementPriority').value;
+            
+            const announcements = JSON.parse(localStorage.getItem('gerama_announcements') || '[]');
+            announcements.push({
+                title,
+                message,
+                priority,
+                date: new Date().toISOString(),
+                active: true
+            });
+            
+            localStorage.setItem('gerama_announcements', JSON.stringify(announcements));
+            
+            document.getElementById('announcementForm').style.display = 'none';
+            e.target.reset();
+            loadAnnouncements();
+            alert('Announcement published successfully!');
+        });
+
+        function viewAnnouncement(index) {
+            const announcements = JSON.parse(localStorage.getItem('gerama_announcements') || '[]');
+            const announcement = announcements[index];
+            alert(`Full Announcement:\n\nTitle: ${announcement.title}\nPriority: ${announcement.priority}\n\n${announcement.message}`);
+        }
+
+        function toggleAnnouncement(index) {
+            const announcements = JSON.parse(localStorage.getItem('gerama_announcements') || '[]');
+            announcements[index].active = !announcements[index].active;
+            localStorage.setItem('gerama_announcements', JSON.stringify(announcements));
+            loadAnnouncements();
+        }
+    </script>
+</body>
+</html>

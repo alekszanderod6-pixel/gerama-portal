@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/main.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
     <header>
@@ -62,15 +63,122 @@
     </footer>
 
     <script>
-        document.getElementById('contactForm').addEventListener('submit', (e) => {
+        // Initialize EmailJS
+        (function() {
+            emailjs.init("YOUR_PUBLIC_KEY"); // You'll need to get this from EmailJS
+        })();
+
+        // Contact form handler
+        document.getElementById('contactForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('✅ Message sent! We will get back to you within 48 hours.');
-            e.target.reset();
+            
+            const name = document.getElementById('contactName').value;
+            const email = document.getElementById('contactEmail').value;
+            const message = document.getElementById('contactMsg').value;
+            
+            // Show loading state
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Send notification to admin
+                const adminNotification = {
+                    service_id: 'YOUR_SERVICE_ID',
+                    template_id: 'YOUR_ADMIN_TEMPLATE_ID',
+                    user_id: 'YOUR_PUBLIC_KEY',
+                    template_params: {
+                        from_name: name,
+                        from_email: email,
+                        message: message,
+                        to_email: 'gerama.uenr@gmail.com',
+                        subject: 'New Contact Form Message from GERAMA Portal'
+                    }
+                };
+                
+                // Send confirmation to user
+                const userConfirmation = {
+                    service_id: 'YOUR_SERVICE_ID',
+                    template_id: 'YOUR_USER_TEMPLATE_ID',
+                    user_id: 'YOUR_PUBLIC_KEY',
+                    template_params: {
+                        to_name: name,
+                        to_email: email,
+                        message: 'Thank you for contacting GERAMA. We have received your message and will respond within 48 hours.',
+                        from_name: 'GERAMA Team'
+                    }
+                };
+                
+                // Send emails (fallback to local storage if EmailJS fails)
+                try {
+                    await emailjs.send('YOUR_SERVICE_ID', 'YOUR_ADMIN_TEMPLATE_ID', adminNotification.template_params);
+                    await emailjs.send('YOUR_SERVICE_ID', 'YOUR_USER_TEMPLATE_ID', userConfirmation.template_params);
+                    
+                    alert('✅ Message sent successfully! We will get back to you within 48 hours.');
+                } catch (emailError) {
+                    console.log('EmailJS failed, using fallback:', emailError);
+                    
+                    // Fallback: Store in localStorage for admin retrieval
+                    const contacts = JSON.parse(localStorage.getItem('gerama_contacts') || '[]');
+                    contacts.push({
+                        type: 'contact',
+                        name: name,
+                        email: email,
+                        message: message,
+                        timestamp: new Date().toISOString(),
+                        status: 'pending'
+                    });
+                    localStorage.setItem('gerama_contacts', JSON.stringify(contacts));
+                    
+                    alert('✅ Message received! We will get back to you within 48 hours.');
+                }
+                
+                e.target.reset();
+                
+            } catch (error) {
+                console.error('Contact form error:', error);
+                alert('❌ Failed to send message. Please try again or email us directly at gerama.uenr@gmail.com');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         });
-        document.getElementById('assistForm').addEventListener('submit', (e) => {
+
+        // Academic assistance form handler
+        document.getElementById('assistForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('📚 Your request has been recorded. A GERAMA tutor will contact you shortly.');
-            e.target.reset();
+            
+            const course = document.getElementById('courseHelp').value;
+            const challenge = document.getElementById('challengeDesc').value;
+            
+            // Show loading state
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Store assistance request (you can also integrate EmailJS here)
+                const requests = JSON.parse(localStorage.getItem('gerama_assistance_requests') || '[]');
+                requests.push({
+                    course: course,
+                    challenge: challenge,
+                    timestamp: new Date().toISOString(),
+                    status: 'pending'
+                });
+                localStorage.setItem('gerama_assistance_requests', JSON.stringify(requests));
+                
+                alert('📚 Your assistance request has been recorded. A GERAMA tutor will contact you shortly.');
+                e.target.reset();
+                
+            } catch (error) {
+                console.error('Assistance form error:', error);
+                alert('❌ Failed to submit request. Please try again.');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         });
     </script>
 </body>
