@@ -3,18 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GERAMA | Home</title>
+    <meta name="description" content="GERAMA Academic Resources - Empowering UENR engineering students with comprehensive study materials, past questions, and collaborative learning.">
+    <meta name="keywords" content="GERAMA, UENR, engineering, academic resources, study materials, past questions, tutorials">
+    <meta property="og:title" content="Home | GERAMA Academic Resources">
+    <meta property="og:description" content="Empowering UENR engineering students with comprehensive study materials, past questions, and collaborative learning.">
+    <meta property="og:image" content="images/geramalogo.jpg">
+    <meta property="og:url" content="https://gerama-portal.com/">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>GERAMA | Academic Resources Portal</title>
     <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
-    <link rel="stylesheet" href="css/style.css?v=1.3">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/main.js"></script>
 </head>
 <body>
+    <!-- HEADER -->
     <header>
         <div class="logo-container">
-            <img src="images/geramalogo.jpg" alt="GERAMA">
+            <img src="images/geramalogo.jpg" alt="GERAMA Logo">
             <img src="images/uenr logo.png" alt="UENR">
             <h2>GERAMA ACADEMIC RESOURCES</h2>
         </div>
@@ -26,108 +34,177 @@
         </nav>
     </header>
 
+    <!-- HERO SECTION WITH SLIDESHOW -->
     <section class="hero">
+        <div class="hero-slider">
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/aleks.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/edem.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/gad.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/abena.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/alma.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/ediser.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/kamil.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/mavis.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/mawuli.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/pasword.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/rabbi.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/rashida.jpg');"></div>
+            <div class="slide" style="background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('images/aaron.jpg');"></div>
+        </div>
         <div class="hero-content">
-            <h1>Welcome to GERAMA Academic Hub</h1>
-            <p>Empowering UENR engineering students with comprehensive academic resources, collaborative learning, and excellence-driven education.</p>
+            <h1>Empowering Engineering Excellence</h1>
+            <p>Your gateway to comprehensive academic resources, collaborative learning, and professional development at UENR</p>
             <div class="hero-buttons">
-                <a href="resources.html" class="btn-hero btn-primary">
+                <a href="resources.html" class="btn btn-primary">
                     <i class="fas fa-book-open"></i> Explore Resources
                 </a>
-                <a href="dashboard.html" class="btn-hero btn-secondary">
+                <a href="dashboard.html" class="btn btn-secondary">
                     <i class="fas fa-user"></i> My Dashboard
                 </a>
             </div>
         </div>
     </section>
 
+    <!-- MAIN CONTENT -->
     <div class="container">
-        <section class="features-section">
+        <!-- Explore Section -->
+        <div class="explore-section">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2>Welcome to GERAMA Portal</h2>
+                <p style="color: #5a6e7c; max-width: 700px; margin: 0 auto;">Your comprehensive platform for academic resources, study materials, and collaborative learning across all engineering disciplines</p>
+            </div>
+            
+            <div class="explore-grid">
+                <div class="explore-card">
+                    <div class="explore-icon">🎓</div>
+                    <h3>Academic Excellence</h3>
+                    <p>Access comprehensive study materials, past questions, and video tutorials across all engineering disciplines</p>
+                    <a href="resources.html" class="btn">Browse Resources →</a>
+                </div>
+                
+                <div class="explore-card">
+                    <div class="explore-icon">👥</div>
+                    <h3>Community Learning</h3>
+                    <p>Join a vibrant community of engineering students sharing knowledge and supporting each other's academic journey</p>
+                    <a href="dashboard.html" class="btn">Join Community →</a>
+                </div>
+                
+                <div class="explore-card">
+                    <div class="explore-icon">🚀</div>
+                    <h3>Innovation Hub</h3>
+                    <p>Experience cutting-edge learning tools, mentorship programs, and career development opportunities</p>
+                    <a href="about.html" class="btn">Discover More →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="section-header">
+                <h2>Platform Impact</h2>
+                <p>Real-time statistics of our growing academic community</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-number">1000+</div>
+                    <div class="stat-label">Study Materials</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number">300+</div>
+                    <div class="stat-label">Active Students</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Engineering Programs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏰</div>
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Resource Access</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEWS SECTION -->
+        <div class="news-section">
+            <div class="section-header">
+                <h2>Latest News & Updates</h2>
+                <a href="#" class="btn btn-outline">View All News →</a>
+            </div>
+            
+            <div class="news-grid">
+                <!-- News Item 1 -->
+                <div class="news-card">
+                    <img src="images/geramalogo.jpg" alt="GERAMA Resources" class="news-img">
+                    <div class="news-content">
+                        <div class="news-date">📅 April 25, 2026</div>
+                        <h3>📚 New L200 Materials Added</h3>
+                        <p>Extensive collection of L200 Electrical Machines and Solid State Electronics materials now available for all engineering programs.</p>
+                        <a href="#" class="read-more">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- News Item 2 -->
+                <div class="news-card">
+                    <img src="images/uenr logo.png" alt="UENR Campus" class="news-img">
+                    <div class="news-content">
+                        <div class="news-date">📅 April 20, 2026</div>
+                        <h3>🎓 Mid-Semester Tutorials</h3>
+                        <p>Comprehensive tutorial sessions for all L100 and L200 courses starting next week at Syndicate Block.</p>
+                        <a href="#" class="read-more">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- News Item 3 -->
+                <div class="news-card">
+                    <img src="images/geramalogo.jpg" alt="GERAMA Community" class="news-img">
+                    <div class="news-content">
+                        <div class="news-date">📅 April 15, 2026</div>
+                        <h3>🤝 Mentorship Program Launch</h3>
+                        <p>Connect with senior students and alumni for guidance and career advice. Registration now open!</p>
+                        <a href="#" class="read-more">Read More →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <div class="section-header">
+                <h2>Why Choose GERAMA?</h2>
+                <p>Comprehensive features designed for engineering excellence</p>
+            </div>
+            
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <h3>Academic Excellence</h3>
-                    <p>Access comprehensive study materials, past questions, and video tutorials across all engineering disciplines.</p>
-                    <div class="stats-container">
-                        <div class="stat-item">
-                            <span class="stat-number">1000+</span>
-                            <span class="stat-label">Study Materials</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">300+</span>
-                            <span class="stat-label">Active Students</span>
-                        </div>
-                    </div>
+                    <div class="feature-icon">📖</div>
+                    <h3>Comprehensive Resources</h3>
+                    <p>Access slides, books, past questions, and video tutorials organized by course and level</p>
                 </div>
-
+                
                 <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h3>Community Learning</h3>
-                    <p>Join a vibrant community of engineering students sharing knowledge and supporting each other's academic journey.</p>
-                    <div class="stats-container">
-                        <div class="stat-item">
-                            <span class="stat-number">8</span>
-                            <span class="stat-label">Engineering Programs</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">50+</span>
-                            <span class="stat-label">Expert Tutors</span>
-                        </div>
-                    </div>
+                    <div class="feature-icon">🎯</div>
+                    <h3>Program-Specific Content</h3>
+                    <p>Materials tailored for Mechanical, Electrical, Computer, Agricultural, and other engineering programs</p>
                 </div>
-
+                
                 <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-rocket"></i>
-                    </div>
-                    <h3>Innovation Hub</h3>
-                    <p>Experience cutting-edge learning tools, mentorship programs, and career development opportunities.</p>
-                    <div class="stats-container">
-                        <div class="stat-item">
-                            <span class="stat-number">24/7</span>
-                            <span class="stat-label">Resource Access</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">Free</span>
-                            <span class="stat-label">For All Students</span>
-                        </div>
-                    </div>
+                    <div class="feature-icon">⚡</div>
+                    <h3>Instant Access</h3>
+                    <p>Download and view materials anytime, anywhere with our fast and reliable platform</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Community Support</h3>
+                    <p>Connect with fellow students and get help from tutors and senior students</p>
                 </div>
             </div>
-        </section>
-
-        <section class="news-section">
-            <h2 style="text-align: center; margin-bottom: 2rem; color: var(--primary); font-size: 2rem;">
-                <i class="fas fa-newspaper"></i> Latest Updates & Announcements
-            </h2>
-            <div class="news-grid">
-                <div class="news-item">
-                    <div class="news-date">
-                        <i class="fas fa-calendar"></i> April 25, 2026
-                    </div>
-                    <h3>🎓 Mid-Semester Tutorials</h3>
-                    <p>Comprehensive tutorial sessions for all L100 and L200 courses starting next week. Venue: Syndicate Block, SH2.</p>
-                </div>
-                <div class="news-item">
-                    <div class="news-date">
-                        <i class="fas fa-calendar"></i> April 20, 2026
-                    </div>
-                    <h3>📚 New Materials Uploaded</h3>
-                    <p>Extensive collection of L200 Electrical Machines and Solid State Electronics materials now available.</p>
-                </div>
-                <div class="news-item">
-                    <div class="news-date">
-                        <i class="fas fa-calendar"></i> April 15, 2026
-                    </div>
-                    <h3>🤝 Mentorship Program Launch</h3>
-                    <p>Connect with senior students and alumni for guidance and career advice. Registration now open!</p>
-                </div>
-            </div>
-        </section>
+        </div>
     </div>
 
     <footer>
@@ -150,8 +227,8 @@
             <div class="footer-section">
                 <h4><i class="fas fa-rocket"></i> Quick Access</h4>
                 <ul>
-                    <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
-                    <li><a href="resources.html"><i class="fas fa-download"></i> Download Center</a></li>
+                    <li><a href="index-enhanced.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="resources-enhanced.html"><i class="fas fa-download"></i> Download Center</a></li>
                     <li><a href="about.html"><i class="fas fa-info-circle"></i> About GERAMA</a></li>
                     <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
                 </ul>
@@ -191,5 +268,40 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        // Hero slideshow functionality
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.style.opacity = '0');
+            slides[index].style.opacity = '1';
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }
+
+        // Initialize
+        showSlide(0);
+        setInterval(nextSlide, 4000); // Change slide every 4 seconds
+
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

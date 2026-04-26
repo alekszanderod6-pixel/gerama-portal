@@ -242,35 +242,73 @@
             color: #666;
             font-size: 0.9rem;
         }
+        /* Material Upload Form Styles */
+        .material-upload-form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border: 2px solid #FFC107;
+        }
+        .material-upload-form h3 {
+            color: #1B5E20;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .program-checkboxes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: rgba(241, 245, 249, 0.5);
+            border-radius: 10px;
+        }
+        .program-checkboxes label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .program-checkboxes input[type="checkbox"] {
+            margin: 0;
+        }
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
         @media (max-width: 768px) {
             .admin-container { padding: 0 1rem; }
             .stats-grid { grid-template-columns: 1fr; }
             .admin-header { flex-direction: column; gap: 1rem; }
             .admin-nav { flex-wrap: wrap; justify-content: center; }
             .section-header { flex-direction: column; gap: 1rem; align-items: flex-start; }
+            .form-row { grid-template-columns: 1fr; }
+            .program-checkboxes { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <script>
         // Check if user is logged in and has admin access
-        window.addEventListener('DOMContentLoaded', async () => {
-            const { data: { user } } = await window.geramaSupabase.auth.getUser();
-            
-            if (!user) {
-                alert('Access denied. Please login first.');
-                window.location.href = 'login.html';
-                return;
-            }
-            
-            // Check if user has admin privileges (you can modify this logic)
-            const userEmail = user.email;
-            const adminEmails = ['gerama.uenr@gmail.com', 'admin@gerama.com']; // Add admin emails
-            
-            if (!adminEmails.includes(userEmail)) {
-                alert('Access denied. Admin privileges required.');
-                window.location.href = 'index.html';
-                return;
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check if already logged in via sessionStorage
+            if (sessionStorage.getItem('gerama_admin_logged_in') === 'true') {
+                showDashboard();
+            } else {
+                showLoginScreen();
             }
         });
     </script>
@@ -302,11 +340,12 @@
             <div class="admin-nav">
                 <button class="nav-btn active" data-section="overview">Overview</button>
                 <button class="nav-btn" data-section="materials">Materials</button>
+                <button class="nav-btn" data-section="materialsManagement">Upload Materials</button>
                 <button class="nav-btn" data-section="contacts">Contacts</button>
                 <button class="nav-btn" data-section="assistance">Assistance</button>
                 <button class="nav-btn" data-section="announcements">Announcements</button>
-                <button class="nav-btn" id="logoutBtn">Logout</button>
             </div>
+            <button class="nav-btn" id="logoutBtn">Logout</button>
         </header>
 
         <div class="admin-container">
@@ -423,6 +462,111 @@
                 </div>
             </section>
 
+            <!-- Materials Management Section -->
+            <section id="materialsManagement" class="content-section">
+                <div class="section-header">
+                    <h2 class="section-title">Materials Management</h2>
+                    <button class="btn-primary" id="addMaterialBtn">+ Upload New Material</button>
+                </div>
+                
+                <!-- Material Upload Form -->
+                <div class="material-upload-form" id="materialUploadForm" style="display: none;">
+                    <h3>Upload New Material</h3>
+                    <form id="newMaterialForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Material Title</label>
+                                <input type="text" id="materialTitle" required placeholder="e.g., Engineering Mathematics I">
+                            </div>
+                            <div class="form-group">
+                                <label>Course Name</label>
+                                <input type="text" id="courseName" required placeholder="e.g., Engineering Mathematics">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Academic Level</label>
+                                <select id="materialLevel" required>
+                                    <option value="">Select Level</option>
+                                    <option value="L100">L100 (First Year)</option>
+                                    <option value="L200">L200 (Second Year)</option>
+                                    <option value="L300">L300 (Third Year)</option>
+                                    <option value="L400">L400 (Final Year)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Material Type</label>
+                                <select id="materialType" required>
+                                    <option value="">Select Type</option>
+                                    <option value="slides">Lecture Slides</option>
+                                    <option value="books">Books</option>
+                                    <option value="pastq">Past Questions</option>
+                                    <option value="videos">Video Tutorials</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Engineering Programs</label>
+                                <div class="program-checkboxes">
+                                    <label><input type="checkbox" value="Mechanical"> Mechanical Engineering</label>
+                                    <label><input type="checkbox" value="Electrical"> Electrical Engineering</label>
+                                    <label><input type="checkbox" value="Computer"> Computer Engineering</label>
+                                    <label><input type="checkbox" value="Agricultural"> Agricultural Engineering</label>
+                                    <label><input type="checkbox" value="Petroleum"> Petroleum Engineering</label>
+                                    <label><input type="checkbox" value="Renewable"> Renewable Energy Engineering</label>
+                                    <label><input type="checkbox" value="Civil"> Civil Engineering</label>
+                                    <label><input type="checkbox" value="Environmental"> Environmental Engineering</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Upload File</label>
+                                <input type="file" id="materialFile" required accept=".pdf,.ppt,.pptx,.doc,.docx,.mp4,.avi,.mov">
+                                <small>Supported formats: PDF, PPT, DOC, MP4, AVI, MOV (Max 50MB)</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="materialDescription" rows="3" placeholder="Brief description of the material..."></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Upload Material</button>
+                            <button type="button" class="btn-action" id="cancelMaterialUpload" style="background: #6b7280; color: white;">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Uploaded Materials Table -->
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Course</th>
+                                <th>Level</th>
+                                <th>Type</th>
+                                <th>Programs</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="materialsTableBody">
+                            <tr>
+                                <td colspan="8" class="empty-state">
+                                    <i class="fas fa-book"></i>
+                                    <p>No materials uploaded yet</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- Announcements Section -->
             <section id="announcements" class="content-section">
                 <div class="section-header">
@@ -489,9 +633,29 @@
             password: 'GERAMA2026_admin!'
         };
 
+        // Show login screen
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('dashboardScreen').style.display = 'none';
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboardScreen').style.display = 'block';
+            updateStats();
+            loadMaterials();
+            loadUploadedMaterials();
+            loadContacts();
+            loadAssistance();
+            loadAnnouncements();
+        }
+
         // Check if already logged in
         if (sessionStorage.getItem('gerama_admin_logged_in') === 'true') {
             showDashboard();
+        } else {
+            showLoginScreen();
         }
 
         // Login handler
@@ -778,6 +942,193 @@
             announcements[index].active = !announcements[index].active;
             localStorage.setItem('gerama_announcements', JSON.stringify(announcements));
             loadAnnouncements();
+        }
+
+        // Materials Management Functions
+        document.getElementById('addMaterialBtn').addEventListener('click', () => {
+            document.getElementById('materialUploadForm').style.display = 'block';
+        });
+
+        document.getElementById('cancelMaterialUpload').addEventListener('click', () => {
+            document.getElementById('materialUploadForm').style.display = 'none';
+            document.getElementById('newMaterialForm').reset();
+        });
+
+        document.getElementById('newMaterialForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('materialTitle').value;
+            const course = document.getElementById('courseName').value;
+            const level = document.getElementById('materialLevel').value;
+            const type = document.getElementById('materialType').value;
+            const description = document.getElementById('materialDescription').value;
+            const fileInput = document.getElementById('materialFile');
+            
+            // Get selected programs
+            const programCheckboxes = document.querySelectorAll('.program-checkboxes input[type="checkbox"]:checked');
+            const programs = Array.from(programCheckboxes).map(cb => cb.value);
+            
+            if (programs.length === 0) {
+                alert('Please select at least one engineering program');
+                return;
+            }
+            
+            // Check file size (50MB limit)
+            if (fileInput.files[0] && fileInput.files[0].size > 50 * 1024 * 1024) {
+                alert('File size must be less than 50MB');
+                return;
+            }
+            
+            // Create material object
+            const material = {
+                id: Date.now().toString(),
+                title,
+                course,
+                level,
+                type,
+                programs,
+                description,
+                fileName: fileInput.files[0] ? fileInput.files[0].name : '',
+                fileSize: fileInput.files[0] ? fileInput.files[0].size : 0,
+                uploadDate: new Date().toISOString(),
+                uploadedBy: 'admin',
+                status: 'active'
+            };
+            
+            // Save to localStorage (in production, this would be saved to a database)
+            const materials = JSON.parse(localStorage.getItem('gerama_admin_materials') || '[]');
+            materials.push(material);
+            localStorage.setItem('gerama_admin_materials', JSON.stringify(materials));
+            
+            // Also save to the main materials database for user access
+            updateMainMaterialsDatabase(material);
+            
+            // Reset form and refresh table
+            document.getElementById('materialUploadForm').style.display = 'none';
+            e.target.reset();
+            loadUploadedMaterials();
+            alert('Material uploaded successfully! It will be available to students immediately.');
+        });
+
+        function updateMainMaterialsDatabase(material) {
+            // Get existing materials database
+            const mainMaterials = JSON.parse(localStorage.getItem('gerama_materials_database') || '{}');
+            
+            // Initialize level if not exists
+            if (!mainMaterials[material.level]) {
+                mainMaterials[material.level] = {};
+            }
+            
+            // Add material to each selected program
+            material.programs.forEach(program => {
+                if (!mainMaterials[material.level][program]) {
+                    mainMaterials[material.level][program] = {};
+                }
+                
+                if (!mainMaterials[material.level][program][material.course]) {
+                    mainMaterials[material.level][program][material.course] = {
+                        slides: [],
+                        books: [],
+                        pastq: [],
+                        videos: []
+                    };
+                }
+                
+                // Add material to appropriate category
+                mainMaterials[material.level][program][material.course][material.type].push({
+                    id: material.id,
+                    name: material.fileName,
+                    title: material.title,
+                    description: material.description,
+                    uploadDate: material.uploadDate,
+                    uploadedBy: material.uploadedBy,
+                    status: material.status
+                });
+            });
+            
+            // Save updated database
+            localStorage.setItem('gerama_materials_database', JSON.stringify(mainMaterials));
+        }
+
+        function loadUploadedMaterials() {
+            const materials = JSON.parse(localStorage.getItem('gerama_admin_materials') || '[]');
+            const tbody = document.getElementById('materialsTableBody');
+            
+            if (materials.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-book"></i><p>No materials uploaded yet</p></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = materials.map((material, index) => `
+                <tr>
+                    <td>${material.title}</td>
+                    <td>${material.course}</td>
+                    <td>${material.level}</td>
+                    <td>${getMaterialTypeLabel(material.type)}</td>
+                    <td>${material.programs.join(', ')}</td>
+                    <td>${new Date(material.uploadDate).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-${material.status}">${material.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-view" onclick="viewMaterial(${index})">View</button>
+                            <button class="btn-action btn-delete" onclick="deleteMaterial(${index})">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getMaterialTypeLabel(type) {
+            const labels = {
+                'slides': 'Lecture Slides',
+                'books': 'Books',
+                'pastq': 'Past Questions',
+                'videos': 'Video Tutorials'
+            };
+            return labels[type] || type;
+        }
+
+        function viewMaterial(index) {
+            const materials = JSON.parse(localStorage.getItem('gerama_admin_materials') || '[]');
+            const material = materials[index];
+            
+            alert(`Material Details:\n\nTitle: ${material.title}\nCourse: ${material.course}\nLevel: ${material.level}\nType: ${getMaterialTypeLabel(material.type)}\nPrograms: ${material.programs.join(', ')}\nDescription: ${material.description}\nFile: ${material.fileName}\nUploaded: ${new Date(material.uploadDate).toLocaleString()}`);
+        }
+
+        function deleteMaterial(index) {
+            if (!confirm('Are you sure you want to delete this material? This will remove it from the resources page.')) {
+                return;
+            }
+            
+            const materials = JSON.parse(localStorage.getItem('gerama_admin_materials') || '[]');
+            const material = materials[index];
+            
+            // Remove from admin materials
+            materials.splice(index, 1);
+            localStorage.setItem('gerama_admin_materials', JSON.stringify(materials));
+            
+            // Remove from main materials database
+            removeFromMainDatabase(material);
+            
+            loadUploadedMaterials();
+            alert('Material deleted successfully!');
+        }
+
+        function removeFromMainDatabase(material) {
+            const mainMaterials = JSON.parse(localStorage.getItem('gerama_materials_database') || '{}');
+            
+            material.programs.forEach(program => {
+                if (mainMaterials[material.level] && 
+                    mainMaterials[material.level][program] && 
+                    mainMaterials[material.level][program][material.course]) {
+                    
+                    const category = mainMaterials[material.level][program][material.course][material.type];
+                    const filtered = category.filter(item => item.id !== material.id);
+                    mainMaterials[material.level][program][material.course][material.type] = filtered;
+                }
+            });
+            
+            localStorage.setItem('gerama_materials_database', JSON.stringify(mainMaterials));
         }
     </script>
 </body>

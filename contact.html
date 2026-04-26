@@ -2,17 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Contact | GERAMA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Contact GERAMA Academic Resources - Get in touch with our team for support, questions, and collaboration opportunities.">
+    <meta name="keywords" content="GERAMA, UENR, contact, support, academic resources, engineering">
+    <meta property="og:title" content="Contact | GERAMA Academic Resources">
+    <meta property="og:description" content="Contact GERAMA Academic Resources - Get in touch with our team for support, questions, and collaboration opportunities.">
+    <meta property="og:image" content="images/geramalogo.jpg">
+    <meta property="og:url" content="https://gerama-portal.com/contact.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Contact | GERAMA Academic Resources</title>
+    <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
     <script src="js/main.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body>
+    <!-- HEADER -->
     <header>
         <div class="logo-container">
-            <img src="images/geramalogo.jpg" alt="GERAMA">
+            <img src="images/geramalogo.jpg" alt="GERAMA Logo">
             <img src="images/uenr logo.png" alt="UENR">
             <h2>GERAMA ACADEMIC RESOURCES</h2>
         </div>
@@ -21,181 +32,376 @@
             <a href="resources.html">Resources</a>
             <a href="about.html">About</a>
             <a href="contact.html" class="active">Contact</a>
-            <a href="#" id="logoutBtn">Logout</a>
         </nav>
     </header>
 
-    <div class="container" style="max-width: 900px;">
-        <div class="card">
-            <h2>Get in Touch</h2>
-            <p><i class="fas fa-envelope"></i> Email: <a href="mailto:gerama.uenr@gmail.com">gerama.uenr@gmail.com</a></p>
-            <p><i class="fas fa-phone"></i> Phone: +233 55 574 9497</p>
-            <p><i class="fas fa-map-marker-alt"></i> Location: University of Energy and Natural Resources, Sunyani</p>
+    <!-- HERO SECTION -->
+    <section class="hero hero-contact">
+        <div class="hero-content">
+            <h1>📞 Get in Touch</h1>
+            <p>Connect with us for academic support, collaboration, and feedback</p>
+            <div class="hero-buttons">
+                <a href="#contact-form" class="btn btn-primary">
+                    <i class="fas fa-envelope"></i> Send Message
+                </a>
+                <a href="#assistance" class="btn btn-secondary">
+                    <i class="fas fa-graduation-cap"></i> Request Help
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- CONTACT INFORMATION SECTION -->
+        <div class="contact-info-section">
+            <div class="section-header">
+                <h2>📧 Contact Information</h2>
+                <p>Reach out to us through any of these channels</p>
+            </div>
+            
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>Email</h3>
+                        <p>gerama.uenr@gmail.com</p>
+                        <a href="mailto:gerama.uenr@gmail.com" class="contact-action">
+                            <i class="fas fa-paper-plane"></i> Send Email
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>Phone</h3>
+                        <p>+233 55 574 9497</p>
+                        <a href="tel:+233555749497" class="contact-action">
+                            <i class="fas fa-phone-alt"></i> Call Now
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>WhatsApp</h3>
+                        <p>+233 55 574 9497</p>
+                        <a href="https://wa.me/233555749497" target="_blank" class="contact-action">
+                            <i class="fab fa-whatsapp"></i> Start Chat
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="contact-card">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h3>Location</h3>
+                        <p>University of Energy and Natural Resources<br>Sunyani, Ghana</p>
+                        <a href="https://maps.google.com/?q=UENR+Sunyani" target="_blank" class="contact-action">
+                            <i class="fas fa-directions"></i> Get Directions
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>Send a Message</h2>
-            <form id="contactForm">
-                <div class="form-group"><label>Your Name</label><input type="text" id="contactName" required></div>
-                <div class="form-group"><label>Email</label><input type="email" id="contactEmail" required></div>
-                <div class="form-group"><label>Message</label><textarea rows="4" id="contactMsg" required></textarea></div>
-                <button type="submit" class="btn">Send Message</button>
+        <!-- CONTACT FORM SECTION -->
+        <div id="contact-form" class="contact-form-section">
+            <div class="section-header">
+                <h2>✉️ Send us a Message</h2>
+                <p>Have questions or feedback? We'd love to hear from you!</p>
+            </div>
+            
+            <form id="contactForm" class="contact-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="contactName">Your Name</label>
+                        <input type="text" id="contactName" required placeholder="Enter your full name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contactEmail">Email Address</label>
+                        <input type="email" id="contactEmail" required placeholder="your.email@uenr.edu.gh">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contactSubject">Subject</label>
+                        <input type="text" id="contactSubject" required placeholder="What's this about?">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="contactMsg">Your Message</label>
+                        <textarea id="contactMsg" rows="6" required placeholder="Tell us more about your inquiry..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                    <button type="reset" class="btn btn-outline">
+                        <i class="fas fa-redo"></i> Clear Form
+                    </button>
+                </div>
             </form>
+            
+            <div class="contact-info">
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> Response Time</h3>
+                    <p>We typically respond to all inquiries within 24-48 hours during business days. For urgent academic assistance, please use the help request form below.</p>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>Academic Assistance Request</h2>
-            <p>Need help with a specific course or topic? Our team of tutors will reach out to you.</p>
-            <form id="assistForm">
-                <div class="form-group"><label>Course Name</label><input type="text" id="courseHelp" required></div>
-                <div class="form-group"><label>Describe your challenge</label><textarea rows="3" id="challengeDesc" placeholder="E.g., understanding Laplace transforms, project guidance, exam preparation..."></textarea></div>
-                <button type="submit" class="btn">Request Help</button>
+        <!-- ACADEMIC ASSISTANCE SECTION -->
+        <div id="assistance" class="assistance-section">
+            <div class="section-header">
+                <h2>🎓 Academic Assistance Request</h2>
+                <p>Need help with a specific course or topic? Our team of tutors will reach out to you.</p>
+            </div>
+            
+            <form id="assistForm" class="assistance-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="studentName">Student Name</label>
+                        <input type="text" id="studentName" required placeholder="Enter your full name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="studentEmail">Email Address</label>
+                        <input type="email" id="studentEmail" required placeholder="your.email@uenr.edu.gh">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="studentLevel">Academic Level</label>
+                        <select id="studentLevel" required>
+                            <option value="">Select Level</option>
+                            <option value="L100">L100 (First Year)</option>
+                            <option value="L200">L200 (Second Year)</option>
+                            <option value="L300">L300 (Third Year)</option>
+                            <option value="L400">L400 (Final Year)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="studentProgram">Engineering Program</label>
+                        <select id="studentProgram" required>
+                            <option value="">Select Program</option>
+                            <option value="Mechanical">Mechanical Engineering</option>
+                            <option value="Electrical">Electrical Engineering</option>
+                            <option value="Computer">Computer Engineering</option>
+                            <option value="Agricultural">Agricultural Engineering</option>
+                            <option value="Petroleum">Petroleum Engineering</option>
+                            <option value="Renewable">Renewable Energy Engineering</option>
+                            <option value="Civil">Civil Engineering</option>
+                            <option value="Environmental">Environmental Engineering</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="courseHelp">Course Name</label>
+                        <input type="text" id="courseHelp" required placeholder="e.g., Engineering Mathematics">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="helpType">Type of Help Needed</label>
+                        <select id="helpType" required>
+                            <option value="">Select Help Type</option>
+                            <option value="tutoring">Tutoring Session</option>
+                            <option value="material">Study Material Request</option>
+                            <option value="assignment">Assignment Help</option>
+                            <option value="exam">Exam Preparation</option>
+                            <option value="project">Project Assistance</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="helpDescription">Describe Your Needs</label>
+                        <textarea id="helpDescription" rows="5" required placeholder="Please describe what specific help you need..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-graduation-cap"></i> Request Assistance
+                    </button>
+                    <button type="reset" class="btn btn-outline">
+                        <i class="fas fa-redo"></i> Clear Form
+                    </button>
+                </div>
             </form>
+            
+            <div class="assistance-info">
+                <div class="info-card">
+                    <h3><i class="fas fa-clock"></i> Availability</h3>
+                    <ul>
+                        <li>Tutoring sessions available Monday-Friday, 8am-6pm</li>
+                        <li>Weekend sessions available by appointment</li>
+                        <li>Response time within 24 hours for all requests</li>
+                        <li>Both online and in-person support available</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
     <footer>
         <div class="footer-content">
-            <div class="footer-section"><h4>GERAMA @ UENR</h4><p>📍 Sunyani, Ghana</p><p>📧 gerama.uenr@gmail.com</p></div>
-            <div class="footer-section"><h4>Quick Links</h4><p><a href="index.html">Home</a> | <a href="about.html">About</a> | <a href="resources.html">Resources</a> | <a href="contact.html">Contact</a></p></div>
+            <div class="footer-section">
+                <h4><i class="fas fa-book-open"></i> GERAMA Resources</h4>
+                <p>Your gateway to academic excellence with comprehensive study materials, past questions, and collaborative learning resources.</p>
+                <div class="footer-stats">
+                    <div class="stat">
+                        <span class="stat-number">300+</span>
+                        <span class="stat-label">Active Students</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">Study Materials</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-rocket"></i> Quick Access</h4>
+                <ul>
+                    <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="resources.html"><i class="fas fa-download"></i> Download Center</a></li>
+                    <li><a href="about.html"><i class="fas fa-info-circle"></i> About GERAMA</a></li>
+                    <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact Us</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-graduation-cap"></i> Academic Support</h4>
+                <ul>
+                    <li><a href="#"><i class="fas fa-video"></i> Video Tutorials</a></li>
+                    <li><a href="#"><i class="fas fa-users"></i> Study Groups</a></li>
+                    <li><a href="#"><i class="fas fa-chalkboard-teacher"></i> Mentorship Program</a></li>
+                    <li><a href="#"><i class="fas fa-calendar"></i> Tutorial Schedule</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4><i class="fas fa-share-alt"></i> Connect With Us</h4>
+                <p>Join our growing community of engineering students</p>
+                <div class="footer-social">
+                    <a href="https://wa.me/233555749497" target="_blank" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" title="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.linkedin.com/in/alexander-opoku-dwumaah" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+                <div class="footer-contact">
+                    <p><i class="fas fa-envelope"></i> gerama.uenr@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> UENR, Sunyani - Ghana</p>
+                </div>
+            </div>
         </div>
-        <div class="footer-bottom"><p>© 2026 GERAMA. Developed by: <span class="developer">Alexander O. Dwumaah</span> | Editor: <span class="editor">Edem H.K Prince</span></p></div>
+        
+        <div class="footer-bottom">
+            <div class="footer-bottom-content">
+                <p>© 2026 GERAMA Academic Resources. Empowering Engineering Excellence</p>
+                <p>Developed by: <span class="developer">Alexander O. Dwumaah</span> | Editor: <span class="editor">Edem H.K Prince</span></p>
+            </div>
+        </div>
     </footer>
 
     <script>
         // Initialize EmailJS
         (function() {
-            emailjs.init("pFgWBm_9mi8sQ5Zdb"); // Updated Public Key
+            emailjs.init("YOUR_PUBLIC_KEY");
         })();
 
-        // Contact form handler
-        document.getElementById('contactForm').addEventListener('submit', async (e) => {
+        // Contact Form Handler
+        document.getElementById('contactForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const name = document.getElementById('contactName').value;
-            const email = document.getElementById('contactEmail').value;
-            const message = document.getElementById('contactMsg').value;
-            
-            // Show loading state
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Sending...';
-            submitBtn.disabled = true;
-            
-            try {
-                // Send notification to admin
-                const adminNotification = {
-                    service_id: 'YOUR_SERVICE_ID',
-                    template_id: 'YOUR_ADMIN_TEMPLATE_ID',
-                    user_id: 'YOUR_PUBLIC_KEY',
-                    template_params: {
-                        from_name: name,
-                        from_email: email,
-                        message: message,
-                        to_email: 'gerama.uenr@gmail.com',
-                        subject: 'New Contact Form Message from GERAMA Portal'
-                    }
-                };
-                
-                // Send confirmation to user
-                const userConfirmation = {
-                    service_id: 'YOUR_SERVICE_ID',
-                    template_id: 'YOUR_USER_TEMPLATE_ID',
-                    user_id: 'YOUR_PUBLIC_KEY',
-                    template_params: {
-                        to_name: name,
-                        to_email: email,
-                        message: 'Thank you for contacting GERAMA. We have received your message and will respond within 48 hours.',
-                        from_name: 'GERAMA Team'
-                    }
-                };
-                
-                // Send emails (fallback to local storage if EmailJS fails)
-                try {
-                    await emailjs.send('Gerama_Gmail_Service', 'geramareset_ei9ahk9', adminNotification.template_params);
-                    await emailjs.send('Gerama_Gmail_Service', 'geramauser_90nauyj', userConfirmation.template_params);
-                    
-                    alert('✅ Message sent successfully! We will get back to you within 48 hours.');
-                } catch (emailError) {
-                    console.log('EmailJS failed, using fallback:', emailError);
-                    
-                    // Fallback: Store in localStorage for admin retrieval
-                    const contacts = JSON.parse(localStorage.getItem('gerama_contacts') || '[]');
-                    contacts.push({
-                        type: 'contact',
-                        name: name,
-                        email: email,
-                        message: message,
-                        timestamp: new Date().toISOString(),
-                        status: 'pending'
-                    });
-                    localStorage.setItem('gerama_contacts', JSON.stringify(contacts));
-                    
-                    alert('✅ Message received! We will get back to you within 48 hours.');
-                }
-                
-                e.target.reset();
-                
-            } catch (error) {
-                console.error('Contact form error:', error);
-                alert('❌ Failed to send message. Please try again or email us directly at gerama.uenr@gmail.com');
-            } finally {
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            }
+            const contactData = {
+                name: document.getElementById('contactName').value,
+                email: document.getElementById('contactEmail').value,
+                subject: document.getElementById('contactSubject').value,
+                message: document.getElementById('contactMsg').value,
+                date: new Date().toISOString()
+            };
+
+            // Save to localStorage for admin review
+            const contacts = JSON.parse(localStorage.getItem('gerama_contacts') || '[]');
+            contacts.push(contactData);
+            localStorage.setItem('gerama_contacts', JSON.stringify(contacts));
+
+            // Send notification email
+            emailjs.send("YOUR_SERVICE_ID", "YOUR_CONTACT_TEMPLATE_ID", {
+                from_name: contactData.name,
+                from_email: contactData.email,
+                subject: contactData.subject,
+                message: contactData.message
+            }).then(function(response) {
+                alert('Message sent successfully! We will get back to you within 24-48 hours.');
+                document.getElementById('contactForm').reset();
+            }, function(error) {
+                alert('Failed to send message. Please try again or contact us directly.');
+            });
         });
 
-        // Academic assistance form handler
-        document.getElementById('assistForm').addEventListener('submit', async (e) => {
+        // Assistance Form Handler
+        document.getElementById('assistForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const course = document.getElementById('courseHelp').value;
-            const challenge = document.getElementById('challengeDesc').value;
-            
-            // Show loading state
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Submitting...';
-            submitBtn.disabled = true;
-            
-            try {
-                // Store assistance request in admin dashboard
-                const requests = JSON.parse(localStorage.getItem('gerama_assistance_requests') || '[]');
-                requests.push({
-                    course: course,
-                    challenge: challenge,
-                    timestamp: new Date().toISOString(),
-                    status: 'pending'
-                });
-                localStorage.setItem('gerama_assistance_requests', JSON.stringify(requests));
-                
-                // Send email notification via EmailJS
-                const templateParams = {
-                    course: course,
-                    challenge: challenge,
-                    timestamp: new Date().toLocaleString(),
-                    from_name: 'GERAMA Portal',
-                    to_email: 'gerama.uenr@gmail.com',
-                    subject: 'New Academic Assistance Request'
-                };
-                
-                try {
-                    await emailjs.send('Gerama_Gmail_Service', 'geramareset_ei9ahk9', templateParams);
-                    alert('📚 Your assistance request has been submitted. A GERAMA tutor will contact you shortly!');
-                } catch (emailError) {
-                    console.log('EmailJS failed for assistance, using fallback:', emailError);
-                    alert('📚 Your assistance request has been recorded. A GERAMA tutor will contact you shortly.');
+            const assistData = {
+                name: document.getElementById('studentName').value,
+                email: document.getElementById('studentEmail').value,
+                level: document.getElementById('studentLevel').value,
+                program: document.getElementById('studentProgram').value,
+                course: document.getElementById('courseHelp').value,
+                helpType: document.getElementById('helpType').value,
+                description: document.getElementById('helpDescription').value,
+                date: new Date().toISOString()
+            };
+
+            // Save to localStorage for admin review
+            const assistance = JSON.parse(localStorage.getItem('gerama_assistance_requests') || '[]');
+            assistance.push(assistData);
+            localStorage.setItem('gerama_assistance_requests', JSON.stringify(assistance));
+
+            // Send notification email
+            emailjs.send("YOUR_SERVICE_ID", "YOUR_ASSISTANCE_TEMPLATE_ID", {
+                from_name: assistData.name,
+                from_email: assistData.email,
+                level: assistData.level,
+                program: assistData.program,
+                course: assistData.course,
+                help_type: assistData.helpType,
+                description: assistData.description
+            }).then(function(response) {
+                alert('Assistance request submitted successfully! Our team will contact you within 24 hours.');
+                document.getElementById('assistForm').reset();
+            }, function(error) {
+                alert('Failed to submit request. Please try again or contact us directly.');
+            });
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
                 }
-                
-                e.target.reset();
-                
-            } catch (error) {
-                console.error('Assistance form error:', error);
-                alert('❌ Failed to submit request. Please try again.');
-            } finally {
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            }
+            });
         });
     </script>
 </body>
