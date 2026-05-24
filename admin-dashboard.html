@@ -216,8 +216,31 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
     </div>
   </div>
 
-  <div class="panel" id="panel-assignments"></div>
-  <div class="panel" id="panel-quizzes">
+  <div class="panel" id="panel-assignments">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-plus-circle"></i> Post New Assignment</div>
+      <div class="form-grid">
+        <div class="form-field"><label>Assignment Title *</label><input type="text" id="asgTitle" placeholder="e.g. Circuit Analysis – Problem Set 2"></div>
+        <div class="form-field"><label>Course *</label><input type="text" id="asgCourse" placeholder="e.g. Applied Electricity"></div>
+        <div class="form-field"><label>Tutor Name</label><input type="text" id="asgTutor" placeholder="e.g. Edem H.K Prince"></div>
+        <div class="form-field"><label>Marks / Points</label><input type="number" id="asgPoints" placeholder="e.g. 20"></div>
+        <div class="form-field full"><label>Description / Instructions *</label><textarea id="asgDesc" rows="4" placeholder="Describe the assignment..."></textarea></div>
+        <div class="form-field"><label>Deadline *</label><input type="datetime-local" id="asgDeadline"></div>
+        <div class="form-field full"><label>External Link (optional — Google Forms, PDF URL)</label><input type="url" id="asgLink" placeholder="https://forms.gle/..."></div>
+      </div>
+      <div style="margin-top:1rem;"><button class="btn-primary" id="postAsgBtn"><i class="fas fa-paper-plane"></i> Post Assignment</button></div>
+      <div class="status-msg" id="asgStatus"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-inbox"></i> Student Submissions</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">All assignment submissions from students.</p>
+      <div id="submissionsTable"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-list"></i> Posted Assignments</div>
+      <div id="asgList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
   <div class="card">
     <div class="card-title"><i class="fas fa-plus-circle"></i> Add a New Quiz</div>
     <div class="form-grid">
@@ -337,33 +360,7 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
     </div>
   </div>
 
-  <div class="panel" id="panel-assignments">
-    <div class="card">
-      <div class="card-title"><i class="fas fa-plus-circle"></i> Post New Assignment</div>
-      <div class="form-grid">
-        <div class="form-field"><label>Assignment Title *</label><input type="text" id="asgTitle" placeholder="e.g. Circuit Analysis – Problem Set 2"></div>
-        <div class="form-field"><label>Course *</label><input type="text" id="asgCourse" placeholder="e.g. Applied Electricity"></div>
-        <div class="form-field"><label>Tutor Name</label><input type="text" id="asgTutor" placeholder="e.g. Edem H.K Prince"></div>
-        <div class="form-field"><label>Marks / Points</label><input type="number" id="asgPoints" placeholder="e.g. 20"></div>
-        <div class="form-field full"><label>Description / Instructions *</label><textarea id="asgDesc" rows="4" placeholder="Describe the assignment..."></textarea></div>
-        <div class="form-field"><label>Deadline *</label><input type="datetime-local" id="asgDeadline"></div>
-        <div class="form-field full"><label>External Link (optional — Google Forms, PDF URL)</label><input type="url" id="asgLink" placeholder="https://forms.gle/..."></div>
-      </div>
-      <div style="margin-top:1rem;"><button class="btn-primary" id="postAsgBtn"><i class="fas fa-paper-plane"></i> Post Assignment</button></div>
-      <div class="status-msg" id="asgStatus"></div>
-    </div>
-    <div class="card">
-      <div class="card-title"><i class="fas fa-inbox"></i> Student Submissions</div>
-      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">All assignment submissions from students.</p>
-      <div id="submissionsTable"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
-    </div>
-    <div class="card">
-      <div class="card-title"><i class="fas fa-list"></i> Posted Assignments</div>
-      <div id="asgList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
-    </div>
-  </div>
-</div>
-</div>
+  <div class="panel" id="panel-quizzes">
 
 <nav class="mobile-bottom-nav" id="mobileBottomNav">
   <button class="bnav-item active" data-panel="overview" onclick="switchPanel('overview')"><i class="fas fa-tachometer-alt"></i><span>Overview</span></button>

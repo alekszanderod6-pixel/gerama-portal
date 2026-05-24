@@ -38,23 +38,34 @@ window.showStatus = window.showStatus || function(id, msg, type) {
 };
 
 (function() {
-    const currentPage = window.location.pathname.split('/').pop();
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html' || currentPage === 'reset-code.html' || currentPage === 'admin-dashboard.html';
     
     if (!isAuthPage) {
-        if (typeof window.geramaSupabase !== 'undefined') {
-            window.geramaSupabase.auth.getSession().then(({ data: { session } }) => {
-                if (!session) {
-                    sessionStorage.removeItem('gerama_loggedIn');
+        // Wait for Supabase to be ready (it loads async via CDN)
+        function checkAuth(attempts) {
+            if (typeof window.geramaSupabase !== 'undefined') {
+                window.geramaSupabase.auth.getSession().then(function(result) {
+                    var session = result && result.data && result.data.session;
+                    if (!session) {
+                        sessionStorage.removeItem('gerama_loggedIn');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    initializeSidebar();
+                    updateSidebarUI();
+                }).catch(function() {
                     window.location.href = 'login.html';
-                    return;
-                }
-                initializeSidebar();
-                updateSidebarUI();
-            });
-        } else {
-            window.location.href = 'login.html';
+                });
+            } else if (attempts > 0) {
+                // Retry up to 20 times (2 seconds total)
+                setTimeout(function() { checkAuth(attempts - 1); }, 100);
+            } else {
+                // Supabase never loaded — redirect to login
+                window.location.href = 'login.html';
+            }
         }
+        checkAuth(20);
     }
 
     function initializeSidebar() {
