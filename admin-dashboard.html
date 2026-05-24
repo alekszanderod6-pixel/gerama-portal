@@ -66,14 +66,51 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 .dash-sidebar.open{transform:translateX(0);}
 .sidebar-overlay{display:block;pointer-events:none;}
 .dash-main{margin-left:0;padding:1rem;padding-top:72px;padding-bottom:80px;}
-.stats-row{grid-template-columns:1fr 1fr;gap:0.7rem;}
-.stats-row{grid-template-columns:1fr 1fr;}
+.stats-row{grid-template-columns:1fr 1fr;gap:0.6rem;}
+.stat-box{padding:0.9rem 0.6rem;}
+.stat-box .num{font-size:1.5rem;}
+.stat-box .lbl{font-size:0.68rem;}
+.card{padding:1.2rem;border-radius:14px;}
+.card-title{font-size:0.92rem;}
+.form-grid{grid-template-columns:1fr;}
+.form-field.full{grid-column:auto;}
+.btn-primary,.btn-gold{width:100%;justify-content:center;}
+.drop-zone{padding:1.2rem;}
+.sub-card{flex-direction:column;}
+.sub-actions{width:100%;justify-content:flex-end;flex-wrap:wrap;}
+.ann-card{flex-direction:column;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{min-width:500px;}
 }
 .mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
 .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;color:#9ca3af;cursor:pointer;transition:all 0.2s;font-size:0.62rem;font-weight:600;gap:0.2rem;border:none;background:none;}
 .bnav-item i{font-size:1.1rem;}
 .bnav-item.active{color:#1B5E20;}
 @media(max-width:640px){.mobile-bottom-nav{display:flex;}}
+
+/* ── EXTRA SHARED STYLES ── */
+.sub-card{background:#f8fafc;border-radius:12px;padding:1.2rem;margin-bottom:1rem;border:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;}
+.sub-info{flex:1;min-width:0;}
+.sub-info strong{display:block;font-size:0.95rem;color:#1e2a3e;margin-bottom:0.3rem;word-break:break-word;}
+.sub-meta{font-size:0.8rem;color:#6b7280;line-height:1.7;}
+.sub-actions{display:flex;gap:0.5rem;flex-shrink:0;align-items:center;flex-wrap:wrap;}
+.ann-card{border-radius:10px;padding:1rem 1.2rem;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;}
+.badge{display:inline-block;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.75rem;font-weight:600;}
+.badge-slides{background:#dbeafe;color:#1d4ed8;}
+.badge-books{background:#d1fae5;color:#065f46;}
+.badge-pastq{background:#fef3c7;color:#92400e;}
+.badge-videos{background:#ede9fe;color:#5b21b6;}
+.badge-approved{background:#d1fae5;color:#065f46;}
+.badge-pending{background:#fef3c7;color:#92400e;}
+.badge-rejected{background:#fee2e2;color:#991b1b;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+th{background:#f8fafc;padding:0.7rem 1rem;text-align:left;font-weight:600;color:#374151;border-bottom:2px solid #e5e7eb;white-space:nowrap;}
+td{padding:0.7rem 1rem;border-bottom:1px solid #f1f5f9;color:#4b5563;vertical-align:middle;}
+tr:hover td{background:#fafcfa;}
+.drop-zone i{font-size:2rem;color:#1B5E20;margin-bottom:0.5rem;display:block;}
+.drop-zone p{color:#555;font-size:0.9rem;margin:0;}
+.file-chosen{font-weight:600;color:#1B5E20;margin-top:0.5rem;font-size:0.88rem;}
 </style>
 </head>
 <body>
@@ -99,6 +136,7 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
     <div class="nav-item" data-panel="announcements"><i class="fas fa-bullhorn"></i> Announcements</div>
     <div class="nav-item" data-panel="assignments"><i class="fas fa-tasks"></i> Assignments</div>
     <div class="nav-item" data-panel="quizzes"><i class="fas fa-question-circle"></i> Quizzes</div>
+    <div class="nav-item" data-panel="quizrequests"><i class="fas fa-inbox" style="color:#6366f1;"></i> Quiz Requests <span id="quizReqBadge" style="background:#6366f1;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="classes"><i class="fas fa-video"></i> Schedule Class</div>
     <div class="nav-item" data-panel="classrequests"><i class="fas fa-hand-paper"></i> Class Requests <span id="reqBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="visitors"><i class="fas fa-chart-line"></i> Visitor Stats</div>
@@ -117,23 +155,70 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
   </div>
 
   <div class="panel active" id="panel-overview">
+    <!-- Live stats row 1: core -->
     <div class="stats-row">
-      <div class="stat-box"><div class="num" id="statMaterials">0</div><div class="lbl">Materials Uploaded</div></div>
-      <div class="stat-box"><div class="num" id="statPending">0</div><div class="lbl">Pending Reviews</div></div>
-      <div class="stat-box"><div class="num" id="statAnn">0</div><div class="lbl">Announcements</div></div>
-      <div class="stat-box"><div class="num" id="statApproved">0</div><div class="lbl">Approved Submissions</div></div>
-    </div>
-    <div class="card">
-      <div class="card-title"><i class="fas fa-bolt"></i> Quick Actions</div>
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;" class="quick-actions-row">
-        <button class="btn-primary" onclick="switchPanel('upload')"><i class="fas fa-upload"></i> Upload New Material</button>
-        <button class="btn-gold" onclick="switchPanel('announcements')"><i class="fas fa-bullhorn"></i> Post Announcement</button>
-        <button class="btn-primary" onclick="switchPanel('review')"><i class="fas fa-inbox"></i> Review Submissions</button>
+      <div class="stat-box" style="border-top:3px solid #1B5E20;">
+        <div class="num" id="statMaterials">—</div><div class="lbl">📚 Materials Live</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #f59e0b;">
+        <div class="num" id="statPending">—</div><div class="lbl">📥 Pending Reviews</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #6366f1;">
+        <div class="num" id="statAnn">—</div><div class="lbl">📢 Announcements</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #059669;">
+        <div class="num" id="statApproved">—</div><div class="lbl">✅ Approved Subs</div>
       </div>
     </div>
+    <!-- Live stats row 2: visitors -->
+    <div class="stats-row" style="margin-top:0;">
+      <div class="stat-box" style="border-top:3px solid #0ea5e9;">
+        <div class="num" id="statVisitsToday" style="color:#0ea5e9;">—</div><div class="lbl">👁 Visits Today</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #8b5cf6;">
+        <div class="num" id="statVisitsWeek" style="color:#8b5cf6;">—</div><div class="lbl">📅 This Week</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #dc2626;">
+        <div class="num" id="statVisitsTotal" style="color:#dc2626;">—</div><div class="lbl">🌍 All-Time Visits</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #f59e0b;">
+        <div class="num" id="statClassReqs" style="color:#f59e0b;">—</div><div class="lbl">🙋 Class Requests</div>
+      </div>
+    </div>
+    <!-- Live stats row 3: content -->
+    <div class="stats-row" style="margin-top:0;">
+      <div class="stat-box" style="border-top:3px solid #6366f1;">
+        <div class="num" id="statQuizzes" style="color:#6366f1;">—</div><div class="lbl">🧠 Active Quizzes</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #1B5E20;">
+        <div class="num" id="statAssignments" style="color:#1B5E20;">—</div><div class="lbl">📝 Assignments</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #0ea5e9;">
+        <div class="num" id="statClasses" style="color:#0ea5e9;">—</div><div class="lbl">🎥 Classes</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #dc2626;">
+        <div class="num" id="statQuizPending" style="color:#dc2626;">—</div><div class="lbl">⏳ Quiz Requests</div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
     <div class="card">
-      <div class="card-title"><i class="fas fa-clock"></i> Recent Activity</div>
-      <div id="recentActivity"><p style="color:#9ca3af;font-size:0.9rem;">No recent activity.</p></div>
+      <div class="card-title"><i class="fas fa-bolt" style="color:#f59e0b;"></i> Quick Actions</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.8rem;">
+        <button class="btn-primary" onclick="switchPanel('upload')"><i class="fas fa-upload"></i> Upload Material</button>
+        <button class="btn-gold" onclick="switchPanel('announcements')"><i class="fas fa-bullhorn"></i> Post Announcement</button>
+        <button class="btn-primary" onclick="switchPanel('quizzes')"><i class="fas fa-brain"></i> Post Quiz</button>
+        <button class="btn-primary" onclick="switchPanel('assignments')"><i class="fas fa-tasks"></i> Post Assignment</button>
+        <button class="btn-primary" onclick="switchPanel('classes')"><i class="fas fa-video"></i> Schedule Class</button>
+        <button class="btn-gold" onclick="switchPanel('review')"><i class="fas fa-inbox"></i> Review Submissions</button>
+        <button class="btn-primary" onclick="switchPanel('quizrequests')"><i class="fas fa-question-circle"></i> Quiz Requests</button>
+      </div>
+    </div>
+
+    <!-- Recent activity -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-clock" style="color:#6366f1;"></i> Recent Activity</div>
+      <div id="recentActivity"><p style="color:#9ca3af;font-size:0.9rem;">Loading...</p></div>
     </div>
   </div>
 
@@ -242,25 +327,48 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
     </div>
   </div>
   <div class="card">
-    <div class="card-title"><i class="fas fa-plus-circle"></i> Add a New Quiz</div>
-    <div class="form-grid">
-      <div class="form-field full"><label>Quiz Title *</label><input type="text" id="qzTitle" placeholder="e.g. Mid‑Semester Test"></div>
-      <div class="form-field"><label>Course *</label><input type="text" id="qzCourse" placeholder="Engineering Mathematics 1"></div>
-      <div class="form-field"><label>Duration (minutes)</label><input type="number" id="qzDuration" placeholder="0 = no timer"></div>
-      <div class="form-field"><label>Points</label><input type="text" id="qzPoints" placeholder="e.g. 20 marks"></div>
-      <div class="form-field full"><label>Quiz Link (Google Form / Typeform) *</label><input type="url" id="qzUrl" placeholder="https://forms.google.com/..."></div>
-      <div class="form-field full"><label>Deadline (optional)</label><input type="datetime-local" id="qzDeadline"></div>
-      <div class="form-field full"><label>Instructions / Description</label><textarea id="qzDesc" rows="2" placeholder="What the quiz covers..."></textarea></div>
+    <div class="card-title"><i class="fas fa-plus-circle"></i> Post a New Quiz</div>
+    <div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#5b21b6;line-height:1.6;">
+      <strong><i class="fas fa-random"></i> Anti-copy shuffle:</strong> Add up to 3 different quiz links (Google Forms, Testmoz, Kahoot, etc.). Each student gets a <strong>random</strong> one when they tap "Take Quiz" — preventing copying.
     </div>
-    <button class="btn-primary" id="publishQuizBtn"><i class="fas fa-paper-plane"></i> Publish Quiz</button>
+    <div class="form-grid">
+      <div class="form-field full"><label>Quiz Title *</label><input type="text" id="qzTitle" placeholder="e.g. Applied Electricity Mid-Semester Quiz"></div>
+      <div class="form-field"><label>Course *</label><input type="text" id="qzCourse" placeholder="e.g. Applied Electricity"></div>
+      <div class="form-field"><label>Duration (minutes, 0 = no timer)</label><input type="number" id="qzDuration" placeholder="e.g. 30" min="0" value="0"></div>
+      <div class="form-field"><label>Points / Marks</label><input type="text" id="qzPoints" placeholder="e.g. 20"></div>
+      <div class="form-field"><label>Tutor / Posted By</label><input type="text" id="qzTutor" placeholder="e.g. Edem H.K Prince"></div>
+      <div class="form-field"><label>Deadline *</label><input type="datetime-local" id="qzDeadline"></div>
+      <div class="form-field full">
+        <label>Quiz Link 1 * <span style="color:#6b7280;font-weight:400;">(Google Forms, Testmoz, Kahoot, any URL)</span></label>
+        <input type="url" id="qzUrl1" placeholder="https://testmoz.com/q/... or https://forms.gle/...">
+      </div>
+      <div class="form-field full">
+        <label>Quiz Link 2 <span style="color:#6b7280;font-weight:400;">(optional — different version for shuffle)</span></label>
+        <input type="url" id="qzUrl2" placeholder="https://forms.gle/... (optional)">
+      </div>
+      <div class="form-field full">
+        <label>Quiz Link 3 <span style="color:#6b7280;font-weight:400;">(optional)</span></label>
+        <input type="url" id="qzUrl3" placeholder="https://kahoot.it/... (optional)">
+      </div>
+      <div class="form-field full"><label>Description / Instructions</label><textarea id="qzDesc" rows="2" placeholder="e.g. Answer all questions. No calculators. 30 minutes."></textarea></div>
+    </div>
+    <button class="btn-primary" id="publishQuizBtn" style="margin-top:1rem;"><i class="fas fa-paper-plane"></i> Publish Quiz Live</button>
     <div class="status-msg" id="quizStatus"></div>
   </div>
 
   <div class="card">
-    <div class="card-title"><i class="fas fa-list"></i> Existing Quizzes</div>
-    <div id="quizzesAdminList">Loading...</div>
+    <div class="card-title"><i class="fas fa-list"></i> Posted Quizzes</div>
+    <div id="quizzesAdminList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
   </div>
 </div>
+  <div class="panel" id="panel-quizrequests">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-question-circle" style="color:#6366f1;"></i> Quiz Submission Requests</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Students and tutors who submitted quiz links for review. Approve to publish live on the Classroom page, or reject to discard.</p>
+      <div id="quizRequestsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
+
   <div class="panel" id="panel-reels">
     <div class="card">
       <div class="card-title"><i class="fas fa-film"></i> Manage Student Reels</div>

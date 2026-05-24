@@ -40,11 +40,12 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .classroom-hero p{font-size:1rem;opacity:0.85;max-width:600px;margin:0 auto;}
 
 /* TABS */
-.tab-bar{background:white;border-bottom:2px solid #e5e7eb;position:sticky;top:70px;z-index:100;display:flex;padding:0 5%;}
-.tab-btn{padding:1rem 1.5rem;font-size:0.95rem;font-weight:600;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;font-family:'Inter',sans-serif;}
+.tab-bar{background:white;border-bottom:2px solid #e5e7eb;position:sticky;top:70px;z-index:100;display:flex;padding:0 5%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-btn{padding:1rem 1.2rem;font-size:0.92rem;font-weight:600;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.2s;display:flex;align-items:center;gap:0.4rem;font-family:'Inter',sans-serif;white-space:nowrap;flex-shrink:0;}
 .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
 .tab-btn:hover{color:var(--primary);}
-@media(max-width:640px){.tab-bar{padding:0 2%;}.tab-btn{padding:0.8rem 0.8rem;font-size:0.82rem;}}
+@media(max-width:640px){.tab-bar{padding:0 1%;top:70px;}.tab-btn{padding:0.75rem 0.7rem;font-size:0.78rem;gap:0.3rem;}}
 
 /* SECTIONS */
 .tab-section{display:none;padding:2.5rem 5%;max-width:1200px;margin:0 auto;}
@@ -593,6 +594,29 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <!-- Quiz cards grid -->
   <div class="card-grid" id="quizzesList" style="margin-top:1.5rem;">
     <div class="empty-state"><i class="fas fa-brain"></i><p>No quizzes posted yet.<br>Check back soon — your tutors will post quizzes here.</p></div>
+  </div>
+
+  <!-- Student quiz submission -->
+  <div style="margin-top:2rem;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:20px;padding:1.8rem;border:1px solid #c4b5fd;">
+    <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem;">
+      <div style="width:40px;height:40px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-paper-plane" style="color:white;font-size:1rem;"></i></div>
+      <div>
+        <div style="font-size:1rem;font-weight:800;color:#1e2a3e;">Submit a Quiz for Review</div>
+        <div style="font-size:0.82rem;color:#6b7280;">Have a quiz link? Submit it — admin will review and publish it live.</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+      <div style="grid-column:1/-1;"><input type="text" id="qrTitle" placeholder="Quiz title *" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;"></div>
+      <input type="text" id="qrCourse" placeholder="Course (e.g. Applied Electricity)" style="padding:0.65rem 0.9rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;">
+      <input type="text" id="qrName" placeholder="Your name *" style="padding:0.65rem 0.9rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;">
+      <div style="grid-column:1/-1;"><input type="url" id="qrUrl" placeholder="Quiz link * (Google Forms, Testmoz, Kahoot, etc.)" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;"></div>
+      <div style="grid-column:1/-1;"><textarea id="qrDesc" rows="2" placeholder="Brief description (optional)" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;resize:none;"></textarea></div>
+    </div>
+    <div style="margin-top:0.8rem;display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
+      <button onclick="submitQuizRequest()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.65rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;font-family:'Inter',sans-serif;box-shadow:0 4px 12px rgba(99,102,241,0.3);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''"><i class="fas fa-paper-plane"></i> Submit for Review</button>
+      <span style="font-size:0.78rem;color:#6b7280;"><i class="fas fa-info-circle"></i> Admin will review and publish within 24h</span>
+    </div>
+    <div id="qrStatus" style="display:none;margin-top:0.8rem;padding:0.7rem 1rem;border-radius:10px;font-size:0.87rem;font-weight:500;"></div>
   </div>
 </div>
 
@@ -1910,16 +1934,29 @@ async function loadQuizzes() {
 }
 
 function openQuizFromData(q) {
-  // Resolve URL — form_links (JSON array) takes priority over quiz_url
-  var url = q.quiz_url || '';
+  // quiz_url is now a JSON array of links OR a plain URL string
+  var url = '';
   try {
-    var links = JSON.parse(q.form_links || '[]');
+    var links = JSON.parse(q.quiz_url || '[]');
     if(Array.isArray(links) && links.length){
+      // Pick random link for anti-copy shuffle
       url = links[Math.floor(Math.random() * links.length)];
+    } else if(typeof links === 'string' && links) {
+      url = links;
     }
-  } catch(e){}
-  if(!url){ alert('No quiz link available.'); return; }
-  openQuiz(q.id, q.title, url, q.duration_mins||0, q.course||'', q.instructions||q.description||'');
+  } catch(e) {
+    // Plain URL string
+    url = q.quiz_url || '';
+  }
+  // Also check form_links field (legacy)
+  if(!url) {
+    try {
+      var fl = JSON.parse(q.form_links || '[]');
+      if(Array.isArray(fl) && fl.length) url = fl[Math.floor(Math.random() * fl.length)];
+    } catch(e) {}
+  }
+  if(!url){ alert('No quiz link available for this quiz.'); return; }
+  openQuiz(q.id, q.title, url, q.duration_mins||0, q.course||'', q.description||q.instructions||'');
 }
 
 function openQuiz(qid, title, url, durationMins, course, instructions) {
@@ -2024,6 +2061,55 @@ async function markQuizDone() {
     loadQuizzes(); // refresh to show completed badge
   }, 2000);
 }
+// ── STUDENT QUIZ SUBMISSION ───────────────────────────────────
+async function submitQuizRequest() {
+  var title = (document.getElementById('qrTitle')||{}).value||'';
+  var course= (document.getElementById('qrCourse')||{}).value||'';
+  var name  = (document.getElementById('qrName')||{}).value||'';
+  var url   = (document.getElementById('qrUrl')||{}).value||'';
+  var desc  = (document.getElementById('qrDesc')||{}).value||'';
+  title=title.trim(); name=name.trim(); url=url.trim();
+
+  var statusEl = document.getElementById('qrStatus');
+  function showQrStatus(msg, type){
+    if(!statusEl) return;
+    statusEl.textContent = msg;
+    statusEl.style.display = 'block';
+    statusEl.style.background = type==='ok'?'#d1fae5':type==='err'?'#fee2e2':'#dbeafe';
+    statusEl.style.color = type==='ok'?'#065f46':type==='err'?'#991b1b':'#1e40af';
+  }
+
+  if(!title){ showQrStatus('Please enter a quiz title.','err'); return; }
+  if(!name){ showQrStatus('Please enter your name.','err'); return; }
+  if(!url){ showQrStatus('Please enter the quiz link.','err'); return; }
+
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var email = profile.email || 'unknown';
+
+  var sb = window.geramaSupabase;
+  if(!sb){ showQrStatus('Not connected. Please refresh.','err'); return; }
+
+  showQrStatus('Submitting...','info');
+
+  try {
+    var {error} = await sb.from('quiz_requests').insert({
+      title: title, course: course||null, submitted_by: name,
+      email: email, quiz_url: url, description: desc||null,
+      status: 'pending', created_at: new Date().toISOString()
+    });
+    if(error) throw new Error(error.message);
+    showQrStatus('✅ Submitted! Admin will review and publish it soon.','ok');
+    ['qrTitle','qrCourse','qrName','qrUrl','qrDesc'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  } catch(e) {
+    // If quiz_requests table doesn't exist yet, show helpful message
+    if(e.message && e.message.includes('does not exist')){
+      showQrStatus('⚠️ Quiz requests not set up yet. Please contact admin directly.','err');
+    } else {
+      showQrStatus('❌ '+e.message,'err');
+    }
+  }
+}
+
 function toggleFab() {
   var opts = document.getElementById('fabOptions');
   var icon = document.getElementById('fabIcon');

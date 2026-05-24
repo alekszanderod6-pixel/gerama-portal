@@ -72,6 +72,7 @@
       if(window.loadSubmissionsTable) window.loadSubmissionsTable();
     }, 150);
     if(name === 'quizzes' && window.loadQzList) setTimeout(window.loadQzList, 150);
+    if(name === 'quizrequests' && window.loadQuizRequests) setTimeout(window.loadQuizRequests, 150);
     if(name === 'classes' && window.loadClsList) setTimeout(window.loadClsList, 150);
     if(name === 'classrequests' && window.loadClassRequests) setTimeout(window.loadClassRequests, 150);
     if(name === 'visitors' && window.loadVisitorStats) setTimeout(window.loadVisitorStats, 150);
@@ -623,19 +624,9 @@
         var { data } = await sb.from('materials').select('*').order('created_at',{ascending:false}).limit(200);
         if(data && data.length){
           materialsHistory = data.map(function(r){
-            return {
-              level: r.level,
-              sem: r.semester,
-              course: r.course,
-              type: r.type,
-              name: r.name,
-              desc: r.description||'',
-              url: r.file_url,
-              path: r.storage_path||'',
-              date: r.created_at,
-              id: r.id,
-              status: r.status||'approved'
-            };
+            return { level:r.level, sem:r.semester, course:r.course, type:r.type, name:r.name,
+              desc:r.description||'', url:r.file_url, path:r.storage_path||'',
+              date:r.created_at, id:r.id, status:r.status||'approved' };
           });
         }
       }
@@ -647,14 +638,8 @@
         var { data: annData } = await sb2.from('announcements').select('*').order('created_at',{ascending:false}).limit(50);
         if(annData && annData.length){
           announcements = annData.map(function(r){
-            return {
-              id: r.id,
-              title: r.title,
-              message: r.message,
-              priority: r.priority||'normal',
-              image: r.image_url||null,
-              date: r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : ''
-            };
+            return { id:r.id, title:r.title, message:r.message, priority:r.priority||'normal',
+              image:r.image_url||null, date:r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '' };
           });
           localStorage.setItem('gerama_announcements', JSON.stringify(announcements));
         }
@@ -665,21 +650,46 @@
     renderSubmissions();
     renderAnnouncements();
     updateStats();
-    renderRecent();
+    renderRecentActivity();
 
-    // class request badge (best effort)
-    try{
-      var sb3 = window.geramaSupabase;
-      if(sb3){
-        var res = await sb3.from('class_requests').select('id').eq('status','pending');
-        var pending = (res && res.data) ? res.data.length : 0;
-        var badge = document.getElementById('reqBadge');
-        var statEl = document.getElementById('statClassReqs');
-        if(badge){ badge.textContent=pending; badge.style.display=pending>0?'inline':'none'; }
-        if(statEl) statEl.textContent=pending;
-      }
-    }catch(e){}
+    // Load live visitor + content stats for overview
+    loadOverviewStats();
   };
+
+  async function loadOverviewStats(){
+    var sb = window.geramaSupabase; if(!sb) return;
+    var now = new Date();
+    var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    var weekStart  = new Date(now.getTime() - 7*24*60*60*1000).toISOString();
+    var set = function(id, val){ var e=document.getElementById(id); if(e) e.textContent = (val!==null&&val!==undefined) ? val : '0'; };
+
+    // Run each query independently so one failure doesn't block others
+    var safe = async function(fn){ try{ return await fn(); }catch(e){ return null; } };
+
+    var todayRes  = await safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',todayStart); });
+    var weekRes   = await safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',weekStart); });
+    var totalRes  = await safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}); });
+    var quizRes   = await safe(function(){ return sb.from('quizzes').select('id',{count:'exact',head:true}).eq('status','active'); });
+    var asgRes    = await safe(function(){ return sb.from('assignments').select('id',{count:'exact',head:true}); });
+    var clsRes    = await safe(function(){ return sb.from('classes').select('id',{count:'exact',head:true}); });
+    var clsReqRes = await safe(function(){ return sb.from('class_requests').select('id',{count:'exact',head:true}).eq('status','pending'); });
+    var qrRes     = await safe(function(){ return sb.from('quiz_requests').select('id',{count:'exact',head:true}).eq('status','pending'); });
+
+    set('statVisitsToday', todayRes&&todayRes.count||0);
+    set('statVisitsWeek',  weekRes&&weekRes.count||0);
+    set('statVisitsTotal', totalRes&&totalRes.count||0);
+    set('statQuizzes',     quizRes&&quizRes.count||0);
+    set('statAssignments', asgRes&&asgRes.count||0);
+    set('statClasses',     clsRes&&clsRes.count||0);
+    set('statClassReqs',   clsReqRes&&clsReqRes.count||0);
+    set('statQuizPending', qrRes&&qrRes.count||0);
+
+    var reqBadge = document.getElementById('reqBadge');
+    if(reqBadge){ var rc=clsReqRes&&clsReqRes.count||0; reqBadge.textContent=rc; reqBadge.style.display=rc>0?'inline':'none'; }
+    var qrBadge = document.getElementById('quizReqBadge');
+    if(qrBadge){ var qc=qrRes&&qrRes.count||0; qrBadge.textContent=qc; qrBadge.style.display=qc>0?'inline':'none'; }
+  }rror:', e); }
+  }
 
   // --- App boot ---
   document.addEventListener('DOMContentLoaded', function(){
@@ -882,15 +892,44 @@ window.loadQzList = async function(){
   var container = document.getElementById('quizzesAdminList');
   if(!container) return;
   var sb = window.geramaSupabase;
-  if(!sb){ container.innerHTML='<p>Supabase not ready</p>'; return; }
-  var {data} = await sb.from('quizzes').select('*').order('created_at',{ascending:false});
-  if(!data || !data.length){ container.innerHTML='<p>No quizzes yet.</p>'; return; }
-  container.innerHTML = data.map(q => `
-    <div style="background:#fafcfa;border-radius:12px;padding:1rem;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
-      <div><strong>${window.escHtml(q.title)}</strong><br><small>${window.escHtml(q.course||'')} · Due: ${q.deadline ? new Date(q.deadline).toLocaleString() : 'No deadline'}</small></div>
-      <button class="btn-danger" onclick="deleteQuiz('${q.id}')"><i class="fas fa-trash"></i> Delete</button>
-    </div>
-  `).join('');
+  if(!sb){ container.innerHTML='<p style="color:#9ca3af;">Supabase not ready.</p>'; return; }
+  var {data, error} = await sb.from('quizzes').select('*').order('created_at',{ascending:false});
+  if(error||!data||!data.length){
+    container.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-brain" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No quizzes posted yet.</p>';
+    return;
+  }
+  var now = Date.now();
+  container.innerHTML = data.map(function(q){
+    var dl = q.deadline ? new Date(q.deadline).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'No deadline';
+    var isPast = q.deadline && new Date(q.deadline).getTime() < now;
+    var badge = isPast
+      ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;margin-left:0.4rem;">Closed</span>'
+      : '<span style="background:#ede9fe;color:#5b21b6;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;margin-left:0.4rem;">Active</span>';
+    // Parse links
+    var links = [];
+    try{ links = JSON.parse(q.quiz_url||'[]'); }catch(e){ if(q.quiz_url) links=[q.quiz_url]; }
+    if(!Array.isArray(links)) links = links ? [links] : [];
+    var linkHtml = links.map(function(l,i){
+      return '<a href="'+window.escAttr(l)+'" target="_blank" style="color:#6366f1;font-size:0.8rem;display:inline-flex;align-items:center;gap:0.3rem;margin-right:0.8rem;"><i class="fas fa-link"></i> Link '+(i+1)+'</a>';
+    }).join('');
+    return '<div class="sub-card">'+
+      '<div class="sub-info">'+
+        '<strong>'+window.escHtml(q.title)+badge+'</strong>'+
+        '<div class="sub-meta">'+
+          '<b>Course:</b> '+window.escHtml(q.course||'—')+
+          ' | <b>Deadline:</b> '+dl+
+          (q.duration_mins?' | <b>Time:</b> '+q.duration_mins+' min':'')+
+          (q.points?' | <b>Marks:</b> '+q.points:'')+
+          '<br>'+linkHtml+
+          (links.length>1?'<span style="background:#f5f3ff;color:#5b21b6;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;"><i class="fas fa-random"></i> '+links.length+' versions (shuffle)</span>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="sub-actions">'+
+        '<button class="btn-gold" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="extendQuizDeadline(\''+q.id+'\')"><i class="fas fa-clock"></i> Extend</button>'+
+        '<button class="btn-danger" onclick="deleteQuiz(\''+q.id+'\')"><i class="fas fa-trash"></i></button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
 };
 
 window.deleteQuiz = async function(id){
@@ -901,46 +940,77 @@ window.deleteQuiz = async function(id){
   window.showStatus('quizStatus','Quiz deleted.','ok');
 };
 
-// Publish quiz
+window.extendQuizDeadline = async function(id){
+  var newDl = prompt('Enter new deadline (YYYY-MM-DDTHH:MM):'); if(!newDl) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {error} = await sb.from('quizzes').update({deadline:new Date(newDl).toISOString()}).eq('id',id);
+  if(!error){ alert('Deadline extended!'); window.loadQzList(); } else alert('Error: '+error.message);
+};
+
+// Publish quiz — click handler
 document.addEventListener('click', function(e){
-  if(e.target.id === 'publishQuizBtn') publishQuiz();
+  if(e.target.id === 'publishQuizBtn' || e.target.closest('#publishQuizBtn')) publishQuiz();
 });
 
 async function publishQuiz(){
-  var title = document.getElementById('qzTitle').value.trim();
-  var course = document.getElementById('qzCourse').value.trim();
-  var duration = parseInt(document.getElementById('qzDuration').value) || 0;
-  var points = document.getElementById('qzPoints').value.trim();
-  var url = document.getElementById('qzUrl').value.trim();
-  var deadline = document.getElementById('qzDeadline').value;
-  var desc = document.getElementById('qzDesc').value.trim();
+  var title    = (document.getElementById('qzTitle')||{}).value||'';
+  var course   = (document.getElementById('qzCourse')||{}).value||'';
+  var duration = parseInt((document.getElementById('qzDuration')||{}).value)||0;
+  var points   = (document.getElementById('qzPoints')||{}).value||'';
+  var tutor    = (document.getElementById('qzTutor')||{}).value||'';
+  var deadline = (document.getElementById('qzDeadline')||{}).value||'';
+  var desc     = (document.getElementById('qzDesc')||{}).value||'';
+  title = title.trim(); course = course.trim(); desc = desc.trim();
 
-  if(!title || !url){ window.showStatus('quizStatus','Title and Quiz Link are required','err'); return; }
+  // Collect up to 3 links
+  var links = [];
+  ['qzUrl1','qzUrl2','qzUrl3'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el && el.value.trim()) links.push(el.value.trim());
+  });
+
+  if(!title){ window.showStatus('quizStatus','Quiz title is required.','err'); return; }
+  if(!links.length){ window.showStatus('quizStatus','At least one quiz link is required.','err'); return; }
+  if(!deadline){ window.showStatus('quizStatus','Please set a deadline.','err'); return; }
 
   var btn = document.getElementById('publishQuizBtn');
-  btn.disabled=true; btn.innerHTML='<span class="loader"></span> Publishing...';
+  btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Publishing...';
+
   try{
     var sb = window.geramaSupabase;
-    if(!sb) throw new Error('Supabase not connected');
-    var {error} = await sb.from('quizzes').insert({
-      title, course, duration_mins: duration, points, quiz_url: url,
-      deadline: deadline || null, instructions: desc,
-      status: 'active', created_at: new Date().toISOString()
+    if(!sb) throw new Error('Supabase not connected. Check your connection.');
+
+    // Store links as JSON array in quiz_url; first link also in quiz_url for backward compat
+    var linksJson = JSON.stringify(links);
+
+    var record = {
+      title:        title,
+      course:       course || null,
+      tutor:        tutor  || null,
+      duration_mins: duration || null,
+      points:       points  || null,
+      quiz_url:     linksJson,          // JSON array of all links
+      deadline:     new Date(deadline).toISOString(),
+      description:  desc   || null,     // use 'description' — matches Supabase schema
+      status:       'active',
+      created_at:   new Date().toISOString()
+    };
+
+    var {error} = await sb.from('quizzes').insert(record);
+    if(error) throw new Error(error.message + (error.details ? ' — '+error.details : ''));
+
+    window.logActivity('Published quiz: '+title+(links.length>1?' ('+links.length+' versions)':''));
+    window.showStatus('quizStatus','✅ Quiz published! Students can now take it on the Classroom page.','ok');
+
+    // Clear form
+    ['qzTitle','qzCourse','qzDuration','qzPoints','qzTutor','qzDeadline','qzDesc','qzUrl1','qzUrl2','qzUrl3'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.value = id==='qzDuration'?'0':'';
     });
-    if(error) throw error;
-    window.showStatus('quizStatus','✅ Quiz published! It now appears on the Classroom page.','ok');
-    document.getElementById('qzTitle').value='';
-    document.getElementById('qzCourse').value='';
-    document.getElementById('qzDuration').value='';
-    document.getElementById('qzPoints').value='';
-    document.getElementById('qzUrl').value='';
-    document.getElementById('qzDeadline').value='';
-    document.getElementById('qzDesc').value='';
     window.loadQzList();
   }catch(err){
     window.showStatus('quizStatus','❌ '+err.message,'err');
   }finally{
-    btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Publish Quiz';
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Publish Quiz Live';
   }
 }
 })();
@@ -1210,3 +1280,59 @@ document.addEventListener('DOMContentLoaded', function(){
   var postAsgBtn = document.getElementById('postAsgBtn');
   if(postAsgBtn) postAsgBtn.addEventListener('click', window.postAssignment);
 });
+
+// ─── QUIZ REQUESTS (user-submitted quizzes awaiting approval) ─
+window.loadQuizRequests = async function(){
+  var el = document.getElementById('quizRequestsList'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+  var {data,error} = await sb.from('quiz_requests').select('*').order('created_at',{ascending:false});
+  if(error||!data||!data.length){
+    el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No quiz requests yet.</p>'; return;
+  }
+  el.innerHTML = data.map(function(r){
+    var badge = r.status==='approved' ? '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Approved</span>'
+              : r.status==='rejected' ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Rejected</span>'
+              : '<span style="background:#ede9fe;color:#5b21b6;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Pending</span>';
+    var dt = r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    return '<div class="sub-card">'+
+      '<div class="sub-info">'+
+        '<strong>'+window.escHtml(r.title||'Untitled Quiz')+' '+badge+'</strong>'+
+        '<div class="sub-meta">'+
+          '<b>Submitted by:</b> '+window.escHtml(r.submitted_by||'—')+' ('+window.escHtml(r.email||'—')+')<br>'+
+          '<b>Course:</b> '+window.escHtml(r.course||'—')+' | <b>Date:</b> '+dt+'<br>'+
+          '<a href="'+window.escAttr(r.quiz_url||'#')+'" target="_blank" style="color:#6366f1;font-size:0.82rem;"><i class="fas fa-external-link-alt"></i> Preview Quiz Link</a>'+
+          (r.description?'<br><span style="color:#374151;font-size:0.82rem;">'+window.escHtml(r.description)+'</span>':'')+
+        '</div>'+
+      '</div>'+
+      '<div class="sub-actions">'+
+        (r.status==='pending'?
+          '<button class="btn-success" onclick="approveQuizRequest(\''+r.id+'\',\''+window.escAttr(r.title||'')+'\',\''+window.escAttr(r.course||'')+'\',\''+window.escAttr(r.quiz_url||'')+'\',\''+window.escAttr(r.description||'')+'\')"><i class="fas fa-check"></i> Approve & Publish</button>'+
+          '<button class="btn-danger" onclick="rejectQuizRequest(\''+r.id+'\')"><i class="fas fa-times"></i> Reject</button>'
+        :'')+
+      '</div>'+
+    '</div>';
+  }).join('');
+};
+
+window.approveQuizRequest = async function(id, title, course, url, desc){
+  var sb = window.geramaSupabase; if(!sb) return;
+  // Publish as a live quiz
+  var deadline = new Date(Date.now() + 7*24*60*60*1000).toISOString();
+  var {error} = await sb.from('quizzes').insert({
+    title:title, course:course, quiz_url:url, instructions:desc||null,
+    deadline:deadline, status:'active', created_at:new Date().toISOString()
+  });
+  if(error){ alert('Error publishing: '+error.message); return; }
+  await sb.from('quiz_requests').update({status:'approved'}).eq('id',id);
+  window.logActivity('Approved & published quiz request: '+title);
+  alert('✅ Quiz "'+title+'" is now live on the Classroom page!');
+  window.loadQuizRequests();
+  loadOverviewStats();
+};
+
+window.rejectQuizRequest = async function(id){
+  if(!confirm('Reject this quiz request?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('quiz_requests').update({status:'rejected'}).eq('id',id);
+  window.loadQuizRequests();
+};
