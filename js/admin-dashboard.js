@@ -1286,7 +1286,15 @@ window.loadQuizRequests = async function(){
   var el = document.getElementById('quizRequestsList'); if(!el) return;
   var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
   var {data,error} = await sb.from('quiz_requests').select('*').order('created_at',{ascending:false});
-  if(error||!data||!data.length){
+  if(error){
+    // Table may not exist yet
+    el.innerHTML='<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:1.2rem;font-size:0.88rem;color:#92400e;">'+
+      '<strong><i class="fas fa-info-circle"></i> Setup needed:</strong> Create the <code>quiz_requests</code> table in Supabase with columns: '+
+      '<code>id, title, course, submitted_by, email, quiz_url, description, status, created_at</code>. '+
+      'Status should default to <code>pending</code>.</div>';
+    return;
+  }
+  if(!data||!data.length){
     el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No quiz requests yet.</p>'; return;
   }
   el.innerHTML = data.map(function(r){
