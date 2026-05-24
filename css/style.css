@@ -1,0 +1,130 @@
+/* ========== GERAMA GLOBAL STYLES (MERGED) ========== */
+:root { --primary: #1B5E20; --primary-dark: #0a2f1f; --primary-light: #2E7D32; --accent: #FFC107; --accent-dark: #e6a800; --gray-bg: #f5f7fa; --shadow: 0 8px 32px rgba(0, 0, 0, 0.1); --border-radius: 24px; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { overflow-x: hidden; width: 100%; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f8fafc 0%, #e8f5e9 100%);
+  color: #1e2a3e; line-height: 1.6;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  position: relative;
+}
+h1, h2, h3 { font-weight: 600; }
+.container { max-width: 1300px; margin: 0 auto; padding: 2rem; }
+
+/* Header */
+header { background: linear-gradient(135deg, #1B5E20, #2E7D32); color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
+.logo-container { display: flex; align-items: center; gap: 12px; }
+.logo-container img { width: 55px; border-radius: 12px; }
+.logo-container h2 { font-size: 1.3rem; }
+nav a { color: #eef2ff; text-decoration: none; margin: 0 1rem; padding: 0.5rem; transition: 0.3s; }
+nav a:hover, nav a.active { color: #FFC107; border-bottom: 2px solid #FFC107; }
+
+/* ── PREVENT HORIZONTAL SCROLL ON ALL SECTIONS ── */
+section, .section-wrap, .res-container, .contact-wrap, .who-section,
+.team-section, .mission-section, .values-section, .cta-banner,
+.stats-bar, .ann-grid, .features-grid, .steps-grid {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Hero Slideshow (preserved from original) */
+.hero { position: relative; min-height: 600px; display: flex; align-items: center; justify-content: center; text-align: center; color: white; overflow: hidden; }
+.hero-slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+.slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
+.hero-content { position: relative; z-index: 2; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); border-radius: 30px; padding: 3rem; max-width: 800px; }
+.hero h1 { font-size: 3rem; margin-bottom: 1rem; background: linear-gradient(135deg, #FFC107, #FFD54F); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.btn { display: inline-block; padding: 0.8rem 2rem; border-radius: 40px; text-decoration: none; font-weight: 600; transition: 0.3s; border: none; cursor: pointer; }
+.btn-primary { background: #1B5E20; color: white; }
+.btn-primary:hover { background: #FFC107; color: #1B5E20; transform: translateY(-2px); }
+
+/* Stats, Cards, Announcements */
+.stats-grid, .announcements-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; margin: 2rem 0; }
+.stat-card, .announcement-card { background: white; border-radius: 20px; padding: 1.5rem; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.stat-number { font-size: 2rem; font-weight: 800; color: #1B5E20; }
+
+/* ── SIDEBAR DRAWER ──
+   z-index 3000 keeps it above the sticky header (z-index 1000).
+   width is capped at 85vw so it never covers the full screen on small phones.
+   The overlay sits at z-index 2999 to block interaction with the page behind. */
+.sidebar-drawer {
+  position: fixed; top: 0; left: -320px; width: 300px; max-width: 85vw;
+  height: 100vh; background: #0a2f1f; z-index: 3000;
+  transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+  overflow-y: auto; overflow-x: hidden;
+  box-shadow: 4px 0 30px rgba(0,0,0,0.35);
+  will-change: left;
+}
+.sidebar-drawer.open { left: 0; }
+.drawer-header { background: #1B5E20; padding: 2rem 1rem 1.5rem; text-align: center; color: white; position: relative; }
+.drawer-header .profile-emoji { font-size: 3rem; margin-bottom: 0.5rem; display: block; }
+.drawer-nav a { display: flex; padding: 1rem 1.5rem; color: white; text-decoration: none; gap: 1rem; transition: 0.2s; align-items: center; }
+.drawer-nav a:hover, .drawer-nav a.active { background: rgba(255,193,7,0.2); border-left: 3px solid #FFC107; color: #FFC107; }
+.logout-drawer { background: #FFC107; color: #1B5E20; width: 90%; margin: 1rem auto; display: block; border: none; padding: 0.8rem; border-radius: 40px; font-weight: bold; cursor: pointer; }
+
+/* Overlay — blocks page interaction when sidebar is open */
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 2999; display: none; backdrop-filter: blur(2px); }
+.overlay.active { display: block; }
+
+/* Menu toggle button — only shown on mobile, sits inside the header area.
+   On pages that use the old <header> tag, it floats fixed.
+   On pages with .site-header, it is hidden because those headers have their own toggle. */
+.menu-toggle {
+  position: fixed; top: 14px; left: 14px; z-index: 1100;
+  background: #1B5E20; color: white; border: none;
+  padding: 10px 12px; border-radius: 10px; cursor: pointer;
+  font-size: 1.1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  transition: background 0.2s;
+  /* Hidden by default on desktop — only shown on mobile */
+  display: none;
+}
+.menu-toggle:hover { background: #FFC107; color: #1B5E20; }
+
+/* Show the fixed hamburger only on mobile AND only on pages that don't have
+   a .site-header (resources.html uses old <header>) */
+@media (max-width: 768px) {
+  .menu-toggle { display: block; }
+  /* On pages with .site-header, the header has its own toggle — hide the fixed one */
+  body:has(.site-header) .menu-toggle { display: none; }
+}
+
+/* Profile Modal */
+.profile-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 4000; padding: 1rem; }
+.profile-modal.active { display: flex; }
+.profile-modal-content { background: white; max-width: 450px; width: 100%; border-radius: 24px; padding: 2rem; max-height: 90vh; overflow-y: auto; }
+.profile-form-group { margin-bottom: 1rem; }
+.profile-form-group input, .profile-form-group select { width: 100%; padding: 0.7rem; border: 1px solid #ccc; border-radius: 12px; }
+.profile-picture-preview { width: 80px; height: 80px; border-radius: 50%; background: #f0f0f0; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.profile-btn-save { background: #1B5E20; color: white; border: none; padding: 0.7rem; border-radius: 40px; width: 100%; cursor: pointer; font-weight: 600; }
+
+/* Footer */
+footer { background: #0a2f1f; color: white; padding: 2rem; margin-top: 3rem; text-align: center; }
+.footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+.footer-social a { color: white; margin: 0 0.5rem; font-size: 1.5rem; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2rem; }
+  .hero-content { padding: 2rem; }
+  .container { padding: 1rem; }
+  .stats-grid { grid-template-columns: 1fr; }
+}
+
+/* ── GLOBAL MOBILE SAFETY NET ── */
+@media (max-width: 768px) {
+  /* Prevent any element from causing horizontal scroll */
+  * { max-width: 100%; }
+  img { max-width: 100%; height: auto; }
+  table { display: block; overflow-x: auto; }
+
+  /* Footer mobile */
+  .footer-content { grid-template-columns: 1fr; gap: 1.5rem; }
+  footer { padding: 1.5rem 1rem; }
+
+  /* Old-style header on resources/dashboard pages */
+  header { padding: 0.8rem 1rem; }
+  header .logo-container h2 { font-size: 1rem; }
+  header nav { display: none; }
+}

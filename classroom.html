@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GERAMA Classroom | Assignments & Online Classes</title>
+<link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B5E20">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
+<script src="js/supabase-config.js"></script>
+<style>
+:root{--primary:#1B5E20;--primary-dark:#0a2f1f;--primary-light:#2E7D32;--gold:#FFC107;--white:#fff;--light:#f8fafc;--text:#1e2a3e;--muted:#6b7280;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);line-height:1.6;overflow-x:hidden;}
+.site-header{position:sticky;top:0;z-index:1000;background:rgba(10,47,31,0.97);backdrop-filter:blur(12px);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:70px;box-shadow:0 2px 20px rgba(0,0,0,0.2);}
+.header-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.header-logo img{height:42px;border-radius:8px;}
+.header-logo span{color:white;font-weight:700;font-size:1.05rem;}
+.header-nav{display:flex;align-items:center;gap:0.3rem;}
+.header-nav a{color:rgba(255,255,255,0.85);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.95rem;transition:all 0.2s;}
+.header-nav a:hover,.header-nav a.active{color:var(--gold);background:rgba(255,193,7,0.1);}
+.menu-toggle-btn{display:flex;background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;margin-right:0.5rem;}
+.menu-toggle-btn:hover{background:rgba(255,255,255,0.1);}
+.pwa-install-btn{display:none;align-items:center;gap:0.4rem;background:rgba(255,193,7,0.15);border:1.5px solid rgba(255,193,7,0.5);color:#FFC107;padding:0.4rem 0.9rem;border-radius:30px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;font-family:'Inter',sans-serif;}
+.pwa-install-btn:hover{background:#FFC107;color:#0a2f1f;}
+@media(max-width:640px){.header-nav{display:none;}}
+
+/* HERO */
+.classroom-hero{background:linear-gradient(135deg,var(--primary-dark) 0%,var(--primary) 100%);padding:4rem 5% 3rem;text-align:center;color:white;position:relative;overflow:hidden;}
+.classroom-hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");}
+.hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);color:var(--gold);padding:0.4rem 1.2rem;border-radius:50px;font-size:0.85rem;font-weight:600;margin-bottom:1.2rem;}
+.classroom-hero h1{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;margin-bottom:0.8rem;}
+.classroom-hero p{font-size:1rem;opacity:0.85;max-width:600px;margin:0 auto;}
+
+/* TABS */
+.tab-bar{background:white;border-bottom:2px solid #e5e7eb;position:sticky;top:70px;z-index:100;display:flex;padding:0 5%;}
+.tab-btn{padding:1rem 1.5rem;font-size:0.95rem;font-weight:600;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.2s;display:flex;align-items:center;gap:0.5rem;font-family:'Inter',sans-serif;}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
+.tab-btn:hover{color:var(--primary);}
+@media(max-width:640px){.tab-bar{padding:0 2%;}.tab-btn{padding:0.8rem 0.8rem;font-size:0.82rem;}}
+
+/* SECTIONS */
+.tab-section{display:none;padding:2.5rem 5%;max-width:1200px;margin:0 auto;}
+.tab-section.active{display:block;}
+@media(max-width:640px){.tab-section{padding:1.5rem 4%;}}
+
+/* SECTION HEADER */
+.sec-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.8rem;}
+.sec-title{font-size:1.3rem;font-weight:800;color:var(--text);}
+.sec-title span{color:var(--primary);}
+
+/* CARDS */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem;}
+@media(max-width:640px){.card-grid{grid-template-columns:1fr;}}
+
+/* CLASS CARD */
+.class-card{background:white;border-radius:18px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;overflow:hidden;}
+.class-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--primary),var(--gold));}
+.class-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.1);}
+.class-badge{display:inline-flex;align-items:center;gap:0.4rem;background:#e8f5e9;color:var(--primary);font-size:0.75rem;font-weight:700;padding:0.25rem 0.8rem;border-radius:20px;margin-bottom:0.8rem;}
+.class-badge.live{background:#fee2e2;color:#dc2626;animation:pulse 2s infinite;}
+.class-badge.upcoming{background:#dbeafe;color:#1d4ed8;}
+.class-badge.ended{background:#f3f4f6;color:#6b7280;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
+.class-title{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:0.4rem;}
+.class-meta{font-size:0.82rem;color:var(--muted);line-height:1.8;}
+.class-meta i{width:16px;color:var(--primary);}
+.class-actions{margin-top:1rem;display:flex;gap:0.6rem;flex-wrap:wrap;}
+.btn-join{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;padding:0.6rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.88rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;transition:all 0.2s;}
+.btn-join:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,94,32,0.3);}
+.btn-join.gold{background:linear-gradient(135deg,var(--gold),#e6a800);color:var(--primary-dark);}
+.btn-copy{background:#f1f5f9;color:var(--text);border:none;padding:0.6rem 1rem;border-radius:30px;font-weight:600;font-size:0.82rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.2s;}
+.btn-copy:hover{background:#e2e8f0;}
+.countdown{font-size:0.82rem;font-weight:700;color:var(--primary);margin-top:0.5rem;}
+
+/* ASSIGNMENT CARD */
+.assign-card{background:white;border-radius:18px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;transition:all 0.3s;}
+.assign-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,0.09);}
+.assign-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:0.8rem;}
+.assign-title{font-size:1rem;font-weight:700;color:var(--text);}
+.deadline-badge{font-size:0.75rem;font-weight:700;padding:0.25rem 0.8rem;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.deadline-ok{background:#d1fae5;color:#065f46;}
+.deadline-soon{background:#fef3c7;color:#92400e;}
+.deadline-passed{background:#fee2e2;color:#991b1b;}
+.assign-meta{font-size:0.82rem;color:var(--muted);line-height:1.8;margin-bottom:1rem;}
+.assign-meta i{width:16px;color:var(--primary);}
+.assign-desc{font-size:0.88rem;color:#374151;line-height:1.6;margin-bottom:1rem;padding:0.8rem;background:#f8fafc;border-radius:10px;border-left:3px solid var(--primary);}
+.btn-submit-assign{background:var(--primary);color:white;border:none;padding:0.6rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.btn-submit-assign:hover{background:#145214;transform:translateY(-1px);}
+.btn-submit-assign:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+/* SUBMISSION MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:white;border-radius:24px;padding:2rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,0.3);}
+.modal-title{font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:1.2rem;display:flex;align-items:center;gap:0.6rem;}
+.modal-title i{color:var(--primary);}
+.form-field{display:flex;flex-direction:column;gap:0.35rem;margin-bottom:1rem;}
+.form-field label{font-size:0.82rem;font-weight:600;color:#374151;}
+.form-field input,.form-field textarea,.form-field select{padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;outline:none;transition:border 0.2s;background:#fafafa;font-family:'Inter',sans-serif;}
+.form-field input:focus,.form-field textarea:focus{border-color:var(--primary);background:white;}
+.drop-zone{border:2.5px dashed #c8e6c9;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.3s;background:#f9fdf9;}
+.drop-zone:hover{border-color:var(--primary);background:#e8f5e9;}
+.drop-zone i{font-size:1.8rem;color:var(--primary);margin-bottom:0.4rem;display:block;}
+.drop-zone p{color:#555;font-size:0.88rem;margin:0;}
+.file-chosen{font-weight:600;color:var(--primary);margin-top:0.4rem;font-size:0.82rem;}
+.modal-actions{display:flex;gap:0.8rem;margin-top:1.2rem;flex-wrap:wrap;}
+.btn-modal-submit{flex:1;background:var(--primary);color:white;border:none;padding:0.75rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.btn-modal-submit:hover{background:#145214;}
+.btn-modal-submit:disabled{opacity:0.6;cursor:not-allowed;}
+.btn-modal-cancel{background:#f1f5f9;color:var(--text);border:none;padding:0.75rem 1.2rem;border-radius:30px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;}
+.status-msg{padding:0.75rem 1rem;border-radius:10px;font-size:0.87rem;font-weight:500;margin-top:0.8rem;display:none;}
+.status-ok{background:#d1fae5;color:#065f46;display:block;}
+.status-err{background:#fee2e2;color:#991b1b;display:block;}
+.status-info{background:#dbeafe;color:#1e40af;display:block;}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--muted);}
+.empty-state i{font-size:3rem;margin-bottom:1rem;display:block;opacity:0.4;}
+.empty-state p{font-size:0.95rem;}
+
+/* ANNOUNCEMENT BANNER */
+.ann-banner{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d;border-radius:14px;padding:1rem 1.2rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:0.8rem;}
+.ann-banner i{color:#f59e0b;font-size:1.1rem;flex-shrink:0;margin-top:0.1rem;}
+.ann-banner-text strong{display:block;font-size:0.9rem;color:#92400e;margin-bottom:0.2rem;}
+.ann-banner-text span{font-size:0.85rem;color:#78350f;}
+
+/* ── QUIZ CARDS ── */
+.quiz-card{background:white;border-radius:18px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;overflow:hidden;}
+.quiz-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#6366f1,var(--gold));}
+.quiz-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.1);}
+.quiz-title{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:0.4rem;}
+.quiz-meta{font-size:0.82rem;color:var(--muted);line-height:1.8;margin-bottom:0.8rem;}
+.quiz-meta i{width:16px;color:#6366f1;}
+.quiz-desc{font-size:0.88rem;color:#374151;line-height:1.6;margin-bottom:1rem;padding:0.8rem;background:#f8fafc;border-radius:10px;border-left:3px solid #6366f1;}
+.btn-start-quiz{background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.65rem 1.5rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.btn-start-quiz:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(99,102,241,0.4);}
+.btn-start-quiz:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.quiz-versions-badge{background:#ede9fe;color:#5b21b6;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;display:inline-block;margin-left:0.4rem;}
+.reels-feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;}
+@media(max-width:640px){.reels-feed{grid-template-columns:1fr;}}
+.reel-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;}
+.reel-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.12);}
+.reel-video-wrap{position:relative;background:#000;aspect-ratio:9/16;max-height:420px;overflow:hidden;}
+.reel-video-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+.reel-play-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);cursor:pointer;transition:opacity 0.2s;}
+.reel-play-overlay i{font-size:2.5rem;color:white;opacity:0.9;}
+.reel-play-overlay:hover{background:rgba(0,0,0,0.1);}
+.reel-body{padding:1rem;}
+.reel-author{display:flex;align-items:center;gap:0.6rem;margin-bottom:0.6rem;}
+.reel-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;}
+.reel-author-name{font-weight:700;font-size:0.88rem;color:var(--text);}
+.reel-time{font-size:0.72rem;color:var(--muted);}
+.reel-caption{font-size:0.88rem;color:#374151;line-height:1.5;margin-bottom:0.8rem;}
+.reel-course-tag{background:#e8f5e9;color:var(--primary);font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;display:inline-block;margin-bottom:0.6rem;}
+.reel-actions{display:flex;align-items:center;gap:0.6rem;padding-top:0.6rem;border-top:1px solid #f1f5f9;flex-wrap:wrap;}
+.reel-btn{background:none;border:none;color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;padding:0.3rem 0.6rem;border-radius:20px;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.reel-btn:hover{background:#f1f5f9;color:var(--text);}
+.reel-btn.liked{color:#dc2626;}
+.reel-upload-box{background:white;border-radius:18px;padding:1.5rem;margin-bottom:1.5rem;border:2px dashed #c8e6c9;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+.reel-upload-box h3{font-size:1rem;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;}
+.reel-video-preview{width:100%;max-height:200px;border-radius:12px;margin-top:0.6rem;display:none;}
+.reel-blocked{opacity:0.4;pointer-events:none;}
+.reel-blocked-badge{position:absolute;top:0.5rem;right:0.5rem;background:#dc2626;color:white;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;}
+
+/* ── FAB (Floating Action Button) ── */
+.fab-container{position:fixed;bottom:5rem;right:1.2rem;z-index:500;display:flex;flex-direction:column;align-items:flex-end;gap:0.6rem;}
+.fab-main{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 20px rgba(27,94,32,0.4);display:flex;align-items:center;justify-content:center;transition:all 0.3s;}
+.fab-main:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(27,94,32,0.5);}
+.fab-options{display:none;flex-direction:column;align-items:flex-end;gap:0.5rem;}
+.fab-options.open{display:flex;}
+.fab-option{display:flex;align-items:center;gap:0.6rem;background:white;border:none;padding:0.5rem 1rem 0.5rem 0.8rem;border-radius:30px;font-size:0.85rem;font-weight:600;color:var(--text);cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.12);font-family:'Inter',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.fab-option:hover{background:var(--primary);color:white;}
+.fab-option i{width:20px;text-align:center;color:var(--primary);}
+.fab-option:hover i{color:white;}
+
+/* ── SITE BOTTOM NAV (mobile main site) ── */
+.site-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;z-index:400;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
+.site-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;color:#9ca3af;text-decoration:none;font-size:0.6rem;font-weight:600;gap:0.2rem;transition:all 0.2s;}
+.site-bnav-item i{font-size:1.1rem;}
+.site-bnav-item.active,.site-bnav-item:hover{color:var(--primary);}
+@media(max-width:640px){
+  .site-bottom-nav{display:flex;}
+  body{padding-bottom:60px;}
+}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.1);}
+.footer-copy,.footer-credits{font-size:0.82rem;color:rgba(255,255,255,0.4);margin:0;}
+.footer-credits strong{color:rgba(255,255,255,0.65);}
+
+/* ── DELETE / POSTPONE BUTTONS ── */
+.btn-danger-sm{background:#fee2e2;color:#dc2626;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.btn-danger-sm:hover{background:#dc2626;color:white;}
+.btn-warn-sm{background:#fef3c7;color:#92400e;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.btn-warn-sm:hover{background:#f59e0b;color:white;}
+
+/* ── Q&A BOARD ── */
+.qa-post{background:white;border-radius:18px;padding:1.4rem;margin-bottom:1.2rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;}
+.qa-post-header{display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;}
+.qa-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0;}
+.qa-author{font-weight:700;font-size:0.9rem;color:var(--text);}
+.qa-time{font-size:0.75rem;color:var(--muted);}
+.qa-course-tag{background:#e8f5e9;color:var(--primary);font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;margin-left:auto;}
+.qa-content{font-size:0.92rem;color:#374151;line-height:1.7;margin-bottom:0.8rem;}
+.qa-images{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.8rem;}
+.qa-images img{width:100px;height:80px;object-fit:cover;border-radius:10px;cursor:pointer;border:2px solid #e5e7eb;transition:transform 0.2s;}
+.qa-images img:hover{transform:scale(1.05);}
+.qa-actions{display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;padding-top:0.6rem;border-top:1px solid #f1f5f9;}
+.qa-btn{background:none;border:none;color:var(--muted);font-size:0.82rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;padding:0.3rem 0.6rem;border-radius:20px;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.qa-btn:hover{background:#f1f5f9;color:var(--text);}
+.qa-btn.liked{color:#dc2626;}
+.qa-btn.liked i{color:#dc2626;}
+.qa-answers{margin-top:1rem;padding-top:0.8rem;border-top:1px solid #f1f5f9;}
+.qa-answer{background:#f8fafc;border-radius:12px;padding:1rem;margin-bottom:0.7rem;border-left:3px solid var(--primary);}
+.qa-comments{margin-top:0.6rem;}
+.qa-comment{display:flex;gap:0.6rem;margin-bottom:0.5rem;align-items:flex-start;}
+.qa-comment-avatar{width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--primary-dark);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;}
+.qa-comment-body{background:#f1f5f9;border-radius:12px;padding:0.5rem 0.8rem;font-size:0.83rem;color:#374151;flex:1;}
+.qa-comment-author{font-weight:700;font-size:0.78rem;color:var(--primary);margin-bottom:0.1rem;}
+.qa-reply-input{display:flex;gap:0.5rem;margin-top:0.6rem;}
+.qa-reply-input input{flex:1;padding:0.5rem 0.8rem;border:1.5px solid #e5e7eb;border-radius:20px;font-size:0.85rem;outline:none;font-family:'Inter',sans-serif;}
+.qa-reply-input input:focus{border-color:var(--primary);}
+.qa-reply-input button{background:var(--primary);color:white;border:none;padding:0.5rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.qa-compose{background:white;border-radius:18px;padding:1.4rem;margin-bottom:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:2px dashed #c8e6c9;}
+.qa-compose textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:12px;padding:0.8rem;font-size:0.92rem;font-family:'Inter',sans-serif;resize:vertical;min-height:80px;outline:none;}
+.qa-compose textarea:focus{border-color:var(--primary);}
+.qa-compose-actions{display:flex;align-items:center;gap:0.8rem;margin-top:0.8rem;flex-wrap:wrap;}
+.qa-img-preview{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.6rem;}
+.qa-img-preview img{width:70px;height:60px;object-fit:cover;border-radius:8px;border:2px solid #e5e7eb;}
+.qa-img-preview .rm-img{position:relative;display:inline-block;}
+.qa-img-preview .rm-img button{position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* ── COMMENT INPUT FIX ── */
+.qa-reply-input{display:flex;gap:0.5rem;margin-top:0.6rem;align-items:flex-end;}
+.qa-reply-input textarea{
+  flex:1;padding:0.5rem 0.8rem;border:1.5px solid #e5e7eb;border-radius:14px;
+  font-size:0.85rem;outline:none;font-family:'Inter',sans-serif;
+  resize:none;min-height:38px;max-height:120px;overflow-y:auto;
+  line-height:1.5;word-break:break-word;
+}
+.qa-reply-input textarea:focus{border-color:var(--primary);}
+.qa-reply-input button{background:var(--primary);color:white;border:none;padding:0.5rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0;height:36px;}
+
+/* ── COMMENT ACTIONS ── */
+.qa-comment-actions{display:flex;gap:0.4rem;margin-top:0.3rem;opacity:0;transition:opacity 0.2s;}
+.qa-comment:hover .qa-comment-actions{opacity:1;}
+.qa-comment-action-btn{background:none;border:none;font-size:0.72rem;color:var(--muted);cursor:pointer;padding:0.1rem 0.4rem;border-radius:10px;font-family:'Inter',sans-serif;font-weight:600;}
+.qa-comment-action-btn:hover{background:#e5e7eb;color:var(--text);}
+.qa-comment-action-btn.del:hover{background:#fee2e2;color:#dc2626;}
+.qa-edited-tag{font-size:0.68rem;color:var(--muted);font-style:italic;margin-left:0.3rem;}
+
+/* ── CHAR COUNTER ── */
+.qa-char-count{font-size:0.72rem;color:var(--muted);text-align:right;margin-top:0.2rem;}
+.qa-char-count.warn{color:#f59e0b;}
+.qa-char-count.over{color:#dc2626;}
+
+/* ── ANSWER COUNT BADGE ── */
+.qa-ans-count{background:#e8f5e9;color:var(--primary);font-size:0.7rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:20px;margin-left:0.2rem;}
+
+/* ── VERIFIED BADGE ── */
+.qa-verified{color:#1d4ed8;font-size:0.72rem;margin-left:0.3rem;} 
+
+/* ── EDIT COMMENT INLINE ── */
+.qa-comment-edit-area{width:100%;border:1.5px solid var(--primary);border-radius:10px;padding:0.4rem 0.7rem;font-size:0.83rem;font-family:'Inter',sans-serif;outline:none;resize:none;margin-top:0.3rem;word-break:break-word;}
+.qa-edit-timer{font-size:0.7rem;color:#f59e0b;font-weight:600;}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;align-items:center;justify-content:center;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:90vw;max-height:90vh;border-radius:12px;}
+.lightbox-close{position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.2);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* ── QUIZ HERO BANNER ── */
+.quiz-hero-banner{background:linear-gradient(135deg,#4338ca 0%,#6366f1 50%,#818cf8 100%);border-radius:20px;padding:2rem;color:white;margin-bottom:1.5rem;position:relative;overflow:hidden;}
+.quiz-hero-banner::before{content:'';position:absolute;top:-30px;right:-30px;width:160px;height:160px;background:rgba(255,255,255,0.06);border-radius:50%;}
+.quiz-hero-banner::after{content:'';position:absolute;bottom:-20px;left:40%;width:100px;height:100px;background:rgba(255,255,255,0.04);border-radius:50%;}
+.quiz-hero-inner{display:flex;align-items:center;gap:1.2rem;position:relative;z-index:1;}
+.quiz-hero-icon{font-size:2.8rem;flex-shrink:0;filter:drop-shadow(0 4px 8px rgba(0,0,0,0.2));}
+.quiz-hero-title{font-size:1.4rem;font-weight:800;margin-bottom:0.3rem;}
+.quiz-hero-sub{font-size:0.88rem;opacity:0.85;line-height:1.5;}
+@media(max-width:640px){.quiz-hero-banner{padding:1.4rem;}.quiz-hero-title{font-size:1.1rem;}.quiz-hero-icon{font-size:2rem;}}
+
+/* ── QUIZ STATS ROW ── */
+.quiz-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;margin-bottom:0.5rem;}
+.quiz-stat-box{background:white;border-radius:14px;padding:1rem;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.05);border-top:3px solid #1B5E20;}
+.quiz-stat-num{font-size:1.8rem;font-weight:800;color:#1B5E20;line-height:1.1;}
+.quiz-stat-lbl{font-size:0.72rem;color:#6b7280;margin-top:0.2rem;font-weight:600;}
+@media(max-width:640px){.quiz-stats-row{grid-template-columns:1fr 1fr;gap:0.6rem;}.quiz-stat-num{font-size:1.4rem;}}
+
+/* ── ENHANCED QUIZ CARD ── */
+.quiz-card{background:white;border-radius:20px;padding:1.6rem;box-shadow:0 2px 16px rgba(0,0,0,0.07);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;overflow:hidden;}
+.quiz-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#6366f1,#818cf8,var(--gold));}
+.quiz-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(99,102,241,0.15);}
+.quiz-card.quiz-done{opacity:0.75;}
+.quiz-card.quiz-closed{opacity:0.6;}
+.quiz-status-badge{display:inline-flex;align-items:center;gap:0.35rem;font-size:0.72rem;font-weight:700;padding:0.25rem 0.8rem;border-radius:20px;margin-bottom:0.8rem;}
+.quiz-status-active{background:#ede9fe;color:#5b21b6;}
+.quiz-status-soon{background:#fef3c7;color:#92400e;animation:pulse 2s infinite;}
+.quiz-status-ended{background:#f3f4f6;color:#6b7280;}
+.quiz-title{font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:0.5rem;line-height:1.3;}
+.quiz-meta{font-size:0.82rem;color:var(--muted);line-height:1.9;margin-bottom:0.8rem;}
+.quiz-meta i{width:16px;color:#6366f1;}
+.quiz-desc{font-size:0.87rem;color:#374151;line-height:1.6;margin-bottom:1rem;padding:0.8rem;background:#f5f3ff;border-radius:10px;border-left:3px solid #6366f1;}
+.quiz-deadline{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;font-weight:700;padding:0.3rem 0.8rem;border-radius:20px;margin-bottom:0.8rem;}
+.quiz-deadline.ok{background:#d1fae5;color:#065f46;}
+.quiz-deadline.soon{background:#fef3c7;color:#92400e;}
+.quiz-deadline.passed{background:#fee2e2;color:#991b1b;}
+.quiz-timer{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;font-weight:700;color:#6366f1;background:#ede9fe;padding:0.3rem 0.8rem;border-radius:20px;margin-bottom:0.8rem;margin-left:0.4rem;}
+.quiz-deadline-countdown{font-size:0.78rem;font-weight:700;color:#dc2626;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.3rem;}
+.btn-take-quiz{background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.7rem 1.6rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;transition:all 0.2s;font-family:'Inter',sans-serif;box-shadow:0 4px 15px rgba(99,102,241,0.35);}
+.btn-take-quiz:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(99,102,241,0.45);}
+.btn-take-quiz:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.quiz-done-badge{display:inline-flex;align-items:center;gap:0.4rem;background:#d1fae5;color:#065f46;font-size:0.82rem;font-weight:700;padding:0.5rem 1rem;border-radius:30px;}
+.quiz-done-badge i{color:#059669;}
+.quiz-points-badge{display:inline-flex;align-items:center;gap:0.3rem;background:#fef3c7;color:#92400e;font-size:0.75rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;margin-left:0.4rem;}
+
+/* ── QUIZ ATTEMPT MODAL ── */
+.quiz-attempt-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:3000;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
+.quiz-attempt-modal.open{display:flex;}
+.quiz-attempt-box{background:white;border-radius:24px;padding:1.8rem;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 60px rgba(0,0,0,0.3);}
+.quiz-iframe-wrap{width:100%;border-radius:14px;overflow:hidden;border:2px solid #e5e7eb;background:#f8fafc;min-height:420px;}
+.quiz-iframe-wrap iframe{width:100%;height:520px;border:none;display:block;}
+@media(max-width:640px){.quiz-attempt-box{padding:1.2rem;border-radius:18px;}.quiz-iframe-wrap iframe{height:380px;}}
+
+/* ── MY QUIZ HISTORY BADGES ── */
+.my-quiz-badge{display:inline-flex;align-items:center;gap:0.4rem;background:rgba(255,255,255,0.15);color:white;font-size:0.75rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:20px;border:1px solid rgba(255,255,255,0.25);}
+.my-quiz-badge i{color:#4ade80;}
+</style>
+</head>
+<body>
+
+<!-- Sidebar injected by main.js -->
+
+<!-- HEADER -->
+<header class="site-header">
+  <button class="menu-toggle-btn" id="menuToggle2" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+  <a href="index.html" class="header-logo">
+    <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA">
+    <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/uenr logo.png" alt="UENR" style="height:38px;border-radius:6px;">
+    <span>GERAMA</span>
+  </a>
+  <nav class="header-nav">
+    <a href="index.html">Home</a>
+    <a href="resources.html">Resources</a>
+    <a href="classroom.html" class="active">Classroom</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  <button class="pwa-install-btn" id="pwaHeaderBtn" title="Install GERAMA as an app"><i class="fas fa-download"></i> Install App</button>
+</header>
+
+<!-- HERO -->
+<section class="classroom-hero">
+  <div class="hero-badge"><i class="fas fa-chalkboard-teacher"></i> GERAMA Classroom</div>
+  <h1>Assignments &amp; <span style="color:var(--gold)">Online Classes</span></h1>
+  <p>Submit assignments, join live classes, and stay on top of your coursework — all in one place.</p>
+</section>
+
+<!-- TABS -->
+<div class="tab-bar" style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+  <button class="tab-btn active" onclick="showTab('classes')"><i class="fas fa-video"></i> Online Classes</button>
+  <button class="tab-btn" onclick="showTab('assignments')"><i class="fas fa-tasks"></i> Assignments</button>
+  <button class="tab-btn" onclick="showTab('quizzes')"><i class="fas fa-brain"></i> Quizzes <span id="quizBadge" style="display:none;background:#6366f1;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
+  <button class="tab-btn" id="qaTabBtn" onclick="showTab('qa')"><i class="fas fa-comments"></i> Q&amp;A Board <span id="qaBadge" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
+  <button class="tab-btn" onclick="showTab('reels')"><i class="fas fa-film"></i> Reels</button>
+</div>
+
+<!-- ═══ ONLINE CLASSES TAB ═══ -->
+<div class="tab-section active" id="tab-classes">
+  <div class="sec-head">
+    <div class="sec-title">Scheduled &amp; <span>Live Classes</span></div>
+    <button class="btn-join" onclick="document.getElementById('requestModal').classList.add('open')" style="font-size:0.85rem;padding:0.55rem 1.2rem;">
+      <i class="fas fa-hand-paper"></i> Request to Host a Class
+    </button>
+  </div>
+  <div id="classAnnouncements"></div>
+  <div class="card-grid" id="classesList">
+    <div class="empty-state"><i class="fas fa-video"></i><p>No classes scheduled yet.<br>Check back soon.</p></div>
+  </div>
+</div>
+
+<!-- ═══ ASSIGNMENTS TAB ═══ -->
+<div class="tab-section" id="tab-assignments">
+  <div class="sec-head">
+    <div class="sec-title">Posted <span>Assignments</span></div>
+  </div>
+  <div id="assignAnnouncements"></div>
+  <div id="assignmentsList">
+    <div class="empty-state"><i class="fas fa-tasks"></i><p>No assignments posted yet.<br>Your tutor will post assignments here. Check back soon.</p></div>
+  </div>
+</div>
+
+<!-- ═══ Q&A BOARD TAB ═══ -->
+<div class="tab-section" id="tab-qa">
+  <div class="sec-head">
+    <div class="sec-title">Q&amp;A <span>Discussion Board</span></div>
+  </div>
+
+  <!-- Compose box -->
+  <div class="qa-compose">
+    <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;">
+      <div class="qa-avatar" id="qaUserAvatar">?</div>
+      <span style="font-weight:600;font-size:0.9rem;color:var(--text);" id="qaUserName">You</span>
+    </div>
+    <select id="qaCoursePick" style="width:100%;padding:0.55rem 0.8rem;border:1.5px solid #e5e7eb;border-radius:10px;font-size:0.88rem;margin-bottom:0.6rem;font-family:'Inter',sans-serif;outline:none;">
+      <option value="">Select course (optional)</option>
+      <option>Engineering Mathematics 1</option><option>Engineering Mathematics 2</option>
+      <option>Applied Electricity</option><option>Basic Electronics</option>
+      <option>Basic Mechanics</option><option>Digital Logic Design</option>
+      <option>Electrical Machines &amp; Transformers</option><option>Solid State Electronics</option>
+      <option>General</option>
+    </select>
+    <textarea id="qaText" placeholder="Ask a question or share something with your classmates..."></textarea>
+    <div class="qa-img-preview" id="qaImgPreview"></div>
+    <div class="qa-compose-actions">
+      <label style="cursor:pointer;background:#f1f5f9;border:none;padding:0.5rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:600;color:var(--text);display:inline-flex;align-items:center;gap:0.4rem;">
+        <i class="fas fa-image" style="color:var(--primary);"></i> Add Photos
+        <input type="file" id="qaImgInput" accept="image/*" multiple style="display:none;">
+      </label>
+      <button class="btn-join" style="padding:0.5rem 1.4rem;font-size:0.85rem;" onclick="postQuestion()"><i class="fas fa-paper-plane"></i> Post</button>
+    </div>
+  </div>
+
+  <!-- Posts feed -->
+  <div id="qaFeed"><div class="empty-state"><i class="fas fa-comments"></i><p>No posts yet. Be the first to ask a question!</p></div></div>
+</div>
+
+<!-- ═══ REQUEST HOST MODAL ═══ -->
+<div class="modal-overlay" id="requestModal">
+  <div class="modal-box">
+    <div class="modal-title"><i class="fas fa-hand-paper"></i> Request to Host a Class</div>
+    <p style="font-size:0.85rem;color:#6b7280;margin-bottom:1rem;line-height:1.5;">Fill in the details below. The admin will review your request and approve it. Once approved, your class will appear on this page with a Jitsi meeting link.</p>
+    <div class="form-field">
+      <label>Your Full Name *</label>
+      <input type="text" id="reqName" placeholder="e.g. Edem H.K Prince">
+    </div>
+    <div class="form-field">
+      <label>Your Email *</label>
+      <input type="email" id="reqEmail" placeholder="your@email.com">
+    </div>
+    <div class="form-field">
+      <label>Course *</label>
+      <input type="text" id="reqCourse" list="reqCourseList" placeholder="e.g. Applied Electricity">
+      <datalist id="reqCourseList">
+        <option value="Engineering Mathematics 1"><option value="Engineering Mathematics 2">
+        <option value="Applied Electricity"><option value="Basic Electronics">
+        <option value="Basic Mechanics"><option value="Digital Logic Design">
+        <option value="Electrical Machines & Transformers"><option value="Solid State Electronics">
+      </datalist>
+    </div>
+    <div class="form-field">
+      <label>Topic / Title *</label>
+      <input type="text" id="reqTopic" placeholder="e.g. Kirchhoff's Laws – Tutorial">
+    </div>
+    <div class="form-field">
+      <label>Proposed Date &amp; Time *</label>
+      <input type="datetime-local" id="reqDateTime">
+    </div>
+    <div class="form-field">
+      <label>Additional Notes (optional)</label>
+      <textarea id="reqDesc" rows="2" placeholder="Any extra info for the admin..."></textarea>
+    </div>
+    <div class="status-msg" id="reqStatus"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-submit" id="reqSubmitBtn" onclick="submitClassRequest()"><i class="fas fa-paper-plane"></i> Submit Request</button>
+      <button class="btn-modal-cancel" onclick="document.getElementById('requestModal').classList.remove('open')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SUBMISSION MODAL ═══ -->
+<div class="modal-overlay" id="submitModal">
+  <div class="modal-box">
+    <div class="modal-title"><i class="fas fa-paper-plane"></i> Submit Assignment</div>
+    <input type="hidden" id="modalAssignId">
+    <input type="hidden" id="modalAssignTitle">
+    <div class="form-field">
+      <label>Your Full Name *</label>
+      <input type="text" id="subName" placeholder="e.g. Kwame Mensah">
+    </div>
+    <div class="form-field">
+      <label>Your Email *</label>
+      <input type="email" id="subEmail" placeholder="your@email.com">
+    </div>
+    <div class="form-field">
+      <label>Index Number</label>
+      <input type="text" id="subIndex" placeholder="e.g. UE/ENG/21/0001">
+    </div>
+    <div class="form-field">
+      <label>Comment (optional)</label>
+      <textarea id="subComment" rows="2" placeholder="Any notes for your tutor..."></textarea>
+    </div>
+    <div class="form-field">
+      <label>Attach File * (PDF, DOC, DOCX, ZIP — max 20 MB)</label>
+      <div class="drop-zone" id="subDropZone">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Tap to browse or drag &amp; drop your file</p>
+        <p class="file-chosen" id="subFileChosen"></p>
+        <input type="file" id="subFile" accept=".pdf,.doc,.docx,.zip,.pptx,.txt" style="display:none;">
+      </div>
+    </div>
+    <div class="status-msg" id="subStatus"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-submit" id="subSubmitBtn" onclick="submitAssignment()"><i class="fas fa-paper-plane"></i> Submit</button>
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REELS TAB ═══ -->
+<div class="tab-section" id="tab-reels">
+  <div class="sec-head">
+    <div class="sec-title">📱 <span>GERAMA Reels</span></div>
+  </div>
+
+  <!-- Upload box -->
+  <div class="reel-upload-box">
+    <h3><i class="fas fa-film" style="color:var(--primary);"></i> Share a Short Video</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
+      <div style="grid-column:1/-1;">
+        <input type="text" id="reelCaption" placeholder="Caption (what's this about?)" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;">
+      </div>
+      <select id="reelCourse" style="padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;">
+        <option value="">Course tag (optional)</option>
+        <option>Engineering Mathematics 1</option><option>Engineering Mathematics 2</option>
+        <option>Applied Electricity</option><option>Basic Electronics</option>
+        <option>Basic Mechanics</option><option>Digital Logic Design</option>
+        <option>Electrical Machines &amp; Transformers</option><option>Solid State Electronics</option>
+        <option>General / Fun</option>
+      </select>
+      <div style="grid-column:1/-1;">
+        <div class="drop-zone" id="reelDropZone" style="padding:1.2rem;">
+          <i class="fas fa-video"></i>
+          <p>Tap to select a short video (MP4, max 50MB)</p>
+          <p class="file-chosen" id="reelFileChosen"></p>
+          <input type="file" id="reelFile" accept="video/mp4,video/webm,video/quicktime" style="display:none;">
+        </div>
+        <video id="reelVideoPreview" class="reel-video-preview" controls></video>
+      </div>
+    </div>
+    <div style="margin-top:0.8rem;display:flex;gap:0.8rem;flex-wrap:wrap;">
+      <button class="btn-join" id="uploadReelBtn" style="padding:0.6rem 1.4rem;font-size:0.88rem;" onclick="uploadReel()"><i class="fas fa-upload"></i> Post Reel</button>
+    </div>
+    <div class="status-msg" id="reelStatus"></div>
+  </div>
+
+  <!-- Reels feed -->
+  <div class="reels-feed" id="reelsFeed">
+    <div class="empty-state"><i class="fas fa-film"></i><p>No reels yet. Be the first to post!</p></div>
+  </div>
+</div>
+
+<!-- ═══ QUIZZES TAB ═══ -->
+<div class="tab-section" id="tab-quizzes">
+
+  <!-- Hero banner -->
+  <div class="quiz-hero-banner">
+    <div class="quiz-hero-inner">
+      <div class="quiz-hero-icon">🧠</div>
+      <div>
+        <h2 class="quiz-hero-title">Test Your Knowledge</h2>
+        <p class="quiz-hero-sub">Take timed quizzes posted by your tutors. Each quiz has a deadline — don't miss out!</p>
+      </div>
+    </div>
+    <!-- My progress strip -->
+    <div id="myQuizHistory" style="display:none;margin-top:1.2rem;">
+      <div style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:0.6rem;letter-spacing:0.5px;text-transform:uppercase;"><i class="fas fa-check-circle" style="color:#4ade80;margin-right:0.4rem;"></i>Your Completed Quizzes</div>
+      <div id="myQuizList" style="display:flex;gap:0.5rem;flex-wrap:wrap;"></div>
+    </div>
+  </div>
+
+  <!-- Stats row -->
+  <div class="quiz-stats-row" id="quizStatsRow" style="display:none;">
+    <div class="quiz-stat-box">
+      <div class="quiz-stat-num" id="qzStatTotal">0</div>
+      <div class="quiz-stat-lbl">Total Quizzes</div>
+    </div>
+    <div class="quiz-stat-box" style="border-color:#6366f1;">
+      <div class="quiz-stat-num" style="color:#6366f1;" id="qzStatOpen">0</div>
+      <div class="quiz-stat-lbl">Open Now</div>
+    </div>
+    <div class="quiz-stat-box" style="border-color:#059669;">
+      <div class="quiz-stat-num" style="color:#059669;" id="qzStatDone">0</div>
+      <div class="quiz-stat-lbl">You've Taken</div>
+    </div>
+    <div class="quiz-stat-box" style="border-color:#f59e0b;">
+      <div class="quiz-stat-num" style="color:#f59e0b;" id="qzStatSoon">0</div>
+      <div class="quiz-stat-lbl">Closing Soon</div>
+    </div>
+  </div>
+
+  <!-- Quiz cards grid -->
+  <div class="card-grid" id="quizzesList" style="margin-top:1.5rem;">
+    <div class="empty-state"><i class="fas fa-brain"></i><p>No quizzes posted yet.<br>Check back soon — your tutors will post quizzes here.</p></div>
+  </div>
+</div>
+
+<!-- ═══ QUIZ ATTEMPT MODAL ═══ -->
+<div class="quiz-attempt-modal" id="quizAttemptModal">
+  <div class="quiz-attempt-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+      <div>
+        <h3 style="font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:0.2rem;" id="quizModalTitle">Quiz</h3>
+        <div id="quizModalCourse" style="font-size:0.8rem;color:var(--muted);"></div>
+      </div>
+      <button onclick="closeQuizModal()" style="background:#f1f5f9;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+    </div>
+    <!-- Timer -->
+    <div id="quizTimerDisplay" style="display:none;background:linear-gradient(135deg,#ede9fe,#ddd6fe);border-radius:12px;padding:0.8rem 1.2rem;margin-bottom:1rem;display:none;align-items:center;justify-content:space-between;gap:1rem;">
+      <div>
+        <div style="font-size:0.75rem;color:#5b21b6;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">⏱ Time Remaining</div>
+        <div id="quizCountdownTimer" style="font-size:1.8rem;font-weight:900;color:#4338ca;line-height:1.1;font-variant-numeric:tabular-nums;"></div>
+      </div>
+      <div id="quizTimerRing" style="width:52px;height:52px;position:relative;flex-shrink:0;">
+        <svg viewBox="0 0 52 52" style="transform:rotate(-90deg);width:52px;height:52px;">
+          <circle cx="26" cy="26" r="22" fill="none" stroke="#c4b5fd" stroke-width="4"/>
+          <circle id="quizTimerArc" cx="26" cy="26" r="22" fill="none" stroke="#6366f1" stroke-width="4" stroke-dasharray="138.2" stroke-dashoffset="0" style="transition:stroke-dashoffset 1s linear;"/>
+        </svg>
+      </div>
+    </div>
+    <!-- Instructions -->
+    <div id="quizModalInstructions" style="display:none;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:0.7rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:#92400e;line-height:1.5;"></div>
+    <!-- iframe -->
+    <div class="quiz-iframe-wrap" id="quizIframeWrap">
+      <iframe id="quizIframe" src="" allowfullscreen title="Quiz" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
+    </div>
+    <div style="margin-top:1rem;display:flex;gap:0.8rem;flex-wrap:wrap;align-items:center;">
+      <button class="btn-take-quiz" onclick="markQuizDone()" id="quizDoneBtn"><i class="fas fa-check-circle"></i> I've Completed This Quiz</button>
+      <a id="quizOpenExternal" href="#" target="_blank" rel="noopener" style="background:#f1f5f9;color:var(--text);border:none;padding:0.6rem 1rem;border-radius:30px;font-size:0.85rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.2s;"><i class="fas fa-external-link-alt"></i> Open in new tab</a>
+    </div>
+    <div class="status-msg" id="quizAttemptStatus"></div>
+  </div>
+</div>
+
+<!-- FAB -->
+<div class="fab-container" id="fabContainer">
+  <div class="fab-options" id="fabOptions">
+    <button class="fab-option" onclick="showTab('qa');closeFab();"><i class="fas fa-question-circle"></i> Ask a Question</button>
+    <button class="fab-option" onclick="showTab('reels');closeFab();"><i class="fas fa-film"></i> Post a Reel</button>
+    <button class="fab-option" onclick="document.getElementById('requestModal').classList.add('open');closeFab();"><i class="fas fa-hand-paper"></i> Request a Class</button>
+  </div>
+  <button class="fab-main" id="fabBtn" onclick="toggleFab()" aria-label="Quick actions">
+    <i class="fas fa-plus" id="fabIcon"></i>
+  </button>
+</div>
+
+<!-- IMAGE LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div><div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2026 GERAMA Academic Resources · All rights reserved</p>
+    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong></p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+// XSS Prevention Helpers (already in main.js, but re-export here for local scope)
+window.escHtml = window.escHtml || function(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+};
+
+window.escAttr = window.escAttr || function(s) {
+    return (s || '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+};
+
+window.formatTimeAgo = window.formatTimeAgo || function(iso) {
+    if (!iso) return 'recently';
+    var d = new Date(iso);
+    var now = new Date();
+    var diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+};
+
+var selectedSubFile = null;
+
+// ── TABS (updated to handle reels) ──────────────────────────────
+function showTab(name) {
+  var sections = document.querySelectorAll('.tab-section');
+  for(var i=0;i<sections.length;i++) sections[i].classList.remove('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
+  var tabEl = document.getElementById('tab-'+name);
+  if(tabEl) tabEl.classList.add('active');
+  var allBtns = document.querySelectorAll('.tab-btn');
+  for(var i=0;i<allBtns.length;i++){
+    if(allBtns[i].getAttribute('onclick') === "showTab('"+name+"')") allBtns[i].classList.add('active');
+  }
+  if(name === 'qa'){
+    loadQA();
+    localStorage.setItem('gerama_qa_last_read', new Date().toISOString());
+    hideQaBadge();
+  }
+  if(name === 'reels') loadReels();
+  if(name === 'quizzes') loadQuizzes();
+}
+
+// ── Q&A NOTIFICATION BADGE ────────────────────────────────────────
+function hideQaBadge() {
+  var badge = document.getElementById('qaBadge');
+  if(badge){ badge.style.display='none'; badge.textContent=''; }
+}
+
+function showQaBadge(count) {
+  var badge = document.getElementById('qaBadge');
+  if(!badge) return;
+  badge.textContent = count > 99 ? '99+' : count;
+  badge.style.display = 'inline-flex';
+}
+
+async function checkQaUnread() {
+  var sb = window.geramaSupabase; if(!sb) return;
+  var lastRead = localStorage.getItem('gerama_qa_last_read');
+  // If never visited, use 24h ago as baseline
+  if(!lastRead) lastRead = new Date(Date.now() - 24*60*60*1000).toISOString();
+  // Count questions newer than last read
+  var {count: qCount} = await sb.from('questions')
+    .select('*', {count:'exact', head:true})
+    .gt('created_at', lastRead);
+  // Count answers newer than last read
+  var {count: aCount} = await sb.from('question_answers')
+    .select('*', {count:'exact', head:true})
+    .gt('created_at', lastRead);
+  var total = (qCount||0) + (aCount||0);
+  // Only show badge if Q&A tab is not currently active
+  var qaTab = document.getElementById('tab-qa');
+  var isQaActive = qaTab && qaTab.classList.contains('active');
+  if(total > 0 && !isQaActive){
+    showQaBadge(total);
+  } else {
+    hideQaBadge();
+  }
+}
+
+// Check on load and poll every 30 seconds
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(checkQaUnread, 2000);
+  setInterval(checkQaUnread, 30000);
+});
+
+// ── LOAD DATA ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  // Keep class statuses in sync with time (upcoming -> live -> ended)
+  safeStartClassLifecycle();
+
+  // Auto-open tab from URL param (e.g. classroom.html?tab=quizzes)
+  var urlParams = new URLSearchParams(window.location.search);
+  var tabParam = urlParams.get('tab');
+  if(tabParam) { setTimeout(function(){ showTab(tabParam); }, 300); }
+
+
+  // File drop zone
+  var zone = document.getElementById('subDropZone');
+  var inp  = document.getElementById('subFile');
+  if(zone && inp){
+    zone.addEventListener('click', function(){ inp.click(); });
+    inp.addEventListener('change', function(){
+      if(this.files[0]){
+        selectedSubFile = this.files[0];
+        document.getElementById('subFileChosen').textContent = '✅ '+this.files[0].name;
+      }
+    });
+    zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.style.borderColor='#1B5E20'; });
+    zone.addEventListener('dragleave', function(){ zone.style.borderColor=''; });
+    zone.addEventListener('drop', function(e){
+      e.preventDefault(); zone.style.borderColor='';
+      if(e.dataTransfer.files[0]){
+        selectedSubFile = e.dataTransfer.files[0];
+        document.getElementById('subFileChosen').textContent = '✅ '+selectedSubFile.name;
+      }
+    });
+  }
+  loadClasses();
+  loadAssignments();
+});
+
+// ── LOAD CLASSES ──────────────────────────────────────────────────
+function loadClasses() {
+  var sb = window.geramaSupabase;
+  if(!sb){ renderClasses([]); return; }
+  sb.from('classes').select('*').order('scheduled_at',{ascending:true}).then(function(res){
+    renderClasses(res.data || []);
+  }).catch(function(){ renderClasses([]); });
+}
+
+function renderClasses(classes) {
+  var el = document.getElementById('classesList');
+  if(!classes.length){
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-video"></i><p>No classes scheduled yet.<br>Check back soon.</p></div>';
+    return;
+  }
+  var now = Date.now();
+  var userEmail = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email) || '';
+  el.innerHTML = classes.map(function(c){
+    var dt = new Date(c.scheduled_at);
+    var isLive = c.status === 'live';
+    var isEnded = c.status === 'ended';
+    var isUpcoming = !isLive && !isEnded;
+    var badgeClass = isLive ? 'live' : (isEnded ? 'ended' : 'upcoming');
+    var badgeText = isLive ? '🔴 LIVE NOW' : (isEnded ? 'Ended' : '📅 Upcoming');
+    var joinBtn = '';
+    if(c.meet_link && !isEnded){
+      joinBtn = '<a href="'+c.meet_link+'" target="_blank" rel="noopener" class="btn-join'+(isLive?' gold':'')+'"><i class="fas fa-video"></i> '+(isLive?'Join Now':'Join When Live')+'</a>';
+    }
+    var copyBtn = c.meet_link ? '<button class="btn-copy" onclick="copyLink(\''+c.meet_link+'\')"><i class="fas fa-copy"></i> Copy Link</button>' : '';
+    var countdown = '';
+    if(isUpcoming){
+      var diff = dt.getTime() - now;
+      if(diff > 0){
+        var days = Math.floor(diff/86400000);
+        var hrs  = Math.floor((diff%86400000)/3600000);
+        var mins = Math.floor((diff%3600000)/60000);
+        countdown = '<div class="countdown"><i class="fas fa-clock"></i> Starts in: '+(days>0?days+'d ':'')+hrs+'h '+mins+'m</div>';
+      }
+    }
+    // Delete/postpone — show if user is requester or admin
+    var isOwner = c.requester_email && userEmail && c.requester_email === userEmail;
+    var hoursToClass = (dt.getTime() - now) / 3600000;
+    var canPostpone = isUpcoming && hoursToClass > 12;
+    var canDelete   = true; // always can delete
+    var mgmtBtns = '';
+    if(isOwner || isAdmin()){
+      if(canPostpone){
+        mgmtBtns += '<button class="btn-warn-sm" onclick="postponeClass(\''+c.id+'\')"><i class="fas fa-clock"></i> Postpone</button>';
+      }
+      if(canDelete){
+        mgmtBtns += '<button class="btn-danger-sm" onclick="deleteClassFromPage(\''+c.id+'\')"><i class="fas fa-trash"></i> Delete</button>';
+      }
+    }
+    return '<div class="class-card">'+
+      '<div class="class-badge '+badgeClass+'">'+badgeText+'</div>'+
+      '<div class="class-title">'+escHtml(c.course)+' — '+escHtml(c.topic)+'</div>'+
+      '<div class="class-meta">'+
+        '<div><i class="fas fa-calendar"></i> '+dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div>'+
+        '<div><i class="fas fa-clock"></i> '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+'</div>'+
+        (c.tutor ? '<div><i class="fas fa-user-tie"></i> '+escHtml(c.tutor)+'</div>' : '')+
+        (c.description ? '<div style="margin-top:0.4rem;color:#374151;">'+escHtml(c.description)+'</div>' : '')+
+      '</div>'+
+      countdown+
+      '<div class="class-actions">'+joinBtn+copyBtn+mgmtBtns+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function isAdmin() {
+  // Simple check — admin email stored in localStorage when they log in via admin dashboard
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  return profile.email === 'gerama.uenr@gmail.com' || profile.isAdmin === true;
+}
+
+function postponeClass(id) {
+  var newDt = prompt('Enter new date and time (format: YYYY-MM-DDTHH:MM)\nExample: 2026-06-15T10:00');
+  if(!newDt) return;
+  var newDate = new Date(newDt);
+  if(isNaN(newDate.getTime())){ alert('Invalid date format. Please try again.'); return; }
+  var hoursAway = (newDate.getTime() - Date.now()) / 3600000;
+  if(hoursAway < 12){ alert('New date must be at least 12 hours from now.'); return; }
+  var sb = window.geramaSupabase; if(!sb) return;
+  sb.from('classes').update({scheduled_at: newDate.toISOString()}).eq('id', id)
+  .then(function(){ alert('✅ Class postponed!'); loadClasses(); });
+}
+
+function deleteClassFromPage(id) {
+  if(!confirm('Delete this class? It will be removed for everyone.')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  sb.from('classes').delete().eq('id', id)
+  .then(function(){ loadClasses(); });
+}
+
+// ── LOAD ASSIGNMENTS ──────────────────────────────────────────────
+function loadAssignments() {
+  var sb = window.geramaSupabase;
+  if(!sb){ renderAssignments([]); return; }
+  sb.from('assignments').select('*').order('created_at',{ascending:false}).then(function(res){
+    renderAssignments(res.data || []);
+  }).catch(function(){ renderAssignments([]); });
+}
+
+function renderAssignments(assignments) {
+  var el = document.getElementById('assignmentsList');
+  if(!assignments.length){
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No assignments posted yet.<br>Check back soon.</p></div>';
+    return;
+  }
+  var now = Date.now();
+  el.innerHTML = assignments.map(function(a){
+    var deadline = a.deadline ? new Date(a.deadline) : null;
+    var isPast = deadline && deadline.getTime() < now;
+    var isSoon = deadline && !isPast && (deadline.getTime() - now) < 86400000 * 2;
+    var dlBadge = '';
+    if(deadline){
+      var dlClass = isPast ? 'deadline-passed' : (isSoon ? 'deadline-soon' : 'deadline-ok');
+      var dlText  = isPast ? '⚠️ Deadline passed' : ('Due: '+deadline.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' '+deadline.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
+      dlBadge = '<span class="deadline-badge '+dlClass+'">'+dlText+'</span>';
+    }
+    var fileLink = a.file_url ? '<a href="'+a.file_url+'" target="_blank" style="color:#1B5E20;font-size:0.82rem;"><i class="fas fa-download"></i> Download Assignment File</a>' : '';
+    var submitBtn = isPast ? '<button class="btn-submit-assign" disabled><i class="fas fa-lock"></i> Deadline Passed</button>' :
+      '<button class="btn-submit-assign" onclick="openSubmitModal(\''+a.id+'\',\''+escAttr(a.title)+'\')"><i class="fas fa-paper-plane"></i> Submit Work</button>';
+    return '<div class="assign-card">'+
+      '<div class="assign-header"><div class="assign-title">'+escHtml(a.title)+'</div>'+dlBadge+'</div>'+
+      '<div class="assign-meta">'+
+        '<div><i class="fas fa-book"></i> '+escHtml(a.course||'General')+'</div>'+
+        '<div><i class="fas fa-user-tie"></i> '+escHtml(a.tutor||'GERAMA Tutor')+'</div>'+
+        (a.points ? '<div><i class="fas fa-star"></i> '+a.points+' marks</div>' : '')+
+      '</div>'+
+      (a.description ? '<div class="assign-desc">'+escHtml(a.description)+'</div>' : '')+
+      '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;align-items:center;">'+submitBtn+fileLink+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+// ── SUBMIT ASSIGNMENT ─────────────────────────────────────────────
+function openSubmitModal(id, title) {
+  document.getElementById('modalAssignId').value = id;
+  document.getElementById('modalAssignTitle').value = title;
+  document.getElementById('subName').value = '';
+  document.getElementById('subEmail').value = '';
+  document.getElementById('subIndex').value = '';
+  document.getElementById('subComment').value = '';
+  document.getElementById('subFileChosen').textContent = '';
+  document.getElementById('subStatus').className = 'status-msg';
+  document.getElementById('subStatus').textContent = '';
+  selectedSubFile = null;
+  document.getElementById('submitModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('submitModal').classList.remove('open');
+}
+
+function submitAssignment() {
+  var name    = document.getElementById('subName').value.trim();
+  var email   = document.getElementById('subEmail').value.trim();
+  var index   = document.getElementById('subIndex').value.trim();
+  var comment = document.getElementById('subComment').value.trim();
+  var assignId    = document.getElementById('modalAssignId').value;
+  var assignTitle = document.getElementById('modalAssignTitle').value;
+
+  if(!name || !email){ showSubStatus('Please enter your name and email.','err'); return; }
+  if(!selectedSubFile){ showSubStatus('Please attach your assignment file.','err'); return; }
+  if(selectedSubFile.size > 20*1024*1024){ showSubStatus('File too large. Max 20 MB.','err'); return; }
+
+  var btn = document.getElementById('subSubmitBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+  showSubStatus('Uploading your submission...','info');
+
+  var sb = window.geramaSupabase;
+  if(!sb){ showSubStatus('Service not available. Please try again.','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit'; return; }
+
+  var ext = selectedSubFile.name.split('.').pop();
+  var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now()+'.'+ext;
+  var storagePath = 'submissions/'+assignId+'/'+safeName;
+
+  sb.storage.from('gerama-materials').upload(storagePath, selectedSubFile, {upsert:true})
+  .then(function(upRes){
+    if(upRes.error) throw new Error(upRes.error.message);
+    var urlRes = sb.storage.from('gerama-materials').getPublicUrl(storagePath);
+    var fileUrl = urlRes.data.publicUrl;
+    return sb.from('assignment_submissions').insert({
+      assignment_id: assignId,
+      assignment_title: assignTitle,
+      student_name: name,
+      student_email: email,
+      index_number: index || null,
+      comment: comment || null,
+      file_url: fileUrl,
+      storage_path: storagePath,
+      submitted_at: new Date().toISOString(),
+      status: 'submitted'
+    });
+  })
+  .then(function(dbRes){
+    if(dbRes.error) throw new Error(dbRes.error.message);
+    showSubStatus('✅ Submitted successfully! Your tutor will review it shortly.','ok');
+    btn.innerHTML = '✅ Submitted';
+    setTimeout(function(){ closeModal(); btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit'; }, 2500);
+  })
+  .catch(function(err){
+    showSubStatus('❌ '+err.message,'err');
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit';
+  });
+}
+
+function showSubStatus(msg, type) {
+  var el = document.getElementById('subStatus');
+  el.textContent = msg;
+  el.className = 'status-msg status-'+type;
+}
+
+// ── COPY LINK ─────────────────────────────────────────────────────
+function copyLink(url) {
+  if(navigator.clipboard){ navigator.clipboard.writeText(url); }
+  else { var t=document.createElement('textarea'); t.value=url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
+  alert('Link copied! Share it with your classmates.');
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s){ return String(s||'').replace(/'/g,"\\'"); }
+
+// ── REQUEST TO HOST A CLASS ───────────────────────────────────────
+function submitClassRequest() {
+  var name  = document.getElementById('reqName').value.trim();
+  var email = document.getElementById('reqEmail').value.trim();
+  var course= document.getElementById('reqCourse').value.trim();
+  var topic = document.getElementById('reqTopic').value.trim();
+  var dt    = document.getElementById('reqDateTime').value;
+  var desc  = document.getElementById('reqDesc').value.trim();
+  if(!name||!email||!course||!topic||!dt){
+    showReqStatus('Please fill in all required fields.','err'); return;
+  }
+  var btn = document.getElementById('reqSubmitBtn');
+  btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Submitting...';
+  showReqStatus('Submitting your request...','info');
+  var sb = window.geramaSupabase;
+  if(!sb){ showReqStatus('Service not available. Please try again.','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Request'; return; }
+  sb.from('class_requests').insert({
+    requester_name: name, requester_email: email,
+    course: course, topic: topic,
+    scheduled_at: new Date(dt).toISOString(),
+    description: desc||null,
+    status: 'pending', created_at: new Date().toISOString()
+  }).then(function(res){
+    if(res.error) throw new Error(res.error.message);
+    showReqStatus('✅ Request submitted! The admin will review and approve it. Check back soon.','ok');
+    btn.innerHTML='✅ Submitted';
+    setTimeout(function(){
+      document.getElementById('requestModal').classList.remove('open');
+      btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Request';
+      document.getElementById('reqName').value='';
+      document.getElementById('reqEmail').value='';
+      document.getElementById('reqCourse').value='';
+      document.getElementById('reqTopic').value='';
+      document.getElementById('reqDateTime').value='';
+      document.getElementById('reqDesc').value='';
+    }, 2500);
+  }).catch(function(err){
+    showReqStatus('❌ '+err.message,'err');
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Request';
+  });
+}
+
+function showReqStatus(msg, type) {
+  var el = document.getElementById('reqStatus');
+  el.textContent = msg;
+  el.className = 'status-msg status-'+type;
+}
+
+// ══════════════════════════════════════════════════════════════
+// Q&A BOARD
+// ══════════════════════════════════════════════════════════════
+var qaImages = []; // selected images for new post
+
+// Setup image picker for Q&A compose
+document.addEventListener('DOMContentLoaded', function() {
+  var inp = document.getElementById('qaImgInput');
+  if(inp) inp.addEventListener('change', function() {
+    var files = Array.from(this.files);
+    if(qaImages.length + files.length > 3){ alert('Max 3 images per post.'); return; }
+    files.forEach(function(f) {
+      if(!f.type.startsWith('image/')){ return; }
+      qaImages.push(f);
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var prev = document.getElementById('qaImgPreview');
+        var idx = qaImages.length - 1;
+        var wrap = document.createElement('div');
+        wrap.className = 'rm-img';
+        wrap.innerHTML = '<img src="'+e.target.result+'" alt=""><button onclick="removeQaImg('+idx+',this.parentNode)" title="Remove">✕</button>';
+        prev.appendChild(wrap);
+      };
+      reader.readAsDataURL(f);
+    });
+    this.value = '';
+  });
+
+  // Set user info in compose box
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var name = profile.name || 'You';
+  var av = document.getElementById('qaUserAvatar');
+  var nm = document.getElementById('qaUserName');
+  if(av) av.textContent = name.charAt(0).toUpperCase();
+  if(nm) nm.textContent = name;
+});
+
+function removeQaImg(idx, el) {
+  qaImages.splice(idx, 1);
+  if(el) el.remove();
+  // Re-index remaining remove buttons
+  var btns = document.querySelectorAll('#qaImgPreview .rm-img button');
+  btns.forEach(function(b, i){ b.setAttribute('onclick','removeQaImg('+i+',this.parentNode)'); });
+}
+
+async function postQuestion() {
+  var text   = document.getElementById('qaText').value.trim();
+  var course = document.getElementById('qaCoursePick').value;
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var name  = profile.name || 'Anonymous';
+  var email = profile.email || 'unknown@gerama.org';
+
+  if(!text && qaImages.length === 0){ alert('Please write something or add an image.'); return; }
+
+  var sb = window.geramaSupabase;
+  if(!sb){ alert('Not connected. Please refresh.'); return; }
+
+  // ── OPTIMISTIC UI: show post immediately ──
+  var tempId = 'temp-'+Date.now();
+  var feed = document.getElementById('qaFeed');
+  var emptyState = feed.querySelector('.empty-state');
+  if(emptyState) emptyState.remove();
+  var tempDiv = document.createElement('div');
+  tempDiv.className = 'qa-post';
+  tempDiv.id = 'qpost-'+tempId;
+  tempDiv.style.opacity = '0.6';
+  tempDiv.innerHTML =
+    '<div class="qa-post-header">'+
+      '<div class="qa-avatar">'+name.charAt(0).toUpperCase()+'</div>'+
+      '<div><div class="qa-author">'+escHtml(name)+'</div><div class="qa-time">just now</div></div>'+
+      (course ? '<span class="qa-course-tag">'+escHtml(course)+'</span>' : '')+
+    '</div>'+
+    (text ? '<div class="qa-content">'+escHtml(text)+'</div>' : '')+
+    '<div style="color:#9ca3af;font-size:0.8rem;padding:0.4rem 0;"><i class="fas fa-spinner fa-spin"></i> Posting...</div>';
+  feed.insertBefore(tempDiv, feed.firstChild);
+
+  // Clear form immediately
+  document.getElementById('qaText').value = '';
+  document.getElementById('qaImgPreview').innerHTML = '';
+
+  // Upload images
+  var imageUrls = [];
+  for(var i=0; i<qaImages.length; i++){
+    var f = qaImages[i];
+    var ext = f.name.split('.').pop();
+    var path = 'qa/'+Date.now()+'-'+i+'.'+ext;
+    var up = await sb.storage.from('gerama-materials').upload(path, f, {upsert:true});
+    if(!up.error){
+      var url = sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
+      imageUrls.push(url);
+    }
+  }
+  qaImages = [];
+
+  var {error} = await sb.from('questions').insert({
+    author_name: name, author_email: email,
+    content: text, course: course||null,
+    images: imageUrls.length ? JSON.stringify(imageUrls) : null,
+    likes: 0, created_at: new Date().toISOString()
+  });
+
+  if(error){
+    // Remove temp post on failure
+    tempDiv.remove();
+    alert('Failed to post: '+error.message);
+    return;
+  }
+
+  // Replace temp with real post by reloading
+  loadQA();
+}
+
+async function loadQA() {
+  var el = document.getElementById('qaFeed'); if(!el) return;
+  var sb = window.geramaSupabase;
+  if(!sb){ el.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><p>Not connected.</p></div>'; return; }
+
+  var {data, error} = await sb.from('questions').select('*').order('created_at',{ascending:false}).limit(50);
+  if(error||!data||!data.length){
+    el.innerHTML='<div class="empty-state"><i class="fas fa-comments"></i><p>No posts yet. Be the first to ask a question!</p></div>';
+    return;
+  }
+
+  // Get real like counts for all questions
+  var qids = data.map(function(q){ return q.id; });
+  var likeCounts = {};
+  var {data: likeRows} = await sb.from('question_likes').select('question_id').in('question_id', qids);
+  (likeRows||[]).forEach(function(r){ likeCounts[r.question_id] = (likeCounts[r.question_id]||0)+1; });
+
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var myEmail = profile.email || '';
+  var qLiked = JSON.parse(localStorage.getItem('gerama_q_liked')||'{}');
+  var uid = localStorage.getItem('gerama_uid') || '';
+
+  el.innerHTML = data.map(function(q){
+    var imgs = '';
+    try{ var arr=JSON.parse(q.images||'[]'); imgs=arr.map(function(u){ return '<img src="'+u+'" onclick="openLightbox(\''+u+'\')" alt="">'; }).join(''); }catch(e){}
+    var timeAgo = formatTimeAgo(q.created_at);
+    var courseTag = q.course ? '<span class="qa-course-tag">'+escHtml(q.course)+'</span>' : '';
+    var isOwner = myEmail && q.author_email === myEmail;
+    var deleteBtn = isOwner ? '<button class="qa-btn" onclick="deleteQuestion(\''+q.id+'\')" style="margin-left:auto;color:#dc2626;"><i class="fas fa-trash"></i></button>' : '';
+    var isLiked = qLiked[q.id] ? ' liked' : '';
+    var likeCount = likeCounts[q.id] || 0;
+    return '<div class="qa-post" id="qpost-'+q.id+'">'+
+      '<div class="qa-post-header">'+
+        '<div class="qa-avatar">'+escHtml(q.author_name.charAt(0).toUpperCase())+'</div>'+
+        '<div><div class="qa-author">'+escHtml(q.author_name)+'</div><div class="qa-time">'+timeAgo+'</div></div>'+
+        courseTag+
+      '</div>'+
+      (q.content ? '<div class="qa-content">'+escHtml(q.content)+'</div>' : '')+
+      (imgs ? '<div class="qa-images">'+imgs+'</div>' : '')+
+      '<div class="qa-actions">'+
+        '<button class="qa-btn'+isLiked+'" onclick="likeQuestion(\''+q.id+'\',this)"><i class="fas fa-heart"></i> <span>'+likeCount+'</span></button>'+
+        '<button class="qa-btn" onclick="toggleAnswers(\''+q.id+'\')"><i class="fas fa-reply"></i> Answer</button>'+
+        '<button class="qa-btn" onclick="sharePost(\''+q.id+'\')"><i class="fas fa-share-alt"></i> Share</button>'+
+        deleteBtn+
+      '</div>'+
+      '<div class="qa-answers" id="qa-answers-'+q.id+'" style="display:none;">'+
+        '<div id="qa-answers-list-'+q.id+'"><p style="color:#9ca3af;font-size:0.85rem;">Loading answers...</p></div>'+
+        '<div class="qa-compose" style="margin-top:0.8rem;padding:1rem;">'+
+          '<textarea id="qa-ans-text-'+q.id+'" placeholder="Write your answer..." style="min-height:60px;"></textarea>'+
+          '<div class="qa-img-preview" id="qa-ans-imgs-'+q.id+'"></div>'+
+          '<div class="qa-compose-actions" style="margin-top:0.6rem;">'+
+            '<label style="cursor:pointer;background:#f1f5f9;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.8rem;font-weight:600;display:inline-flex;align-items:center;gap:0.3rem;">'+
+              '<i class="fas fa-image" style="color:var(--primary);"></i> Photo'+
+              '<input type="file" accept="image/*" multiple style="display:none;" onchange="pickAnsImg(\''+q.id+'\',this)">'+
+            '</label>'+
+            '<button class="btn-join" style="padding:0.4rem 1rem;font-size:0.82rem;" onclick="postAnswer(\''+q.id+'\')"><i class="fas fa-paper-plane"></i> Post Answer</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+var ansImages = {}; // {questionId: [File,...]}
+
+function pickAnsImg(qid, input) {
+  if(!ansImages[qid]) ansImages[qid] = [];
+  var files = Array.from(input.files);
+  if(ansImages[qid].length + files.length > 3){ alert('Max 3 images.'); return; }
+  files.forEach(function(f){
+    ansImages[qid].push(f);
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var prev = document.getElementById('qa-ans-imgs-'+qid);
+      if(prev) prev.innerHTML += '<img src="'+e.target.result+'" style="width:60px;height:50px;object-fit:cover;border-radius:8px;border:2px solid #e5e7eb;">';
+    };
+    reader.readAsDataURL(f);
+  });
+  input.value = '';
+}
+
+async function toggleAnswers(qid) {
+  var el = document.getElementById('qa-answers-'+qid);
+  if(!el) return;
+  if(el.style.display === 'none'){
+    el.style.display = 'block';
+    loadAnswers(qid);
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+async function loadAnswers(qid) {
+  var el = document.getElementById('qa-answers-list-'+qid); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {data} = await sb.from('question_answers').select('*').eq('question_id',qid).order('created_at',{ascending:true});
+  if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;font-size:0.85rem;padding:0.5rem 0;">No answers yet. Be the first!</p>'; return; }
+  el.innerHTML = data.map(function(a){
+    var imgs='';
+    try{ var arr=JSON.parse(a.images||'[]'); imgs=arr.map(function(u){ return '<img src="'+u+'" onclick="openLightbox(\''+u+'\')" style="width:80px;height:65px;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid #e5e7eb;margin-right:4px;">'; }).join(''); }catch(e){}
+    return '<div class="qa-answer">'+
+      '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">'+
+        '<div class="qa-avatar" style="width:28px;height:28px;font-size:0.75rem;">'+a.author_name.charAt(0).toUpperCase()+'</div>'+
+        '<strong style="font-size:0.85rem;">'+escHtml(a.author_name)+'</strong>'+
+        '<span style="font-size:0.75rem;color:var(--muted);">'+formatTimeAgo(a.created_at)+'</span>'+
+        '<button class="qa-btn" onclick="likeAnswer(\''+a.id+'\',this)" style="margin-left:auto;font-size:0.78rem;"><i class="fas fa-heart"></i> <span>'+a.likes+'</span></button>'+
+      '</div>'+
+      (a.content ? '<p style="font-size:0.88rem;color:#374151;line-height:1.6;margin-bottom:0.5rem;">'+escHtml(a.content)+'</p>' : '')+
+      (imgs ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:0.5rem;">'+imgs+'</div>' : '')+
+      '<div id="comments-'+a.id+'"></div>'+
+      '<div class="qa-reply-input">'+
+        '<textarea id="comment-input-'+a.id+'" placeholder="Add a comment..." rows="1" oninput="autoResize(this)" onkeydown="commentKeydown(event,\''+qid+'\',\''+a.id+'\')"></textarea>'+
+        '<button onclick="postComment(\''+qid+'\',\''+a.id+'\')">Reply</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  // Load comments for each answer
+  data.forEach(function(a){ loadComments(a.id); });
+}
+
+async function loadComments(answerId) {
+  var el = document.getElementById('comments-'+answerId); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {data} = await sb.from('question_comments').select('*').eq('answer_id',answerId).order('created_at',{ascending:true});
+  if(!data||!data.length){ el.innerHTML=''; return; }
+  var myUid = localStorage.getItem('gerama_uid')||'';
+  var myName = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').name)||'';
+  var now = Date.now();
+  el.innerHTML = '<div class="qa-comments">'+data.map(function(c){
+    var isOwn = myName && c.author_name === myName;
+    var ageMs = now - new Date(c.created_at).getTime();
+    var canEdit = isOwn && ageMs < 5*60*1000; // 5 min edit window
+    var editedTag = c.edited ? '<span class="qa-edited-tag">(edited)</span>' : '';
+    var minsLeft = canEdit ? Math.ceil((5*60*1000 - ageMs)/60000) : 0;
+    var actions = isOwn
+      ? '<div class="qa-comment-actions">'+
+          (canEdit ? '<button class="qa-comment-action-btn" onclick="editComment(\''+c.id+'\',\''+answerId+'\',this)" title="Edit ('+minsLeft+'m left)">✏️ Edit</button>' : '')+
+          '<button class="qa-comment-action-btn del" onclick="deleteComment(\''+c.id+'\',\''+answerId+'\')">🗑 Delete</button>'+
+        '</div>'
+      : '';
+    return '<div class="qa-comment" id="comment-'+c.id+'">'+
+      '<div class="qa-comment-avatar">'+c.author_name.charAt(0).toUpperCase()+'</div>'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div class="qa-comment-body">'+
+          '<div class="qa-comment-author">'+escHtml(c.author_name)+editedTag+'</div>'+
+          '<span id="comment-text-'+c.id+'">'+escHtml(c.content)+'</span>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:0.5rem;">'+
+          '<span style="font-size:0.7rem;color:var(--muted);">'+formatTimeAgo(c.created_at)+'</span>'+
+          actions+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('')+'</div>';
+}
+
+async function postAnswer(qid) {
+  var text = document.getElementById('qa-ans-text-'+qid).value.trim();
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var name = profile.name || 'Anonymous';
+  var email = profile.email || 'unknown';
+  if(!text && (!ansImages[qid]||!ansImages[qid].length)){ alert('Please write something or add an image.'); return; }
+  var sb = window.geramaSupabase; if(!sb) return;
+
+  // ── OPTIMISTIC UI ──
+  var listEl = document.getElementById('qa-answers-list-'+qid);
+  var tempDiv = document.createElement('div');
+  tempDiv.className = 'qa-answer';
+  tempDiv.style.opacity = '0.6';
+  tempDiv.innerHTML =
+    '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">'+
+      '<div class="qa-avatar" style="width:28px;height:28px;font-size:0.75rem;">'+name.charAt(0).toUpperCase()+'</div>'+
+      '<strong style="font-size:0.85rem;">'+escHtml(name)+'</strong>'+
+      '<span style="font-size:0.75rem;color:var(--muted);">just now</span>'+
+    '</div>'+
+    (text ? '<p style="font-size:0.88rem;color:#374151;line-height:1.6;">'+escHtml(text)+'</p>' : '')+
+    '<div style="color:#9ca3af;font-size:0.78rem;"><i class="fas fa-spinner fa-spin"></i> Posting...</div>';
+  if(listEl){
+    var noAns = listEl.querySelector('p');
+    if(noAns && noAns.textContent.includes('No answers')) noAns.remove();
+    listEl.appendChild(tempDiv);
+  }
+  // Clear input immediately
+  document.getElementById('qa-ans-text-'+qid).value='';
+
+  var imageUrls = [];
+  if(ansImages[qid]){
+    for(var i=0;i<ansImages[qid].length;i++){
+      var f=ansImages[qid][i];
+      var ext=f.name.split('.').pop();
+      var path='qa/ans-'+Date.now()+'-'+i+'.'+ext;
+      var up=await sb.storage.from('gerama-materials').upload(path,f,{upsert:true});
+      if(!up.error) imageUrls.push(sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl);
+    }
+  }
+  var {error} = await sb.from('question_answers').insert({
+    question_id:qid, author_name:name, author_email:email,
+    content:text, images:imageUrls.length?JSON.stringify(imageUrls):null,
+    likes:0, created_at:new Date().toISOString()
+  });
+  if(error){ tempDiv.remove(); alert('Failed: '+error.message); return; }
+  document.getElementById('qa-ans-imgs-'+qid).innerHTML='';
+  ansImages[qid]=[];
+  // Replace temp with real data
+  loadAnswers(qid);
+}
+
+async function postComment(qid, answerId) {
+  var inp = document.getElementById('comment-input-'+answerId);
+  var text = inp ? inp.value.trim() : '';
+  if(!text) return;
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var name = profile.name || 'Anonymous';
+
+  // ── OPTIMISTIC UI ──
+  if(inp){ inp.value = ''; inp.style.height=''; }
+  var commentsEl = document.getElementById('comments-'+answerId);
+  if(commentsEl){
+    var tempComment = document.createElement('div');
+    tempComment.className = 'qa-comment';
+    tempComment.style.opacity = '0.6';
+    tempComment.innerHTML =
+      '<div class="qa-comment-avatar">'+name.charAt(0).toUpperCase()+'</div>'+
+      '<div style="flex:1;min-width:0;"><div class="qa-comment-body">'+
+        '<div class="qa-comment-author">'+escHtml(name)+'</div>'+
+        '<span>'+escHtml(text)+'</span>'+
+      '</div></div>';
+    var existingComments = commentsEl.querySelector('.qa-comments');
+    if(existingComments){
+      existingComments.appendChild(tempComment);
+    } else {
+      var newComments = document.createElement('div');
+      newComments.className = 'qa-comments';
+      newComments.appendChild(tempComment);
+      commentsEl.appendChild(newComments);
+    }
+  }
+
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('question_comments').insert({
+    question_id:qid, answer_id:answerId,
+    author_name:name, author_email:profile.email||'',
+    content:text, edited:false, created_at:new Date().toISOString()
+  });
+  loadComments(answerId);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function commentKeydown(e, qid, answerId) {
+  // Submit on Enter (not Shift+Enter)
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    postComment(qid, answerId);
+  }
+}
+
+function editComment(commentId, answerId, btn) {
+  var textEl = document.getElementById('comment-text-'+commentId);
+  if(!textEl) return;
+  var currentText = textEl.textContent;
+  // Replace text with editable textarea
+  var editArea = document.createElement('textarea');
+  editArea.className = 'qa-comment-edit-area';
+  editArea.value = currentText;
+  editArea.rows = 2;
+  textEl.replaceWith(editArea);
+  editArea.focus();
+  // Change button to Save
+  btn.textContent = '✅ Save';
+  btn.onclick = function(){ saveCommentEdit(commentId, answerId, editArea, btn); };
+}
+
+async function saveCommentEdit(commentId, answerId, editArea, btn) {
+  var newText = editArea.value.trim();
+  if(!newText){ alert('Comment cannot be empty.'); return; }
+  var sb = window.geramaSupabase; if(!sb) return;
+  btn.textContent = '⏳';
+  var {error} = await sb.from('question_comments').update({content:newText, edited:true}).eq('id',commentId);
+  if(error){ alert('Failed to edit: '+error.message); btn.textContent='✏️ Edit'; return; }
+  loadComments(answerId);
+}
+
+async function deleteComment(commentId, answerId) {
+  if(!confirm('Delete this comment?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('question_comments').delete().eq('id',commentId);
+  var el = document.getElementById('comment-'+commentId);
+  if(el){ el.style.opacity='0.3'; el.style.transition='opacity 0.3s'; setTimeout(function(){ el.remove(); },300); }
+}
+
+async function likeQuestion(qid, btn) {
+  var sb = window.geramaSupabase; if(!sb) return;
+  // Use a stable per-device identifier
+  var uid = localStorage.getItem('gerama_uid');
+  if(!uid){ uid = 'u-'+Date.now()+'-'+Math.random().toString(36).substr(2,6); localStorage.setItem('gerama_uid', uid); }
+
+  var span = btn.querySelector('span');
+  var liked = JSON.parse(localStorage.getItem('gerama_q_liked')||'{}');
+
+  if(liked[qid]){
+    // ── UNLIKE: delete the row ──
+    await sb.from('question_likes').delete().eq('question_id', qid).eq('user_identifier', uid);
+    delete liked[qid];
+    localStorage.setItem('gerama_q_liked', JSON.stringify(liked));
+    btn.classList.remove('liked');
+    // Get real count
+    var {count} = await sb.from('question_likes').select('*', {count:'exact', head:true}).eq('question_id', qid);
+    if(span) span.textContent = count || 0;
+  } else {
+    // ── LIKE: insert a row ──
+    await sb.from('question_likes').upsert({question_id: qid, user_identifier: uid}, {onConflict:'question_id,user_identifier'});
+    liked[qid] = true;
+    localStorage.setItem('gerama_q_liked', JSON.stringify(liked));
+    btn.classList.add('liked');
+    // Get real count
+    var {count} = await sb.from('question_likes').select('*', {count:'exact', head:true}).eq('question_id', qid);
+    if(span) span.textContent = count || 0;
+  }
+}
+
+async function likeAnswer(aid, btn) {
+  var sb = window.geramaSupabase; if(!sb) return;
+  var uid = localStorage.getItem('gerama_uid');
+  if(!uid){ uid = 'u-'+Date.now()+'-'+Math.random().toString(36).substr(2,6); localStorage.setItem('gerama_uid', uid); }
+  var span = btn.querySelector('span');
+  var liked = JSON.parse(localStorage.getItem('gerama_a_liked')||'{}');
+  if(liked[aid]){
+    await sb.from('question_likes').delete().eq('question_id', 'ans-'+aid).eq('user_identifier', uid);
+    delete liked[aid];
+    localStorage.setItem('gerama_a_liked', JSON.stringify(liked));
+    btn.classList.remove('liked');
+    var {count} = await sb.from('question_likes').select('*',{count:'exact',head:true}).eq('question_id','ans-'+aid);
+    if(span) span.textContent = count || 0;
+  } else {
+    await sb.from('question_likes').upsert({question_id:'ans-'+aid, user_identifier:uid},{onConflict:'question_id,user_identifier'});
+    liked[aid] = true;
+    localStorage.setItem('gerama_a_liked', JSON.stringify(liked));
+    btn.classList.add('liked');
+    var {count} = await sb.from('question_likes').select('*',{count:'exact',head:true}).eq('question_id','ans-'+aid);
+    if(span) span.textContent = count || 0;
+  }
+}
+
+async function deleteQuestion(qid) {
+  if(!confirm('Delete your post?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('questions').delete().eq('id',qid);
+  var el = document.getElementById('qpost-'+qid);
+  if(el) el.remove();
+}
+
+function sharePost(qid) {
+  var url = window.location.origin + window.location.pathname + '?post=' + qid;
+  if(navigator.share){
+    navigator.share({title:'GERAMA Q&A', text:'Check out this post on GERAMA Classroom', url:url});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(url);
+    alert('Link copied! Share it anywhere.');
+  } else {
+    prompt('Copy this link:', url);
+  }
+}
+
+function openLightbox(url) {
+  var lb = document.getElementById('lightbox');
+  var img = document.getElementById('lightboxImg');
+  if(lb && img){ img.src=url; lb.classList.add('open'); }
+}
+
+function safeStartClassLifecycle(){
+  try{ if(typeof startClassLifecycle === 'function') startClassLifecycle(); }
+  catch(e){ /* lifecycle not available */ }
+}
+
+function formatTimeAgo(iso) {
+  var diff = Date.now() - new Date(iso).getTime();
+  var mins = Math.floor(diff/60000);
+  if(mins < 1) return 'just now';
+  if(mins < 60) return mins+'m ago';
+  var hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  var days = Math.floor(hrs/24);
+  if(days < 7) return days+'d ago';
+  return new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+}
+
+// ══════════════════════════════════════════════════════════════
+// REELS
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  var reelZone = document.getElementById('reelDropZone');
+  var reelInp  = document.getElementById('reelFile');
+  var reelPrev = document.getElementById('reelVideoPreview');
+  if(reelZone && reelInp){
+    reelZone.addEventListener('click', function(){ reelInp.click(); });
+    reelInp.addEventListener('change', function(){
+      var f = this.files[0]; if(!f) return;
+      if(f.size > 50*1024*1024){ alert('Video too large. Max 50MB.'); return; }
+      document.getElementById('reelFileChosen').textContent = '✅ '+f.name;
+      reelPrev.src = URL.createObjectURL(f);
+      reelPrev.style.display = 'block';
+    });
+    reelZone.addEventListener('dragover', function(e){ e.preventDefault(); reelZone.style.borderColor='#1B5E20'; });
+    reelZone.addEventListener('dragleave', function(){ reelZone.style.borderColor=''; });
+    reelZone.addEventListener('drop', function(e){
+      e.preventDefault(); reelZone.style.borderColor='';
+      var f = e.dataTransfer.files[0];
+      if(f && f.type.startsWith('video/')){
+        document.getElementById('reelFileChosen').textContent = '✅ '+f.name;
+        reelPrev.src = URL.createObjectURL(f);
+        reelPrev.style.display = 'block';
+        // Store file reference
+        var dt = new DataTransfer(); dt.items.add(f); reelInp.files = dt.files;
+      }
+    });
+  }
+});
+
+async function uploadReel() {
+  var caption = document.getElementById('reelCaption').value.trim();
+  var course  = document.getElementById('reelCourse').value;
+  var fileInp = document.getElementById('reelFile');
+  var f = fileInp && fileInp.files[0];
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var name  = profile.name || 'Anonymous';
+  var email = profile.email || 'unknown';
+  if(!f){ showReelStatus('Please select a video file.','err'); return; }
+  if(f.size > 50*1024*1024){ showReelStatus('Video too large. Max 50MB.','err'); return; }
+  var sb = window.geramaSupabase;
+  if(!sb){ showReelStatus('Not connected.','err'); return; }
+  var btn = document.getElementById('uploadReelBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+  showReelStatus('Uploading video, please wait...','info');
+  try {
+    var ext = f.name.split('.').pop();
+    var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    var path = 'reels/'+Date.now()+'-'+safeName+'.'+ext;
+    var up = await sb.storage.from('gerama-materials').upload(path, f, {upsert:true, contentType:f.type});
+    if(up.error) throw new Error(up.error.message);
+    var videoUrl = sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
+    var res = await sb.from('reels').insert({
+      author_name:name, author_email:email,
+      caption:caption||null, course:course||null,
+      video_url:videoUrl,
+      likes:0, status:'active', created_at:new Date().toISOString()
+    });
+    if(res.error) throw new Error(res.error.message);
+    showReelStatus('✅ Reel posted!','ok');
+    document.getElementById('reelCaption').value='';
+    document.getElementById('reelCourse').value='';
+    document.getElementById('reelFileChosen').textContent='';
+    document.getElementById('reelVideoPreview').style.display='none';
+    fileInp.value='';
+    loadReels();
+  } catch(e){ showReelStatus('❌ '+e.message,'err'); }
+  btn.disabled=false; btn.innerHTML='<i class="fas fa-upload"></i> Post Reel';
+}
+
+function showReelStatus(msg, type) {
+  var el = document.getElementById('reelStatus');
+  if(!el) return;
+  el.textContent = msg;
+  el.className = 'status-msg status-'+type;
+}
+
+async function loadReels() {
+  var el = document.getElementById('reelsFeed'); if(!el) return;
+  var sb = window.geramaSupabase;
+  if(!sb){ el.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><p>Not connected.</p></div>'; return; }
+  var res = await sb.from('reels').select('*').eq('status','active').order('created_at',{ascending:false}).limit(30);
+  var data = res.data;
+  if(!data||!data.length){
+    el.innerHTML='<div class="empty-state"><i class="fas fa-film"></i><p>No reels yet. Be the first to post!</p></div>';
+    return;
+  }
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var myEmail = profile.email||'';
+  var rLiked  = JSON.parse(localStorage.getItem('gerama_r_liked')||'{}');
+  var uid = localStorage.getItem('gerama_uid')||'';
+  // Get real like counts from question_likes table (reused, prefixed reel-)
+  var likeKeys = data.map(function(r){ return 'reel-'+r.id; });
+  var likeCounts = {};
+  var lRes = await sb.from('question_likes').select('question_id').in('question_id', likeKeys);
+  (lRes.data||[]).forEach(function(row){ likeCounts[row.question_id] = (likeCounts[row.question_id]||0)+1; });
+
+  var html = '';
+  for(var i=0;i<data.length;i++){
+    var r = data[i];
+    var isOwner = myEmail && r.author_email === myEmail;
+    var isAdm   = myEmail === 'gerama.uenr@gmail.com';
+    var likeCount = likeCounts['reel-'+r.id] || 0;
+    var isLiked = rLiked[r.id] ? ' liked' : '';
+    var timeAgo = formatTimeAgo(r.created_at);
+    var courseTag = r.course ? '<span class="reel-course-tag">'+escHtml(r.course)+'</span>' : '';
+    var delBtn   = (isOwner||isAdm) ? '<button class="reel-btn" data-rid="'+r.id+'" data-rpath="'+escHtml(r.storage_path||'')+'" data-raction="delreel" style="color:#dc2626;margin-left:auto;"><i class="fas fa-trash"></i></button>' : '';
+    var blockBtn = isAdm ? '<button class="reel-btn" data-rid="'+r.id+'" data-raction="blockreel" style="color:#f59e0b;"><i class="fas fa-ban"></i></button>' : '';
+    html += '<div class="reel-card" id="reel-'+r.id+'">';
+    html += '<div class="reel-video-wrap">';
+    html += '<video src="'+r.video_url+'" preload="metadata" loop playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video>';
+    html += '<div class="reel-play-overlay"><i class="fas fa-play"></i></div>';
+    html += '</div>';
+    html += '<div class="reel-body">';
+    html += '<div class="reel-author"><div class="reel-avatar">'+escHtml(r.author_name.charAt(0).toUpperCase())+'</div>';
+    html += '<div><div class="reel-author-name">'+escHtml(r.author_name)+'</div><div class="reel-time">'+timeAgo+'</div></div></div>';
+    html += courseTag;
+    if(r.caption) html += '<div class="reel-caption">'+escHtml(r.caption)+'</div>';
+    html += '<div class="reel-actions">';
+    html += '<button class="reel-btn'+isLiked+'" data-rid="'+r.id+'" data-raction="likereel"><i class="fas fa-heart"></i> <span>'+likeCount+'</span></button>';
+    html += '<button class="reel-btn" data-rid="'+r.id+'" data-raction="sharereel"><i class="fas fa-share-alt"></i> Share</button>';
+    html += blockBtn+delBtn;
+    html += '</div></div></div>';
+  }
+  el.innerHTML = html;
+
+  // Event delegation for reel actions
+  el.onclick = function(e) {
+    var btn = e.target.closest('[data-raction]');
+    if(!btn) {
+      // Check if clicked on video overlay
+      var overlay = e.target.closest('.reel-play-overlay');
+      if(overlay){ var vid = overlay.previousElementSibling; if(vid) toggleReelPlay(vid, overlay); }
+      return;
+    }
+    var action = btn.getAttribute('data-raction');
+    var rid    = btn.getAttribute('data-rid');
+    if(action === 'likereel')  likeReel(rid, btn);
+    if(action === 'sharereel') shareReel(rid);
+    if(action === 'delreel')   deleteReel(rid, btn.getAttribute('data-rpath'));
+    if(action === 'blockreel') blockReel(rid);
+  };
+}
+
+function toggleReelPlay(video, overlay) {
+  // Pause all other reels
+  document.querySelectorAll('.reel-card video').forEach(function(v){
+    if(v !== video){ v.pause(); var ov = v.nextElementSibling; if(ov) ov.style.opacity='1'; }
+  });
+  if(video.paused){
+    video.play();
+    if(overlay) overlay.style.opacity='0';
+  } else {
+    video.pause();
+    if(overlay) overlay.style.opacity='1';
+  }
+}
+
+async function likeReel(rid, btn) {
+  var sb = window.geramaSupabase; if(!sb) return;
+  var uid = localStorage.getItem('gerama_uid');
+  if(!uid){ uid='u-'+Date.now()+'-'+Math.random().toString(36).substr(2,6); localStorage.setItem('gerama_uid',uid); }
+  var span = btn.querySelector('span');
+  var liked = JSON.parse(localStorage.getItem('gerama_r_liked')||'{}');
+  var likeKey = 'reel-'+rid;
+  if(liked[rid]){
+    await sb.from('question_likes').delete().eq('question_id',likeKey).eq('user_identifier',uid);
+    delete liked[rid];
+    localStorage.setItem('gerama_r_liked',JSON.stringify(liked));
+    btn.classList.remove('liked');
+    var cr = await sb.from('question_likes').select('*',{count:'exact',head:true}).eq('question_id',likeKey);
+    if(span) span.textContent = cr.count||0;
+  } else {
+    await sb.from('question_likes').upsert({question_id:likeKey,user_identifier:uid},{onConflict:'question_id,user_identifier'});
+    liked[rid]=true;
+    localStorage.setItem('gerama_r_liked',JSON.stringify(liked));
+    btn.classList.add('liked');
+    var cr = await sb.from('question_likes').select('*',{count:'exact',head:true}).eq('question_id',likeKey);
+    if(span) span.textContent = cr.count||0;
+  }
+}
+
+async function deleteReel(rid, storagePath) {
+  if(!confirm('Delete this reel?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  // storagePath may be empty if column doesn't exist — just delete the DB record
+  if(storagePath && storagePath.length > 3){
+    await sb.storage.from('gerama-materials').remove([storagePath]);
+  }
+  await sb.from('reels').delete().eq('id',rid);
+  var el = document.getElementById('reel-'+rid);
+  if(el){ el.style.opacity='0'; el.style.transition='opacity 0.3s'; setTimeout(function(){ el.remove(); },300); }
+}
+
+async function blockReel(rid) {
+  if(!confirm('Block this reel? It will be hidden from all users.')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('reels').update({status:'blocked'}).eq('id',rid);
+  var el = document.getElementById('reel-'+rid);
+  if(el){ el.style.opacity='0'; el.style.transition='opacity 0.3s'; setTimeout(function(){ el.remove(); },300); }
+}
+
+function shareReel(rid) {
+  var url = window.location.origin+window.location.pathname+'?reel='+rid;
+  if(navigator.share){ navigator.share({title:'GERAMA Reel',url:url}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(url); alert('Link copied! Share it anywhere.'); }
+  else { prompt('Copy this link:',url); }
+}
+
+// ══════════════════════════════════════════════════════════════
+// QUIZZES
+// ══════════════════════════════════════════════════════════════
+var _currentQuiz = null;
+var _quizTimer   = null;
+var _quizTotalSecs = 0;
+
+async function loadQuizzes() {
+  var el = document.getElementById('quizzesList'); if(!el) return;
+  var sb = window.geramaSupabase;
+  if(!sb){ el.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><p>Not connected.</p></div>'; return; }
+
+  var res = await sb.from('quizzes').select('*').eq('status','active').order('created_at',{ascending:false});
+  var data = res.data;
+  if(!data||!data.length){
+    el.innerHTML='<div class="empty-state"><i class="fas fa-brain"></i><p>No quizzes posted yet.<br>Check back soon — your tutors will post quizzes here.</p></div>';
+    document.getElementById('quizStatsRow').style.display='none';
+    return;
+  }
+
+  // Load this student's attempts
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var myEmail = profile.email || localStorage.getItem('gerama_uid') || '';
+  var attRes = await sb.from('quiz_attempts').select('quiz_id').eq('student_email', myEmail);
+  var doneIds = {};
+  (attRes.data||[]).forEach(function(a){ doneIds[a.quiz_id] = true; });
+
+  // Also check localStorage fallback
+  var localDone = JSON.parse(localStorage.getItem('gerama_quizzes_done')||'{}');
+  Object.keys(localDone).forEach(function(id){ doneIds[id] = true; });
+
+  var now = Date.now();
+  var openCount = 0, soonCount = 0, doneCount = 0;
+
+  // Show stats row
+  document.getElementById('quizStatsRow').style.display = 'grid';
+  document.getElementById('qzStatTotal').textContent = data.length;
+
+  // Show my quiz history
+  var doneQuizzes = data.filter(function(q){ return doneIds[q.id]; });
+  doneCount = doneQuizzes.length;
+  if(doneCount > 0){
+    var histEl = document.getElementById('myQuizHistory');
+    var listEl = document.getElementById('myQuizList');
+    if(histEl) histEl.style.display = 'block';
+    if(listEl){
+      listEl.innerHTML = doneQuizzes.map(function(q){
+        return '<span class="my-quiz-badge"><i class="fas fa-check-circle"></i> '+escHtml(q.title)+'</span>';
+      }).join('');
+    }
+  }
+
+  el.innerHTML = data.map(function(q){
+    var deadline = q.deadline ? new Date(q.deadline) : null;
+    var isPast   = deadline && deadline.getTime() < now;
+    var isSoon   = deadline && !isPast && (deadline.getTime()-now) < 86400000*2;
+    var dlClass  = isPast ? 'passed' : isSoon ? 'soon' : 'ok';
+    var dlText   = '';
+    if(deadline){
+      dlText = isPast
+        ? '⚠️ Deadline passed'
+        : 'Due: '+deadline.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' · '+deadline.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    }
+    var statusClass = isPast ? 'quiz-status-ended' : isSoon ? 'quiz-status-soon' : 'quiz-status-active';
+    var statusText  = isPast ? '🔒 Closed' : isSoon ? '⚡ Closing Soon' : '✅ Open';
+    var isDone = doneIds[q.id];
+    if(!isPast && !isDone) openCount++;
+    if(isSoon && !isDone) soonCount++;
+
+    // Deadline live countdown (for open quizzes)
+    var countdownHtml = '';
+    if(deadline && !isPast && !isDone){
+      var diff = deadline.getTime() - now;
+      var days = Math.floor(diff/86400000);
+      var hrs  = Math.floor((diff%86400000)/3600000);
+      var mins = Math.floor((diff%3600000)/60000);
+      var countStr = days > 0 ? days+'d '+hrs+'h left' : hrs > 0 ? hrs+'h '+mins+'m left' : mins+'m left';
+      countdownHtml = '<div class="quiz-deadline-countdown"><i class="fas fa-hourglass-half"></i> '+countStr+'</div>';
+    }
+
+    var actionBtn = isDone
+      ? '<span class="quiz-done-badge"><i class="fas fa-check-circle"></i> Completed</span>'
+      : isPast
+        ? '<button class="btn-take-quiz" disabled><i class="fas fa-lock"></i> Closed</button>'
+        : '<button class="btn-take-quiz" onclick="openQuiz(\''+q.id+'\',\''+escAttr(q.title)+'\',\''+escAttr(q.quiz_url||q.form_links||'')+'\','+(q.duration_mins||0)+',\''+escAttr(q.course||'')+'\',\''+escAttr(q.instructions||q.description||'')+'\')"><i class="fas fa-play"></i> Take Quiz</button>';
+
+    var durationTag = q.duration_mins ? '<span class="quiz-timer"><i class="fas fa-clock"></i> '+q.duration_mins+' min</span>' : '';
+    var pointsTag   = q.points ? '<span class="quiz-points-badge"><i class="fas fa-star"></i> '+q.points+' pts</span>' : '';
+    var cardClass   = isDone ? 'quiz-card quiz-done' : isPast ? 'quiz-card quiz-closed' : 'quiz-card';
+
+    return '<div class="'+cardClass+'">'+
+      '<span class="quiz-status-badge '+statusClass+'">'+statusText+'</span>'+
+      '<div class="quiz-title">'+escHtml(q.title)+'</div>'+
+      '<div class="quiz-meta">'+
+        (q.course ? '<div><i class="fas fa-book"></i> '+escHtml(q.course)+'</div>' : '')+
+        (q.posted_by||q.tutor ? '<div><i class="fas fa-user-tie"></i> '+escHtml(q.posted_by||q.tutor)+'</div>' : '')+
+      '</div>'+
+      (q.instructions||q.description ? '<div class="quiz-desc">'+escHtml(q.instructions||q.description)+'</div>' : '')+
+      (dlText ? '<div class="quiz-deadline '+dlClass+'"><i class="fas fa-calendar-times"></i> '+dlText+'</div>' : '')+
+      countdownHtml+
+      '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.8rem;">'+durationTag+pointsTag+'</div>'+
+      '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">'+actionBtn+'</div>'+
+    '</div>';
+  }).join('');
+
+  // Update stats
+  document.getElementById('qzStatOpen').textContent = openCount;
+  document.getElementById('qzStatDone').textContent = doneCount;
+  document.getElementById('qzStatSoon').textContent = soonCount;
+
+  // Show quiz badge on tab if there are open quizzes
+  var badge = document.getElementById('quizBadge');
+  if(badge && openCount > 0 && !document.getElementById('tab-quizzes').classList.contains('active')){
+    badge.textContent = openCount;
+    badge.style.display = 'inline-flex';
+  }
+}
+
+function openQuiz(qid, title, urlOrLinks, durationMins, course, instructions) {
+  // urlOrLinks may be a JSON array (multi-link) or a plain URL string
+  var url = urlOrLinks;
+  try {
+    var parsed = JSON.parse(urlOrLinks);
+    if(Array.isArray(parsed) && parsed.length){
+      // Pick a random link (anti-copy)
+      url = parsed[Math.floor(Math.random() * parsed.length)];
+    }
+  } catch(e){ /* plain URL */ }
+
+  _currentQuiz = {id:qid, title:title, url:url, duration:durationMins};
+  document.getElementById('quizModalTitle').textContent = title;
+  document.getElementById('quizModalCourse').textContent = course || '';
+  document.getElementById('quizIframe').src = url;
+  document.getElementById('quizOpenExternal').href = url;
+  document.getElementById('quizAttemptStatus').className = 'status-msg';
+  document.getElementById('quizAttemptStatus').textContent = '';
+  document.getElementById('quizDoneBtn').disabled = false;
+  document.getElementById('quizDoneBtn').innerHTML = '<i class="fas fa-check-circle"></i> I\'ve Completed This Quiz';
+
+  // Instructions
+  var instrEl = document.getElementById('quizModalInstructions');
+  if(instructions && instrEl){
+    instrEl.textContent = '📋 ' + instructions;
+    instrEl.style.display = 'block';
+  } else if(instrEl){
+    instrEl.style.display = 'none';
+  }
+
+  // Start countdown timer if duration set
+  clearInterval(_quizTimer);
+  var timerEl = document.getElementById('quizTimerDisplay');
+  var countEl = document.getElementById('quizCountdownTimer');
+  var arcEl   = document.getElementById('quizTimerArc');
+  if(durationMins > 0){
+    timerEl.style.display = 'flex';
+    _quizTotalSecs = durationMins * 60;
+    var secsLeft = _quizTotalSecs;
+    var circumference = 138.2;
+    function tick(){
+      var m = Math.floor(secsLeft/60);
+      var s = secsLeft % 60;
+      countEl.textContent = m+':'+(s<10?'0':'')+s;
+      // Update arc
+      if(arcEl){
+        var progress = secsLeft / _quizTotalSecs;
+        arcEl.style.strokeDashoffset = circumference * (1 - progress);
+        arcEl.style.stroke = secsLeft <= 60 ? '#dc2626' : secsLeft <= _quizTotalSecs*0.25 ? '#f59e0b' : '#6366f1';
+      }
+      if(secsLeft <= 60) countEl.style.color = '#dc2626';
+      else if(secsLeft <= _quizTotalSecs*0.25) countEl.style.color = '#f59e0b';
+      else countEl.style.color = '#4338ca';
+      if(secsLeft <= 0){
+        clearInterval(_quizTimer);
+        countEl.textContent = '0:00';
+        document.getElementById('quizDoneBtn').disabled = true;
+        document.getElementById('quizDoneBtn').innerHTML = '<i class="fas fa-lock"></i> Time\'s Up';
+        markQuizDone();
+      }
+      secsLeft--;
+    }
+    tick();
+    _quizTimer = setInterval(tick, 1000);
+  } else {
+    timerEl.style.display = 'none';
+  }
+
+  document.getElementById('quizAttemptModal').classList.add('open');
+}
+
+function closeQuizModal() {
+  clearInterval(_quizTimer);
+  document.getElementById('quizAttemptModal').classList.remove('open');
+  document.getElementById('quizIframe').src = '';
+  _currentQuiz = null;
+}
+
+async function markQuizDone() {
+  if(!_currentQuiz) return;
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var name  = profile.name || 'Anonymous';
+  var email = profile.email || localStorage.getItem('gerama_uid') || 'unknown';
+  var sb = window.geramaSupabase;
+  var btn = document.getElementById('quizDoneBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+  if(sb){
+    await sb.from('quiz_attempts').insert({
+      quiz_id:       _currentQuiz.id,
+      student_name:  name,
+      student_email: email,
+      completed_at:  new Date().toISOString(),
+      score:         null
+    });
+  }
+
+  // Save locally too
+  var done = JSON.parse(localStorage.getItem('gerama_quizzes_done')||'{}');
+  done[_currentQuiz.id] = {title:_currentQuiz.title, at:new Date().toISOString()};
+  localStorage.setItem('gerama_quizzes_done', JSON.stringify(done));
+
+  var statusEl = document.getElementById('quizAttemptStatus');
+  statusEl.textContent = '✅ Recorded! This quiz has been added to your completed list.';
+  statusEl.className = 'status-msg status-ok';
+  btn.innerHTML = '✅ Completed';
+
+  setTimeout(function(){
+    closeQuizModal();
+    loadQuizzes(); // refresh to show completed badge
+  }, 2000);
+}
+function toggleFab() {
+  var opts = document.getElementById('fabOptions');
+  var icon = document.getElementById('fabIcon');
+  if(!opts||!icon) return;
+  if(opts.classList.contains('open')){
+    opts.classList.remove('open'); icon.className='fas fa-plus';
+  } else {
+    opts.classList.add('open'); icon.className='fas fa-times';
+  }
+}
+function closeFab() {
+  var opts = document.getElementById('fabOptions');
+  var icon = document.getElementById('fabIcon');
+  if(opts) opts.classList.remove('open');
+  if(icon) icon.className='fas fa-plus';
+}
+document.addEventListener('click', function(e){
+  var fab = document.getElementById('fabContainer');
+  if(fab && !fab.contains(e.target)) closeFab();
+});
+</script>
+</body>
+</html>

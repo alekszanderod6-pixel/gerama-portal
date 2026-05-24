@@ -1,0 +1,43 @@
+{
+  "name": "GERAMA Academic Resources",
+  "short_name": "GERAMA",
+  "description": "Ghana Engineering Resources & Academic Materials Association — free study materials for UENR engineering students.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0a2f1f",
+  "theme_color": "#1B5E20",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "images/geramalogo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/geramalogo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "images/geramalogo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "GERAMA Home Screen"
+    },
+    {
+      "src": "images/geramalogo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "GERAMA Desktop"
+    }
+  ],
+  "categories": ["education"],
+  "lang": "en",
+  "scope": "/"
+}

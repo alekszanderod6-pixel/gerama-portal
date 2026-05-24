@@ -1,0 +1,14 @@
+
+# Dependencies - never commit these
+node_modules/
+
+# Large video files - too big for git, host separately
+*.mp4
+*.MP4
+
+# Large PDFs over GitHub's 50MB warning limit
+materials/l200/semester-1/solid-state-electronics/books/solid-state-electronic-devices-6th-edition.pdf
+
+# API keys — never commit to GitHub
+js/ai-config.js
+js/env-config.js

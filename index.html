@@ -1,0 +1,960 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GERAMA | Academic Resources Centre – UENR Engineering</title>
+<link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B5E20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GERAMA">
+<link rel="apple-touch-icon" href="images/geramalogo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
+<script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
+<script src="js/supabase-config.js"></script>
+<style>
+/* ── INDEX PAGE SPECIFIC STYLES ── */
+:root {
+  --primary: #1B5E20;
+  --primary-dark: #0a2f1f;
+  --primary-light: #2E7D32;
+  --gold: #FFC107;
+  --gold-dark: #e6a800;
+  --white: #ffffff;
+  --light: #f8fafc;
+  --text: #1e2a3e;
+  --text-muted: #6b7280;
+  --radius: 20px;
+  --shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; overflow-x:hidden; }
+body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text); line-height:1.6; overflow-x:hidden; max-width:100vw; }
+
+/* HEADER */
+.site-header {
+  position: sticky; top:0; z-index:1000;
+  background: rgba(10,47,31,0.97);
+  backdrop-filter: blur(12px);
+  padding: 0 5%; display:flex; align-items:center;
+  justify-content:space-between; height:70px;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+  width: 100%;
+}
+.header-logo { display:flex; align-items:center; gap:10px; text-decoration:none; flex-shrink: 0; }
+.header-logo img { height:42px; border-radius:8px; }
+.header-logo span { color:white; font-weight:700; font-size:1.05rem; letter-spacing:0.3px; }
+.header-nav { display:flex; align-items:center; gap:0.3rem; }
+.header-nav a {
+  color:rgba(255,255,255,0.85); text-decoration:none;
+  padding:0.5rem 1rem; border-radius:8px; font-weight:500;
+  font-size:0.95rem; transition:all 0.2s;
+}
+.header-nav a:hover, .header-nav a.active { color:var(--gold); background:rgba(255,193,7,0.1); }
+/* PWA Install button in header */
+.pwa-install-btn {
+  display: none; /* shown by JS when installable */
+  align-items: center; gap: 0.4rem;
+  background: rgba(255,193,7,0.15);
+  border: 1.5px solid rgba(255,193,7,0.5);
+  color: #FFC107;
+  padding: 0.4rem 0.9rem;
+  border-radius: 30px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: 'Inter', sans-serif;
+}
+.pwa-install-btn:hover {
+  background: #FFC107;
+  color: #0a2f1f;
+  border-color: #FFC107;
+}
+.pwa-install-btn i { font-size: 0.85rem; }
+.menu-toggle-btn {
+  display:flex; background:none; border:none; color:white;
+  font-size:1.4rem; cursor:pointer; padding:0.5rem;
+  flex-shrink:0; align-items:center; justify-content:center;
+  border-radius:8px; transition:background 0.2s;
+}
+.menu-toggle-btn:hover { background:rgba(255,255,255,0.1); }
+.hero-section {
+  position:relative; min-height:100vh;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; text-align:center;
+}
+.hero-slides { position:absolute; inset:0; z-index:0; }
+.hero-slide {
+  position:absolute; inset:0;
+  background-size:cover; background-position:center top;
+  opacity:0; transition:opacity 1.5s ease-in-out;
+  animation: kenburns 20s ease-in-out infinite alternate;
+}
+.hero-slide.active { opacity:1; }
+@keyframes kenburns {
+  0%   { transform: scale(1)    translateX(0)    translateY(0); }
+  50%  { transform: scale(1.06) translateX(-1%)  translateY(-1%); }
+  100% { transform: scale(1.1)  translateX(1%)   translateY(0.5%); }
+}
+.hero-overlay {
+  position:absolute; inset:0; z-index:1;
+  background:linear-gradient(135deg, rgba(10,47,31,0.88) 0%, rgba(27,94,32,0.75) 100%);
+}
+.hero-content {
+  position:relative; z-index:2;
+  max-width:820px; padding:2rem;
+}
+.hero-badge {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  background:rgba(255,193,7,0.15); border:1px solid rgba(255,193,7,0.4);
+  color:var(--gold); padding:0.4rem 1.2rem; border-radius:50px;
+  font-size:0.85rem; font-weight:600; margin-bottom:1.5rem;
+  letter-spacing:0.5px;
+}
+.hero-title {
+  font-size:clamp(2.2rem,5vw,3.8rem); font-weight:800;
+  color:white; line-height:1.15; margin-bottom:1.2rem;
+}
+.hero-title span { color:var(--gold); }
+.hero-subtitle {
+  font-size:1.15rem; color:rgba(255,255,255,0.85);
+  max-width:600px; margin:0 auto 2.5rem; line-height:1.7;
+}
+.hero-actions { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+.btn-hero-primary {
+  background:var(--gold); color:var(--primary-dark);
+  padding:0.9rem 2.2rem; border-radius:50px; font-weight:700;
+  font-size:1rem; text-decoration:none; transition:all 0.3s;
+  display:inline-flex; align-items:center; gap:0.5rem;
+  box-shadow:0 4px 20px rgba(255,193,7,0.4);
+}
+.btn-hero-primary:hover { background:white; transform:translateY(-3px); box-shadow:0 8px 30px rgba(255,193,7,0.5); }
+.btn-hero-secondary {
+  background:transparent; color:white;
+  padding:0.9rem 2.2rem; border-radius:50px; font-weight:600;
+  font-size:1rem; text-decoration:none; transition:all 0.3s;
+  border:2px solid rgba(255,255,255,0.5);
+  display:inline-flex; align-items:center; gap:0.5rem;
+}
+.btn-hero-secondary:hover { border-color:var(--gold); color:var(--gold); transform:translateY(-3px); }
+.hero-scroll {
+  position:absolute; bottom:2rem; left:50%; transform:translateX(-50%);
+  z-index:2; color:rgba(255,255,255,0.6); font-size:1.5rem;
+  animation:bounce 2s infinite;
+}
+@keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
+
+/* STATS BAR */
+.stats-bar {
+  background:var(--primary-dark);
+  padding:2rem 5%;
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:1rem; text-align:center;
+}
+.stat-item { padding:1rem; }
+.stat-num {
+  font-size:2.2rem; font-weight:800; color:var(--gold);
+  display:block; line-height:1;
+}
+.stat-lbl { color:rgba(255,255,255,0.75); font-size:0.9rem; margin-top:0.3rem; }
+
+/* SECTION COMMON */
+.section-wrap { padding:5rem 5%; }
+.section-wrap.alt { background:white; }
+.section-label {
+  display:inline-block; background:rgba(27,94,32,0.08);
+  color:var(--primary); font-size:0.8rem; font-weight:700;
+  letter-spacing:1px; text-transform:uppercase;
+  padding:0.3rem 1rem; border-radius:50px; margin-bottom:1rem;
+}
+.section-title {
+  font-size:clamp(1.8rem,3vw,2.5rem); font-weight:800;
+  color:var(--text); margin-bottom:0.8rem; line-height:1.2;
+}
+.section-title span { color:var(--primary); }
+.section-sub { color:var(--text-muted); max-width:560px; font-size:1rem; line-height:1.7; }
+.section-head { margin-bottom:3rem; }
+
+/* FEATURES GRID */
+.features-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:1.5rem;
+}
+.feature-card {
+  background:white; border-radius:var(--radius); padding:2rem;
+  border:1px solid #e8f0e8; transition:all 0.3s;
+  box-shadow:0 2px 12px rgba(0,0,0,0.05);
+}
+.feature-card:hover { transform:translateY(-6px); box-shadow:var(--shadow); border-color:var(--primary); }
+.feature-icon {
+  width:56px; height:56px; border-radius:14px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  display:flex; align-items:center; justify-content:center;
+  color:white; font-size:1.4rem; margin-bottom:1.2rem;
+}
+.feature-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; color:var(--text); }
+.feature-card p { color:var(--text-muted); font-size:0.92rem; line-height:1.6; }
+
+/* HOW IT WORKS */
+.steps-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:2rem; position:relative;
+}
+.step-card { text-align:center; padding:2rem 1.5rem; }
+.step-num {
+  width:60px; height:60px; border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),var(--gold-dark));
+  color:var(--primary-dark); font-size:1.5rem; font-weight:800;
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 1.2rem; box-shadow:0 4px 16px rgba(255,193,7,0.4);
+}
+.step-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; }
+.step-card p { color:var(--text-muted); font-size:0.92rem; }
+
+/* ANNOUNCEMENTS */
+.ann-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:1.5rem;
+}
+.ann-card {
+  background:white; border-radius:var(--radius);
+  border-left:4px solid var(--gold); box-shadow:0 2px 12px rgba(0,0,0,0.06);
+  transition:all 0.3s; overflow:hidden; display:flex; flex-direction:column;
+}
+.ann-card:hover { transform:translateY(-4px); box-shadow:var(--shadow); }
+.ann-card-img { width:100%; height:180px; object-fit:cover; display:block; }
+.ann-card-body { padding:1.4rem; flex:1; display:flex; flex-direction:column; }
+.ann-date { font-size:0.8rem; color:var(--text-muted); margin-bottom:0.4rem; font-weight:500; }
+.ann-card h3 { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; color:var(--text); }
+.ann-card-msg { color:var(--text-muted); font-size:0.9rem; line-height:1.6; flex:1; }
+.ann-card-msg.clamped { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.ann-read-more { background:none; border:none; color:var(--primary); font-weight:600; font-size:0.85rem; cursor:pointer; padding:0; margin-top:0.3rem; font-family:'Inter',sans-serif; }
+.ann-actions { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem; padding-top:0.8rem; border-top:1px solid #f1f5f9; }
+.ann-action-btn { background:none; border:none; cursor:pointer; font-size:0.82rem; font-weight:600; display:inline-flex; align-items:center; gap:0.3rem; padding:0.3rem 0.7rem; border-radius:20px; transition:all 0.2s; font-family:'Inter',sans-serif; color:var(--text-muted); }
+.ann-action-btn:hover { background:#f1f5f9; color:var(--text); }
+.ann-action-btn.liked { color:#dc2626; }
+.ann-show-more { text-align:center; margin-top:1.5rem; }
+.ann-show-more button { background:none; border:2px solid var(--primary); color:var(--primary); padding:0.6rem 2rem; border-radius:30px; font-weight:700; font-size:0.9rem; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; }
+.ann-show-more button:hover { background:var(--primary); color:white; }
+
+/* PERSONALITY OF THE WEEK */
+.potw-section { padding:4rem 5%; background:white; }
+.potw-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem; max-width:1100px; margin:0 auto; }
+.potw-card { background:linear-gradient(135deg,#f0f7f0,#e8f5e9); border-radius:20px; padding:1.8rem; border:1px solid #c8e6c9; transition:all 0.3s; position:relative; overflow:hidden; }
+.potw-card::before { content:'⭐'; position:absolute; top:1rem; right:1rem; font-size:1.4rem; }
+.potw-card:hover { transform:translateY(-6px); box-shadow:0 16px 40px rgba(27,94,32,0.15); }
+.potw-photo { width:80px; height:80px; border-radius:50%; object-fit:cover; object-position:top; border:3px solid var(--gold); margin-bottom:1rem; display:block; }
+.potw-photo-placeholder { width:80px; height:80px; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-light)); display:flex; align-items:center; justify-content:center; color:white; font-size:2rem; font-weight:800; margin-bottom:1rem; border:3px solid var(--gold); }
+.potw-name { font-size:1.1rem; font-weight:800; color:var(--text); margin-bottom:0.2rem; }
+.potw-role { font-size:0.8rem; color:var(--primary); font-weight:600; margin-bottom:0.8rem; }
+.potw-bio { font-size:0.88rem; color:#374151; line-height:1.6; }
+.potw-bio.clamped { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.potw-read-more { background:none; border:none; color:var(--primary); font-weight:600; font-size:0.82rem; cursor:pointer; padding:0; margin-top:0.4rem; font-family:'Inter',sans-serif; }
+.potw-week { font-size:0.72rem; font-weight:700; background:var(--gold); color:var(--primary-dark); padding:0.2rem 0.7rem; border-radius:20px; display:inline-block; margin-bottom:0.8rem; }
+.potw-nominate { background:rgba(27,94,32,0.06); border:2px dashed #c8e6c9; border-radius:20px; padding:1.8rem; text-align:center; cursor:pointer; transition:all 0.3s; }
+.potw-nominate:hover { background:rgba(27,94,32,0.1); border-color:var(--primary); }
+.potw-nominate i { font-size:2rem; color:var(--primary); margin-bottom:0.6rem; display:block; }
+.potw-nominate p { font-size:0.9rem; color:var(--muted); margin-bottom:0.8rem; }
+
+/* PERSONALITY MODAL */
+.potw-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:2000; align-items:center; justify-content:center; padding:1rem; }
+.potw-modal.open { display:flex; }
+.potw-modal-box { background:white; border-radius:24px; padding:2rem; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; box-shadow:0 25px 50px rgba(0,0,0,0.3); }
+
+/* CTA BANNER */
+.cta-banner {
+  background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+  padding:5rem 5%; text-align:center; color:white;
+}
+.cta-banner h2 { font-size:clamp(1.8rem,3vw,2.5rem); font-weight:800; margin-bottom:1rem; }
+.cta-banner p { opacity:0.85; max-width:500px; margin:0 auto 2rem; font-size:1rem; }
+.btn-cta {
+  background:var(--gold); color:var(--primary-dark);
+  padding:1rem 2.5rem; border-radius:50px; font-weight:700;
+  font-size:1rem; text-decoration:none; display:inline-flex;
+  align-items:center; gap:0.5rem; transition:all 0.3s;
+  box-shadow:0 4px 20px rgba(255,193,7,0.4);
+}
+.btn-cta:hover { background:white; transform:translateY(-3px); }
+
+/* FOOTER */
+.site-footer {
+  background: linear-gradient(180deg, #0a2f1f 0%, #071a12 100%);
+  color: white; padding: 4rem 5% 0; margin-top: 0;
+}
+.footer-inner {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1.6fr;
+  gap: 3rem; padding-bottom: 3rem;
+}
+.footer-logo-row { display:flex; align-items:center; gap:12px; margin-bottom:1.2rem; }
+.footer-logo-row img:first-child { height:52px; border-radius:10px; border:2px solid rgba(255,193,7,0.4); }
+.footer-logo-row img:last-child  { height:44px; border-radius:8px; opacity:0.9; }
+.footer-tagline { color:rgba(255,255,255,0.6); font-size:0.88rem; line-height:1.75; max-width:300px; margin-bottom:1.5rem; }
+.footer-socials { display:flex; gap:0.7rem; flex-wrap:wrap; }
+.social-icon {
+  width:40px; height:40px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem; text-decoration:none; color:white; transition:all 0.3s;
+  background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1);
+}
+.social-icon:hover { transform:translateY(-4px); box-shadow:0 8px 20px rgba(0,0,0,0.3); }
+.social-icon.whatsapp:hover { background:#25D366; border-color:#25D366; }
+.social-icon.facebook:hover  { background:#1877F2; border-color:#1877F2; }
+.social-icon.twitter:hover   { background:#000; border-color:#555; }
+.social-icon.linkedin:hover  { background:#0A66C2; border-color:#0A66C2; }
+.footer-col-title {
+  font-size:0.78rem; font-weight:700; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--gold); margin-bottom:1.3rem;
+  padding-bottom:0.6rem; border-bottom:1px solid rgba(255,193,7,0.2);
+}
+.footer-links { list-style:none; padding:0; margin:0; }
+.footer-links li { margin-bottom:0.65rem; }
+.footer-links a {
+  color:rgba(255,255,255,0.65); text-decoration:none; font-size:0.88rem;
+  transition:all 0.2s; display:flex; align-items:center; gap:0.5rem;
+}
+.footer-links a:hover { color:var(--gold); padding-left:4px; }
+.footer-links a i { font-size:0.75rem; opacity:0.7; }
+.footer-contact-list { list-style:none; padding:0; margin:0 0 1.5rem; }
+.footer-contact-list li {
+  display:flex; align-items:flex-start; gap:0.75rem;
+  margin-bottom:0.9rem; font-size:0.87rem; color:rgba(255,255,255,0.65); line-height:1.5;
+}
+.contact-icon {
+  width:30px; height:30px; border-radius:8px;
+  background:rgba(255,193,7,0.15); display:flex; align-items:center;
+  justify-content:center; color:var(--gold); font-size:0.85rem; flex-shrink:0; margin-top:1px;
+}
+.footer-contact-list a { color:rgba(255,255,255,0.65); text-decoration:none; transition:color 0.2s; }
+.footer-contact-list a:hover { color:var(--gold); }
+.footer-drive-btn {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  background:linear-gradient(135deg,#4285F4,#1a73e8); color:white;
+  padding:0.6rem 1.3rem; border-radius:50px; font-size:0.85rem; font-weight:600;
+  text-decoration:none; transition:all 0.3s; box-shadow:0 4px 15px rgba(66,133,244,0.3);
+}
+.footer-drive-btn:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(66,133,244,0.5); color:white; }
+.footer-divider {
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,193,7,0.3),rgba(255,255,255,0.1),rgba(255,193,7,0.3),transparent);
+  margin:0 -5%;
+}
+.footer-bottom-bar {
+  display:flex; justify-content:space-between; align-items:center;
+  flex-wrap:wrap; gap:0.5rem; padding:1.5rem 0;
+}
+.footer-copy, .footer-credits { font-size:0.82rem; color:rgba(255,255,255,0.4); margin:0; }
+.footer-credits strong { color:rgba(255,255,255,0.65); }
+
+/* RESPONSIVE */
+@media(max-width:900px) {
+  .stats-bar { grid-template-columns:repeat(2,1fr); }
+  .footer-inner { grid-template-columns:1fr 1fr; }
+  .footer-brand { grid-column:1/-1; }
+}
+@media(max-width:640px) {
+  .header-nav { display:none; }
+  .stats-bar { grid-template-columns:repeat(2,1fr); }
+  .footer-inner { grid-template-columns:1fr; gap:2rem; }
+  .footer-brand { grid-column:auto; }
+  .hero-actions { flex-direction:column; align-items:center; }
+  .hero-content { padding:1.5rem 1rem; }
+  .section-wrap { padding:3rem 4%; }
+  .features-grid { grid-template-columns:1fr; }
+  .steps-grid { grid-template-columns:1fr; }
+  .ann-grid { grid-template-columns:1fr; }
+  .footer-bottom-bar { flex-direction:column; text-align:center; }
+  .footer-tagline { max-width:100%; }
+  .cta-banner { padding:3rem 4%; }
+  .stats-bar { padding:1.5rem 4%; }
+  /* Ensure hero title doesn't overflow */
+  .hero-title { font-size: clamp(1.6rem, 5vw, 3.8rem); }
+  .hero-subtitle { font-size: 0.95rem; }
+  .hero-badge { font-size: 0.75rem; padding: 0.3rem 0.9rem; }
+}
+</style>
+</head>
+<body>
+
+
+<!-- Sidebar injected by main.js -->
+<!-- menu-toggle is only used on pages with old-style <header> (resources, dashboard) -->
+
+<!-- HEADER -->
+<header class="site-header">
+  <button class="menu-toggle-btn" id="menuToggle2" aria-label="Open menu" style="margin-right:0.5rem;"><i class="fas fa-bars"></i></button>
+  <a href="index.html" class="header-logo">
+    <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA">
+    <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/uenr logo.png" alt="UENR" style="height:38px;border-radius:6px;">
+    <span>GERAMA</span>
+  </a>
+  <nav class="header-nav">
+    <a href="index.html" class="active">Home</a>
+    <a href="resources.html">Resources</a>
+    <a href="classroom.html">Classroom</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  <button class="pwa-install-btn" id="pwaHeaderBtn" aria-label="Install app" title="Install GERAMA as an app">
+    <i class="fas fa-download"></i> Install App
+  </button>
+</header>
+
+<!-- HERO — only Aleks's photo, with the same overlay/animation style -->
+<section class="hero-section">
+  <div class="hero-slides" id="heroSlides">
+    <div class="hero-slide active" style="background-image:url('https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/aleks.jpg')"></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><i class="fas fa-university"></i> TEAM GERAMA · Est. 2022</div>
+    <h1 class="hero-title">Empowering <span>Engineering Excellence</span> at UENR</h1>
+    <p class="hero-subtitle">Access comprehensive lecture slides, textbooks, past questions and video tutorials — curated by students, for students.</p>
+    <div class="hero-actions">
+      <a href="resources.html" class="btn-hero-primary"><i class="fas fa-book-open"></i> Explore Resources</a>
+      <a href="about.html" class="btn-hero-secondary"><i class="fas fa-users"></i> Meet the Team</a>
+    </div>
+  </div>
+  <div class="hero-scroll"><i class="fas fa-chevron-down"></i></div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num" data-target="1000">0</span><div class="stat-lbl">Study Materials</div></div>
+  <div class="stat-item"><span class="stat-num" data-target="300">0</span><div class="stat-lbl">Active Students</div></div>
+  <div class="stat-item"><span class="stat-num" data-target
+    ="8">0</span><div class="stat-lbl">Engineering Programs</div></div>
+  <div class="stat-item"><span class="stat-num">24/7</span><div class="stat-lbl">Free Access</div></div>
+</div>
+
+<!-- WHAT WE OFFER -->
+<section class="section-wrap alt">
+  <div class="section-head">
+    <div class="section-label">What We Offer</div>
+    <h2 class="section-title">Everything You Need to <span>Succeed</span></h2>
+    <p class="section-sub">GERAMA brings together the best academic resources for engineering students at UENR — all in one place, completely free.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+      <h3>Lecture Slides & Notes</h3>
+      <p>Comprehensive lecture materials from L100 to L400, organised by course and level for easy access.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-book"></i></div>
+      <h3>Textbooks & References</h3>
+      <p>Curated textbooks and reference materials recommended by lecturers and senior students.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-file-alt"></i></div>
+      <h3>Past Questions & Exams</h3>
+      <p>Years of past exam questions, mid-semester papers and question banks to help you prepare.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-video"></i></div>
+      <h3>Video Tutorials</h3>
+      <p>Step-by-step video explanations of complex topics, created by GERAMA tutors and members.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-users"></i></div>
+      <h3>Peer Community</h3>
+      <p>Connect with fellow students, share resources and get help from seniors and alumni.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="fas fa-cloud"></i></div>
+      <h3>Google Drive Backup</h3>
+      <p>All materials are also available on Google Drive as an alternative access point.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section-wrap">
+  <div class="section-head">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-title">Get Started in <span>3 Simple Steps</span></h2>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h3>Create Your Account</h3>
+      <p>Sign up with your UENR email and set up your profile with your program and level.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h3>Browse Resources</h3>
+      <p>Select your academic level, pick a course and browse slides, books, past questions or videos.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h3>Download or View</h3>
+      <p>View materials directly in your browser or download them for offline study — completely free.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ANNOUNCEMENTS -->
+<section class="section-wrap alt">
+  <div class="section-head">
+    <div class="section-label">Latest Updates</div>
+    <h2 class="section-title">Announcements &amp; <span>News</span></h2>
+  </div>
+  <div class="ann-grid" id="announcementsContainer">
+    <div class="ann-card"><div class="ann-date">Loading...</div><h3>Please wait</h3><p>Fetching latest updates.</p></div>
+  </div>
+</section>
+
+<!-- PERSONALITY OF THE WEEK -->
+<section class="potw-section">
+  <div class="section-head">
+    <div class="section-label">Community Spotlight</div>
+    <h2 class="section-title">Personality <span>of the Week</span></h2>
+    <p class="section-sub">Celebrating GERAMA members who go above and beyond for the community.</p>
+  </div>
+  <div class="potw-grid" id="potwGrid">
+    <!-- Bediser as example — hardcoded until admin posts one -->
+    <div class="potw-card">
+      <span class="potw-week">🏆 This Week</span>
+      <img class="potw-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/bediser.jpg" alt="Bediser" onerror="this.style.display='none'">
+      <div class="potw-name">Bediser</div>
+      <div class="potw-role">Campus Coordinator · Lead Tutor</div>
+      <p class="potw-bio clamped" id="potw-bio-0">Bediser has made an outstanding contribution to GERAMA through his dedication and passion for teaching. Last semester, he single-handedly organised a series of structured tutorials that helped dozens of students grasp some of the most challenging engineering courses. His sessions were known for their clarity, patience, and genuine care for every student's understanding. Beyond tutorials, Bediser consistently shows up for the community — always ready to explain, encourage, and push others to excel. He is a true embodiment of what GERAMA stands for.</p>
+      <button class="potw-read-more" onclick="togglePotwBio('potw-bio-0',this)">Read more</button>
+    </div>
+    <div class="potw-nominate" onclick="document.getElementById('potwModal').classList.add('open')">
+      <i class="fas fa-user-plus"></i>
+      <p>Know someone making a difference in GERAMA? Nominate them as Personality of the Week.</p>
+      <span style="background:var(--primary);color:white;padding:0.5rem 1.4rem;border-radius:30px;font-size:0.88rem;font-weight:700;display:inline-block;">Nominate Someone</span>
+    </div>
+  </div>
+</section>
+
+<!-- PERSONALITY NOMINATION MODAL -->
+<div class="potw-modal" id="potwModal">
+  <div class="potw-modal-box">
+    <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:0.3rem;"><i class="fas fa-star" style="color:var(--gold);margin-right:0.4rem;"></i>Nominate a Personality</h3>
+    <p style="font-size:0.85rem;color:#6b7280;margin-bottom:1.2rem;">Your nomination goes to the admin for review. Once approved it appears on the home page.</p>
+    <div style="display:flex;flex-direction:column;gap:0.8rem;">
+      <input type="text" id="potwName" placeholder="Person's full name *" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;">
+      <input type="text" id="potwRole" placeholder="Their role in GERAMA (e.g. Lead Tutor)" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;">
+      <textarea id="potwBio" rows="4" placeholder="Describe their impact and contribution *" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;"></textarea>
+      <input type="text" id="potwNomBy" placeholder="Your name (nominator)" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;">
+      <div id="potwStatus" style="display:none;padding:0.7rem 1rem;border-radius:10px;font-size:0.87rem;font-weight:500;"></div>
+      <div style="display:flex;gap:0.8rem;">
+        <button onclick="submitPotwNomination()" style="flex:1;background:var(--primary);color:white;border:none;padding:0.75rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;">Submit Nomination</button>
+        <button onclick="document.getElementById('potwModal').classList.remove('open')" style="background:#f1f5f9;color:var(--text);border:none;padding:0.75rem 1.2rem;border-radius:30px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA BANNER -->
+<section class="cta-banner">
+  <h2>Ready to Ace Your Exams?</h2>
+  <p>Join hundreds of UENR engineering students already using GERAMA to study smarter.</p>
+  <a href="resources.html" class="btn-cta"><i class="fas fa-rocket"></i> Start Exploring Now</a>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo-row">
+        <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA">
+        <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/uenr logo.png" alt="UENR">
+      </div>
+      <p class="footer-tagline">Ghana Engineering Resources &amp; Academic Materials Association — empowering engineering excellence at UENR through free, comprehensive academic resources.</p>
+      <div class="footer-socials">
+        <a href="https://wa.me/233555749497" target="_blank" rel="noopener" class="social-icon whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a href="#" class="social-icon facebook" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social-icon twitter" title="Twitter / X"><i class="fab fa-x-twitter"></i></a>
+        <a href="https://www.linkedin.com/in/alexander-opoku-dwumaah" target="_blank" rel="noopener" class="social-icon linkedin" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Quick Links</h4>
+      <ul class="footer-links">
+        <li><a href="index.html"><i class="fas fa-home fa-fw"></i> Home</a></li>
+        <li><a href="resources.html"><i class="fas fa-book-open fa-fw"></i> Resources</a></li>
+        <li><a href="about.html"><i class="fas fa-info-circle fa-fw"></i> About</a></li>
+        <li><a href="contact.html"><i class="fas fa-envelope fa-fw"></i> Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Resources</h4>
+      <ul class="footer-links">
+        <li><a href="resources.html"><i class="fas fa-layer-group fa-fw"></i> L100 Materials</a></li>
+        <li><a href="resources.html"><i class="fas fa-layer-group fa-fw"></i> L200 Materials</a></li>
+        <li><a href="resources.html"><i class="fas fa-file-alt fa-fw"></i> Past Questions</a></li>
+        <li><a href="resources.html"><i class="fas fa-video fa-fw"></i> Video Tutorials</a></li>
+        <li><a href="https://drive.google.com/drive/folders/1fBOWVczN8OEBU4dUKWACYF9gOPwQQ6dK" target="_blank" rel="noopener"><i class="fab fa-google-drive fa-fw"></i> Google Drive</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 class="footer-col-title">Contact Us</h4>
+      <ul class="footer-contact-list">
+        <li><span class="contact-icon"><i class="fas fa-envelope"></i></span><a href="mailto:gerama.uenr@gmail.com">gerama.uenr@gmail.com</a></li>
+        <li><span class="contact-icon"><i class="fab fa-whatsapp"></i></span><a href="https://wa.me/233555749497" target="_blank" rel="noopener">+233 55 574 9497</a></li>
+        <li><span class="contact-icon"><i class="fas fa-map-marker-alt"></i></span><span>UENR, Sunyani<br>Bono Region, Ghana</span></li>
+      </ul>
+      <a href="https://drive.google.com/drive/folders/1fBOWVczN8OEBU4dUKWACYF9gOPwQQ6dK" target="_blank" rel="noopener" class="footer-drive-btn">
+        <i class="fab fa-google-drive"></i> Open Google Drive
+      </a>
+    </div>
+  </div>
+  <div class="footer-divider"></div>
+  <div class="footer-bottom-bar">
+    <p class="footer-copy">© 2026 GERAMA Academic Resources · All rights reserved</p>
+    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+// ── HERO SLIDESHOW — single photo, no rotation needed ──
+// Ken Burns animation handles the visual interest
+
+// ── COUNTER ANIMATION ──
+(function(){
+  var nums = document.querySelectorAll('.stat-num[data-target]');
+  var started = false;
+  function animateCounters(){
+    if(started) return; started = true;
+    nums.forEach(function(el){
+      var target = parseInt(el.dataset.target);
+      var step = Math.ceil(target / 60);
+      var current = 0;
+      var timer = setInterval(function(){
+        current = Math.min(current + step, target);
+        el.textContent = current.toLocaleString() + (target >= 1000 ? '+' : '+');
+        if(current >= target) clearInterval(timer);
+      }, 25);
+    });
+  }
+  var observer = new IntersectionObserver(function(entries){
+    if(entries[0].isIntersecting) animateCounters();
+  });
+  var statsBar = document.querySelector('.stats-bar');
+  if(statsBar) observer.observe(statsBar);
+})();
+
+// ── ANNOUNCEMENTS ──
+(function(){
+  var container = document.getElementById('announcementsContainer');
+  var demo = [
+    { title:'📚 New L200 Materials Added', message:'Electrical Machines, Solid State Electronics slides and past questions now available.', date:'May 5, 2026' },
+    { title:'🎓 Mid-Semester Tutorials', message:'Join our weekly tutor sessions every Saturday at 10am. WhatsApp group link in contact page.', date:'April 28, 2026' },
+    { title:'🤝 Mentorship Program Launch', message:'Connect with senior students and alumni for academic and career guidance.', date:'April 20, 2026' }
+  ];
+  function render(anns){
+    if (!anns || !anns.length) { render(demo); return; }
+    var shown = anns.slice(0, 6);
+    var hasMore = anns.length > 6;
+    container.innerHTML = shown.map(function(a, idx){
+      var imgSrc = a.image || a.image_url || null;
+      var imgHtml = imgSrc
+        ? '<img class="ann-card-img" src="'+imgSrc+'" alt="" onerror="this.style.display=\'none\'">'
+        : '';
+      var dateStr = a.date || (a.created_at ? new Date(a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '');
+      var annId = String(a.id || a.created_at || dateStr);
+      var safeId = annId.replace(/[^a-z0-9]/gi, '-');
+      var msg = a.message || a.msg || '';
+      var shareUrl = window.location.origin + window.location.pathname + '?ann=' + encodeURIComponent(annId);
+      var waUrl = 'https://wa.me/?text='+encodeURIComponent(a.title+'\n'+msg.substring(0,80)+'\n'+window.location.origin);
+      var liked = JSON.parse(localStorage.getItem('gerama_ann_liked')||'{}');
+      var isLiked = liked[annId] ? ' liked' : '';
+      var uid = 'ann-'+idx+'-'+String(annId).replace(/[^a-z0-9]/gi,'');
+      return '<div class="ann-card">'+
+        imgHtml+
+        '<div class="ann-card-body">'+
+          '<div class="ann-date">📅 '+dateStr+'</div>'+
+          '<h3>'+a.title+'</h3>'+
+          '<p class="ann-card-msg clamped" id="msg-'+safeId+'">'+msg+'</p>'+
+          (msg.length > 120 ? '<button class="ann-read-more" onclick="toggleAnnMsg(\''+safeId+'\',this)">Read more</button>' : '')+
+          '<div class="ann-actions">'+
+            '<button class="ann-action-btn'+isLiked+'" onclick="likeAnn(\''+escAttr(annId)+'\',this)">'+
+              '<i class="fas fa-heart" style="color:#dc2626;"></i> <span id="ann-likes-'+safeId+'">0</span>'+
+            '</button>'+
+            '<a href="'+waUrl+'" target="_blank" rel="noopener" class="ann-action-btn" style="color:#25D366;text-decoration:none;">'+
+              '<i class="fab fa-whatsapp"></i> Share'+
+            '</a>'+
+            '<button class="ann-action-btn" onclick="copyAnnLink(\''+escAttr(shareUrl)+'\')">'+
+              '<i class="fas fa-link"></i> Copy Link'+
+            '</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+    // Show more button
+    if(hasMore){
+      container.innerHTML += '<div class="ann-show-more" style="grid-column:1/-1;"><button onclick="showAllAnn()">Show all '+anns.length+' announcements</button></div>';
+      window._allAnns = anns;
+    }
+    // Load like counts from Supabase
+    loadAnnLikeCounts(shown);
+  }
+
+  function showAllAnn() {
+    var all = window._allAnns;
+    window._allAnns = null; // prevent re-slicing
+    if(all) render(all);
+  }
+  // Try localStorage announcements first (set by admin), then demo
+  // Try Supabase DB first (cross-device), then localStorage, then demo
+  async function trySupabase() {
+    try {
+      var sb = window.geramaSupabase;
+      if(!sb) throw new Error('no sb');
+      var { data, error } = await sb.from('announcements')
+        .select('*').order('created_at',{ascending:false}).limit(50);
+      if(error||!data||!data.length) throw new Error('no data');
+      render(data.map(function(r){ return { id:r.id, title:r.title, message:r.message, date:r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '', image:r.image_url||null }; }));
+    } catch(e) {
+      var stored = localStorage.getItem('gerama_announcements');
+      if(stored){ try{ render(JSON.parse(stored)); return; }catch(ex){} }
+      render(demo);
+    }
+  }
+  trySupabase();
+})();
+
+// ── ANNOUNCEMENT LIKES & SHARE ────────────────────────────────────
+function toggleAnnMsg(uid, btn) {
+  var el = document.getElementById('msg-'+uid);
+  if(!el) return;
+  if(el.classList.contains('clamped')){
+    el.classList.remove('clamped');
+    btn.textContent = 'Show less';
+  } else {
+    el.classList.add('clamped');
+    btn.textContent = 'Read more';
+  }
+}
+
+function loadAnnLikeCounts(anns) {
+  var sb = window.geramaSupabase; if(!sb) return;
+  anns.forEach(function(a){
+    var annId = String(a.id || a.created_at || '');
+    if(!annId) return;
+    var safeId = annId.replace(/[^a-z0-9]/gi, '-');
+    sb.from('announcement_likes').select('*', {count:'exact', head:true}).eq('announcement_id', annId)
+    .then(function(res){
+      var el = document.getElementById('ann-likes-'+safeId);
+      if(el && res.count != null) el.textContent = res.count;
+    }).catch(function(){});
+  });
+}
+
+function likeAnn(annId, btn) {
+  var sb = window.geramaSupabase;
+  var spanEl = btn ? btn.querySelector('span') : null;
+  var liked = JSON.parse(localStorage.getItem('gerama_ann_liked')||'{}');
+  // Use uid for anonymous tracking (same as Q&A likes)
+  var uid = localStorage.getItem('gerama_uid');
+  if(!uid){ uid='u-'+Date.now()+'-'+Math.random().toString(36).substr(2,6); localStorage.setItem('gerama_uid',uid); }
+  var userKey = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email) || uid;
+
+  if(liked[annId]){
+    liked[annId] = false;
+    localStorage.setItem('gerama_ann_liked', JSON.stringify(liked));
+    if(spanEl) spanEl.textContent = Math.max(0, parseInt(spanEl.textContent||'0') - 1);
+    if(btn) btn.classList.remove('liked');
+    if(sb) sb.from('announcement_likes').delete()
+      .eq('announcement_id', String(annId))
+      .eq('user_email', userKey)
+      .then(function(){}).catch(function(){});
+    return;
+  }
+  liked[annId] = true;
+  localStorage.setItem('gerama_ann_liked', JSON.stringify(liked));
+  if(spanEl) spanEl.textContent = parseInt(spanEl.textContent||'0') + 1;
+  if(btn) btn.classList.add('liked');
+  if(sb){
+    // upsert prevents duplicate likes from same user
+    sb.from('announcement_likes').upsert({
+      announcement_id: String(annId),
+      user_email: userKey,
+      created_at: new Date().toISOString()
+    }, {onConflict:'announcement_id,user_email'}).then(function(){}).catch(function(){
+      // fallback to insert if no unique constraint
+      sb.from('announcement_likes').insert({
+        announcement_id: String(annId),
+        user_email: userKey,
+        created_at: new Date().toISOString()
+      }).then(function(){}).catch(function(){});
+    });
+  }
+}
+
+function copyAnnLink(url) {
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(function(){ alert('Link copied! Share it anywhere.'); });
+  } else {
+    var t = document.createElement('textarea');
+    t.value = url; document.body.appendChild(t); t.select();
+    document.execCommand('copy'); document.body.removeChild(t);
+    alert('Link copied!');
+  }
+}
+
+function escAttr(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+// ── PERSONALITY OF THE WEEK ───────────────────────────────────────
+function togglePotwBio(id, btn) {
+  var el = document.getElementById(id);
+  if(!el) return;
+  if(el.classList.contains('clamped')){
+    el.classList.remove('clamped');
+    btn.textContent = 'Show less';
+  } else {
+    el.classList.add('clamped');
+    btn.textContent = 'Read more';
+  }
+}
+
+function submitPotwNomination() {
+  var name   = document.getElementById('potwName').value.trim();
+  var role   = document.getElementById('potwRole').value.trim();
+  var bio    = document.getElementById('potwBio').value.trim();
+  var nomBy  = document.getElementById('potwNomBy').value.trim();
+  var status = document.getElementById('potwStatus');
+  if(!name || !bio){ status.style.display='block'; status.style.background='#fee2e2'; status.style.color='#991b1b'; status.textContent='Please fill in the name and description.'; return; }
+  var sb = window.geramaSupabase;
+  if(!sb){ status.style.display='block'; status.style.background='#fee2e2'; status.style.color='#991b1b'; status.textContent='Not connected. Please try again.'; return; }
+  status.style.display='block'; status.style.background='#dbeafe'; status.style.color='#1e40af'; status.textContent='Submitting...';
+  sb.from('potw_nominations').insert({
+    name: name, role: role||null, bio: bio,
+    nominated_by: nomBy||null, status: 'pending',
+    created_at: new Date().toISOString()
+  }).then(function(res){
+    if(res.error){ status.style.background='#fee2e2'; status.style.color='#991b1b'; status.textContent='Error: '+res.error.message; return; }
+    status.style.background='#d1fae5'; status.style.color='#065f46';
+    status.textContent='✅ Nomination submitted! The admin will review it.';
+    setTimeout(function(){
+      document.getElementById('potwModal').classList.remove('open');
+      ['potwName','potwRole','potwBio','potwNomBy'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+      status.style.display='none';
+    }, 2500);
+  }).catch(function(e){ status.style.background='#fee2e2'; status.style.color='#991b1b'; status.textContent='Error: '+e.message; });
+}
+
+// Load approved personalities from Supabase
+(function loadPotw(){
+  var sb = window.geramaSupabase;
+  if(!sb) return;
+  setTimeout(function(){
+    sb.from('potw_nominations').select('*').eq('status','approved').order('created_at',{ascending:false}).limit(5)
+    .then(function(res){
+      if(res.error || !res.data || !res.data.length) return;
+      var grid = document.getElementById('potwGrid');
+      if(!grid) return;
+      // Prepend approved personalities before the nominate card
+      var nomCard = grid.querySelector('.potw-nominate');
+      res.data.forEach(function(p, i){
+        var card = document.createElement('div');
+        card.className = 'potw-card';
+        var bioId = 'potw-dyn-bio-'+i;
+        card.innerHTML = '<span class="potw-week">🏆 Featured</span>'+
+          (p.photo_url ? '<img class="potw-photo" src="'+p.photo_url+'" alt="'+p.name+'" onerror="this.style.display=\'none\'">' :
+            '<div class="potw-photo-placeholder">'+p.name.charAt(0).toUpperCase()+'</div>')+
+          '<div class="potw-name">'+p.name+'</div>'+
+          (p.role ? '<div class="potw-role">'+p.role+'</div>' : '')+
+          '<p class="potw-bio clamped" id="'+bioId+'">'+p.bio+'</p>'+
+          (p.bio && p.bio.length > 120 ? '<button class="potw-read-more" onclick="togglePotwBio(\''+bioId+'\',this)">Read more</button>' : '');
+        if(nomCard) grid.insertBefore(card, nomCard);
+        else grid.appendChild(card);
+      });
+    }).catch(function(){});
+  }, 1200);
+})();
+
+// ── PWA: Register Service Worker ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js').then(function(reg) {
+      console.log('SW registered:', reg.scope);
+    }).catch(function(err) {
+      console.log('SW registration failed:', err);
+    });
+  });
+}
+
+// ── PWA: Install Prompt Banner ──
+(function() {
+  var deferredPrompt = null;
+  var banner = null;
+
+  // Create the install banner element
+  function createBanner() {
+    banner = document.createElement('div');
+    banner.id = 'pwa-install-banner';
+    banner.innerHTML =
+      '<div style="display:flex;align-items:center;gap:0.8rem;flex:1;">' +
+        '<img src="images/geramalogo.jpg" style="width:36px;height:36px;border-radius:8px;" alt="GERAMA">' +
+        '<div><strong style="display:block;font-size:0.9rem;">Install GERAMA App</strong>' +
+        '<span style="font-size:0.78rem;opacity:0.85;">Access resources offline, anytime</span></div>' +
+      '</div>' +
+      '<button id="pwa-install-btn" style="background:#FFC107;color:#1B5E20;border:none;padding:0.5rem 1.2rem;border-radius:30px;font-weight:700;cursor:pointer;font-size:0.85rem;white-space:nowrap;">Install</button>' +
+      '<button id="pwa-dismiss-btn" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1.2rem;padding:0.2rem 0.5rem;margin-left:0.3rem;">✕</button>';
+    banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;padding:1rem 1.2rem;display:flex;align-items:center;gap:0.8rem;z-index:9999;box-shadow:0 -4px 20px rgba(0,0,0,0.3);transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);';
+    document.body.appendChild(banner);
+
+    document.getElementById('pwa-install-btn').onclick = function() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function() {
+          deferredPrompt = null;
+          hideBanner();
+        });
+      }
+    };
+    document.getElementById('pwa-dismiss-btn').onclick = function() {
+      hideBanner();
+      // Don't show again for 7 days
+      localStorage.setItem('pwa_dismissed', Date.now());
+    };
+  }
+
+  function showBanner() {
+    if (!banner) createBanner();
+    setTimeout(function() { banner.style.transform = 'translateY(0)'; }, 100);
+  }
+  function hideBanner() {
+    if (banner) banner.style.transform = 'translateY(100%)';
+  }
+
+  // Check if dismissed recently
+  var dismissed = localStorage.getItem('pwa_dismissed');
+  var sevenDays = 7 * 24 * 60 * 60 * 1000;
+  var recentlyDismissed = dismissed && (Date.now() - parseInt(dismissed)) < sevenDays;
+
+  // Listen for the browser's install prompt event
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!recentlyDismissed) {
+      // Show after 3 seconds so it doesn't interrupt page load
+      setTimeout(showBanner, 3000);
+    }
+  });
+
+  // Hide banner if app is already installed
+  window.addEventListener('appinstalled', function() {
+    hideBanner();
+    deferredPrompt = null;
+  });
+})();
+</script>
+</body>
+</html>
