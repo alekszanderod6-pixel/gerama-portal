@@ -937,6 +937,9 @@ window.loadQzList = async function(){
       '</div>'+
       '<div class="sub-actions">'+
         '<button class="btn-gold" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="extendQuizDeadline(\''+q.id+'\')"><i class="fas fa-clock"></i> Extend</button>'+
+        (isPast||q.status==='closed'
+          ? '<button class="btn-success" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="toggleQuizStatus(\''+q.id+'\',\'active\')"><i class="fas fa-unlock"></i> Reopen</button>'
+          : '<button class="btn-primary" style="font-size:0.78rem;padding:0.35rem 0.8rem;background:#6366f1;" onclick="toggleQuizStatus(\''+q.id+'\',\'closed\')"><i class="fas fa-lock"></i> Close</button>')+
         '<button class="btn-danger" onclick="deleteQuiz(\''+q.id+'\')"><i class="fas fa-trash"></i></button>'+
       '</div>'+
     '</div>';
@@ -956,6 +959,16 @@ window.extendQuizDeadline = async function(id){
   var sb = window.geramaSupabase; if(!sb) return;
   var {error} = await sb.from('quizzes').update({deadline:new Date(newDl).toISOString()}).eq('id',id);
   if(!error){ alert('Deadline extended!'); window.loadQzList(); } else alert('Error: '+error.message);
+};
+
+window.toggleQuizStatus = async function(id, newStatus){
+  var sb = window.geramaSupabase; if(!sb) return;
+  var label = newStatus === 'closed' ? 'Close this quiz? Students will no longer be able to take it.' : 'Reopen this quiz?';
+  if(!confirm(label)) return;
+  var {error} = await sb.from('quizzes').update({status: newStatus}).eq('id', id);
+  if(error){ alert('Error: '+error.message); return; }
+  window.logActivity((newStatus==='closed'?'Closed':'Reopened')+' quiz: '+id);
+  window.loadQzList();
 };
 
 // Publish quiz — click handler

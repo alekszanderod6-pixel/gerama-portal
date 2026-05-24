@@ -21,26 +21,53 @@
         body { background: #f0f4f8; overflow-x: hidden; width: 100%; max-width: 100vw; }
         /* ===== PAGE HERO ===== */
         .resources-hero {
-            background: linear-gradient(135deg, #0a2f1f 0%, #1B5E20 60%, #2E7D32 100%);
-            color: white; padding: 3rem 2rem 2rem; text-align: center;
+            background: linear-gradient(135deg, #0a2f1f 0%, #1B5E20 50%, #2E7D32 100%);
+            color: white; padding: 4rem 2rem 3rem; text-align: center;
+            position: relative; overflow: hidden;
         }
-        .resources-hero h1 { font-size: 2.4rem; margin-bottom: 0.5rem; }
-        .resources-hero p { opacity: 0.85; font-size: 1.05rem; max-width: 600px; margin: 0 auto 1.5rem; }
+        .resources-hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        .resources-hero::after {
+            content: ''; position: absolute; bottom: -80px; right: -80px;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,193,7,0.07) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .resources-hero-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(255,193,7,0.15); border: 1px solid rgba(255,193,7,0.4);
+            color: #FFC107; padding: 0.4rem 1.2rem; border-radius: 50px;
+            font-size: 0.85rem; font-weight: 600; margin-bottom: 1.2rem;
+        }
+        .resources-hero h1 { font-size: clamp(1.8rem,4vw,3rem); margin-bottom: 0.6rem; font-weight: 800; text-shadow: 0 2px 20px rgba(0,0,0,0.2); }
+        .resources-hero p { opacity: 0.85; font-size: 1.05rem; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.7; }
+        /* ===== STATS STRIP ===== */
+        .hero-stats {
+            display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;
+            margin-top: 1.5rem; position: relative; z-index: 1;
+        }
+        .hero-stat { text-align: center; }
+        .hero-stat-num { font-size: 1.8rem; font-weight: 900; color: #FFC107; line-height: 1; }
+        .hero-stat-lbl { font-size: 0.75rem; opacity: 0.75; margin-top: 0.2rem; }
         /* ===== MAIN ACTION BUTTONS ===== */
         .main-actions {
-            display: flex; gap: 1.2rem; justify-content: center;
-            flex-wrap: wrap; margin: 2.5rem auto 0; max-width: 600px;
+            display: flex; gap: 1rem; justify-content: center;
+            flex-wrap: wrap; margin: 2rem auto 0; max-width: 700px;
+            position: relative; z-index: 1;
         }
         .action-btn {
-            flex: 1; min-width: 200px; padding: 1rem 1.5rem;
-            border-radius: 50px; font-size: 1rem; font-weight: 700;
-            cursor: pointer; transition: all 0.3s; border: 2.5px solid white;
-            background: transparent; color: white; display: flex;
-            align-items: center; justify-content: center; gap: 0.6rem;
+            flex: 1; min-width: 180px; padding: 0.9rem 1.5rem;
+            border-radius: 50px; font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; transition: all 0.3s; border: 2px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.08); color: white;
+            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+            backdrop-filter: blur(4px);
         }
         .action-btn.active, .action-btn:hover {
             background: #FFC107; color: #1B5E20; border-color: #FFC107;
-            transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.25);
         }
         /* ===== CONTAINER ===== */
         .res-container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
@@ -52,12 +79,14 @@
             padding: 0.9rem 2rem; border-radius: 50px; font-weight: 700;
             font-size: 1rem; cursor: pointer; border: 2px solid #1B5E20;
             background: white; color: #1B5E20; transition: all 0.3s;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.07); position: relative; overflow: hidden;
         }
-        .level-btn:hover { background: #e8f5e9; transform: translateY(-2px); }
+        .level-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg,#1B5E20,#2E7D32); opacity: 0; transition: opacity 0.3s; }
+        .level-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(27,94,32,0.2); }
+        .level-btn:hover::before { opacity: 0.08; }
         .level-btn.active {
-            background: #1B5E20; color: white;
-            box-shadow: 0 6px 20px rgba(27,94,32,0.35);
+            background: linear-gradient(135deg,#1B5E20,#2E7D32); color: white;
+            box-shadow: 0 8px 25px rgba(27,94,32,0.4); transform: translateY(-2px);
         }
         /* ===== GOOGLE DRIVE BANNER ===== */
         .gdrive-banner {
@@ -107,22 +136,22 @@
         .type-tab:hover:not(.active) { background: #e8f5e9; color: #1B5E20; }
         /* ===== COURSE CARDS ===== */
         .course-card {
-            background: white; border-radius: 18px; margin-bottom: 1.2rem;
-            overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.07);
-            border: 1px solid #e8f0e8; transition: box-shadow 0.3s;
+            background: white; border-radius: 20px; margin-bottom: 1.2rem;
+            overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid #e8f0e8; transition: all 0.3s;
         }
-        .course-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.12); }
+        .course-card:hover { box-shadow: 0 12px 35px rgba(27,94,32,0.12); transform: translateY(-2px); }
         .course-header {
             padding: 1.1rem 1.5rem; font-weight: 700; font-size: 1.05rem;
             border-left: 5px solid #FFC107; cursor: pointer;
             display: flex; justify-content: space-between; align-items: center;
-            background: #fafcfa; transition: background 0.2s;
+            background: linear-gradient(135deg,#fafcfa,#f0f7f0); transition: background 0.2s;
         }
-        .course-header:hover { background: #f0f7f0; }
+        .course-header:hover { background: linear-gradient(135deg,#f0f7f0,#e8f5e9); }
         .course-header .course-title { display: flex; align-items: center; gap: 0.7rem; color: #1B5E20; }
         .course-header .badge {
-            background: #e8f5e9; color: #1B5E20; font-size: 0.75rem;
-            padding: 0.2rem 0.7rem; border-radius: 20px; font-weight: 600;
+            background: linear-gradient(135deg,#e8f5e9,#d1fae5); color: #1B5E20;
+            font-size: 0.75rem; padding: 0.2rem 0.7rem; border-radius: 20px; font-weight: 600;
         }
         .course-header .chevron { transition: transform 0.3s; color: #888; }
         .course-header.open .chevron { transform: rotate(180deg); }
@@ -158,13 +187,13 @@
         }
         .material-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
         .btn-dl {
-            padding: 0.4rem 0.9rem; border-radius: 20px; font-size: 0.78rem;
-            font-weight: 600; border: none; cursor: pointer; transition: all 0.25s;
+            padding: 0.45rem 1rem; border-radius: 20px; font-size: 0.78rem;
+            font-weight: 700; border: none; cursor: pointer; transition: all 0.25s;
             display: flex; align-items: center; gap: 0.3rem; white-space: nowrap;
         }
-        .btn-dl.download { background: #1B5E20; color: white; }
-        .btn-dl.download:hover { background: #145214; transform: translateY(-1px); }
-        .btn-dl.view { background: #e8f5e9; color: #1B5E20; border: 1px solid #c8e6c9; }
+        .btn-dl.download { background: linear-gradient(135deg,#1B5E20,#2E7D32); color: white; box-shadow: 0 3px 10px rgba(27,94,32,0.25); }
+        .btn-dl.download:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(27,94,32,0.35); }
+        .btn-dl.view { background: #e8f5e9; color: #1B5E20; border: 1.5px solid #c8e6c9; }
         .btn-dl.view:hover { background: #c8e6c9; transform: translateY(-1px); }
 
         /* ===== RESPONSIVE ===== */
@@ -582,8 +611,14 @@
 
     <!-- PAGE HERO -->
     <div class="resources-hero">
-        <h1><i class="fas fa-book-open"></i> Resource Library</h1>
-        <p>Access lecture slides, textbooks, past questions, video tutorials and free software tools — all organised for engineering students.</p>
+        <div class="resources-hero-badge"><i class="fas fa-book-open"></i> GERAMA Resource Library</div>
+        <h1>Your Academic <span style="color:#FFC107;">Resource Hub</span></h1>
+        <p>Access lecture slides, textbooks, past questions, video tutorials and free software tools — all organised for engineering students at UENR.</p>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="hero-stat-num">500+</div><div class="hero-stat-lbl">Study Materials</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-lbl">Year Groups</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">Free</div><div class="hero-stat-lbl">Always Free</div></div>
+        </div>
         <div class="main-actions">
             <button id="exploreMainBtn" class="action-btn active">
                 <i class="fas fa-search"></i> Explore Resources
