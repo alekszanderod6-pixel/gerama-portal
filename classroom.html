@@ -132,18 +132,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .ann-banner-text strong{display:block;font-size:0.9rem;color:#92400e;margin-bottom:0.2rem;}
 .ann-banner-text span{font-size:0.85rem;color:#78350f;}
 
-/* ── QUIZ CARDS ── */
-.quiz-card{background:white;border-radius:18px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;overflow:hidden;}
-.quiz-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#6366f1,var(--gold));}
-.quiz-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.1);}
-.quiz-title{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:0.4rem;}
-.quiz-meta{font-size:0.82rem;color:var(--muted);line-height:1.8;margin-bottom:0.8rem;}
-.quiz-meta i{width:16px;color:#6366f1;}
-.quiz-desc{font-size:0.88rem;color:#374151;line-height:1.6;margin-bottom:1rem;padding:0.8rem;background:#f8fafc;border-radius:10px;border-left:3px solid #6366f1;}
-.btn-start-quiz{background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.65rem 1.5rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;transition:all 0.2s;font-family:'Inter',sans-serif;}
-.btn-start-quiz:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(99,102,241,0.4);}
-.btn-start-quiz:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
-.quiz-versions-badge{background:#ede9fe;color:#5b21b6;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;display:inline-block;margin-left:0.4rem;}
+/* ── QUIZ CARDS — see enhanced styles below ── */
 .reels-feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;}
 @media(max-width:640px){.reels-feed{grid-template-columns:1fr;}}
 .reel-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;}
@@ -357,7 +346,15 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <section class="classroom-hero">
   <div class="hero-badge"><i class="fas fa-chalkboard-teacher"></i> GERAMA Classroom</div>
   <h1>Assignments &amp; <span style="color:var(--gold)">Online Classes</span></h1>
-  <p>Submit assignments, join live classes, and stay on top of your coursework — all in one place.</p>
+  <p>Submit assignments, join live classes, take quizzes, and stay on top of your coursework — all in one place.</p>
+  <div style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
+    <button onclick="showTab('quizzes')" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.65rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;font-family:'Inter',sans-serif;box-shadow:0 4px 15px rgba(99,102,241,0.4);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      <i class="fas fa-brain"></i> Take a Quiz
+    </button>
+    <button onclick="showTab('assignments')" style="background:rgba(255,255,255,0.15);color:white;border:1.5px solid rgba(255,255,255,0.4);padding:0.65rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;font-family:'Inter',sans-serif;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+      <i class="fas fa-tasks"></i> View Assignments
+    </button>
+  </div>
 </section>
 
 <!-- TABS -->
@@ -652,9 +649,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
   <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">✕</button>
   <img id="lightboxImg" src="" alt="">
-</div><div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
-  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">✕</button>
-  <img id="lightboxImg" src="" alt="">
+</div>
 </div>
 
 <!-- FOOTER -->
@@ -1787,6 +1782,7 @@ function shareReel(rid) {
 var _currentQuiz = null;
 var _quizTimer   = null;
 var _quizTotalSecs = 0;
+var _quizDataStore = {}; // stores quiz objects by id — avoids onclick escaping bugs
 
 async function loadQuizzes() {
   var el = document.getElementById('quizzesList'); if(!el) return;
@@ -1801,13 +1797,18 @@ async function loadQuizzes() {
     return;
   }
 
+  // Store quiz data by id for safe onclick access
+  _quizDataStore = {};
+  data.forEach(function(q){ _quizDataStore[q.id] = q; });
+
   // Load this student's attempts
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
   var myEmail = profile.email || localStorage.getItem('gerama_uid') || '';
-  var attRes = await sb.from('quiz_attempts').select('quiz_id').eq('student_email', myEmail);
   var doneIds = {};
-  (attRes.data||[]).forEach(function(a){ doneIds[a.quiz_id] = true; });
-
+  if(myEmail){
+    var attRes = await sb.from('quiz_attempts').select('quiz_id').eq('student_email', myEmail);
+    (attRes.data||[]).forEach(function(a){ doneIds[a.quiz_id] = true; });
+  }
   // Also check localStorage fallback
   var localDone = JSON.parse(localStorage.getItem('gerama_quizzes_done')||'{}');
   Object.keys(localDone).forEach(function(id){ doneIds[id] = true; });
@@ -1822,15 +1823,13 @@ async function loadQuizzes() {
   // Show my quiz history
   var doneQuizzes = data.filter(function(q){ return doneIds[q.id]; });
   doneCount = doneQuizzes.length;
-  if(doneCount > 0){
-    var histEl = document.getElementById('myQuizHistory');
-    var listEl = document.getElementById('myQuizList');
-    if(histEl) histEl.style.display = 'block';
-    if(listEl){
-      listEl.innerHTML = doneQuizzes.map(function(q){
-        return '<span class="my-quiz-badge"><i class="fas fa-check-circle"></i> '+escHtml(q.title)+'</span>';
-      }).join('');
-    }
+  var histEl = document.getElementById('myQuizHistory');
+  var listEl = document.getElementById('myQuizList');
+  if(doneCount > 0 && histEl && listEl){
+    histEl.style.display = 'block';
+    listEl.innerHTML = doneQuizzes.map(function(q){
+      return '<span class="my-quiz-badge"><i class="fas fa-check-circle"></i> '+escHtml(q.title)+'</span>';
+    }).join('');
   }
 
   el.innerHTML = data.map(function(q){
@@ -1850,7 +1849,7 @@ async function loadQuizzes() {
     if(!isPast && !isDone) openCount++;
     if(isSoon && !isDone) soonCount++;
 
-    // Deadline live countdown (for open quizzes)
+    // Deadline live countdown
     var countdownHtml = '';
     if(deadline && !isPast && !isDone){
       var diff = deadline.getTime() - now;
@@ -1861,30 +1860,40 @@ async function loadQuizzes() {
       countdownHtml = '<div class="quiz-deadline-countdown"><i class="fas fa-hourglass-half"></i> '+countStr+'</div>';
     }
 
+    // Use data-qid attribute — no JSON in onclick
     var actionBtn = isDone
       ? '<span class="quiz-done-badge"><i class="fas fa-check-circle"></i> Completed</span>'
       : isPast
         ? '<button class="btn-take-quiz" disabled><i class="fas fa-lock"></i> Closed</button>'
-        : '<button class="btn-take-quiz" onclick="openQuiz(\''+q.id+'\',\''+escAttr(q.title)+'\',\''+escAttr(q.quiz_url||q.form_links||'')+'\','+(q.duration_mins||0)+',\''+escAttr(q.course||'')+'\',\''+escAttr(q.instructions||q.description||'')+'\')"><i class="fas fa-play"></i> Take Quiz</button>';
+        : '<button class="btn-take-quiz" data-qid="'+q.id+'"><i class="fas fa-play"></i> Take Quiz</button>';
 
     var durationTag = q.duration_mins ? '<span class="quiz-timer"><i class="fas fa-clock"></i> '+q.duration_mins+' min</span>' : '';
     var pointsTag   = q.points ? '<span class="quiz-points-badge"><i class="fas fa-star"></i> '+q.points+' pts</span>' : '';
     var cardClass   = isDone ? 'quiz-card quiz-done' : isPast ? 'quiz-card quiz-closed' : 'quiz-card';
 
-    return '<div class="'+cardClass+'">'+
+    return '<div class="'+cardClass+'" id="qcard-'+q.id+'">'+
       '<span class="quiz-status-badge '+statusClass+'">'+statusText+'</span>'+
       '<div class="quiz-title">'+escHtml(q.title)+'</div>'+
       '<div class="quiz-meta">'+
         (q.course ? '<div><i class="fas fa-book"></i> '+escHtml(q.course)+'</div>' : '')+
-        (q.posted_by||q.tutor ? '<div><i class="fas fa-user-tie"></i> '+escHtml(q.posted_by||q.tutor)+'</div>' : '')+
+        ((q.posted_by||q.tutor) ? '<div><i class="fas fa-user-tie"></i> '+escHtml(q.posted_by||q.tutor)+'</div>' : '')+
       '</div>'+
-      (q.instructions||q.description ? '<div class="quiz-desc">'+escHtml(q.instructions||q.description)+'</div>' : '')+
+      ((q.instructions||q.description) ? '<div class="quiz-desc">'+escHtml(q.instructions||q.description)+'</div>' : '')+
       (dlText ? '<div class="quiz-deadline '+dlClass+'"><i class="fas fa-calendar-times"></i> '+dlText+'</div>' : '')+
       countdownHtml+
       '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.8rem;">'+durationTag+pointsTag+'</div>'+
       '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">'+actionBtn+'</div>'+
     '</div>';
   }).join('');
+
+  // Event delegation for Take Quiz buttons — avoids onclick escaping issues
+  el.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-qid]');
+    if(!btn) return;
+    var qid = btn.getAttribute('data-qid');
+    var q = _quizDataStore[qid];
+    if(q) openQuizFromData(q);
+  });
 
   // Update stats
   document.getElementById('qzStatOpen').textContent = openCount;
@@ -1893,23 +1902,27 @@ async function loadQuizzes() {
 
   // Show quiz badge on tab if there are open quizzes
   var badge = document.getElementById('quizBadge');
-  if(badge && openCount > 0 && !document.getElementById('tab-quizzes').classList.contains('active')){
+  var tabEl = document.getElementById('tab-quizzes');
+  if(badge && openCount > 0 && tabEl && !tabEl.classList.contains('active')){
     badge.textContent = openCount;
     badge.style.display = 'inline-flex';
   }
 }
 
-function openQuiz(qid, title, urlOrLinks, durationMins, course, instructions) {
-  // urlOrLinks may be a JSON array (multi-link) or a plain URL string
-  var url = urlOrLinks;
+function openQuizFromData(q) {
+  // Resolve URL — form_links (JSON array) takes priority over quiz_url
+  var url = q.quiz_url || '';
   try {
-    var parsed = JSON.parse(urlOrLinks);
-    if(Array.isArray(parsed) && parsed.length){
-      // Pick a random link (anti-copy)
-      url = parsed[Math.floor(Math.random() * parsed.length)];
+    var links = JSON.parse(q.form_links || '[]');
+    if(Array.isArray(links) && links.length){
+      url = links[Math.floor(Math.random() * links.length)];
     }
-  } catch(e){ /* plain URL */ }
+  } catch(e){}
+  if(!url){ alert('No quiz link available.'); return; }
+  openQuiz(q.id, q.title, url, q.duration_mins||0, q.course||'', q.instructions||q.description||'');
+}
 
+function openQuiz(qid, title, url, durationMins, course, instructions) {
   _currentQuiz = {id:qid, title:title, url:url, duration:durationMins};
   document.getElementById('quizModalTitle').textContent = title;
   document.getElementById('quizModalCourse').textContent = course || '';
