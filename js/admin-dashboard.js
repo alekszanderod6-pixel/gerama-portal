@@ -757,16 +757,456 @@
     if(uploadSwBtn) uploadSwBtn.addEventListener('click', window.uploadSoftware);
 
     var uploadMatBtn = document.getElementById('uploadMatBtn');
-    if(uploadMatBtn) uploadMatBtn.addEventListener('click', window.uploadMaterial || function(){});
+    if(uploadMatBtn) uploadMatBtn.addEventListener('click', window.uploadMaterial);
 
     // Load main content
     window.loadData();
     setTimeout(window.loadVisitorStats, 800);
   });
 
-  // Note: Remaining admin panels (assignments/quizzes/class scheduling/etc.)
-  // were intentionally removed from inline scripts to stop the UI from rendering code.
-  // If needed later, we can re-extract those remaining functions safely into this file.
+  // ─── UPLOAD MATERIAL ───────────────────────────────────────
+  window.uploadMaterial = async function(){
+    var level  = document.getElementById('matLevel').value;
+    var sem    = document.getElementById('matSem').value;
+    var course = document.getElementById('matCourse').value.trim();
+    var type   = document.getElementById('matType').value;
+    var name   = document.getElementById('matName').value.trim();
+    var desc   = document.getElementById('matDesc').value.trim();
 
+    if(!course || !name){ window.showStatus('matStatus','Please fill in Course Name and Display Name.','err'); return; }
+    if(!selectedMatFile){ window.showStatus('matStatus','Please select a file to upload.','err'); return; }
+    if(selectedMatFile.size > 50*1024*1024){ window.showStatus('matStatus','File too large. Max 50 MB.','err'); return; }
+
+    var btn = document.getElementById('uploadMatBtn');
+    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Uploading...';
+    window.showStatus('matStatus','Uploading to Supabase...','info');
+
+    try{
+      var sb = window.geramaSupabase;
+      if(!sb) throw new Error('Supabase not connected. Check Settings.');
+
+      var ext = selectedMatFile.name.split('.').pop();
+      var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now()+'.'+ext;
+      var storagePath = level.toLowerCase()+'/semester-'+sem+'/'+course.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'/'+type+'/'+safeName;
+
+      var { error: upErr } = await sb.storage.from(window.BUCKET).upload(storagePath, selectedMatFile, { upsert:true, contentType: selectedMatFile.type });
+      if(upErr) throw new Error('Upload failed: '+upErr.message);
+
+      var fileUrl = sb.storage.from(window.BUCKET).getPublicUrl(storagePath).data.publicUrl;
+
+      var { error: dbErr } = await sb.from('materials').insert({
+        level: level, semester: parseInt(sem), course: course,
+        type: type, name: name, description: desc||null,
+        file_url: fileUrl, storage_path: storagePath,
+        uploaded_by: 'admin', status: 'approved',
+        created_at: new Date().toISOString()
+      });
+      if(dbErr) throw new Error('DB save failed: '+dbErr.message+(dbErr.code==='42501'?' (check RLS policy)':''));
+
+      window.logActivity('Uploaded: '+name+' ('+level+' Sem '+sem+')');
+      window.showStatus('matStatus','✅ "'+name+'" is now live on the Resources page!','ok');
+
+      document.getElementById('matCourse').value='';
+      document.getElementById('matName').value='';
+      document.getElementById('matDesc').value='';
+      document.getElementById('matFileChosen').textContent='';
+      selectedMatFile = null;
+
+      // Refresh history
+      window.loadData();
+    }catch(err){
+      window.showStatus('matStatus','❌ '+err.message,'err');
+    }
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-upload"></i> Upload &amp; Go Live';
+  };
+
+  // ─── REELS MANAGEMENT ───────────────────────────────────────
+  window.loadAdminReels = async function(){
+    var el = document.getElementById('adminReelsList');
+    if(!el) return;
+    var sb = window.geramaSupabase;
+    if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+    var res = await sb.from('reels').select('*').order('created_at',{ascending:false});
+    var data = res.data;
+    if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-film" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No reels posted yet.</p>'; return; }
+    var html = '';
+    for(var i=0;i<data.length;i++){
+      var r = data[i];
+      var dt = new Date(r.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      var statusBadge = r.status==='blocked'
+        ? '<span style="background:#fee2e2;color:#dc2626;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Blocked</span>'
+        : '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Active</span>';
+      html += '<div class="sub-card">';
+      html += '<div class="sub-info"><strong>'+window.escHtml(r.author_name||'Unknown')+'</strong>';
+      html += '<div class="sub-meta">'+(r.caption?window.escHtml(r.caption.substring(0,80)):'No caption')+'<br>';
+      html += '<b>Course:</b> '+window.escHtml(r.course||'General')+' | <b>Posted:</b> '+dt+'</div></div>';
+      html += '<div class="sub-actions">'+statusBadge;
+      if(r.status!=='blocked'){
+        html += '<button class="btn-danger" data-rid="'+r.id+'" data-ract="block"><i class="fas fa-ban"></i> Block</button>';
+      } else {
+        html += '<button class="btn-success" data-rid="'+r.id+'" data-ract="unblock"><i class="fas fa-check"></i> Unblock</button>';
+      }
+      html += '<button class="btn-danger" data-rid="'+r.id+'" data-rpath="'+window.escAttr(r.storage_path||'')+'" data-ract="delete"><i class="fas fa-trash"></i></button>';
+      html += '</div></div>';
+    }
+    el.innerHTML = html;
+    el.onclick = function(e){
+      var btn = e.target.closest('[data-ract]');
+      if(!btn) return;
+      var act = btn.getAttribute('data-ract');
+      var rid = btn.getAttribute('data-rid');
+      if(act==='block')   adminReelAction(rid,'blocked');
+      if(act==='unblock') adminReelAction(rid,'active');
+      if(act==='delete')  adminDeleteReel(rid, btn.getAttribute('data-rpath'));
+    };
+  };
+
+  async function adminReelAction(rid, status){
+    var sb = window.geramaSupabase; if(!sb) return;
+    await sb.from('reels').update({status:status}).eq('id',rid);
+    window.logActivity((status==='blocked'?'Blocked':'Unblocked')+' reel: '+rid);
+    window.loadAdminReels();
+  }
+
+  async function adminDeleteReel(rid, storagePath){
+    if(!confirm('Permanently delete this reel?')) return;
+    var sb = window.geramaSupabase; if(!sb) return;
+    if(storagePath) await sb.storage.from(window.BUCKET).remove([storagePath]);
+    await sb.from('reels').delete().eq('id',rid);
+    window.logActivity('Deleted reel: '+rid);
+    window.loadAdminReels();
+  }
+
+  // ─── QUIZ MANAGEMENT ───────────────────────────────────────
+window.loadQzList = async function(){
+  var container = document.getElementById('quizzesAdminList');
+  if(!container) return;
+  var sb = window.geramaSupabase;
+  if(!sb){ container.innerHTML='<p>Supabase not ready</p>'; return; }
+  var {data} = await sb.from('quizzes').select('*').order('created_at',{ascending:false});
+  if(!data || !data.length){ container.innerHTML='<p>No quizzes yet.</p>'; return; }
+  container.innerHTML = data.map(q => `
+    <div style="background:#fafcfa;border-radius:12px;padding:1rem;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+      <div><strong>${window.escHtml(q.title)}</strong><br><small>${window.escHtml(q.course||'')} · Due: ${q.deadline ? new Date(q.deadline).toLocaleString() : 'No deadline'}</small></div>
+      <button class="btn-danger" onclick="deleteQuiz('${q.id}')"><i class="fas fa-trash"></i> Delete</button>
+    </div>
+  `).join('');
+};
+
+window.deleteQuiz = async function(id){
+  if(!confirm('Delete this quiz?')) return;
+  var sb = window.geramaSupabase;
+  if(sb) await sb.from('quizzes').delete().eq('id', id);
+  window.loadQzList();
+  window.showStatus('quizStatus','Quiz deleted.','ok');
+};
+
+// Publish quiz
+document.addEventListener('click', function(e){
+  if(e.target.id === 'publishQuizBtn') publishQuiz();
+});
+
+async function publishQuiz(){
+  var title = document.getElementById('qzTitle').value.trim();
+  var course = document.getElementById('qzCourse').value.trim();
+  var duration = parseInt(document.getElementById('qzDuration').value) || 0;
+  var points = document.getElementById('qzPoints').value.trim();
+  var url = document.getElementById('qzUrl').value.trim();
+  var deadline = document.getElementById('qzDeadline').value;
+  var desc = document.getElementById('qzDesc').value.trim();
+
+  if(!title || !url){ window.showStatus('quizStatus','Title and Quiz Link are required','err'); return; }
+
+  var btn = document.getElementById('publishQuizBtn');
+  btn.disabled=true; btn.innerHTML='<span class="loader"></span> Publishing...';
+  try{
+    var sb = window.geramaSupabase;
+    if(!sb) throw new Error('Supabase not connected');
+    var {error} = await sb.from('quizzes').insert({
+      title, course, duration_mins: duration, points, quiz_url: url,
+      deadline: deadline || null, instructions: desc,
+      status: 'active', created_at: new Date().toISOString()
+    });
+    if(error) throw error;
+    window.showStatus('quizStatus','✅ Quiz published! It now appears on the Classroom page.','ok');
+    document.getElementById('qzTitle').value='';
+    document.getElementById('qzCourse').value='';
+    document.getElementById('qzDuration').value='';
+    document.getElementById('qzPoints').value='';
+    document.getElementById('qzUrl').value='';
+    document.getElementById('qzDeadline').value='';
+    document.getElementById('qzDesc').value='';
+    window.loadQzList();
+  }catch(err){
+    window.showStatus('quizStatus','❌ '+err.message,'err');
+  }finally{
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Publish Quiz';
+  }
+}
 })();
 
+
+// ─── ASSIGNMENTS ───────────────────────────────────────────
+window.loadAsgList = async function(){
+  var el = document.getElementById('asgList'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+  var {data,error} = await sb.from('assignments').select('*').order('created_at',{ascending:false});
+  if(error||!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No assignments posted yet.</p>'; return; }
+  var now = Date.now();
+  el.innerHTML = data.map(function(a){
+    var dl = a.deadline ? new Date(a.deadline).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    var isPast = a.deadline && new Date(a.deadline).getTime() < now;
+    var badge = isPast ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;margin-left:0.4rem;">Closed</span>'
+                       : '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;margin-left:0.4rem;">Active</span>';
+    return '<div class="sub-card">'+
+      '<div class="sub-info"><strong>'+window.escHtml(a.title)+badge+'</strong>'+
+      '<div class="sub-meta"><b>Course:</b> '+window.escHtml(a.course||'—')+' | <b>Deadline:</b> '+dl+(a.points?' | <b>Marks:</b> '+a.points:'')+'</div></div>'+
+      '<div class="sub-actions">'+
+        '<button class="btn-gold" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="extendAsgDeadline(\''+a.id+'\')"><i class="fas fa-clock"></i> Extend</button>'+
+        '<button class="btn-danger" onclick="deleteAssignment(\''+a.id+'\')"><i class="fas fa-trash"></i></button>'+
+      '</div></div>';
+  }).join('');
+};
+
+window.loadSubmissionsTable = async function(){
+  var el = document.getElementById('submissionsTable'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+  var {data,error} = await sb.from('assignment_submissions').select('*').order('submitted_at',{ascending:false});
+  if(error||!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No submissions yet.</p>'; return; }
+  el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Assignment</th><th>Submitted</th><th>File</th></tr></thead><tbody>'+
+    data.map(function(s){
+      var dt = s.submitted_at ? new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+      return '<tr>'+
+        '<td><strong>'+window.escHtml(s.student_name||'—')+'</strong><br><small style="color:#6b7280;">'+window.escHtml(s.student_email||'')+'</small></td>'+
+        '<td style="font-size:0.85rem;">'+window.escHtml(s.assignment_title||'—')+'</td>'+
+        '<td style="font-size:0.82rem;white-space:nowrap;">'+dt+'</td>'+
+        '<td>'+(s.file_url?'<a href="'+window.escAttr(s.file_url)+'" target="_blank" style="color:#1B5E20;font-size:0.82rem;"><i class="fas fa-download"></i> Download</a>':'—')+'</td>'+
+      '</tr>';
+    }).join('')+'</tbody></table></div>';
+};
+
+window.postAssignment = async function(){
+  var title   = document.getElementById('asgTitle').value.trim();
+  var course  = document.getElementById('asgCourse').value.trim();
+  var tutor   = document.getElementById('asgTutor').value.trim();
+  var points  = document.getElementById('asgPoints').value.trim();
+  var desc    = document.getElementById('asgDesc').value.trim();
+  var deadline= document.getElementById('asgDeadline').value;
+  var extLink = document.getElementById('asgLink').value.trim();
+  if(!title||!course||!desc||!deadline){ window.showStatus('asgStatus','Please fill in Title, Course, Description and Deadline.','err'); return; }
+  var btn = document.getElementById('postAsgBtn');
+  btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Posting...';
+  try{
+    var sb = window.geramaSupabase; if(!sb) throw new Error('Not connected.');
+    var {error} = await sb.from('assignments').insert({
+      title:title, course:course, tutor:tutor||null, points:points?parseInt(points):null,
+      description:desc, deadline:new Date(deadline).toISOString(),
+      external_link:extLink||null, status:'active', created_at:new Date().toISOString()
+    });
+    if(error) throw new Error(error.message);
+    window.logActivity('Posted assignment: '+title);
+    window.showStatus('asgStatus','✅ Assignment posted! Students can see it on the Classroom page.','ok');
+    ['asgTitle','asgCourse','asgTutor','asgPoints','asgDesc','asgDeadline','asgLink'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    window.loadAsgList();
+  }catch(e){ window.showStatus('asgStatus','❌ '+e.message,'err'); }
+  btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Post Assignment';
+};
+
+window.extendAsgDeadline = async function(id){
+  var newDl = prompt('Enter new deadline (YYYY-MM-DDTHH:MM):'); if(!newDl) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {error} = await sb.from('assignments').update({deadline:new Date(newDl).toISOString()}).eq('id',id);
+  if(!error){ alert('Deadline extended!'); window.loadAsgList(); } else alert('Error: '+error.message);
+};
+
+window.deleteAssignment = async function(id){
+  if(!confirm('Delete this assignment?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('assignments').delete().eq('id',id);
+  window.loadAsgList();
+};
+
+// ─── SCHEDULE CLASS ───────────────────────────────────────
+window.scheduleClass = async function(){
+  var course = document.getElementById('clsCourse').value.trim();
+  var topic  = document.getElementById('clsTopic').value.trim();
+  var tutor  = document.getElementById('clsTutor').value.trim();
+  var dt     = document.getElementById('clsDateTime').value;
+  var desc   = document.getElementById('clsDesc').value.trim();
+  if(!course||!topic||!dt){ window.showStatus('clsStatus','Please fill in Course, Topic and Date/Time.','err'); return; }
+  var btn = document.getElementById('scheduleClsBtn');
+  btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Scheduling...';
+  try{
+    var sb = window.geramaSupabase; if(!sb) throw new Error('Not connected.');
+    var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
+    var meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
+    var {error} = await sb.from('classes').insert({
+      course:course, topic:topic, tutor:tutor||null, description:desc||null,
+      scheduled_at:new Date(dt).toISOString(), meet_link:meetLink,
+      status:'upcoming', created_at:new Date().toISOString()
+    });
+    if(error) throw new Error(error.message);
+    document.getElementById('clsLinkInput').value = meetLink;
+    document.getElementById('clsLinkOpen').href = meetLink;
+    document.getElementById('clsLinkBox').style.display = 'block';
+    window.logActivity('Scheduled class: '+course+' – '+topic);
+    window.showStatus('clsStatus','✅ Class scheduled! Share the link with students.','ok');
+    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    window.loadClsList();
+  }catch(e){ window.showStatus('clsStatus','❌ '+e.message,'err'); }
+  btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Generate Link';
+};
+
+window.copyClsLink = function(){
+  var val = document.getElementById('clsLinkInput').value;
+  if(navigator.clipboard) navigator.clipboard.writeText(val);
+  else { var t=document.createElement('textarea'); t.value=val; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
+  alert('Link copied!');
+};
+
+window.loadClsList = async function(){
+  var el = document.getElementById('clsList'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+  var {data} = await sb.from('classes').select('*').order('scheduled_at',{ascending:false});
+  if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No classes scheduled yet.</p>'; return; }
+  var now = Date.now();
+  el.innerHTML = data.map(function(c){
+    var dt = new Date(c.scheduled_at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    var isPast = new Date(c.scheduled_at).getTime() < now;
+    var badge = c.status==='live' ? '<span style="background:#fee2e2;color:#dc2626;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">🔴 LIVE</span>'
+              : isPast ? '<span style="background:#f3f4f6;color:#6b7280;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Ended</span>'
+              : '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Upcoming</span>';
+    return '<div class="sub-card">'+
+      '<div class="sub-info"><strong>'+window.escHtml(c.course)+' — '+window.escHtml(c.topic)+' '+badge+'</strong>'+
+      '<div class="sub-meta"><b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+'<br>'+
+      '<a href="'+window.escAttr(c.meet_link||'#')+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;"><i class="fas fa-link"></i> '+window.escHtml((c.meet_link||'').substring(0,50))+'</a></div></div>'+
+      '<div class="sub-actions">'+
+        (c.status!=='live'&&!isPast?'<button class="btn-gold" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="setClassStatus(\''+c.id+'\',\'live\')"><i class="fas fa-broadcast-tower"></i> Go Live</button>':'')+''+
+        (c.status==='live'?'<button class="btn-primary" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="setClassStatus(\''+c.id+'\',\'ended\')"><i class="fas fa-stop"></i> End</button>':'')+
+        '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')"><i class="fas fa-trash"></i></button>'+
+      '</div></div>';
+  }).join('');
+};
+
+window.setClassStatus = async function(id, status){
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('classes').update({status:status}).eq('id',id);
+  window.loadClsList();
+};
+
+window.deleteClass = async function(id){
+  if(!confirm('Delete this class?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('classes').delete().eq('id',id);
+  window.loadClsList();
+};
+
+// ─── CLASS REQUESTS ───────────────────────────────────────
+window.loadClassRequests = async function(){
+  var el = document.getElementById('classRequestsList'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+  var {data} = await sb.from('class_requests').select('*').order('created_at',{ascending:false});
+  if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No class requests yet.</p>'; return; }
+  el.innerHTML = data.map(function(r){
+    var dt = new Date(r.scheduled_at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    var badge = r.status==='approved' ? '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Approved</span>'
+              : r.status==='rejected' ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Rejected</span>'
+              : '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Pending</span>';
+    return '<div class="sub-card">'+
+      '<div class="sub-info"><strong>'+window.escHtml(r.course)+' — '+window.escHtml(r.topic)+' '+badge+'</strong>'+
+      '<div class="sub-meta"><b>By:</b> '+window.escHtml(r.requester_name||'—')+' ('+window.escHtml(r.requester_email||'—')+')<br><b>Proposed:</b> '+dt+'</div></div>'+
+      '<div class="sub-actions">'+
+        (r.status==='pending'?'<button class="btn-success" onclick="approveClassRequest(\''+r.id+'\',\''+window.escAttr(r.course)+'\',\''+window.escAttr(r.topic)+'\',\''+window.escAttr(r.scheduled_at)+'\',\''+window.escAttr(r.requester_email||'')+'\')"><i class="fas fa-check"></i> Approve</button>':'')+
+        (r.status==='pending'?'<button class="btn-danger" onclick="rejectClassRequest(\''+r.id+'\')"><i class="fas fa-times"></i> Reject</button>':'')+
+      '</div></div>';
+  }).join('');
+};
+
+window.approveClassRequest = async function(id, course, topic, scheduledAt, email){
+  var sb = window.geramaSupabase; if(!sb) return;
+  var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
+  var meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
+  await sb.from('classes').insert({ course:course, topic:topic, scheduled_at:scheduledAt, meet_link:meetLink, status:'upcoming', requester_email:email, created_at:new Date().toISOString() });
+  await sb.from('class_requests').update({status:'approved'}).eq('id',id);
+  window.logActivity('Approved class request: '+course+' – '+topic);
+  alert('✅ Approved! Class is now live. Link: '+meetLink);
+  window.loadClassRequests();
+};
+
+window.rejectClassRequest = async function(id){
+  if(!confirm('Reject this request?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('class_requests').update({status:'rejected'}).eq('id',id);
+  window.loadClassRequests();
+};
+
+// ─── PERSONALITY OF THE WEEK ───────────────────────────────
+window.loadPotwList = async function(){
+  var el = document.getElementById('potwList'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+  var {data} = await sb.from('potw_nominations').select('*').order('created_at',{ascending:false});
+  if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No nominations yet.</p>'; return; }
+  el.innerHTML = data.map(function(p){
+    var badge = p.status==='approved' ? '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Featured</span>'
+              : p.status==='rejected' ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Rejected</span>'
+              : '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Pending</span>';
+    return '<div class="sub-card">'+
+      '<div class="sub-info"><strong>'+window.escHtml(p.name||'—')+' '+badge+'</strong>'+
+      '<div class="sub-meta">'+(p.role?'<b>Role:</b> '+window.escHtml(p.role)+'<br>':'')+window.escHtml((p.bio||'').substring(0,100))+'</div></div>'+
+      '<div class="sub-actions">'+
+        (p.status!=='approved'?'<button class="btn-success" onclick="approvePotwNom(\''+p.id+'\')"><i class="fas fa-check"></i> Feature</button>':'')+
+        '<button class="btn-danger" onclick="rejectPotwNom(\''+p.id+'\')"><i class="fas fa-trash"></i></button>'+
+      '</div></div>';
+  }).join('');
+};
+
+window.addPotwDirect = async function(){
+  var name  = document.getElementById('potwAdminName').value.trim();
+  var role  = document.getElementById('potwAdminRole').value.trim();
+  var bio   = document.getElementById('potwAdminBio').value.trim();
+  var photo = document.getElementById('potwAdminPhoto').value.trim();
+  if(!name||!bio){ window.showStatus('potwAdminStatus','Please fill in Name and Bio.','err'); return; }
+  var sb = window.geramaSupabase; if(!sb){ window.showStatus('potwAdminStatus','Not connected.','err'); return; }
+  var {error} = await sb.from('potw_nominations').insert({ name:name, role:role||null, bio:bio, photo_url:photo||null, nominated_by:'admin', status:'approved', created_at:new Date().toISOString() });
+  if(error){ window.showStatus('potwAdminStatus','❌ '+error.message,'err'); return; }
+  window.logActivity('Added Personality of the Week: '+name);
+  window.showStatus('potwAdminStatus','✅ '+name+' is now featured on the home page!','ok');
+  ['potwAdminName','potwAdminRole','potwAdminBio','potwAdminPhoto'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  window.loadPotwList();
+};
+
+window.approvePotwNom = async function(id){
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('potw_nominations').update({status:'approved'}).eq('id',id);
+  window.loadPotwList();
+};
+
+window.rejectPotwNom = async function(id){
+  if(!confirm('Remove this nomination?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('potw_nominations').delete().eq('id',id);
+  window.loadPotwList();
+};
+
+// ─── SETTINGS / CONNECTION TEST ───────────────────────────
+window.testConnection = async function(){
+  var sb = window.geramaSupabase;
+  if(!sb){ window.showStatus('settingsStatus','❌ Supabase client not loaded.','err'); return; }
+  try{
+    var {data,error} = await sb.storage.listBuckets();
+    if(error) throw new Error(error.message);
+    var names = (data||[]).map(function(b){ return b.name; });
+    var hasBucket = names.indexOf('gerama-materials') !== -1;
+    window.showStatus('settingsStatus',
+      '✅ Connected! Buckets: '+names.join(', ')+(hasBucket?' ✓ gerama-materials found':' ⚠️ gerama-materials NOT found'),
+      hasBucket?'ok':'err');
+  }catch(e){ window.showStatus('settingsStatus','❌ '+e.message,'err'); }
+};
+
+// Wire up buttons added in HTML panels
+document.addEventListener('DOMContentLoaded', function(){
+  var schedBtn = document.getElementById('scheduleClsBtn');
+  if(schedBtn) schedBtn.addEventListener('click', window.scheduleClass);
+  var postAsgBtn = document.getElementById('postAsgBtn');
+  if(postAsgBtn) postAsgBtn.addEventListener('click', window.postAssignment);
+});
