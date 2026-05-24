@@ -326,41 +326,6 @@ tr:hover td{background:#fafcfa;}
       <div id="asgList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title"><i class="fas fa-plus-circle"></i> Post a New Quiz</div>
-    <div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#5b21b6;line-height:1.6;">
-      <strong><i class="fas fa-random"></i> Anti-copy shuffle:</strong> Add up to 3 different quiz links (Google Forms, Testmoz, Kahoot, etc.). Each student gets a <strong>random</strong> one when they tap "Take Quiz" — preventing copying.
-    </div>
-    <div class="form-grid">
-      <div class="form-field full"><label>Quiz Title *</label><input type="text" id="qzTitle" placeholder="e.g. Applied Electricity Mid-Semester Quiz"></div>
-      <div class="form-field"><label>Course *</label><input type="text" id="qzCourse" placeholder="e.g. Applied Electricity"></div>
-      <div class="form-field"><label>Duration (minutes, 0 = no timer)</label><input type="number" id="qzDuration" placeholder="e.g. 30" min="0" value="0"></div>
-      <div class="form-field"><label>Points / Marks</label><input type="text" id="qzPoints" placeholder="e.g. 20"></div>
-      <div class="form-field"><label>Tutor / Posted By</label><input type="text" id="qzTutor" placeholder="e.g. Edem H.K Prince"></div>
-      <div class="form-field"><label>Deadline *</label><input type="datetime-local" id="qzDeadline"></div>
-      <div class="form-field full">
-        <label>Quiz Link 1 * <span style="color:#6b7280;font-weight:400;">(Google Forms, Testmoz, Kahoot, any URL)</span></label>
-        <input type="url" id="qzUrl1" placeholder="https://testmoz.com/q/... or https://forms.gle/...">
-      </div>
-      <div class="form-field full">
-        <label>Quiz Link 2 <span style="color:#6b7280;font-weight:400;">(optional — different version for shuffle)</span></label>
-        <input type="url" id="qzUrl2" placeholder="https://forms.gle/... (optional)">
-      </div>
-      <div class="form-field full">
-        <label>Quiz Link 3 <span style="color:#6b7280;font-weight:400;">(optional)</span></label>
-        <input type="url" id="qzUrl3" placeholder="https://kahoot.it/... (optional)">
-      </div>
-      <div class="form-field full"><label>Description / Instructions</label><textarea id="qzDesc" rows="2" placeholder="e.g. Answer all questions. No calculators. 30 minutes."></textarea></div>
-    </div>
-    <button class="btn-primary" id="publishQuizBtn" style="margin-top:1rem;"><i class="fas fa-paper-plane"></i> Publish Quiz Live</button>
-    <div class="status-msg" id="quizStatus"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><i class="fas fa-list"></i> Posted Quizzes</div>
-    <div id="quizzesAdminList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
-  </div>
-</div>
   <div class="panel" id="panel-quizrequests">
     <div class="card">
       <div class="card-title"><i class="fas fa-question-circle" style="color:#6366f1;"></i> Quiz Submission Requests</div>
@@ -457,7 +422,16 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field"><label>Name *</label><input type="text" id="potwAdminName" placeholder="Full name"></div>
         <div class="form-field"><label>Role / Title</label><input type="text" id="potwAdminRole" placeholder="e.g. Class Rep, L200"></div>
         <div class="form-field full"><label>Bio *</label><textarea id="potwAdminBio" rows="3" placeholder="Why are they personality of the week?"></textarea></div>
-        <div class="form-field full"><label>Photo URL (optional)</label><input type="url" id="potwAdminPhoto" placeholder="https://..."></div>
+        <div class="form-field full">
+          <label>Photo (upload image file)</label>
+          <div class="drop-zone" id="potwPhotoZone" style="padding:1.2rem;">
+            <i class="fas fa-camera"></i>
+            <p>Click to upload a photo</p>
+            <p class="file-chosen" id="potwPhotoChosen"></p>
+            <input type="file" id="potwPhotoFile" accept="image/*" style="display:none;">
+          </div>
+          <img id="potwPhotoPreview" style="display:none;width:80px;height:80px;border-radius:50%;object-fit:cover;margin-top:0.5rem;border:3px solid #FFC107;" alt="">
+        </div>
       </div>
       <div style="margin-top:1rem;"><button class="btn-primary" onclick="addPotwDirect()"><i class="fas fa-star"></i> Feature on Home Page</button></div>
       <div class="status-msg" id="potwAdminStatus"></div>
@@ -469,8 +443,40 @@ tr:hover td{background:#fafcfa;}
   </div>
 
   <div class="panel" id="panel-quizzes">
-
-<nav class="mobile-bottom-nav" id="mobileBottomNav">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-plus-circle"></i> Post a New Quiz</div>
+      <div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#5b21b6;line-height:1.6;">
+        <strong><i class="fas fa-random"></i> Anti-copy shuffle:</strong> Add up to 3 different quiz links (Google Forms, Testmoz, Kahoot, etc.). Each student gets a <strong>random</strong> one when they tap "Take Quiz" — preventing copying.
+      </div>
+      <div class="form-grid">
+        <div class="form-field full"><label>Quiz Title *</label><input type="text" id="qzTitle" placeholder="e.g. Applied Electricity Mid-Semester Quiz"></div>
+        <div class="form-field"><label>Course *</label><input type="text" id="qzCourse" placeholder="e.g. Applied Electricity"></div>
+        <div class="form-field"><label>Duration (minutes, 0 = no timer)</label><input type="number" id="qzDuration" placeholder="e.g. 30" min="0" value="0"></div>
+        <div class="form-field"><label>Points / Marks</label><input type="text" id="qzPoints" placeholder="e.g. 20"></div>
+        <div class="form-field"><label>Tutor / Posted By</label><input type="text" id="qzTutor" placeholder="e.g. Edem H.K Prince"></div>
+        <div class="form-field"><label>Deadline *</label><input type="datetime-local" id="qzDeadline"></div>
+        <div class="form-field full">
+          <label>Quiz Link 1 * <span style="color:#6b7280;font-weight:400;">(Google Forms, Testmoz, Kahoot, any URL)</span></label>
+          <input type="url" id="qzUrl1" placeholder="https://testmoz.com/q/... or https://forms.gle/...">
+        </div>
+        <div class="form-field full">
+          <label>Quiz Link 2 <span style="color:#6b7280;font-weight:400;">(optional — different version for shuffle)</span></label>
+          <input type="url" id="qzUrl2" placeholder="https://forms.gle/... (optional)">
+        </div>
+        <div class="form-field full">
+          <label>Quiz Link 3 <span style="color:#6b7280;font-weight:400;">(optional)</span></label>
+          <input type="url" id="qzUrl3" placeholder="https://kahoot.it/... (optional)">
+        </div>
+        <div class="form-field full"><label>Description / Instructions</label><textarea id="qzDesc" rows="2" placeholder="e.g. Answer all questions. No calculators. 30 minutes."></textarea></div>
+      </div>
+      <button class="btn-primary" id="publishQuizBtn" style="margin-top:1rem;"><i class="fas fa-paper-plane"></i> Publish Quiz Live</button>
+      <div class="status-msg" id="quizStatus"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-list"></i> Posted Quizzes</div>
+      <div id="quizzesAdminList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
   <button class="bnav-item active" data-panel="overview" onclick="switchPanel('overview')"><i class="fas fa-tachometer-alt"></i><span>Overview</span></button>
   <button class="bnav-item" data-panel="upload" onclick="switchPanel('upload')"><i class="fas fa-upload"></i><span>Upload</span></button>
   <button class="bnav-item" data-panel="history" onclick="switchPanel('history')"><i class="fas fa-history"></i><span>History</span></button>

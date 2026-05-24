@@ -198,11 +198,14 @@ window.showStatus = window.showStatus || function(id, msg, type) {
             if(profile.img) {
                 const img = document.createElement('img');
                 img.src = profile.img;
-                img.style.cssText = 'width:60px;height:60px;border-radius:50%;object-fit:cover;';
+                img.style.cssText = 'width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,193,7,0.5);';
                 avatarDiv.innerHTML = '';
                 avatarDiv.appendChild(img);
+            } else if(profile.name) {
+                // Show first letter with engineer emoji
+                avatarDiv.innerHTML = '<div style="font-size:2rem;line-height:1;">⚙️</div><div style="font-size:0.75rem;font-weight:700;margin-top:0.2rem;opacity:0.9;">'+profile.name.charAt(0).toUpperCase()+'</div>';
             } else {
-                avatarDiv.textContent = profile.name ? profile.name.charAt(0).toUpperCase() : "👤";
+                avatarDiv.innerHTML = '<div style="font-size:2.5rem;">⚙️</div>';
             }
         }
     }

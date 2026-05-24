@@ -688,7 +688,6 @@
     if(reqBadge){ var rc=clsReqRes&&clsReqRes.count||0; reqBadge.textContent=rc; reqBadge.style.display=rc>0?'inline':'none'; }
     var qrBadge = document.getElementById('quizReqBadge');
     if(qrBadge){ var qc=qrRes&&qrRes.count||0; qrBadge.textContent=qc; qrBadge.style.display=qc>0?'inline':'none'; }
-  }rror:', e); }
   }
 
   // --- App boot ---
@@ -749,6 +748,18 @@
       selectedSwFile = f;
       var el = document.getElementById('swFileChosen');
       if(el) el.textContent = '✅ '+f.name;
+    });
+
+    // POTW photo drop zone
+    setupDropZone('potwPhotoZone','potwPhotoFile',function(f){
+      var chosen = document.getElementById('potwPhotoChosen');
+      if(chosen) chosen.textContent = '✅ '+f.name;
+      var reader = new FileReader();
+      reader.onload = function(e){
+        var prev = document.getElementById('potwPhotoPreview');
+        if(prev){ prev.src = e.target.result; prev.style.display='block'; }
+      };
+      reader.readAsDataURL(f);
     });
 
     // Buttons
@@ -1234,14 +1245,39 @@ window.addPotwDirect = async function(){
   var name  = document.getElementById('potwAdminName').value.trim();
   var role  = document.getElementById('potwAdminRole').value.trim();
   var bio   = document.getElementById('potwAdminBio').value.trim();
-  var photo = document.getElementById('potwAdminPhoto').value.trim();
   if(!name||!bio){ window.showStatus('potwAdminStatus','Please fill in Name and Bio.','err'); return; }
   var sb = window.geramaSupabase; if(!sb){ window.showStatus('potwAdminStatus','Not connected.','err'); return; }
-  var {error} = await sb.from('potw_nominations').insert({ name:name, role:role||null, bio:bio, photo_url:photo||null, nominated_by:'admin', status:'approved', created_at:new Date().toISOString() });
+
+  var btn = document.querySelector('[onclick="addPotwDirect()"]');
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Uploading...'; }
+
+  // Upload photo if selected
+  var photoUrl = null;
+  var photoFile = document.getElementById('potwPhotoFile');
+  if(photoFile && photoFile.files && photoFile.files[0]){
+    try{
+      var f = photoFile.files[0];
+      var ext = f.name.split('.').pop();
+      var path = 'potw/'+Date.now()+'.'+ext;
+      var up = await sb.storage.from(window.BUCKET).upload(path, f, {upsert:true});
+      if(!up.error) photoUrl = sb.storage.from(window.BUCKET).getPublicUrl(path).data.publicUrl;
+    }catch(e){ console.warn('Photo upload failed:', e); }
+  }
+
+  var {error} = await sb.from('potw_nominations').insert({
+    name:name, role:role||null, bio:bio, photo_url:photoUrl||null,
+    nominated_by:'admin', status:'approved', created_at:new Date().toISOString()
+  });
+  if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-star"></i> Feature on Home Page'; }
   if(error){ window.showStatus('potwAdminStatus','❌ '+error.message,'err'); return; }
   window.logActivity('Added Personality of the Week: '+name);
   window.showStatus('potwAdminStatus','✅ '+name+' is now featured on the home page!','ok');
-  ['potwAdminName','potwAdminRole','potwAdminBio','potwAdminPhoto'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  ['potwAdminName','potwAdminRole','potwAdminBio'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+  if(photoFile) photoFile.value='';
+  var prev = document.getElementById('potwPhotoPreview');
+  if(prev){ prev.style.display='none'; prev.src=''; }
+  var chosen = document.getElementById('potwPhotoChosen');
+  if(chosen) chosen.textContent='';
   window.loadPotwList();
 };
 
@@ -1324,10 +1360,13 @@ window.loadQuizRequests = async function(){
 
 window.approveQuizRequest = async function(id, title, course, url, desc){
   var sb = window.geramaSupabase; if(!sb) return;
-  // Publish as a live quiz
   var deadline = new Date(Date.now() + 7*24*60*60*1000).toISOString();
+  // Store as JSON array so classroom shuffle works
+  var linksJson = JSON.stringify([url]);
   var {error} = await sb.from('quizzes').insert({
-    title:title, course:course, quiz_url:url, instructions:desc||null,
+    title:title, course:course||null,
+    quiz_url: linksJson,
+    description: desc||null,
     deadline:deadline, status:'active', created_at:new Date().toISOString()
   });
   if(error){ alert('Error publishing: '+error.message); return; }
