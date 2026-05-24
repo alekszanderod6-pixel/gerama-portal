@@ -909,19 +909,11 @@ tr:hover td{background:#fafcfa;}
   </button>
 </nav>
 
-<script>
-// ═══════════════════════════════════════════════════════════════
-// GERAMA ADMIN DASHBOARD — mobile-safe, all var, no aliases
-// ═══════════════════════════════════════════════════════════════
 
-// XSS Prevention Helpers (if not already defined)
-window.escHtml = window.escHtml || function(s) {
-    var div = document.createElement('div');
-    div.textContent = s;
-    return div.innerHTML;
-};
+<script src="js/admin-dashboard.js"></script>
 
 window.escAttr = window.escAttr || function(s) {
+
     return (s || '')
         .replace(/&/g, '&amp;')
         .replace(/"/g, '&quot;')
@@ -2147,72 +2139,6 @@ async function addPotwDirect() {
 // ══════════════════════════════════════════════════════════════
 // QUIZZES (Admin) — listener wired in INIT block above
 // ══════════════════════════════════════════════════════════════
-
-async function loadQzList() {
-  var el = document.getElementById('qzList'); if(!el) return;
-  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
-  var {data,error} = await sb.from('quizzes').select('*').order('created_at',{ascending:false});
-  if(error||!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No quizzes posted yet.</p>'; return; }
-  el.innerHTML = data.map(function(q){
-    var dl = q.deadline ? new Date(q.deadline).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-    var isPast = q.deadline && new Date(q.deadline).getTime() < Date.now();
-    var statusBadge = isPast ? '<span class="badge badge-rejected">Closed</span>' : '<span class="badge badge-approved">Open</span>';
-    return '<div class="sub-card">'+
-      '<div class="sub-info">'+
-        '<strong>'+q.title+'</strong>'+
-        '<div class="sub-meta">'+
-          '<b>Course:</b> '+(q.course||'General')+' | <b>Deadline:</b> '+dl+
-          (q.duration_mins?' | <b>Time:</b> '+q.duration_mins+' min':'')+
-          '<br><a href="'+q.quiz_url+'" target="_blank" style="color:#6366f1;font-size:0.8rem;"><i class="fas fa-link"></i> '+q.quiz_url.substring(0,50)+'...</a>'+
-        '</div>'+
-      '</div>'+
-      '<div class="sub-actions">'+statusBadge+
-        '<button class="btn-gold" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="extendQuizDeadline(\''+q.id+'\')"><i class="fas fa-clock"></i> Extend</button>'+
-        '<button class="btn-danger" onclick="deleteQuiz(\''+q.id+'\')"><i class="fas fa-trash"></i></button>'+
-      '</div>'+
-    '</div>';
-  }).join('');
-}
-
-async function extendQuizDeadline(id) {
-  var newDl = prompt('Enter new deadline (YYYY-MM-DDTHH:MM):');
-  if(!newDl) return;
-  var sb = window.geramaSupabase; if(!sb) return;
-  var {error} = await sb.from('quizzes').update({deadline:new Date(newDl).toISOString()}).eq('id',id);
-  if(!error){ alert('Deadline extended!'); loadQzList(); }
-  else alert('Error: '+error.message);
-}
-
-async function deleteQuiz(id) {
-  if(!confirm('Delete this quiz?')) return;
-  var sb = window.geramaSupabase; if(!sb) return;
-  await sb.from('quizzes').delete().eq('id',id);
-  loadQzList();
-}
-
-async function loadQzAttempts() {
-  var el = document.getElementById('qzAttemptsList'); if(!el) return;
-  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
-  // Join with quizzes to get title
-  var {data,error} = await sb.from('quiz_attempts')
-    .select('*, quizzes(title)')
-    .order('completed_at',{ascending:false}).limit(100);
-  if(error||!data||!data.length){
-    el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No attempts recorded yet.</p>'; return;
-  }
-  el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Quiz</th><th>Completed</th></tr></thead><tbody>'+
-    data.map(function(a){
-      var quizTitle = (a.quizzes && a.quizzes.title) ? escHtml(a.quizzes.title) : '<span style="color:#9ca3af;">—</span>';
-      var dt = a.completed_at ? new Date(a.completed_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-      return '<tr>'+
-        '<td><strong>'+escHtml(a.student_name||'—')+'</strong></td>'+
-        '<td style="font-size:0.8rem;color:#6b7280;">'+escHtml(a.student_email||'—')+'</td>'+
-        '<td>'+quizTitle+'</td>'+
-        '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
-      '</tr>';
-    }).join('')+
-  '</tbody></table></div>';
-}
 </script>
 <script>
 async function loadAdminReels() {
