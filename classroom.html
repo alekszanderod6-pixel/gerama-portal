@@ -157,6 +157,10 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .attend-total-num{font-size:2.5rem;font-weight:900;color:var(--gold);line-height:1;}
 .attend-total-lbl{font-size:0.85rem;opacity:0.85;margin-top:0.2rem;}
 @media(max-width:640px){.reels-feed{grid-template-columns:1fr;}}
+/* Quiz submission form: single column on mobile */
+@media(max-width:500px){
+  #tab-quizzes .qr-grid{grid-template-columns:1fr !important;}
+}
 .reel-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;}
 .reel-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.12);}
 .reel-video-wrap{position:relative;background:#000;aspect-ratio:9/16;max-height:420px;overflow:hidden;}
@@ -624,24 +628,26 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 
   <!-- Student quiz submission -->
-  <div style="margin-top:2rem;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:20px;padding:1.8rem;border:1px solid #c4b5fd;">
-    <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1rem;">
-      <div style="width:40px;height:40px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-paper-plane" style="color:white;font-size:1rem;"></i></div>
+  <div style="margin-top:2rem;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:20px;padding:1.6rem;border:1px solid #c4b5fd;">
+    <div style="display:flex;align-items:center;gap:0.8rem;margin-bottom:1.2rem;">
+      <div style="width:42px;height:42px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-paper-plane" style="color:white;font-size:1rem;"></i></div>
       <div>
         <div style="font-size:1rem;font-weight:800;color:#1e2a3e;">Submit a Quiz for Review</div>
-        <div style="font-size:0.82rem;color:#6b7280;">Have a quiz link? Submit it — admin will review and publish it live.</div>
+        <div style="font-size:0.8rem;color:#6b7280;margin-top:0.1rem;">Have a quiz link? Submit it — admin reviews and publishes it live.</div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
-      <div style="grid-column:1/-1;"><input type="text" id="qrTitle" placeholder="Quiz title *" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;"></div>
-      <input type="text" id="qrCourse" placeholder="Course (e.g. Applied Electricity)" style="padding:0.65rem 0.9rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;">
-      <input type="text" id="qrName" placeholder="Your name *" style="padding:0.65rem 0.9rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;">
-      <div style="grid-column:1/-1;"><input type="url" id="qrUrl" placeholder="Quiz link * (Google Forms, Testmoz, Kahoot, etc.)" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;"></div>
-      <div style="grid-column:1/-1;"><textarea id="qrDesc" rows="2" placeholder="Brief description (optional)" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;resize:none;"></textarea></div>
+    <div style="display:flex;flex-direction:column;gap:0.7rem;">
+      <input type="text" id="qrTitle" placeholder="Quiz title *" style="width:100%;padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;box-sizing:border-box;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;" class="qr-grid">
+        <input type="text" id="qrCourse" placeholder="Course (optional)" style="padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;">
+        <input type="text" id="qrName" placeholder="Your name *" style="padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;">
+      </div>
+      <input type="url" id="qrUrl" placeholder="Quiz link * (Google Forms, Testmoz, Kahoot...)" style="width:100%;padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;box-sizing:border-box;">
+      <textarea id="qrDesc" rows="2" placeholder="Brief description (optional)" style="width:100%;padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;resize:none;box-sizing:border-box;"></textarea>
     </div>
-    <div style="margin-top:0.8rem;display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
-      <button onclick="submitQuizRequest()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.65rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;font-family:'Inter',sans-serif;box-shadow:0 4px 12px rgba(99,102,241,0.3);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''"><i class="fas fa-paper-plane"></i> Submit for Review</button>
-      <span style="font-size:0.78rem;color:#6b7280;"><i class="fas fa-info-circle"></i> Admin will review and publish within 24h</span>
+    <div style="margin-top:1rem;display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
+      <button onclick="submitQuizRequest()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.7rem 1.5rem;border-radius:30px;font-weight:700;font-size:0.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;font-family:'Inter',sans-serif;box-shadow:0 4px 12px rgba(99,102,241,0.3);transition:all 0.2s;white-space:nowrap;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''"><i class="fas fa-paper-plane"></i> Submit for Review</button>
+      <span style="font-size:0.75rem;color:#6b7280;"><i class="fas fa-info-circle" style="color:#6366f1;"></i> Admin reviews within 24h</span>
     </div>
     <div id="qrStatus" style="display:none;margin-top:0.8rem;padding:0.7rem 1rem;border-radius:10px;font-size:0.87rem;font-weight:500;"></div>
   </div>
@@ -1580,31 +1586,54 @@ async function deleteComment(commentId, answerId) {
 
 async function likeQuestion(qid, btn) {
   var sb = window.geramaSupabase; if(!sb) return;
-  // Use a stable per-device identifier
   var uid = localStorage.getItem('gerama_uid');
   if(!uid){ uid = 'u-'+Date.now()+'-'+Math.random().toString(36).substr(2,6); localStorage.setItem('gerama_uid', uid); }
 
-  var span = btn.querySelector('span');
+  var span = btn ? btn.querySelector('span') : null;
   var liked = JSON.parse(localStorage.getItem('gerama_q_liked')||'{}');
+  var currentCount = span ? parseInt(span.textContent||'0') : 0;
 
   if(liked[qid]){
-    // ── UNLIKE: delete the row ──
-    await sb.from('question_likes').delete().eq('question_id', qid).eq('user_identifier', uid);
-    delete liked[qid];
+    // UNLIKE — optimistic UI first
+    liked[qid] = false;
     localStorage.setItem('gerama_q_liked', JSON.stringify(liked));
-    btn.classList.remove('liked');
-    // Get real count
-    var {count} = await sb.from('question_likes').select('*', {count:'exact', head:true}).eq('question_id', qid);
-    if(span) span.textContent = count || 0;
+    if(btn) btn.classList.remove('liked');
+    if(span) span.textContent = Math.max(0, currentCount - 1);
+
+    try {
+      await sb.from('question_likes').delete()
+        .eq('question_id', qid).eq('user_identifier', uid);
+    } catch(e){}
+    // Refresh real count
+    try {
+      var res = await sb.from('question_likes').select('id', {count:'exact', head:true}).eq('question_id', qid);
+      if(span && res.count != null) span.textContent = res.count;
+    } catch(e){}
   } else {
-    // ── LIKE: insert a row ──
-    await sb.from('question_likes').upsert({question_id: qid, user_identifier: uid}, {onConflict:'question_id,user_identifier'});
+    // LIKE — optimistic UI first
     liked[qid] = true;
     localStorage.setItem('gerama_q_liked', JSON.stringify(liked));
-    btn.classList.add('liked');
-    // Get real count
-    var {count} = await sb.from('question_likes').select('*', {count:'exact', head:true}).eq('question_id', qid);
-    if(span) span.textContent = count || 0;
+    if(btn) btn.classList.add('liked');
+    if(span) span.textContent = currentCount + 1;
+
+    try {
+      // Try upsert first, fall back to insert
+      var upRes = await sb.from('question_likes').upsert(
+        {question_id: qid, user_identifier: uid},
+        {onConflict:'question_id,user_identifier', ignoreDuplicates:true}
+      );
+      if(upRes.error) {
+        // Fallback: plain insert (ignore duplicate error)
+        await sb.from('question_likes').insert({question_id: qid, user_identifier: uid}).catch(function(){});
+      }
+    } catch(e){
+      await sb.from('question_likes').insert({question_id: qid, user_identifier: uid}).catch(function(){});
+    }
+    // Refresh real count
+    try {
+      var res2 = await sb.from('question_likes').select('id', {count:'exact', head:true}).eq('question_id', qid);
+      if(span && res2.count != null) span.textContent = res2.count;
+    } catch(e){}
   }
 }
 
@@ -1612,22 +1641,47 @@ async function likeAnswer(aid, btn) {
   var sb = window.geramaSupabase; if(!sb) return;
   var uid = localStorage.getItem('gerama_uid');
   if(!uid){ uid = 'u-'+Date.now()+'-'+Math.random().toString(36).substr(2,6); localStorage.setItem('gerama_uid', uid); }
-  var span = btn.querySelector('span');
+
+  var span = btn ? btn.querySelector('span') : null;
   var liked = JSON.parse(localStorage.getItem('gerama_a_liked')||'{}');
+  var currentCount = span ? parseInt(span.textContent||'0') : 0;
+  var key = 'ans-'+aid;
+
   if(liked[aid]){
-    await sb.from('question_likes').delete().eq('question_id', 'ans-'+aid).eq('user_identifier', uid);
-    delete liked[aid];
+    liked[aid] = false;
     localStorage.setItem('gerama_a_liked', JSON.stringify(liked));
-    btn.classList.remove('liked');
-    var {count} = await sb.from('question_likes').select('*',{count:'exact',head:true}).eq('question_id','ans-'+aid);
-    if(span) span.textContent = count || 0;
+    if(btn) btn.classList.remove('liked');
+    if(span) span.textContent = Math.max(0, currentCount - 1);
+
+    try {
+      await sb.from('question_likes').delete()
+        .eq('question_id', key).eq('user_identifier', uid);
+    } catch(e){}
+    try {
+      var res = await sb.from('question_likes').select('id', {count:'exact', head:true}).eq('question_id', key);
+      if(span && res.count != null) span.textContent = res.count;
+    } catch(e){}
   } else {
-    await sb.from('question_likes').upsert({question_id:'ans-'+aid, user_identifier:uid},{onConflict:'question_id,user_identifier'});
     liked[aid] = true;
     localStorage.setItem('gerama_a_liked', JSON.stringify(liked));
-    btn.classList.add('liked');
-    var {count} = await sb.from('question_likes').select('*',{count:'exact',head:true}).eq('question_id','ans-'+aid);
-    if(span) span.textContent = count || 0;
+    if(btn) btn.classList.add('liked');
+    if(span) span.textContent = currentCount + 1;
+
+    try {
+      var upRes2 = await sb.from('question_likes').upsert(
+        {question_id: key, user_identifier: uid},
+        {onConflict:'question_id,user_identifier', ignoreDuplicates:true}
+      );
+      if(upRes2.error) {
+        await sb.from('question_likes').insert({question_id: key, user_identifier: uid}).catch(function(){});
+      }
+    } catch(e){
+      await sb.from('question_likes').insert({question_id: key, user_identifier: uid}).catch(function(){});
+    }
+    try {
+      var res3 = await sb.from('question_likes').select('id', {count:'exact', head:true}).eq('question_id', key);
+      if(span && res3.count != null) span.textContent = res3.count;
+    } catch(e){}
   }
 }
 
@@ -1838,23 +1892,38 @@ async function likeReel(rid, btn) {
   var sb = window.geramaSupabase; if(!sb) return;
   var uid = localStorage.getItem('gerama_uid');
   if(!uid){ uid='u-'+Date.now()+'-'+Math.random().toString(36).substr(2,6); localStorage.setItem('gerama_uid',uid); }
-  var span = btn.querySelector('span');
+  var span = btn ? btn.querySelector('span') : null;
   var liked = JSON.parse(localStorage.getItem('gerama_r_liked')||'{}');
   var likeKey = 'reel-'+rid;
+  var currentCount = span ? parseInt(span.textContent||'0') : 0;
+
   if(liked[rid]){
-    await sb.from('question_likes').delete().eq('question_id',likeKey).eq('user_identifier',uid);
-    delete liked[rid];
-    localStorage.setItem('gerama_r_liked',JSON.stringify(liked));
-    btn.classList.remove('liked');
-    var cr = await sb.from('question_likes').select('*',{count:'exact',head:true}).eq('question_id',likeKey);
-    if(span) span.textContent = cr.count||0;
+    // Unlike — optimistic
+    liked[rid] = false;
+    localStorage.setItem('gerama_r_liked', JSON.stringify(liked));
+    if(btn) btn.classList.remove('liked');
+    if(span) span.textContent = Math.max(0, currentCount - 1);
+    try{ await sb.from('question_likes').delete().eq('question_id',likeKey).eq('user_identifier',uid); }catch(e){}
+    try{
+      var cr = await sb.from('question_likes').select('id',{count:'exact',head:true}).eq('question_id',likeKey);
+      if(span && cr.count != null) span.textContent = cr.count;
+    }catch(e){}
   } else {
-    await sb.from('question_likes').upsert({question_id:likeKey,user_identifier:uid},{onConflict:'question_id,user_identifier'});
-    liked[rid]=true;
-    localStorage.setItem('gerama_r_liked',JSON.stringify(liked));
-    btn.classList.add('liked');
-    var cr = await sb.from('question_likes').select('*',{count:'exact',head:true}).eq('question_id',likeKey);
-    if(span) span.textContent = cr.count||0;
+    // Like — optimistic
+    liked[rid] = true;
+    localStorage.setItem('gerama_r_liked', JSON.stringify(liked));
+    if(btn) btn.classList.add('liked');
+    if(span) span.textContent = currentCount + 1;
+    try{
+      var up = await sb.from('question_likes').upsert({question_id:likeKey,user_identifier:uid},{onConflict:'question_id,user_identifier',ignoreDuplicates:true});
+      if(up.error) await sb.from('question_likes').insert({question_id:likeKey,user_identifier:uid}).catch(function(){});
+    }catch(e){
+      await sb.from('question_likes').insert({question_id:likeKey,user_identifier:uid}).catch(function(){});
+    }
+    try{
+      var cr2 = await sb.from('question_likes').select('id',{count:'exact',head:true}).eq('question_id',likeKey);
+      if(span && cr2.count != null) span.textContent = cr2.count;
+    }catch(e){}
   }
 }
 
