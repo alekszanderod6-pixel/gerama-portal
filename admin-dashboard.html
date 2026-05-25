@@ -138,6 +138,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="quizzes"><i class="fas fa-question-circle"></i> Quizzes</div>
     <div class="nav-item" data-panel="quizrequests"><i class="fas fa-inbox" style="color:#6366f1;"></i> Quiz Requests <span id="quizReqBadge" style="background:#6366f1;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="classes"><i class="fas fa-video"></i> Schedule Class</div>
+    <div class="nav-item" data-panel="attendance"><i class="fas fa-clipboard-check" style="color:#4ade80;"></i> Attendance</div>
     <div class="nav-item" data-panel="classrequests"><i class="fas fa-hand-paper"></i> Class Requests <span id="reqBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="visitors"><i class="fas fa-chart-line"></i> Visitor Stats</div>
     <div class="nav-item" data-panel="potw"><i class="fas fa-star"></i> Personality of Week</div>
@@ -361,6 +362,42 @@ tr:hover td{background:#fafcfa;}
         <button class="btn-gold" id="testConnBtn"><i class="fas fa-plug"></i> Test Supabase Connection</button>
       </div>
       <div class="status-msg" id="settingsStatus"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-attendance">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-clipboard-check" style="color:#059669;"></i> Generate Attendance Code</div>
+      <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#166534;line-height:1.6;">
+        <strong>How it works:</strong> Generate a random code, share it with students during a live class. Set a time window — students enter the code in their Classroom → Attendance tab to mark themselves present and earn 1 point.
+      </div>
+      <div class="form-grid">
+        <div class="form-field"><label>Class Title *</label><input type="text" id="attClassTitle" placeholder="e.g. Applied Electricity – Tutorial 3"></div>
+        <div class="form-field"><label>Valid For (minutes) *</label><input type="number" id="attDuration" value="15" min="1" max="120" placeholder="e.g. 15"></div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="generateAttendanceCode()"><i class="fas fa-magic"></i> Generate Code</button>
+      </div>
+      <div id="attCodeBox" style="display:none;margin-top:1.2rem;background:linear-gradient(135deg,#0a2f1f,#1B5E20);border-radius:16px;padding:1.5rem;text-align:center;color:white;">
+        <div style="font-size:0.8rem;opacity:0.7;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:1px;">Active Attendance Code</div>
+        <div id="attCodeDisplay" style="font-size:3rem;font-weight:900;letter-spacing:8px;color:#FFC107;font-family:'Inter',sans-serif;"></div>
+        <div id="attCodeTimer" style="font-size:0.88rem;opacity:0.8;margin-top:0.5rem;"></div>
+        <div style="display:flex;gap:0.8rem;justify-content:center;margin-top:1rem;flex-wrap:wrap;">
+          <button onclick="copyAttCode()" style="background:#FFC107;color:#0a2f1f;border:none;padding:0.5rem 1.2rem;border-radius:30px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-copy"></i> Copy Code</button>
+          <button onclick="closeAttSession()" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);padding:0.5rem 1.2rem;border-radius:30px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-stop"></i> Close Session</button>
+        </div>
+      </div>
+      <div class="status-msg" id="attStatus"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-users"></i> Attendance Records</div>
+      <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <select id="attSessionFilter" style="padding:0.5rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onchange="loadAttRecords()">
+          <option value="">All Sessions</option>
+        </select>
+        <button class="btn-gold" onclick="loadAttRecords()" style="padding:0.5rem 1rem;font-size:0.85rem;"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+      <div id="attRecordsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
   </div>
 

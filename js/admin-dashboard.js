@@ -74,6 +74,7 @@
     if(name === 'quizzes' && window.loadQzList) setTimeout(window.loadQzList, 150);
     if(name === 'quizrequests' && window.loadQuizRequests) setTimeout(window.loadQuizRequests, 150);
     if(name === 'classes' && window.loadClsList) setTimeout(window.loadClsList, 150);
+    if(name === 'attendance') setTimeout(function(){ if(window.loadAttSessions) window.loadAttSessions(); if(window.loadAttRecords) window.loadAttRecords(); }, 150);
     if(name === 'classrequests' && window.loadClassRequests) setTimeout(window.loadClassRequests, 150);
     if(name === 'visitors' && window.loadVisitorStats) setTimeout(window.loadVisitorStats, 150);
     if(name === 'potw' && window.loadPotwList) setTimeout(window.loadPotwList, 150);
@@ -1395,4 +1396,141 @@ window.rejectQuizRequest = async function(id){
   var sb = window.geramaSupabase; if(!sb) return;
   await sb.from('quiz_requests').update({status:'rejected'}).eq('id',id);
   window.loadQuizRequests();
+};
+
+// ─── ATTENDANCE SYSTEM ────────────────────────────────────────────
+var _attSessionId = null;
+var _attTimer = null;
+
+window.generateAttendanceCode = async function(){
+  var title    = document.getElementById('attClassTitle').value.trim();
+  var duration = parseInt(document.getElementById('attDuration').value)||15;
+  if(!title){ window.showStatus('attStatus','Please enter a class title.','err'); return; }
+
+  var sb = window.geramaSupabase; if(!sb){ window.showStatus('attStatus','Not connected.','err'); return; }
+
+  // Generate random 6-char code
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var code = '';
+  for(var i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
+
+  var expiresAt = new Date(Date.now() + duration*60*1000).toISOString();
+
+  // Close any existing active session first
+  await sb.from('attendance_sessions').update({is_active:false}).eq('is_active',true);
+
+  var {data, error} = await sb.from('attendance_sessions').insert({
+    code: code,
+    class_title: title,
+    duration_mins: duration,
+    expires_at: expiresAt,
+    is_active: true,
+    created_at: new Date().toISOString()
+  }).select().single();
+
+  if(error){ window.showStatus('attStatus','❌ '+error.message,'err'); return; }
+
+  _attSessionId = data ? data.id : null;
+  window.logActivity('Generated attendance code: '+code+' for "'+title+'"');
+
+  // Show code box
+  document.getElementById('attCodeBox').style.display = 'block';
+  document.getElementById('attCodeDisplay').textContent = code;
+  window.showStatus('attStatus','✅ Code active! Share it with students now.','ok');
+
+  // Countdown timer
+  clearInterval(_attTimer);
+  var secsLeft = duration * 60;
+  function tick(){
+    var m = Math.floor(secsLeft/60), s = secsLeft%60;
+    var timerEl = document.getElementById('attCodeTimer');
+    if(timerEl) timerEl.textContent = 'Expires in: '+m+':'+(s<10?'0':'')+s;
+    if(secsLeft <= 0){
+      clearInterval(_attTimer);
+      if(timerEl) timerEl.textContent = '⏰ Code expired';
+      document.getElementById('attCodeDisplay').style.opacity = '0.4';
+      window.closeAttSession();
+    }
+    secsLeft--;
+  }
+  tick();
+  _attTimer = setInterval(tick, 1000);
+
+  // Refresh sessions dropdown
+  window.loadAttSessions();
+};
+
+window.copyAttCode = function(){
+  var code = document.getElementById('attCodeDisplay').textContent;
+  if(navigator.clipboard) navigator.clipboard.writeText(code);
+  else { var t=document.createElement('textarea'); t.value=code; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
+  alert('Code "'+code+'" copied! Share it with your students.');
+};
+
+window.closeAttSession = async function(){
+  clearInterval(_attTimer);
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('attendance_sessions').update({is_active:false}).eq('is_active',true);
+  document.getElementById('attCodeBox').style.display = 'none';
+  document.getElementById('attClassTitle').value = '';
+  window.showStatus('attStatus','Session closed.','ok');
+  window.loadAttRecords();
+};
+
+window.loadAttSessions = async function(){
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {data} = await sb.from('attendance_sessions').select('id,class_title,created_at').order('created_at',{ascending:false}).limit(20);
+  var sel = document.getElementById('attSessionFilter'); if(!sel) return;
+  var current = sel.value;
+  sel.innerHTML = '<option value="">All Sessions</option>';
+  (data||[]).forEach(function(s){
+    var dt = new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    var opt = document.createElement('option');
+    opt.value = s.id; opt.textContent = s.class_title+' ('+dt+')';
+    if(s.id === current) opt.selected = true;
+    sel.appendChild(opt);
+  });
+};
+
+window.loadAttRecords = async function(){
+  var el = document.getElementById('attRecordsList'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+
+  var sessionId = document.getElementById('attSessionFilter').value;
+  var query = sb.from('attendance_records').select('*').order('marked_at',{ascending:false});
+  if(sessionId) query = query.eq('session_id', sessionId);
+
+  var {data, error} = await query;
+  if(error||!data||!data.length){
+    el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-clipboard-check" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No attendance records yet.</p>';
+    return;
+  }
+
+  // Group by session
+  var bySession = {};
+  data.forEach(function(r){
+    var key = r.class_title||'Unknown Session';
+    if(!bySession[key]) bySession[key] = [];
+    bySession[key].push(r);
+  });
+
+  el.innerHTML = Object.keys(bySession).map(function(title){
+    var records = bySession[title];
+    var rows = records.map(function(r){
+      var dt = r.marked_at ? new Date(r.marked_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+      return '<tr>'+
+        '<td><strong>'+window.escHtml(r.student_name||'—')+'</strong></td>'+
+        '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(r.student_email||'—')+'</td>'+
+        '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
+        '<td><span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">+'+( r.points||1)+' pt</span></td>'+
+      '</tr>';
+    }).join('');
+    return '<div style="margin-bottom:1.5rem;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;flex-wrap:wrap;gap:0.5rem;">'+
+        '<strong style="font-size:0.95rem;">'+window.escHtml(title)+'</strong>'+
+        '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.78rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">'+records.length+' student'+(records.length!==1?'s':'')+' present</span>'+
+      '</div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Time</th><th>Points</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    '</div>';
+  }).join('');
 };

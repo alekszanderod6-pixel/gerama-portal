@@ -85,7 +85,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                 <div class="drawer-nav">
                     <a href="index.html"><i class="fas fa-home"></i> Home</a>
                     <a href="resources.html"><i class="fas fa-book-open"></i> Resources</a>
-                    <a href="classroom.html"><i class="fas fa-chalkboard-teacher"></i> Classroom</a>
+                    <a href="classroom.html"><i class="fas fa-chalkboard-teacher"></i> Classroom <span id="navBadgeClassroom" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
                     <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
                     <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
                 </div>
@@ -256,6 +256,72 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         }).then(function(){}).catch(function(){});
     }
     setTimeout(trackView, 1000);
+})();
+
+// ── GLOBAL NOTIFICATION BADGES ────────────────────────────────────
+(function() {
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(skip.indexOf(page) !== -1) return;
+
+    function updateNavBadges() {
+        if(typeof window.geramaSupabase === 'undefined') { setTimeout(updateNavBadges, 800); return; }
+        var sb = window.geramaSupabase;
+        var lastRead = localStorage.getItem('gerama_classroom_last_read');
+        if(!lastRead) lastRead = new Date(Date.now() - 24*60*60*1000).toISOString();
+
+        // Count new quizzes + assignments + announcements since last visit
+        Promise.all([
+            sb.from('quizzes').select('id',{count:'exact',head:true}).eq('status','active').gt('created_at', lastRead),
+            sb.from('assignments').select('id',{count:'exact',head:true}).gt('created_at', lastRead),
+            sb.from('questions').select('id',{count:'exact',head:true}).gt('created_at', lastRead)
+        ]).then(function(results) {
+            var total = (results[0].count||0) + (results[1].count||0) + (results[2].count||0);
+            var badge = document.getElementById('navBadgeClassroom');
+            if(badge) {
+                if(total > 0 && page !== 'classroom.html') {
+                    badge.textContent = total > 9 ? '9+' : total;
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+            // Update bottom nav badge too
+            updateBottomNavBadge('classroom.html', total > 0 && page !== 'classroom.html' ? total : 0);
+        }).catch(function(){});
+    }
+
+    function updateBottomNavBadge(href, count) {
+        var nav = document.getElementById('siteBottomNav');
+        if(!nav) return;
+        var links = nav.querySelectorAll('a');
+        links.forEach(function(a) {
+            if(a.getAttribute('href') === href) {
+                var existing = a.querySelector('.bnav-badge');
+                if(count > 0) {
+                    if(!existing) {
+                        var b = document.createElement('span');
+                        b.className = 'bnav-badge';
+                        b.style.cssText = 'position:absolute;top:2px;right:2px;background:#dc2626;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;';
+                        a.style.position = 'relative';
+                        a.appendChild(b);
+                        existing = b;
+                    }
+                    existing.textContent = count > 9 ? '9+' : count;
+                } else if(existing) {
+                    existing.remove();
+                }
+            }
+        });
+    }
+
+    // Clear classroom badge when visiting classroom
+    if(page === 'classroom.html') {
+        localStorage.setItem('gerama_classroom_last_read', new Date().toISOString());
+    }
+
+    setTimeout(updateNavBadges, 2000);
+    setInterval(updateNavBadges, 60000); // refresh every minute
 })();
 
 // ── SITE BOTTOM NAV (mobile) ──────────────────────────────────────

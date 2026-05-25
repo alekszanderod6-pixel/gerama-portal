@@ -138,8 +138,24 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .ann-banner-text strong{display:block;font-size:0.9rem;color:#92400e;margin-bottom:0.2rem;}
 .ann-banner-text span{font-size:0.85rem;color:#78350f;}
 
-/* ── QUIZ CARDS — see enhanced styles below ── */
-.reels-feed{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;}
+/* ── ATTENDANCE ── */
+.attend-hero{background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:20px;padding:2rem;color:white;margin-bottom:1.5rem;position:relative;overflow:hidden;}
+.attend-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:rgba(255,255,255,0.04);border-radius:50%;}
+.attend-code-input{display:flex;gap:0.8rem;margin-top:1.2rem;flex-wrap:wrap;}
+.attend-code-input input{flex:1;min-width:180px;padding:0.8rem 1.2rem;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.1);color:white;font-size:1.1rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;outline:none;font-family:'Inter',sans-serif;}
+.attend-code-input input::placeholder{color:rgba(255,255,255,0.4);letter-spacing:2px;font-size:0.9rem;}
+.attend-code-input input:focus{border-color:var(--gold);background:rgba(255,255,255,0.15);}
+.btn-mark-attend{background:linear-gradient(135deg,var(--gold),#e6a800);color:var(--primary-dark);border:none;padding:0.8rem 1.8rem;border-radius:12px;font-weight:800;font-size:0.95rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;white-space:nowrap;}
+.btn-mark-attend:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(255,193,7,0.4);}
+.attend-history-card{background:white;border-radius:16px;padding:1.4rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;margin-bottom:0.8rem;display:flex;align-items:center;gap:1rem;}
+.attend-check{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#d1fae5,#a7f3d0);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;}
+.attend-info{flex:1;}
+.attend-class-name{font-weight:700;font-size:0.95rem;color:var(--text);}
+.attend-meta{font-size:0.8rem;color:var(--muted);margin-top:0.2rem;}
+.attend-points{background:linear-gradient(135deg,var(--gold),#e6a800);color:var(--primary-dark);font-weight:800;font-size:0.85rem;padding:0.3rem 0.8rem;border-radius:20px;white-space:nowrap;}
+.attend-total{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border-radius:16px;padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;}
+.attend-total-num{font-size:2.5rem;font-weight:900;color:var(--gold);line-height:1;}
+.attend-total-lbl{font-size:0.85rem;opacity:0.85;margin-top:0.2rem;}
 @media(max-width:640px){.reels-feed{grid-template-columns:1fr;}}
 .reel-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;}
 .reel-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.12);}
@@ -373,7 +389,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <button class="tab-btn active" onclick="showTab('classes')"><i class="fas fa-video"></i> Online Classes</button>
   <button class="tab-btn" onclick="showTab('assignments')"><i class="fas fa-tasks"></i> Assignments</button>
   <button class="tab-btn" onclick="showTab('quizzes')"><i class="fas fa-brain"></i> Quizzes <span id="quizBadge" style="display:none;background:#6366f1;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
-  <button class="tab-btn" id="qaTabBtn" onclick="showTab('qa')"><i class="fas fa-comments"></i> Q&amp;A Board <span id="qaBadge" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
+  <button class="tab-btn" onclick="showTab('attendance')"><i class="fas fa-clipboard-check"></i> Attendance</button>
+  <button class="tab-btn" id="qaTabBtn" onclick="showTab('qa')"><i class="fas fa-comments"></i> Q&amp;A <span id="qaBadge" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
   <button class="tab-btn" onclick="showTab('reels')"><i class="fas fa-film"></i> Reels</button>
 </div>
 
@@ -630,6 +647,44 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
+<!-- ═══ ATTENDANCE TAB ═══ -->
+<div class="tab-section" id="tab-attendance">
+
+  <!-- Hero: enter code -->
+  <div class="attend-hero">
+    <div style="position:relative;z-index:1;">
+      <div style="font-size:0.8rem;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;"><i class="fas fa-clipboard-check" style="margin-right:0.4rem;"></i>Attendance System</div>
+      <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:0.4rem;">Mark Your Attendance</h2>
+      <p style="font-size:0.88rem;opacity:0.8;line-height:1.5;">Enter the code given by your tutor during the live class to mark yourself as present and earn 1 attendance point.</p>
+      <div class="attend-code-input">
+        <input type="text" id="attendCodeInput" placeholder="Enter class code..." maxlength="8" oninput="this.value=this.value.toUpperCase()">
+        <button class="btn-mark-attend" onclick="markAttendance()"><i class="fas fa-check-circle"></i> Mark Present</button>
+      </div>
+      <div id="attendStatus" style="margin-top:0.8rem;font-size:0.88rem;font-weight:600;min-height:1.2rem;"></div>
+    </div>
+  </div>
+
+  <!-- My attendance summary -->
+  <div class="attend-total" id="attendTotal" style="display:none;">
+    <div>
+      <div class="attend-total-num" id="attendTotalNum">0</div>
+      <div class="attend-total-lbl">Total Classes Attended</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:1.8rem;font-weight:900;color:var(--gold);" id="attendTotalPts">0</div>
+      <div style="font-size:0.82rem;opacity:0.85;">Attendance Points</div>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div style="font-size:0.9rem;font-weight:700;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+    <i class="fas fa-history" style="color:var(--primary);"></i> My Attendance History
+  </div>
+  <div id="attendHistory">
+    <div class="empty-state"><i class="fas fa-clipboard-check"></i><p>No attendance recorded yet.<br>Enter a class code above to mark your first attendance.</p></div>
+  </div>
+</div>
+
 <!-- ═══ QUIZ ATTEMPT MODAL ═══ -->
 <div class="quiz-attempt-modal" id="quizAttemptModal">
   <div class="quiz-attempt-box">
@@ -739,6 +794,7 @@ function showTab(name) {
   }
   if(name === 'assignments') loadAssignments();
   if(name === 'quizzes')     loadQuizzes();
+  if(name === 'attendance')  loadAttendance();
   if(name === 'qa'){
     loadQA();
     localStorage.setItem('gerama_qa_last_read', new Date().toISOString());
@@ -1321,7 +1377,7 @@ async function loadAnswers(qid) {
         '<div class="qa-avatar" style="width:28px;height:28px;font-size:0.75rem;">'+a.author_name.charAt(0).toUpperCase()+'</div>'+
         '<strong style="font-size:0.85rem;">'+escHtml(a.author_name)+'</strong>'+
         '<span style="font-size:0.75rem;color:var(--muted);">'+formatTimeAgo(a.created_at)+'</span>'+
-        '<button class="qa-btn" onclick="likeAnswer(\''+a.id+'\',this)" style="margin-left:auto;font-size:0.78rem;"><i class="fas fa-heart"></i> <span>'+a.likes+'</span></button>'+
+        '<button class="qa-btn" onclick="likeAnswer(\''+a.id+'\',this)" style="margin-left:auto;font-size:0.78rem;"><i class="fas fa-heart"></i> <span id="ans-like-'+a.id+'">...</span></button>'+
       '</div>'+
       (a.content ? '<p style="font-size:0.88rem;color:#374151;line-height:1.6;margin-bottom:0.5rem;">'+escHtml(a.content)+'</p>' : '')+
       (imgs ? '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:0.5rem;">'+imgs+'</div>' : '')+
@@ -1334,6 +1390,18 @@ async function loadAnswers(qid) {
   }).join('');
   // Load comments for each answer
   data.forEach(function(a){ loadComments(a.id); });
+  // Load real like counts for answers
+  data.forEach(function(a){
+    var sb2 = window.geramaSupabase; if(!sb2) return;
+    sb2.from('question_likes').select('*',{count:'exact',head:true}).eq('question_id','ans-'+a.id)
+    .then(function(res){
+      var el = document.getElementById('ans-like-'+a.id);
+      if(el) el.textContent = res.count || 0;
+    }).catch(function(){
+      var el = document.getElementById('ans-like-'+a.id);
+      if(el) el.textContent = '0';
+    });
+  });
 }
 
 async function loadComments(answerId) {
@@ -2125,6 +2193,106 @@ async function submitQuizRequest() {
       showQrStatus('❌ '+e.message,'err');
     }
   }
+}
+
+// ══════════════════════════════════════════════════════════════
+// ATTENDANCE SYSTEM
+// ══════════════════════════════════════════════════════════════
+async function loadAttendance() {
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var email = profile.email || localStorage.getItem('gerama_uid') || '';
+  var name  = profile.name || 'Student';
+
+  var histEl = document.getElementById('attendHistory');
+  var totalEl = document.getElementById('attendTotal');
+  var totalNum = document.getElementById('attendTotalNum');
+  var totalPts = document.getElementById('attendTotalPts');
+
+  var sb = window.geramaSupabase;
+  if(!sb){ if(histEl) histEl.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><p>Not connected.</p></div>'; return; }
+
+  var {data, error} = await sb.from('attendance_records')
+    .select('*').eq('student_email', email).order('marked_at',{ascending:false});
+
+  if(error || !data || !data.length){
+    if(histEl) histEl.innerHTML='<div class="empty-state"><i class="fas fa-clipboard-check"></i><p>No attendance recorded yet.<br>Enter a class code above to mark your first attendance.</p></div>';
+    return;
+  }
+
+  if(totalEl) totalEl.style.display = 'flex';
+  if(totalNum) totalNum.textContent = data.length;
+  if(totalPts) totalPts.textContent = data.reduce(function(s,r){ return s+(r.points||1); }, 0);
+
+  if(histEl) histEl.innerHTML = data.map(function(r){
+    var dt = r.marked_at ? new Date(r.marked_at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    return '<div class="attend-history-card">'+
+      '<div class="attend-check">✅</div>'+
+      '<div class="attend-info">'+
+        '<div class="attend-class-name">'+escHtml(r.class_title||'Class Session')+'</div>'+
+        '<div class="attend-meta"><i class="fas fa-calendar" style="color:var(--primary);margin-right:0.3rem;"></i>'+dt+'</div>'+
+      '</div>'+
+      '<span class="attend-points">+'+( r.points||1)+' pt</span>'+
+    '</div>';
+  }).join('');
+}
+
+async function markAttendance() {
+  var code = (document.getElementById('attendCodeInput').value||'').trim().toUpperCase();
+  var statusEl = document.getElementById('attendStatus');
+
+  function setStatus(msg, color){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=color; } }
+
+  if(!code){ setStatus('Please enter the class code.','#fbbf24'); return; }
+  if(code.length < 4){ setStatus('Code too short. Ask your tutor for the correct code.','#fbbf24'); return; }
+
+  var sb = window.geramaSupabase;
+  if(!sb){ setStatus('Not connected. Please refresh.','#f87171'); return; }
+
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var email = profile.email || localStorage.getItem('gerama_uid') || '';
+  var name  = profile.name || 'Student';
+
+  if(!email){ setStatus('Please set up your profile first.','#fbbf24'); return; }
+
+  setStatus('Verifying code...','rgba(255,255,255,0.7)');
+
+  // Look up the attendance session by code
+  var {data: sessions, error: sessErr} = await sb.from('attendance_sessions')
+    .select('*').eq('code', code).eq('is_active', true).limit(1);
+
+  if(sessErr || !sessions || !sessions.length){
+    setStatus('❌ Invalid or expired code. Ask your tutor for the active code.','#f87171'); return;
+  }
+
+  var session = sessions[0];
+
+  // Check if already marked
+  var {data: existing} = await sb.from('attendance_records')
+    .select('id').eq('session_id', session.id).eq('student_email', email).limit(1);
+
+  if(existing && existing.length){
+    setStatus('✅ You already marked attendance for this class!','#4ade80'); return;
+  }
+
+  // Mark attendance
+  var {error: insertErr} = await sb.from('attendance_records').insert({
+    session_id:   session.id,
+    class_title:  session.class_title || 'Class Session',
+    student_name: name,
+    student_email: email,
+    points:       1,
+    marked_at:    new Date().toISOString()
+  });
+
+  if(insertErr){
+    setStatus('❌ Error: '+insertErr.message,'#f87171'); return;
+  }
+
+  setStatus('🎉 Attendance marked! +1 point earned.','#4ade80');
+  document.getElementById('attendCodeInput').value = '';
+
+  // Refresh history
+  setTimeout(loadAttendance, 800);
 }
 
 function toggleFab() {

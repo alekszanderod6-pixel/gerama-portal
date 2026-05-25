@@ -221,18 +221,15 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 .step-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; }
 .step-card p { color:var(--text-muted); font-size:0.92rem; }
 
-/* ANNOUNCEMENTS */
-.ann-grid {
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-  gap:1.5rem;
-}
+/* ANNOUNCEMENT CARDS */
 .ann-card {
   background:white; border-radius:var(--radius);
   border-left:4px solid var(--gold); box-shadow:0 2px 12px rgba(0,0,0,0.06);
   transition:all 0.3s; overflow:hidden; display:flex; flex-direction:column;
 }
 .ann-card:hover { transform:translateY(-4px); box-shadow:var(--shadow); }
-.ann-card-img { width:100%; height:180px; object-fit:cover; display:block; }
+.ann-card-img { width:100%; height:180px; object-fit:cover; display:block; cursor:pointer; transition:transform 0.3s; }
+.ann-card-img:hover { transform:scale(1.02); }
 .ann-card-body { padding:1.4rem; flex:1; display:flex; flex-direction:column; }
 .ann-date { font-size:0.8rem; color:var(--text-muted); margin-bottom:0.4rem; font-weight:500; }
 .ann-card h3 { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; color:var(--text); }
@@ -243,9 +240,16 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 .ann-action-btn { background:none; border:none; cursor:pointer; font-size:0.82rem; font-weight:600; display:inline-flex; align-items:center; gap:0.3rem; padding:0.3rem 0.7rem; border-radius:20px; transition:all 0.2s; font-family:'Inter',sans-serif; color:var(--text-muted); }
 .ann-action-btn:hover { background:#f1f5f9; color:var(--text); }
 .ann-action-btn.liked { color:#dc2626; }
+.ann-action-btn.liked i { color:#dc2626; }
 .ann-show-more { text-align:center; margin-top:1.5rem; }
 .ann-show-more button { background:none; border:2px solid var(--primary); color:var(--primary); padding:0.6rem 2rem; border-radius:30px; font-weight:700; font-size:0.9rem; cursor:pointer; font-family:'Inter',sans-serif; transition:all 0.2s; }
 .ann-show-more button:hover { background:var(--primary); color:white; }
+/* Image lightbox */
+.ann-lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:9999; align-items:center; justify-content:center; padding:1rem; cursor:pointer; }
+.ann-lightbox.open { display:flex; }
+.ann-lightbox img { max-width:92vw; max-height:88vh; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.5); cursor:default; }
+.ann-lightbox-close { position:absolute; top:1rem; right:1rem; background:rgba(255,255,255,0.15); border:none; color:white; width:44px; height:44px; border-radius:50%; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+.ann-lightbox-close:hover { background:rgba(255,255,255,0.3); }
 
 /* PERSONALITY OF THE WEEK */
 .potw-section { padding:4rem 5%; background:white; }
@@ -369,18 +373,25 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   .footer-brand { grid-column:auto; }
   .hero-actions { flex-direction:column; align-items:center; }
   .hero-content { padding:1.5rem 1rem; }
-  .section-wrap { padding:3rem 4%; }
-  .features-grid { grid-template-columns:1fr; }
-  .steps-grid { grid-template-columns:1fr; }
+  .section-wrap { padding:2rem 4%; }
+  .features-grid { grid-template-columns:1fr 1fr; gap:1rem; }
+  .feature-card { padding:1.2rem; }
+  .feature-icon { width:44px; height:44px; font-size:1.1rem; margin-bottom:0.8rem; }
+  .feature-card h3 { font-size:0.95rem; }
+  .feature-card p { font-size:0.82rem; display:none; }
+  .steps-grid { grid-template-columns:1fr; gap:1rem; }
+  .step-card { padding:1.2rem 1rem; }
+  .step-num { width:48px; height:48px; font-size:1.2rem; margin-bottom:0.8rem; }
   .ann-grid { grid-template-columns:1fr; }
   .footer-bottom-bar { flex-direction:column; text-align:center; }
   .footer-tagline { max-width:100%; }
-  .cta-banner { padding:3rem 4%; }
+  .cta-banner { padding:2.5rem 4%; }
   .stats-bar { padding:1.5rem 4%; }
-  /* Ensure hero title doesn't overflow */
   .hero-title { font-size: clamp(1.6rem, 5vw, 3.8rem); }
   .hero-subtitle { font-size: 0.95rem; }
   .hero-badge { font-size: 0.75rem; padding: 0.3rem 0.9rem; }
+  .section-title { font-size:1.5rem; }
+  .section-head { margin-bottom:1.5rem; }
 }
 </style>
 </head>
@@ -436,6 +447,17 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     ="8">0</span><div class="stat-lbl">Engineering Programs</div></div>
   <div class="stat-item"><span class="stat-num">24/7</span><div class="stat-lbl">Free Access</div></div>
 </div>
+
+<!-- ANNOUNCEMENTS — shown first after hero/stats -->
+<section class="section-wrap alt" id="announcements-section">
+  <div class="section-head">
+    <div class="section-label">Latest Updates</div>
+    <h2 class="section-title">Announcements &amp; <span>News</span></h2>
+  </div>
+  <div class="ann-grid" id="announcementsContainer">
+    <div class="ann-card"><div class="ann-date">Loading...</div><h3>Please wait</h3><p>Fetching latest updates.</p></div>
+  </div>
+</section>
 
 <!-- WHAT WE OFFER -->
 <section class="section-wrap alt">
@@ -500,17 +522,6 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
       <h3>Download or View</h3>
       <p>View materials directly in your browser or download them for offline study — completely free.</p>
     </div>
-  </div>
-</section>
-
-<!-- ANNOUNCEMENTS -->
-<section class="section-wrap alt">
-  <div class="section-head">
-    <div class="section-label">Latest Updates</div>
-    <h2 class="section-title">Announcements &amp; <span>News</span></h2>
-  </div>
-  <div class="ann-grid" id="announcementsContainer">
-    <div class="ann-card"><div class="ann-date">Loading...</div><h3>Please wait</h3><p>Fetching latest updates.</p></div>
   </div>
 </section>
 
@@ -619,8 +630,24 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   </div>
 </footer>
 
+<!-- IMAGE LIGHTBOX for announcements -->
+<div class="ann-lightbox" id="annLightbox" onclick="closeAnnLightbox()">
+  <button class="ann-lightbox-close" onclick="closeAnnLightbox()">✕</button>
+  <img id="annLightboxImg" src="" alt="" onclick="event.stopPropagation()">
+</div>
+
 <script src="js/main.js"></script>
 <script>
+function openAnnLightbox(src) {
+  var lb = document.getElementById('annLightbox');
+  var img = document.getElementById('annLightboxImg');
+  if(lb && img){ img.src = src; lb.classList.add('open'); document.body.style.overflow='hidden'; }
+}
+function closeAnnLightbox() {
+  var lb = document.getElementById('annLightbox');
+  if(lb){ lb.classList.remove('open'); document.body.style.overflow=''; }
+}
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnLightbox(); });
 // ── HERO SLIDESHOW — single photo, no rotation needed ──
 // Ken Burns animation handles the visual interest
 
@@ -663,7 +690,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     container.innerHTML = shown.map(function(a, idx){
       var imgSrc = a.image || a.image_url || null;
       var imgHtml = imgSrc
-        ? '<img class="ann-card-img" src="'+imgSrc+'" alt="" onerror="this.style.display=\'none\'">'
+        ? '<img class="ann-card-img" src="'+imgSrc+'" alt="" onclick="openAnnLightbox(\''+imgSrc+'\')" onerror="this.style.display=\'none\'">'
         : '';
       var dateStr = a.date || (a.created_at ? new Date(a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '');
       var annId = String(a.id || a.created_at || dateStr);
@@ -759,41 +786,48 @@ function likeAnn(annId, btn) {
   var sb = window.geramaSupabase;
   var spanEl = btn ? btn.querySelector('span') : null;
   var liked = JSON.parse(localStorage.getItem('gerama_ann_liked')||'{}');
-  // Use uid for anonymous tracking (same as Q&A likes)
   var uid = localStorage.getItem('gerama_uid');
   if(!uid){ uid='u-'+Date.now()+'-'+Math.random().toString(36).substr(2,6); localStorage.setItem('gerama_uid',uid); }
   var userKey = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email) || uid;
+  var currentCount = parseInt((spanEl && spanEl.textContent) || '0');
 
   if(liked[annId]){
+    // Unlike
     liked[annId] = false;
     localStorage.setItem('gerama_ann_liked', JSON.stringify(liked));
-    if(spanEl) spanEl.textContent = Math.max(0, parseInt(spanEl.textContent||'0') - 1);
+    if(spanEl) spanEl.textContent = Math.max(0, currentCount - 1);
     if(btn) btn.classList.remove('liked');
     if(sb) sb.from('announcement_likes').delete()
-      .eq('announcement_id', String(annId))
-      .eq('user_email', userKey)
-      .then(function(){}).catch(function(){});
-    return;
-  }
-  liked[annId] = true;
-  localStorage.setItem('gerama_ann_liked', JSON.stringify(liked));
-  if(spanEl) spanEl.textContent = parseInt(spanEl.textContent||'0') + 1;
-  if(btn) btn.classList.add('liked');
-  if(sb){
-    // upsert prevents duplicate likes from same user
-    sb.from('announcement_likes').upsert({
-      announcement_id: String(annId),
-      user_email: userKey,
-      created_at: new Date().toISOString()
-    }, {onConflict:'announcement_id,user_email'}).then(function(){}).catch(function(){
-      // fallback to insert if no unique constraint
-      sb.from('announcement_likes').insert({
-        announcement_id: String(annId),
-        user_email: userKey,
+      .eq('announcement_id', String(annId)).eq('user_email', userKey)
+      .then(function(){ refreshAnnLikeCount(annId, spanEl); }).catch(function(){});
+  } else {
+    // Like
+    liked[annId] = true;
+    localStorage.setItem('gerama_ann_liked', JSON.stringify(liked));
+    if(spanEl) spanEl.textContent = currentCount + 1;
+    if(btn) btn.classList.add('liked');
+    if(sb){
+      sb.from('announcement_likes').upsert({
+        announcement_id: String(annId), user_email: userKey,
         created_at: new Date().toISOString()
-      }).then(function(){}).catch(function(){});
-    });
+      }, {onConflict:'announcement_id,user_email'})
+      .then(function(){ refreshAnnLikeCount(annId, spanEl); })
+      .catch(function(){
+        sb.from('announcement_likes').insert({
+          announcement_id: String(annId), user_email: userKey,
+          created_at: new Date().toISOString()
+        }).then(function(){ refreshAnnLikeCount(annId, spanEl); }).catch(function(){});
+      });
+    }
   }
+}
+
+function refreshAnnLikeCount(annId, spanEl) {
+  var sb = window.geramaSupabase; if(!sb || !spanEl) return;
+  sb.from('announcement_likes').select('*', {count:'exact', head:true})
+    .eq('announcement_id', String(annId))
+    .then(function(res){ if(res.count != null) spanEl.textContent = res.count; })
+    .catch(function(){});
 }
 
 function copyAnnLink(url) {
