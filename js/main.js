@@ -324,7 +324,49 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     setInterval(updateNavBadges, 60000); // refresh every minute
 })();
 
-// ── SITE BOTTOM NAV (mobile) ──────────────────────────────────────
+// ── SCROLL TO TOP BUTTON ─────────────────────────────────────────
+(function() {
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(skip.indexOf(page) !== -1) return;
+
+    var btn = document.createElement('button');
+    btn.id = 'scrollTopBtn';
+    btn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+    btn.setAttribute('aria-label', 'Scroll to top');
+    btn.style.cssText = [
+        'position:fixed', 'bottom:5rem', 'right:1.2rem', 'z-index:450',
+        'width:44px', 'height:44px', 'border-radius:50%',
+        'background:linear-gradient(135deg,#1B5E20,#2E7D32)',
+        'color:white', 'border:none', 'cursor:pointer',
+        'box-shadow:0 4px 16px rgba(27,94,32,0.4)',
+        'display:none', 'align-items:center', 'justify-content:center',
+        'font-size:1rem', 'transition:all 0.3s'
+    ].join(';');
+    document.body.appendChild(btn);
+
+    btn.onclick = function() { window.scrollTo({top:0, behavior:'smooth'}); };
+
+    window.addEventListener('scroll', function() {
+        btn.style.display = window.scrollY > 400 ? 'flex' : 'none';
+    }, {passive:true});
+})();
+
+// ── AUTO-CLOSE EXPIRED QUIZ SESSIONS (attendance) ────────────────
+(function() {
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(page !== 'classroom.html') return;
+    // Check every 30s if any active attendance session has expired
+    setInterval(function() {
+        if(typeof window.geramaSupabase === 'undefined') return;
+        var sb = window.geramaSupabase;
+        sb.from('attendance_sessions')
+          .update({is_active: false})
+          .eq('is_active', true)
+          .lt('expires_at', new Date().toISOString())
+          .then(function(){}).catch(function(){});
+    }, 30000);
+})();
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';

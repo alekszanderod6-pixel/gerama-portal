@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GERAMA Admin Dashboard</title>
 <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -511,6 +511,10 @@ tr:hover td{background:#fafcfa;}
     </div>
     <div class="card">
       <div class="card-title"><i class="fas fa-list"></i> Posted Quizzes</div>
+      <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <button class="btn-gold" onclick="window.loadQzList()" style="padding:0.5rem 1rem;font-size:0.85rem;"><i class="fas fa-sync-alt"></i> Refresh</button>
+        <button class="btn-primary" style="padding:0.5rem 1rem;font-size:0.85rem;background:#6366f1;" onclick="closeAllExpiredQuizzes()"><i class="fas fa-lock"></i> Close All Expired</button>
+      </div>
       <div id="quizzesAdminList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
   </div>

@@ -964,11 +964,24 @@ window.extendQuizDeadline = async function(id){
 
 window.toggleQuizStatus = async function(id, newStatus){
   var sb = window.geramaSupabase; if(!sb) return;
-  var label = newStatus === 'closed' ? 'Close this quiz? Students will no longer be able to take it.' : 'Reopen this quiz?';
+  var label = newStatus === 'closed' ? 'Close this quiz? Students will no longer be able to take it (stays in history).' : 'Reopen this quiz for students?';
   if(!confirm(label)) return;
   var {error} = await sb.from('quizzes').update({status: newStatus}).eq('id', id);
   if(error){ alert('Error: '+error.message); return; }
   window.logActivity((newStatus==='closed'?'Closed':'Reopened')+' quiz: '+id);
+  window.loadQzList();
+};
+
+window.closeAllExpiredQuizzes = async function(){
+  var sb = window.geramaSupabase; if(!sb) return;
+  if(!confirm('Close all quizzes whose deadline has passed? They will stay visible as history.')) return;
+  var {error} = await sb.from('quizzes')
+    .update({status:'closed'})
+    .eq('status','active')
+    .lt('deadline', new Date().toISOString());
+  if(error){ alert('Error: '+error.message); return; }
+  window.logActivity('Auto-closed all expired quizzes');
+  window.showStatus('quizStatus','✅ All expired quizzes closed.','ok');
   window.loadQzList();
 };
 
