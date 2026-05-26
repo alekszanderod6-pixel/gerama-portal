@@ -1177,28 +1177,77 @@ window.loadClsList = async function(){
   var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
   var {data} = await sb.from('classes').select('*').order('scheduled_at',{ascending:false});
   if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No classes scheduled yet.</p>'; return; }
+
   var now = Date.now();
-  el.innerHTML = data.map(function(c){
+
+  // Separate active (upcoming/live) from ended (history)
+  var active = data.filter(function(c){ return c.status !== 'ended'; });
+  var ended  = data.filter(function(c){ return c.status === 'ended'; });
+
+  function renderCard(c){
     var dt = new Date(c.scheduled_at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-    var isPast = new Date(c.scheduled_at).getTime() < now;
-    var badge = c.status==='live' ? '<span style="background:#fee2e2;color:#dc2626;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">🔴 LIVE</span>'
-              : isPast ? '<span style="background:#f3f4f6;color:#6b7280;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Ended</span>'
-              : '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Upcoming</span>';
-    return '<div class="sub-card">'+
-      '<div class="sub-info"><strong>'+window.escHtml(c.course)+' — '+window.escHtml(c.topic)+' '+badge+'</strong>'+
-      '<div class="sub-meta"><b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+'<br>'+
-      '<a href="'+window.escAttr(c.meet_link||'#')+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;"><i class="fas fa-link"></i> '+window.escHtml((c.meet_link||'').substring(0,50))+'</a></div></div>'+
-      '<div class="sub-actions">'+
-        (c.status!=='live'&&!isPast?'<button class="btn-gold" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="setClassStatus(\''+c.id+'\',\'live\')"><i class="fas fa-broadcast-tower"></i> Go Live</button>':'')+''+
-        (c.status==='live'?'<button class="btn-primary" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="setClassStatus(\''+c.id+'\',\'ended\')"><i class="fas fa-stop"></i> End</button>':'')+
-        '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')"><i class="fas fa-trash"></i></button>'+
-      '</div></div>';
-  }).join('');
+    var isLive   = c.status === 'live';
+    var isEnded  = c.status === 'ended';
+    var isPast   = new Date(c.scheduled_at).getTime() < now;
+
+    var badge = isLive
+      ? '<span style="background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;animation:pulse 2s infinite;">🔴 LIVE NOW</span>'
+      : isEnded
+        ? '<span style="background:#f3f4f6;color:#6b7280;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">✅ Ended</span>'
+        : isPast
+          ? '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">⏰ Time Passed</span>'
+          : '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">📅 Upcoming</span>';
+
+    // Buttons:
+    // - Not live + not ended → show "Go Live" (always, even if time passed)
+    // - Live → show "End Class" 
+    // - Ended → show "Reopen" (in case of mistake)
+    var goLiveBtn   = (!isLive && !isEnded) ? '<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'live\')"><i class="fas fa-broadcast-tower"></i> Go Live</button>' : '';
+    var endBtn      = isLive ? '<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:#dc2626;" onclick="setClassStatus(\''+c.id+'\',\'ended\')"><i class="fas fa-stop-circle"></i> End Class</button>' : '';
+    var reopenBtn   = isEnded ? '<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'upcoming\')"><i class="fas fa-redo"></i> Reopen</button>' : '';
+    var deleteBtn   = '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')" style="font-size:0.78rem;padding:0.4rem 0.7rem;"><i class="fas fa-trash"></i></button>';
+
+    return '<div class="sub-card" style="'+(isLive?'border-left:4px solid #dc2626;background:linear-gradient(135deg,#fff5f5,#fff);':'')+'">'+
+      '<div class="sub-info">'+
+        '<strong>'+window.escHtml(c.course)+' — '+window.escHtml(c.topic)+' '+badge+'</strong>'+
+        '<div class="sub-meta">'+
+          '<b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+
+          (isLive?'<br><span style="color:#dc2626;font-weight:600;font-size:0.8rem;"><i class="fas fa-circle" style="animation:pulse 1s infinite;"></i> Class is currently LIVE</span>':'')+
+          '<br><a href="'+window.escAttr(c.meet_link||'#')+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;"><i class="fas fa-link"></i> '+window.escHtml((c.meet_link||'').substring(0,55))+'</a>'+
+        '</div>'+
+      '</div>'+
+      '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+deleteBtn+'</div>'+
+    '</div>';
+  }
+
+  var html = '';
+
+  // Active classes first
+  if(active.length){
+    html += active.map(renderCard).join('');
+  }
+
+  // Ended classes as collapsible history
+  if(ended.length){
+    html += '<div style="margin-top:1.5rem;">'+
+      '<div style="font-size:0.82rem;font-weight:700;color:var(--muted,#6b7280);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.5rem;padding-top:0.8rem;border-top:1px solid #e5e7eb;">'+
+        '<i class="fas fa-history"></i> Past Classes ('+ended.length+')'+
+      '</div>'+
+      ended.map(renderCard).join('')+
+    '</div>';
+  }
+
+  el.innerHTML = html || '<p style="color:#9ca3af;text-align:center;padding:1rem;">No classes yet.</p>';
 };
 
 window.setClassStatus = async function(id, status){
   var sb = window.geramaSupabase; if(!sb) return;
-  await sb.from('classes').update({status:status}).eq('id',id);
+  // Map 'upcoming' back to the correct status
+  var dbStatus = status === 'upcoming' ? 'upcoming' : status;
+  var {error} = await sb.from('classes').update({status: dbStatus}).eq('id', id);
+  if(error){ alert('Error: '+error.message); return; }
+  var label = status==='live' ? '🔴 Class is now LIVE!' : status==='ended' ? '✅ Class ended — moved to history.' : '📅 Class reopened.';
+  window.logActivity(label+' ('+id+')');
   window.loadClsList();
 };
 
