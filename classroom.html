@@ -2228,6 +2228,7 @@ async function markQuizDone() {
   statusEl.textContent = '✅ Recorded! This quiz has been added to your completed list.';
   statusEl.className = 'status-msg status-ok';
   btn.innerHTML = '✅ Completed';
+  if(window.launchConfetti) window.launchConfetti();
 
   setTimeout(function(){
     closeQuizModal();
@@ -2377,6 +2378,7 @@ async function markAttendance() {
   }
 
   setStatus('🎉 Attendance marked! +1 point earned.','#4ade80');
+  if(window.launchConfetti) window.launchConfetti();
   document.getElementById('attendCodeInput').value = '';
 
   // Refresh history

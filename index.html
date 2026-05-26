@@ -419,6 +419,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   <button class="pwa-install-btn" id="pwaHeaderBtn" aria-label="Install app" title="Install GERAMA as an app">
     <i class="fas fa-download"></i> Install App
   </button>
+  <button onclick="openQuickSearch()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.95rem;transition:all 0.2s;flex-shrink:0;" title="Quick Search (Ctrl+K)" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fas fa-search"></i></button>
 </header>
 
 <!-- HERO — only Aleks's photo, with the same overlay/animation style -->
@@ -443,9 +444,13 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 <div class="stats-bar">
   <div class="stat-item"><span class="stat-num" data-target="1000">0</span><div class="stat-lbl">Study Materials</div></div>
   <div class="stat-item"><span class="stat-num" data-target="300">0</span><div class="stat-lbl">Active Students</div></div>
-  <div class="stat-item"><span class="stat-num" data-target
-    ="8">0</span><div class="stat-lbl">Engineering Programs</div></div>
-  <div class="stat-item"><span class="stat-num">24/7</span><div class="stat-lbl">Free Access</div></div>
+  <div class="stat-item"><span class="stat-num" data-target="8">0</span><div class="stat-lbl">Engineering Programs</div></div>
+  <div class="stat-item">
+    <span class="stat-num" id="liveVisitorCount" style="color:#4ade80;">—</span>
+    <div class="stat-lbl" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">
+      <span style="width:8px;height:8px;background:#4ade80;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span> Online Now
+    </div>
+  </div>
 </div>
 
 <!-- ANNOUNCEMENTS — shown first after hero/stats -->
@@ -575,6 +580,27 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   <p>Join hundreds of UENR engineering students already using GERAMA to study smarter.</p>
   <a href="resources.html" class="btn-cta"><i class="fas fa-rocket"></i> Start Exploring Now</a>
 </section>
+
+<!-- QUICK SEARCH MODAL -->
+<div id="quickSearchModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:8000;align-items:flex-start;justify-content:center;padding:5rem 1rem 1rem;backdrop-filter:blur(4px);">
+  <div style="background:white;border-radius:20px;width:100%;max-width:600px;box-shadow:0 30px 60px rgba(0,0,0,0.3);overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:0.8rem;padding:1rem 1.2rem;border-bottom:1px solid #e5e7eb;">
+      <i class="fas fa-search" style="color:#1B5E20;font-size:1.1rem;flex-shrink:0;"></i>
+      <input type="text" id="quickSearchInput" placeholder="Search materials, quizzes, announcements..." style="flex:1;border:none;outline:none;font-size:1rem;font-family:'Inter',sans-serif;color:#1e2a3e;" oninput="runQuickSearch(this.value)" autofocus>
+      <button onclick="closeQuickSearch()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:1.2rem;padding:0.2rem;">✕</button>
+    </div>
+    <div id="quickSearchResults" style="max-height:400px;overflow-y:auto;padding:0.5rem;">
+      <div style="text-align:center;padding:2rem;color:#9ca3af;font-size:0.9rem;"><i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>Type to search across all content</div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGNMENT DEADLINE BANNER -->
+<div id="deadlineBanner" style="display:none;position:fixed;bottom:4.5rem;left:50%;transform:translateX(-50%);z-index:500;background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;padding:0.7rem 1.4rem;border-radius:30px;font-size:0.85rem;font-weight:700;box-shadow:0 8px 25px rgba(220,38,38,0.4);display:none;align-items:center;gap:0.6rem;white-space:nowrap;cursor:pointer;max-width:90vw;overflow:hidden;text-overflow:ellipsis;" onclick="window.location.href='classroom.html?tab=assignments'">
+  <i class="fas fa-exclamation-circle"></i>
+  <span id="deadlineBannerText">Assignment due soon!</span>
+  <i class="fas fa-arrow-right" style="margin-left:0.3rem;"></i>
+</div>
 
 <!-- FOOTER -->
 <footer class="site-footer">
@@ -910,6 +936,129 @@ function submitPotwNomination() {
       });
     }).catch(function(){});
   }, 1200);
+})();
+
+// ── LIVE VISITOR COUNT ────────────────────────────────────────────
+(function() {
+  var el = document.getElementById('liveVisitorCount');
+  if(!el) return;
+  function updateCount() {
+    if(typeof window.geramaSupabase === 'undefined') { setTimeout(updateCount, 800); return; }
+    var sb = window.geramaSupabase;
+    var fiveMinAgo = new Date(Date.now() - 5*60*1000).toISOString();
+    sb.from('page_views').select('id', {count:'exact', head:true})
+      .gte('visited_at', fiveMinAgo)
+      .then(function(res){
+        var count = Math.max(1, (res.count||0));
+        el.textContent = count;
+      }).catch(function(){ el.textContent = '—'; });
+  }
+  updateCount();
+  setInterval(updateCount, 30000);
+})();
+
+// ── QUICK SEARCH ──────────────────────────────────────────────────
+var _searchData = null;
+
+function openQuickSearch() {
+  var modal = document.getElementById('quickSearchModal');
+  if(modal){ modal.style.display='flex'; setTimeout(function(){ var inp=document.getElementById('quickSearchInput'); if(inp) inp.focus(); },100); }
+  if(!_searchData) loadSearchData();
+}
+function closeQuickSearch() {
+  var modal = document.getElementById('quickSearchModal');
+  if(modal){ modal.style.display='none'; var inp=document.getElementById('quickSearchInput'); if(inp) inp.value=''; }
+}
+document.addEventListener('keydown', function(e){
+  if((e.ctrlKey||e.metaKey) && e.key==='k'){ e.preventDefault(); openQuickSearch(); }
+  if(e.key==='Escape') closeQuickSearch();
+});
+document.getElementById('quickSearchModal').addEventListener('click', function(e){ if(e.target===this) closeQuickSearch(); });
+
+async function loadSearchData() {
+  if(typeof window.geramaSupabase === 'undefined') return;
+  var sb = window.geramaSupabase;
+  try {
+    var [matRes, annRes, qzRes] = await Promise.all([
+      sb.from('materials').select('name,course,level,type,file_url').limit(200),
+      sb.from('announcements').select('title,message').limit(50),
+      sb.from('quizzes').select('title,course,description').eq('status','active').limit(50)
+    ]);
+    _searchData = {
+      materials: matRes.data||[],
+      announcements: annRes.data||[],
+      quizzes: qzRes.data||[]
+    };
+  } catch(e){}
+}
+
+function runQuickSearch(q) {
+  var res = document.getElementById('quickSearchResults');
+  if(!res) return;
+  q = (q||'').trim().toLowerCase();
+  if(!q){ res.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;font-size:0.9rem;"><i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>Type to search</div>'; return; }
+  if(!_searchData){ res.innerHTML='<div style="text-align:center;padding:1.5rem;color:#9ca3af;">Loading...</div>'; loadSearchData(); return; }
+
+  var results = [];
+  (_searchData.materials||[]).forEach(function(m){
+    if((m.name||'').toLowerCase().includes(q)||(m.course||'').toLowerCase().includes(q)){
+      results.push({type:'material',icon:'fas fa-file-pdf',color:'#1B5E20',title:m.name,sub:m.course+' · '+m.level+' · '+m.type,url:m.file_url||'resources.html'});
+    }
+  });
+  (_searchData.announcements||[]).forEach(function(a){
+    if((a.title||'').toLowerCase().includes(q)||(a.message||'').toLowerCase().includes(q)){
+      results.push({type:'announcement',icon:'fas fa-bullhorn',color:'#f59e0b',title:a.title,sub:(a.message||'').substring(0,60)+'...',url:'index.html'});
+    }
+  });
+  (_searchData.quizzes||[]).forEach(function(qz){
+    if((qz.title||'').toLowerCase().includes(q)||(qz.course||'').toLowerCase().includes(q)){
+      results.push({type:'quiz',icon:'fas fa-brain',color:'#6366f1',title:qz.title,sub:qz.course||'Quiz',url:'classroom.html?tab=quizzes'});
+    }
+  });
+
+  if(!results.length){ res.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;">No results for "'+q+'"</div>'; return; }
+
+  res.innerHTML = results.slice(0,12).map(function(r){
+    return '<a href="'+r.url+'" onclick="closeQuickSearch()" style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem 1rem;text-decoration:none;color:#1e2a3e;border-radius:10px;transition:background 0.15s;margin:0.2rem 0.3rem;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">'+
+      '<div style="width:36px;height:36px;border-radius:10px;background:'+r.color+'20;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="'+r.icon+'" style="color:'+r.color+';font-size:0.9rem;"></i></div>'+
+      '<div style="min-width:0;"><div style="font-weight:600;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.title+'</div>'+
+      '<div style="font-size:0.75rem;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.sub+'</div></div>'+
+      '<span style="margin-left:auto;font-size:0.7rem;background:'+r.color+'15;color:'+r.color+';padding:0.15rem 0.5rem;border-radius:10px;flex-shrink:0;">'+r.type+'</span>'+
+    '</a>';
+  }).join('');
+}
+
+// ── ASSIGNMENT DEADLINE BANNER ────────────────────────────────────
+(function() {
+  function checkDeadlines() {
+    if(typeof window.geramaSupabase === 'undefined') { setTimeout(checkDeadlines, 1000); return; }
+    var sb = window.geramaSupabase;
+    var now = new Date();
+    var in48h = new Date(now.getTime() + 48*60*60*1000).toISOString();
+    sb.from('assignments').select('title,deadline')
+      .gt('deadline', now.toISOString())
+      .lt('deadline', in48h)
+      .order('deadline', {ascending:true})
+      .limit(1)
+      .then(function(res){
+        var banner = document.getElementById('deadlineBanner');
+        var text = document.getElementById('deadlineBannerText');
+        if(!banner||!text) return;
+        if(res.data && res.data.length) {
+          var a = res.data[0];
+          var dl = new Date(a.deadline);
+          var diff = dl.getTime() - now.getTime();
+          var hrs = Math.floor(diff/3600000);
+          var mins = Math.floor((diff%3600000)/60000);
+          var timeStr = hrs > 0 ? hrs+'h '+mins+'m' : mins+'m';
+          text.textContent = '⚠️ "'+a.title+'" due in '+timeStr;
+          banner.style.display = 'flex';
+        } else {
+          banner.style.display = 'none';
+        }
+      }).catch(function(){});
+  }
+  setTimeout(checkDeadlines, 2000);
 })();
 
 // ── PWA: Register Service Worker ──

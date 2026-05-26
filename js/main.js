@@ -90,6 +90,10 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
                 </div>
                 <button id="editProfileDrawerBtn" style="background:#FFC107; color:#1B5E20; margin:1rem auto; width:90%; border:none; padding:0.6rem; border-radius:30px; display:block; font-weight:600; cursor:pointer;">✏️ Edit Profile</button>
+                <div style="display:flex;gap:0.5rem;margin:0 auto 0.5rem;width:90%;">
+                  <button id="darkModeBtn" onclick="window._toggleDarkMode && window._toggleDarkMode()" style="flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:0.5rem;border-radius:20px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;font-family:'Inter',sans-serif;transition:all 0.2s;"><i class="fas fa-moon"></i> Dark</button>
+                  <div id="streakBadge" style="flex:1;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.3);color:#FFC107;padding:0.5rem;border-radius:20px;font-size:0.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:0.3rem;" title="Study streak">🔥 <span id="streakCount">0</span>d</div>
+                </div>
                 <button id="drawerLogoutBtn" class="logout-drawer">Logout</button>
             </div>
             <div id="drawerOverlay" class="overlay"></div>
@@ -159,6 +163,16 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         }
         updateClock();
         setInterval(updateClock, 1000);
+
+        // Update streak display
+        var streakEl = document.getElementById('streakCount');
+        if(streakEl && window._studyStreak) streakEl.textContent = window._studyStreak.count || 1;
+
+        // Apply dark mode button state
+        var darkBtn = document.getElementById('darkModeBtn');
+        if(darkBtn && localStorage.getItem('gerama_dark') === '1') {
+            darkBtn.innerHTML = '<i class="fas fa-sun"></i> Light';
+        }
     }
     
     function loadProfileToModal() {
@@ -257,6 +271,100 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     }
     setTimeout(trackView, 1000);
 })();
+
+// ── STUDY STREAK TRACKER ─────────────────────────────────────────
+(function() {
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(skip.indexOf(page) !== -1) return;
+
+    var today = new Date().toDateString();
+    var streak = JSON.parse(localStorage.getItem('gerama_streak') || '{"count":0,"lastDate":"","best":0}');
+
+    if(streak.lastDate !== today) {
+        var yesterday = new Date(Date.now() - 86400000).toDateString();
+        if(streak.lastDate === yesterday) {
+            streak.count++;
+        } else if(streak.lastDate !== today) {
+            streak.count = 1;
+        }
+        streak.lastDate = today;
+        streak.best = Math.max(streak.best || 0, streak.count);
+        localStorage.setItem('gerama_streak', JSON.stringify(streak));
+    }
+    window._studyStreak = streak;
+})();
+
+// ── DARK MODE ─────────────────────────────────────────────────────
+(function() {
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(skip.indexOf(page) !== -1) return;
+
+    var isDark = localStorage.getItem('gerama_dark') === '1';
+
+    function applyDark(on) {
+        if(on) {
+            document.documentElement.style.setProperty('--light','#0f172a');
+            document.documentElement.style.setProperty('--text','#e2e8f0');
+            document.documentElement.style.setProperty('--muted','#94a3b8');
+            document.body.style.background = '#0f172a';
+            document.body.style.color = '#e2e8f0';
+            document.body.classList.add('dark-mode');
+        } else {
+            document.documentElement.style.removeProperty('--light');
+            document.documentElement.style.removeProperty('--text');
+            document.documentElement.style.removeProperty('--muted');
+            document.body.style.background = '';
+            document.body.style.color = '';
+            document.body.classList.remove('dark-mode');
+        }
+    }
+
+    if(isDark) applyDark(true);
+    window._toggleDarkMode = function() {
+        isDark = !isDark;
+        localStorage.setItem('gerama_dark', isDark ? '1' : '0');
+        applyDark(isDark);
+        var btn = document.getElementById('darkModeBtn');
+        if(btn) btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    };
+})();
+
+// ── CONFETTI CELEBRATION ──────────────────────────────────────────
+window.launchConfetti = function() {
+    var colors = ['#1B5E20','#FFC107','#6366f1','#dc2626','#059669','#0ea5e9'];
+    for(var i = 0; i < 80; i++) {
+        (function(i) {
+            setTimeout(function() {
+                var el = document.createElement('div');
+                el.style.cssText = [
+                    'position:fixed',
+                    'top:-10px',
+                    'left:'+Math.random()*100+'vw',
+                    'width:'+(6+Math.random()*8)+'px',
+                    'height:'+(6+Math.random()*8)+'px',
+                    'background:'+colors[Math.floor(Math.random()*colors.length)],
+                    'border-radius:'+(Math.random()>0.5?'50%':'2px'),
+                    'z-index:99999',
+                    'pointer-events:none',
+                    'animation:confettiFall '+(1.5+Math.random()*2)+'s linear forwards',
+                    'transform:rotate('+Math.random()*360+'deg)'
+                ].join(';');
+                document.body.appendChild(el);
+                setTimeout(function(){ el.remove(); }, 4000);
+            }, i * 30);
+        })(i);
+    }
+};
+
+// Add confetti keyframe once
+if(!document.getElementById('confettiStyle')) {
+    var s = document.createElement('style');
+    s.id = 'confettiStyle';
+    s.textContent = '@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}';
+    document.head.appendChild(s);
+}
 
 // ── GLOBAL NOTIFICATION BADGES ────────────────────────────────────
 (function() {
