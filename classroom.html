@@ -2013,25 +2013,26 @@ async function loadQuizzes() {
   }
 
   el.innerHTML = data.map(function(q){
+    var isClosed = q.status === 'closed';
     var deadline = q.deadline ? new Date(q.deadline) : null;
     var isPast   = deadline && deadline.getTime() < now;
-    var isSoon   = deadline && !isPast && (deadline.getTime()-now) < 86400000*2;
-    var dlClass  = isPast ? 'passed' : isSoon ? 'soon' : 'ok';
+    var isSoon   = deadline && !isPast && !isClosed && (deadline.getTime()-now) < 86400000*2;
+    var dlClass  = (isPast||isClosed) ? 'passed' : isSoon ? 'soon' : 'ok';
     var dlText   = '';
     if(deadline){
-      dlText = isPast
+      dlText = (isPast||isClosed)
         ? '⚠️ Deadline passed'
         : 'Due: '+deadline.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' · '+deadline.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     }
-    var statusClass = isPast ? 'quiz-status-ended' : isSoon ? 'quiz-status-soon' : 'quiz-status-active';
-    var statusText  = isPast ? '🔒 Closed' : isSoon ? '⚡ Closing Soon' : '✅ Open';
+    var statusClass = isClosed ? 'quiz-status-ended' : isPast ? 'quiz-status-ended' : isSoon ? 'quiz-status-soon' : 'quiz-status-active';
+    var statusText  = isClosed ? '🔒 Closed by Admin' : isPast ? '⏰ Deadline Passed' : isSoon ? '⚡ Closing Soon' : '✅ Open';
     var isDone = doneIds[q.id];
     if(!isPast && !isClosed && !isDone) openCount++;
     if(isSoon && !isClosed && !isDone) soonCount++;
 
     // Deadline live countdown
     var countdownHtml = '';
-    if(deadline && !isPast && !isDone){
+    if(deadline && !isPast && !isClosed && !isDone){
       var diff = deadline.getTime() - now;
       var days = Math.floor(diff/86400000);
       var hrs  = Math.floor((diff%86400000)/3600000);
@@ -2040,16 +2041,15 @@ async function loadQuizzes() {
       countdownHtml = '<div class="quiz-deadline-countdown"><i class="fas fa-hourglass-half"></i> '+countStr+'</div>';
     }
 
-    // Use data-qid attribute — no JSON in onclick
     var actionBtn = isDone
       ? '<span class="quiz-done-badge"><i class="fas fa-check-circle"></i> Completed</span>'
-      : isPast
-        ? '<button class="btn-take-quiz" disabled><i class="fas fa-lock"></i> Closed</button>'
+      : (isClosed||isPast)
+        ? '<button class="btn-take-quiz" disabled style="opacity:0.5;cursor:not-allowed;"><i class="fas fa-lock"></i> Closed</button>'
         : '<button class="btn-take-quiz" data-qid="'+q.id+'"><i class="fas fa-play"></i> Take Quiz</button>';
 
     var durationTag = q.duration_mins ? '<span class="quiz-timer"><i class="fas fa-clock"></i> '+q.duration_mins+' min</span>' : '';
     var pointsTag   = q.points ? '<span class="quiz-points-badge"><i class="fas fa-star"></i> '+q.points+' pts</span>' : '';
-    var cardClass   = isDone ? 'quiz-card quiz-done' : (isPast||isClosed) ? 'quiz-card quiz-closed' : 'quiz-card';
+    var cardClass   = isDone ? 'quiz-card quiz-done' : (isClosed||isPast) ? 'quiz-card quiz-closed' : 'quiz-card';
 
     return '<div class="'+cardClass+'" id="qcard-'+q.id+'">'+
       '<span class="quiz-status-badge '+statusClass+'">'+statusText+'</span>'+
@@ -2074,6 +2074,23 @@ async function loadQuizzes() {
     var q = _quizDataStore[qid];
     if(q) openQuizFromData(q);
   });
+
+  // Separate active vs closed/past for history section
+  var activeHtml = data.filter(function(q){ return q.status !== 'closed' && !(q.deadline && new Date(q.deadline).getTime() < now); }).map(function(q){ return document.getElementById('qcard-'+q.id) ? document.getElementById('qcard-'+q.id).outerHTML : ''; }).join('');
+  var closedData = data.filter(function(q){ return q.status === 'closed' || (q.deadline && new Date(q.deadline).getTime() < now); });
+  if(closedData.length){
+    var histSection = document.getElementById('quizHistorySection');
+    if(!histSection){
+      histSection = document.createElement('div');
+      histSection.id = 'quizHistorySection';
+      histSection.style.marginTop = '2rem';
+      el.parentNode.insertBefore(histSection, el.nextSibling);
+    }
+    histSection.innerHTML = '<div style="font-size:0.85rem;font-weight:700;color:var(--muted);margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;padding:0.6rem 0;border-top:1px solid #e5e7eb;"><i class="fas fa-history"></i> Past / Closed Quizzes ('+closedData.length+')</div>';
+  } else {
+    var old = document.getElementById('quizHistorySection');
+    if(old) old.remove();
+  }
 
   // Update stats
   document.getElementById('qzStatOpen').textContent = openCount;
