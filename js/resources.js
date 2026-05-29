@@ -31,8 +31,37 @@ function fileIcon(filename) {
   return "📁";
 }
 
-// ─────────────────────────────────────────────────────────────
-// DOWNLOAD FILE HELPER
+// ─── BOOKMARKS ───────────────────────────────────────────────────
+function toggleBookmark(url, name, btn) {
+  var bookmarks = JSON.parse(localStorage.getItem('gerama_bookmarks')||'[]');
+  var idx = bookmarks.findIndex(function(b){ return b.url === url; });
+  if(idx >= 0) {
+    bookmarks.splice(idx, 1);
+    if(btn){ btn.style.color='#9ca3af'; btn.style.background='none'; btn.title='Bookmark'; }
+  } else {
+    bookmarks.unshift({url:url, name:name, savedAt:new Date().toISOString()});
+    if(btn){ btn.style.color='#1B5E20'; btn.style.background='#e8f5e9'; btn.title='Remove bookmark'; }
+    // Show toast
+    var toast = document.createElement('div');
+    toast.textContent = '🔖 Bookmarked: '+name.substring(0,40);
+    toast.style.cssText='position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:#1B5E20;color:white;padding:0.6rem 1.2rem;border-radius:30px;font-size:0.85rem;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.2);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;';
+    document.body.appendChild(toast);
+    setTimeout(function(){ toast.remove(); }, 2500);
+  }
+  localStorage.setItem('gerama_bookmarks', JSON.stringify(bookmarks));
+}
+
+// Apply saved bookmark states after render
+function applyBookmarkStates() {
+  var bookmarks = JSON.parse(localStorage.getItem('gerama_bookmarks')||'[]');
+  bookmarks.forEach(function(b){
+    var id = 'bm-'+btoa(b.url).replace(/[^a-zA-Z0-9]/g,'').substring(0,12);
+    var btn = document.getElementById(id);
+    if(btn){ btn.style.color='#1B5E20'; btn.style.background='#e8f5e9'; btn.title='Remove bookmark'; }
+  });
+}
+
+// ─── DOWNLOAD FILE HELPER ─────────────────────────────────────────
 // Fetches the file as a blob and triggers a real Save dialog.
 // This ensures clicking Download never just opens the file —
 // it always prompts the user to save it locally.
@@ -514,15 +543,15 @@ function renderCourses(filterText) {
             '<span class="material-name">' + m.name + '</span>' +
           '</div>' +
           '<div class="material-actions">' +
-            // Download button – uses JS to fetch blob so browser triggers Save dialog
-            // rather than navigating away (avoids the "view instead of download" issue)
             '<button class="btn-dl download" onclick="downloadFile(\'' + dlUrl.replace(/'/g, "\\'") + '\',\'' + m.name.replace(/'/g, "\\'") + '\')">' +
               '<i class="fas fa-download"></i> Download' +
             '</button>' +
-            // View button – opens in new tab for inline viewing, never downloads
             '<a class="btn-dl view" href="' + viewUrl + '" target="_blank" rel="noopener">' +
               '<i class="fas fa-eye"></i> View' +
             '</a>' +
+            '<button class="btn-dl" id="bm-' + btoa(dlUrl).replace(/[^a-zA-Z0-9]/g,'').substring(0,12) + '" onclick="toggleBookmark(\'' + dlUrl.replace(/'/g,"\\'") + '\',\'' + m.name.replace(/'/g,"\\'") + '\',this)" style="background:none;border:1px solid #e5e7eb;color:#9ca3af;padding:0.4rem 0.6rem;" title="Bookmark">' +
+              '<i class="fas fa-bookmark"></i>' +
+            '</button>' +
           '</div>' +
         '</div>'
       );

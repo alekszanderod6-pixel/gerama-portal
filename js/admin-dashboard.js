@@ -71,7 +71,7 @@
       if(window.loadAsgList) window.loadAsgList();
       if(window.loadSubmissionsTable) window.loadSubmissionsTable();
     }, 150);
-    if(name === 'quizzes' && window.loadQzList) setTimeout(window.loadQzList, 150);
+    if(name === 'quizzes' && window.loadQzList) setTimeout(function(){ window.loadQzList(); window.loadQzAttempts && window.loadQzAttempts(); }, 150);
     if(name === 'quizrequests' && window.loadQuizRequests) setTimeout(window.loadQuizRequests, 150);
     if(name === 'classes' && window.loadClsList) setTimeout(window.loadClsList, 150);
     if(name === 'attendance') setTimeout(function(){ if(window.loadAttSessions) window.loadAttSessions(); if(window.loadAttRecords) window.loadAttRecords(); }, 150);
@@ -1607,7 +1607,8 @@ window.loadAttRecords = async function(){
       var dt = r.marked_at ? new Date(r.marked_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
       return '<tr>'+
         '<td><strong>'+window.escHtml(r.student_name||'—')+'</strong></td>'+
-        '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(r.student_email||'—')+'</td>'+
+        '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(r.student_email||'—')+'</td>'+
+        '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(r.student_phone||'—')+'</td>'+
         '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
         '<td><span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">+'+( r.points||1)+' pt</span></td>'+
       '</tr>';
@@ -1617,7 +1618,36 @@ window.loadAttRecords = async function(){
         '<strong style="font-size:0.95rem;">'+window.escHtml(title)+'</strong>'+
         '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.78rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">'+records.length+' student'+(records.length!==1?'s':'')+' present</span>'+
       '</div>'+
-      '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Time</th><th>Points</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Phone</th><th>Time</th><th>Points</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
     '</div>';
   }).join('');
+};
+
+// ─── QUIZ ATTEMPTS VIEWER ────────────────────────────────────────
+window.loadQzAttempts = async function(){
+  var el = document.getElementById('qzAttemptsList'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+
+  var {data, error} = await sb.from('quiz_attempts')
+    .select('*, quizzes(title)')
+    .order('completed_at',{ascending:false})
+    .limit(100);
+
+  if(error||!data||!data.length){
+    el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-users" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No quiz attempts yet.</p>';
+    return;
+  }
+
+  el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Quiz</th><th>Completed</th></tr></thead><tbody>'+
+    data.map(function(a){
+      var quizTitle = (a.quizzes && a.quizzes.title) ? window.escHtml(a.quizzes.title) : '<span style="color:#9ca3af;">—</span>';
+      var dt = a.completed_at ? new Date(a.completed_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      return '<tr>'+
+        '<td><strong>'+window.escHtml(a.student_name||'—')+'</strong></td>'+
+        '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(a.student_email||'—')+'</td>'+
+        '<td>'+quizTitle+'</td>'+
+        '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
+      '</tr>';
+    }).join('')+
+  '</tbody></table></div>';
 };

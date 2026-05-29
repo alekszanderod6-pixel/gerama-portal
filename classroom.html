@@ -159,6 +159,23 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 @media(max-width:640px){.reels-feed{grid-template-columns:1fr;}}
 /* Quiz submission form: single column on mobile */
 @media(max-width:500px){
+  .qr-grid{grid-template-columns:1fr !important;}
+}
+/* ── LEADERBOARD ── */
+.lb-card{background:white;border-radius:16px;padding:1rem 1.4rem;margin-bottom:0.7rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05);border:1px solid #e8f0e8;transition:all 0.2s;}
+.lb-card:hover{transform:translateX(4px);}
+.lb-card.top1{background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#fcd34d;}
+.lb-card.top2{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-color:#cbd5e1;}
+.lb-card.top3{background:linear-gradient(135deg,#fff7ed,#fed7aa);border-color:#fdba74;}
+.lb-rank{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.9rem;flex-shrink:0;}
+.lb-rank.r1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:white;}
+.lb-rank.r2{background:linear-gradient(135deg,#94a3b8,#64748b);color:white;}
+.lb-rank.r3{background:linear-gradient(135deg,#fb923c,#ea580c);color:white;}
+.lb-rank.rn{background:#f1f5f9;color:#6b7280;}
+.lb-name{flex:1;font-weight:700;font-size:0.95rem;color:var(--text);}
+.lb-pts{font-weight:800;font-size:1.1rem;color:var(--primary);}
+.lb-pts-lbl{font-size:0.72rem;color:var(--muted);font-weight:600;}
+.lb-you{background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;margin-left:0.4rem;}
   #tab-quizzes .qr-grid{grid-template-columns:1fr !important;}
 }
 .reel-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;}
@@ -392,10 +409,11 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
 <!-- TABS -->
 <div class="tab-bar" style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
-  <button class="tab-btn active" onclick="showTab('classes')"><i class="fas fa-video"></i> Online Classes</button>
+  <button class="tab-btn active" onclick="showTab('classes')"><i class="fas fa-video"></i> Classes</button>
   <button class="tab-btn" onclick="showTab('assignments')"><i class="fas fa-tasks"></i> Assignments</button>
   <button class="tab-btn" onclick="showTab('quizzes')"><i class="fas fa-brain"></i> Quizzes <span id="quizBadge" style="display:none;background:#6366f1;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
   <button class="tab-btn" onclick="showTab('attendance')"><i class="fas fa-clipboard-check"></i> Attendance</button>
+  <button class="tab-btn" onclick="showTab('leaderboard')"><i class="fas fa-trophy"></i> Leaderboard</button>
   <button class="tab-btn" id="qaTabBtn" onclick="showTab('qa')"><i class="fas fa-comments"></i> Q&amp;A <span id="qaBadge" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
   <button class="tab-btn" onclick="showTab('reels')"><i class="fas fa-film"></i> Reels</button>
 </div>
@@ -693,6 +711,19 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
+<!-- ═══ LEADERBOARD TAB ═══ -->
+<div class="tab-section" id="tab-leaderboard">
+  <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:20px;padding:2rem;color:white;margin-bottom:1.5rem;text-align:center;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-30px;right:-30px;width:150px;height:150px;background:rgba(255,193,7,0.06);border-radius:50%;"></div>
+    <div style="font-size:2.5rem;margin-bottom:0.5rem;">🏆</div>
+    <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:0.3rem;">Attendance Leaderboard</h2>
+    <p style="font-size:0.88rem;opacity:0.8;">Top students by attendance points. Keep showing up!</p>
+  </div>
+  <div id="leaderboardList">
+    <div class="empty-state"><i class="fas fa-trophy"></i><p>Loading leaderboard...</p></div>
+  </div>
+</div>
+
 <!-- ═══ QUIZ ATTEMPT MODAL ═══ -->
 <div class="quiz-attempt-modal" id="quizAttemptModal">
   <div class="quiz-attempt-box">
@@ -803,6 +834,7 @@ function showTab(name) {
   if(name === 'assignments') loadAssignments();
   if(name === 'quizzes')     loadQuizzes();
   if(name === 'attendance')  loadAttendance();
+  if(name === 'leaderboard') loadLeaderboard();
   if(name === 'qa'){
     loadQA();
     localStorage.setItem('gerama_qa_last_read', new Date().toISOString());
@@ -2390,6 +2422,66 @@ async function markAttendance() {
 
   // Refresh history
   setTimeout(loadAttendance, 800);
+}
+
+// ══════════════════════════════════════════════════════════════
+// LEADERBOARD
+// ══════════════════════════════════════════════════════════════
+async function loadLeaderboard() {
+  var el = document.getElementById('leaderboardList'); if(!el) return;
+  var sb = window.geramaSupabase;
+  if(!sb){ el.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><p>Not connected.</p></div>'; return; }
+
+  el.innerHTML='<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div>';
+
+  var {data, error} = await sb.from('attendance_records')
+    .select('student_name, student_email, points');
+
+  if(error||!data||!data.length){
+    el.innerHTML='<div class="empty-state"><i class="fas fa-trophy"></i><p>No attendance data yet.<br>Be the first to mark attendance!</p></div>';
+    return;
+  }
+
+  // Aggregate points per student
+  var totals = {};
+  data.forEach(function(r){
+    var key = r.student_email || r.student_name || 'Unknown';
+    var name = r.student_name || r.student_email || 'Student';
+    if(!totals[key]) totals[key] = {name: name, pts: 0};
+    totals[key].pts += (r.points||1);
+  });
+
+  var sorted = Object.keys(totals).map(function(k){ return totals[k]; })
+    .sort(function(a,b){ return b.pts - a.pts; });
+
+  var myEmail = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email)||'';
+  var myName  = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').name)||'';
+
+  var medals = ['🥇','🥈','🥉'];
+  var rankClasses = ['top1','top2','top3'];
+  var rankBtnClasses = ['r1','r2','r3'];
+
+  el.innerHTML = sorted.slice(0,20).map(function(s, i){
+    var rank = i+1;
+    var isMe = myEmail && (s.name === myName || s.name === myEmail);
+    var rankClass = i < 3 ? rankClasses[i] : '';
+    var rankBtnClass = i < 3 ? rankBtnClasses[i] : 'rn';
+    var rankDisplay = i < 3 ? medals[i] : rank;
+    return '<div class="lb-card '+rankClass+'">'+
+      '<div class="lb-rank '+rankBtnClass+'">'+rankDisplay+'</div>'+
+      '<div class="lb-name">'+escHtml(s.name)+(isMe?'<span class="lb-you">You</span>':'')+'</div>'+
+      '<div style="text-align:right;">'+
+        '<div class="lb-pts">'+s.pts+'</div>'+
+        '<div class="lb-pts-lbl">point'+(s.pts!==1?'s':'')+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  // Show user's own rank if not in top 20
+  var myRank = sorted.findIndex(function(s){ return s.name===myName||s.name===myEmail; });
+  if(myRank >= 20){
+    el.innerHTML += '<div style="text-align:center;padding:0.8rem;font-size:0.85rem;color:var(--muted);">Your rank: <strong>#'+(myRank+1)+'</strong> with <strong>'+sorted[myRank].pts+' pts</strong></div>';
+  }
 }
 
 function toggleFab() {
