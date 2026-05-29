@@ -187,14 +187,27 @@
                 const meta = data.user.user_metadata || {};
                 const username = meta.username || meta.full_name || email.split('@')[0];
                 const existingProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
-                localStorage.setItem('gerama_profile', JSON.stringify({
+                const profileData = {
                     email:   email,
                     name:    existingProfile.name    || username,
                     program: existingProfile.program || meta.program || 'GERAMA Member',
                     level:   existingProfile.level   || meta.level   || '',
                     img:     existingProfile.img     || null,
                     phone:   existingProfile.phone   || meta.phone   || ''
-                }));
+                };
+                localStorage.setItem('gerama_profile', JSON.stringify(profileData));
+
+                // Save to Supabase user_profiles table
+                try {
+                    await window.geramaSupabase.from('user_profiles').upsert({
+                        email:     email,
+                        full_name: profileData.name,
+                        phone:     profileData.phone || null,
+                        program:   profileData.program || null,
+                        level:     profileData.level   || null,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'email' });
+                } catch(e) { /* non-critical */ }
                 
                 // Redirect to home page
                 window.location.href = 'index.html';

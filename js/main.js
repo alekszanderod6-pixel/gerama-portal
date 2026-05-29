@@ -198,7 +198,20 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         const previewImg = document.getElementById("profilePreview").querySelector("img");
         if(previewImg) img = previewImg.src;
         const profile = { name, program, level, img, phone };
+        // Keep existing email
+        const existing = JSON.parse(localStorage.getItem("gerama_profile") || '{}');
+        if(existing.email) profile.email = existing.email;
         localStorage.setItem("gerama_profile", JSON.stringify(profile));
+
+        // Sync to Supabase
+        if(profile.email && typeof window.geramaSupabase !== 'undefined') {
+            window.geramaSupabase.from('user_profiles').upsert({
+                email: profile.email, full_name: name,
+                phone: phone||null, program: program||null, level: level||null,
+                updated_at: new Date().toISOString()
+            }, {onConflict:'email'}).then(function(){}).catch(function(){});
+        }
+
         updateSidebarUI();
         document.getElementById("profileModal").classList.remove("active");
         alert("Profile updated!");

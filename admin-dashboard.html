@@ -141,6 +141,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="attendance"><i class="fas fa-clipboard-check" style="color:#4ade80;"></i> Attendance</div>
     <div class="nav-item" data-panel="classrequests"><i class="fas fa-hand-paper"></i> Class Requests <span id="reqBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="visitors"><i class="fas fa-chart-line"></i> Visitor Stats</div>
+    <div class="nav-item" data-panel="users"><i class="fas fa-users"></i> Registered Users</div>
     <div class="nav-item" data-panel="potw"><i class="fas fa-star"></i> Personality of Week</div>
     <div class="nav-item" data-panel="reels"><i class="fas fa-film"></i> Manage Reels</div>
     <div class="nav-item" data-panel="settings"><i class="fas fa-cog"></i> Settings</div>
@@ -445,6 +446,17 @@ tr:hover td{background:#fafcfa;}
       <div class="card-title"><i class="fas fa-hand-paper"></i> Class Hosting Requests</div>
       <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Students who want to host a class. Approve to generate a Jitsi link and publish live.</p>
       <div id="classRequestsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-users">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-users"></i> Registered Users</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">All students who have signed up and updated their profile. Phone numbers are shown here.</p>
+      <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <button class="btn-gold" onclick="loadUsers()" style="padding:0.5rem 1rem;font-size:0.85rem;"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+      <div id="usersList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
   </div>
 

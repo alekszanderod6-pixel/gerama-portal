@@ -311,8 +311,20 @@ document.getElementById('form').addEventListener('submit', async function(e) {
         // ── SUCCESS — email confirmation is OFF so session is active immediately ──
         var phone = document.getElementById('phone') ? document.getElementById('phone').value.trim() : '';
         localStorage.setItem('gerama_profile', JSON.stringify({
-            name: fullName, program: program, level: level, img: null, phone: phone
+            name: fullName, program: program, level: level, img: null, phone: phone, email: email
         }));
+
+        // Save to Supabase user_profiles table
+        try {
+            await window.geramaSupabase.from('user_profiles').upsert({
+                email:     email,
+                full_name: fullName,
+                phone:     phone || null,
+                program:   program || null,
+                level:     level   || null,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'email' });
+        } catch(e) { /* non-critical */ }
 
         if (data.session) {
             // Logged in immediately — go straight to the site

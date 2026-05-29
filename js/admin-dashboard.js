@@ -77,6 +77,7 @@
     if(name === 'attendance') setTimeout(function(){ if(window.loadAttSessions) window.loadAttSessions(); if(window.loadAttRecords) window.loadAttRecords(); }, 150);
     if(name === 'classrequests' && window.loadClassRequests) setTimeout(window.loadClassRequests, 150);
     if(name === 'visitors' && window.loadVisitorStats) setTimeout(window.loadVisitorStats, 150);
+    if(name === 'users') setTimeout(function(){ if(window.loadUsers) window.loadUsers(); }, 150);
     if(name === 'potw' && window.loadPotwList) setTimeout(window.loadPotwList, 150);
     if(name === 'reels' && window.loadAdminReels) setTimeout(window.loadAdminReels, 150);
   };
@@ -1646,6 +1647,39 @@ window.loadQzAttempts = async function(){
         '<td><strong>'+window.escHtml(a.student_name||'—')+'</strong></td>'+
         '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(a.student_email||'—')+'</td>'+
         '<td>'+quizTitle+'</td>'+
+        '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
+      '</tr>';
+    }).join('')+
+  '</tbody></table></div>';
+};
+
+// ─── REGISTERED USERS ────────────────────────────────────────────
+window.loadUsers = async function(){
+  var el = document.getElementById('usersList'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+
+  var {data, error} = await sb.from('user_profiles')
+    .select('*').order('created_at',{ascending:false});
+
+  if(error){
+    el.innerHTML='<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:1rem;font-size:0.88rem;color:#92400e;">'+
+      '<strong>Setup needed:</strong> Run the <code>user_profiles</code> table SQL in Supabase first.</div>';
+    return;
+  }
+  if(!data||!data.length){
+    el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-users" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No users yet. Students appear here after signing up and updating their profile.</p>';
+    return;
+  }
+
+  el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Program</th><th>Level</th><th>Joined</th></tr></thead><tbody>'+
+    data.map(function(u){
+      var dt = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      return '<tr>'+
+        '<td><strong>'+window.escHtml(u.full_name||'—')+'</strong></td>'+
+        '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'—')+'</td>'+
+        '<td style="font-size:0.8rem;">'+window.escHtml(u.phone||'—')+'</td>'+
+        '<td style="font-size:0.82rem;">'+window.escHtml(u.program||'—')+'</td>'+
+        '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(u.level||'—')+'</span></td>'+
         '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
       '</tr>';
     }).join('')+
