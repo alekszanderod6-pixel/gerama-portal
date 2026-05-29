@@ -121,6 +121,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     <div class="profile-form-group"><label>Name</label><input type="text" id="profileNameInput" placeholder="Your full name"></div>
                     <div class="profile-form-group"><label>Program</label><select id="profileProgramSelect"><option value="">Select program</option><option>Mechanical Engineering</option><option>Electrical Engineering</option><option>Computer Engineering</option><option>Agricultural Engineering</option><option>Petroleum Engineering</option><option>Renewable Energy Engineering</option><option>Civil Engineering</option><option>Environmental Engineering</option></select></div>
                     <div class="profile-form-group"><label>Academic Level</label><select id="profileLevelSelect"><option>L100</option><option>L200</option><option>L300</option><option>L400</option></select></div>
+                    <div class="profile-form-group"><label>Phone Number</label><input type="tel" id="profilePhoneInput" placeholder="e.g. 0551234567"></div>
                     <button id="saveProfileModalBtn" class="profile-btn-save">Save Profile</button>
                     <button id="closeProfileModal" style="margin-top:1rem; background:#ccc; border:none; padding:0.5rem; border-radius:30px;">Cancel</button>
                 </div>
@@ -176,10 +177,12 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     }
     
     function loadProfileToModal() {
-        const profile = JSON.parse(localStorage.getItem("gerama_profile") || '{"name":"","program":"","level":"","img":""}');
+        const profile = JSON.parse(localStorage.getItem("gerama_profile") || '{"name":"","program":"","level":"","img":"","phone":""}');
         document.getElementById("profileNameInput").value = profile.name || "";
         document.getElementById("profileProgramSelect").value = profile.program || "";
         document.getElementById("profileLevelSelect").value = profile.level || "L100";
+        const phoneInput = document.getElementById("profilePhoneInput");
+        if(phoneInput) phoneInput.value = profile.phone || "";
         const preview = document.getElementById("profilePreview");
         if(profile.img) preview.innerHTML = `<img src="${profile.img}" style="width:100%;height:100%;object-fit:cover;">`;
         else preview.innerHTML = '<i class="fas fa-user"></i>';
@@ -189,10 +192,12 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         const name = document.getElementById("profileNameInput").value;
         const program = document.getElementById("profileProgramSelect").value;
         const level = document.getElementById("profileLevelSelect").value;
+        const phoneEl = document.getElementById("profilePhoneInput");
+        const phone = phoneEl ? phoneEl.value.trim() : '';
         let img = null;
         const previewImg = document.getElementById("profilePreview").querySelector("img");
         if(previewImg) img = previewImg.src;
-        const profile = { name, program, level, img };
+        const profile = { name, program, level, img, phone };
         localStorage.setItem("gerama_profile", JSON.stringify(profile));
         updateSidebarUI();
         document.getElementById("profileModal").classList.remove("active");

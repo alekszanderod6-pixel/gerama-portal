@@ -313,6 +313,15 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field full"><label>Description / Instructions *</label><textarea id="asgDesc" rows="4" placeholder="Describe the assignment..."></textarea></div>
         <div class="form-field"><label>Deadline *</label><input type="datetime-local" id="asgDeadline"></div>
         <div class="form-field full"><label>External Link (optional — Google Forms, PDF URL)</label><input type="url" id="asgLink" placeholder="https://forms.gle/..."></div>
+        <div class="form-field full">
+          <label>Attach Assignment File (optional — PDF, DOCX, image)</label>
+          <div class="drop-zone" id="asgDropZone" style="padding:1.2rem;">
+            <i class="fas fa-paperclip"></i>
+            <p>Upload assignment sheet — students can download it</p>
+            <p class="file-chosen" id="asgFileChosen"></p>
+            <input type="file" id="asgFile" accept=".pdf,.doc,.docx,.pptx,.jpg,.jpeg,.png" style="display:none;">
+          </div>
+        </div>
       </div>
       <div style="margin-top:1rem;"><button class="btn-primary" id="postAsgBtn"><i class="fas fa-paper-plane"></i> Post Assignment</button></div>
       <div class="status-msg" id="asgStatus"></div>

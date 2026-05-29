@@ -2288,10 +2288,6 @@ async function submitQuizRequest() {
 // ATTENDANCE SYSTEM
 // ══════════════════════════════════════════════════════════════
 async function loadAttendance() {
-  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
-  var email = profile.email || localStorage.getItem('gerama_uid') || '';
-  var name  = profile.name || 'Student';
-
   var histEl = document.getElementById('attendHistory');
   var totalEl = document.getElementById('attendTotal');
   var totalNum = document.getElementById('attendTotalNum');
@@ -2299,6 +2295,15 @@ async function loadAttendance() {
 
   var sb = window.geramaSupabase;
   if(!sb){ if(histEl) histEl.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><p>Not connected.</p></div>'; return; }
+
+  // Use email from localStorage profile — set at login from Supabase auth
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var email = profile.email || '';
+
+  if(!email){
+    if(histEl) histEl.innerHTML='<div class="empty-state"><i class="fas fa-clipboard-check"></i><p>No attendance recorded yet.<br>Enter a class code above to mark your first attendance.</p></div>';
+    return;
+  }
 
   var {data, error} = await sb.from('attendance_records')
     .select('*').eq('student_email', email).order('marked_at',{ascending:false});
@@ -2328,24 +2333,28 @@ async function loadAttendance() {
 async function markAttendance() {
   var code = (document.getElementById('attendCodeInput').value||'').trim().toUpperCase();
   var statusEl = document.getElementById('attendStatus');
-
   function setStatus(msg, color){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=color; } }
 
   if(!code){ setStatus('Please enter the class code.','#fbbf24'); return; }
-  if(code.length < 4){ setStatus('Code too short. Ask your tutor for the correct code.','#fbbf24'); return; }
+  if(code.length < 4){ setStatus('Code too short.','#fbbf24'); return; }
 
   var sb = window.geramaSupabase;
   if(!sb){ setStatus('Not connected. Please refresh.','#f87171'); return; }
 
+  // Use localStorage profile — email is set there at login from Supabase
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
-  var email = profile.email || localStorage.getItem('gerama_uid') || '';
-  var name  = profile.name || 'Student';
+  var realEmail = profile.email || '';
+  var realName  = profile.name  || 'Student';
+  var phone     = profile.phone || '';
 
-  if(!email){ setStatus('Please set up your profile first.','#fbbf24'); return; }
+  // If no email in profile, user hasn't logged in properly
+  if(!realEmail){
+    setStatus('⚠️ Could not find your account email. Please log out and log back in.','#fbbf24');
+    return;
+  }
 
   setStatus('Verifying code...','rgba(255,255,255,0.7)');
 
-  // Look up the attendance session by code
   var {data: sessions, error: sessErr} = await sb.from('attendance_sessions')
     .select('*').eq('code', code).eq('is_active', true).limit(1);
 
@@ -2355,27 +2364,25 @@ async function markAttendance() {
 
   var session = sessions[0];
 
-  // Check if already marked
+  // Prevent duplicate per session
   var {data: existing} = await sb.from('attendance_records')
-    .select('id').eq('session_id', session.id).eq('student_email', email).limit(1);
+    .select('id').eq('session_id', session.id).eq('student_email', realEmail).limit(1);
 
   if(existing && existing.length){
     setStatus('✅ You already marked attendance for this class!','#4ade80'); return;
   }
 
-  // Mark attendance
   var {error: insertErr} = await sb.from('attendance_records').insert({
-    session_id:   session.id,
-    class_title:  session.class_title || 'Class Session',
-    student_name: name,
-    student_email: email,
-    points:       1,
-    marked_at:    new Date().toISOString()
+    session_id:    session.id,
+    class_title:   session.class_title || 'Class Session',
+    student_name:  realName,
+    student_email: realEmail,
+    student_phone: phone || null,
+    points:        1,
+    marked_at:     new Date().toISOString()
   });
 
-  if(insertErr){
-    setStatus('❌ Error: '+insertErr.message,'#f87171'); return;
-  }
+  if(insertErr){ setStatus('❌ Error: '+insertErr.message,'#f87171'); return; }
 
   setStatus('🎉 Attendance marked! +1 point earned.','#4ade80');
   if(window.launchConfetti) window.launchConfetti();

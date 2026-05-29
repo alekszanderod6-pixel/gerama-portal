@@ -763,6 +763,12 @@
       reader.readAsDataURL(f);
     });
 
+    // Assignment file drop zone
+    setupDropZone('asgDropZone','asgFile',function(f){
+      var el = document.getElementById('asgFileChosen');
+      if(el) el.textContent = '✅ '+f.name;
+    });
+
     // Buttons
     var publishBtn = document.getElementById('publishAnnBtn');
     if(publishBtn) publishBtn.addEventListener('click', window.publishAnnouncement);
@@ -1106,15 +1112,34 @@ window.postAssignment = async function(){
   btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Posting...';
   try{
     var sb = window.geramaSupabase; if(!sb) throw new Error('Not connected.');
+
+    // Upload assignment file if selected
+    var fileUrl = null;
+    var asgFileInput = document.getElementById('asgFile');
+    var asgFile = asgFileInput && asgFileInput.files && asgFileInput.files[0];
+    if(asgFile){
+      window.showStatus('asgStatus','Uploading file...','info');
+      var ext = asgFile.name.split('.').pop();
+      var safeName = title.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now()+'.'+ext;
+      var storagePath = 'assignments/'+safeName;
+      var {error: upErr} = await sb.storage.from(window.BUCKET).upload(storagePath, asgFile, {upsert:true, contentType:asgFile.type});
+      if(upErr) throw new Error('File upload failed: '+upErr.message);
+      fileUrl = sb.storage.from(window.BUCKET).getPublicUrl(storagePath).data.publicUrl;
+    }
+
     var {error} = await sb.from('assignments').insert({
       title:title, course:course, tutor:tutor||null, points:points?parseInt(points):null,
       description:desc, deadline:new Date(deadline).toISOString(),
-      external_link:extLink||null, status:'active', created_at:new Date().toISOString()
+      external_link:extLink||null,
+      file_url: fileUrl||null,
+      status:'active', created_at:new Date().toISOString()
     });
     if(error) throw new Error(error.message);
-    window.logActivity('Posted assignment: '+title);
-    window.showStatus('asgStatus','✅ Assignment posted! Students can see it on the Classroom page.','ok');
+    window.logActivity('Posted assignment: '+title+(fileUrl?' (with file)':''));
+    window.showStatus('asgStatus','✅ Assignment posted! Students can see and download it on the Classroom page.','ok');
     ['asgTitle','asgCourse','asgTutor','asgPoints','asgDesc','asgDeadline','asgLink'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    var fc = document.getElementById('asgFileChosen'); if(fc) fc.textContent='';
+    if(asgFileInput) asgFileInput.value='';
     window.loadAsgList();
   }catch(e){ window.showStatus('asgStatus','❌ '+e.message,'err'); }
   btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Post Assignment';
