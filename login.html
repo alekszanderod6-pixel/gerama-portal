@@ -207,6 +207,23 @@
                         level:     profileData.level   || null,
                         updated_at: new Date().toISOString()
                     }, { onConflict: 'email' });
+
+                    // Fetch index number assigned by admin
+                    var {data: upData} = await window.geramaSupabase
+                        .from('user_profiles').select('index_number,is_active').eq('email',email).single();
+                    if(upData && upData.index_number) {
+                        profileData.index_number = upData.index_number;
+                        localStorage.setItem('gerama_profile', JSON.stringify(profileData));
+                    }
+                    // Check if deactivated
+                    if(upData && upData.is_active === false) {
+                        await window.geramaSupabase.auth.signOut();
+                        sessionStorage.clear();
+                        localStorage.removeItem('gerama_profile');
+                        alert('Your account has been deactivated. Please contact the admin.');
+                        window.location.href = 'login.html';
+                        return;
+                    }
                 } catch(e) { /* non-critical */ }
                 
                 // Redirect to home page

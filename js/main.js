@@ -222,9 +222,13 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         const nameEl = document.getElementById("drawerName");
         const progEl = document.getElementById("drawerProgram");
         const avatarDiv = document.getElementById("drawerAvatar");
-        
+
         if(nameEl) nameEl.textContent = profile.name || "Student";
-        if(progEl) progEl.textContent = 'Program: ' + (profile.program || "Not set");
+
+        // Show index number if available
+        var progText = 'Program: ' + (profile.program || "Not set");
+        if(profile.index_number) progText += ' · ' + profile.index_number;
+        if(progEl) progEl.textContent = progText;
         
         if(avatarDiv) {
             if(profile.img) {

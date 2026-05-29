@@ -2387,6 +2387,28 @@ async function markAttendance() {
 
   setStatus('Verifying code...','rgba(255,255,255,0.7)');
 
+  // Try to get location (non-blocking — attendance still works without it)
+  var lat = null, lng = null, locName = null;
+  try {
+    if(navigator.geolocation) {
+      await new Promise(function(resolve){
+        navigator.geolocation.getCurrentPosition(
+          function(pos){ lat = pos.coords.latitude; lng = pos.coords.longitude; resolve(); },
+          function(){ resolve(); }, // silently fail if denied
+          {timeout:5000, maximumAge:60000}
+        );
+      });
+      // Reverse geocode to get location name (best effort)
+      if(lat && lng) {
+        try {
+          var geoRes = await fetch('https://nominatim.openstreetmap.org/reverse?lat='+lat+'&lon='+lng+'&format=json');
+          var geoData = await geoRes.json();
+          locName = geoData.address ? (geoData.address.city||geoData.address.town||geoData.address.village||geoData.address.county||'') : '';
+        } catch(e){}
+      }
+    }
+  } catch(e){}
+
   var {data: sessions, error: sessErr} = await sb.from('attendance_sessions')
     .select('*').eq('code', code).eq('is_active', true).limit(1);
 
@@ -2410,6 +2432,9 @@ async function markAttendance() {
     student_name:  realName,
     student_email: realEmail,
     student_phone: phone || null,
+    latitude:      lat || null,
+    longitude:     lng || null,
+    location_name: locName || null,
     points:        1,
     marked_at:     new Date().toISOString()
   });

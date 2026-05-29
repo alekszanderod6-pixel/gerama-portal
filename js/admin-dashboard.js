@@ -1611,6 +1611,7 @@ window.loadAttRecords = async function(){
         '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(r.student_email||'—')+'</td>'+
         '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(r.student_phone||'—')+'</td>'+
         '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
+        '<td style="font-size:0.78rem;color:#6b7280;">'+(r.location_name ? '📍 '+window.escHtml(r.location_name) : (r.latitude ? '📍 '+r.latitude.toFixed(4)+','+r.longitude.toFixed(4) : '—'))+'</td>'+
         '<td><span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">+'+( r.points||1)+' pt</span></td>'+
       '</tr>';
     }).join('');
@@ -1619,7 +1620,7 @@ window.loadAttRecords = async function(){
         '<strong style="font-size:0.95rem;">'+window.escHtml(title)+'</strong>'+
         '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.78rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">'+records.length+' student'+(records.length!==1?'s':'')+' present</span>'+
       '</div>'+
-      '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Phone</th><th>Time</th><th>Points</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Phone</th><th>Time</th><th>Location</th><th>Points</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
     '</div>';
   }).join('');
 };
@@ -1671,17 +1672,95 @@ window.loadUsers = async function(){
     return;
   }
 
-  el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Program</th><th>Level</th><th>Joined</th></tr></thead><tbody>'+
+  // Count stats
+  var active = data.filter(function(u){ return u.is_active !== false; }).length;
+  var withIndex = data.filter(function(u){ return u.index_number; }).length;
+
+  el.innerHTML =
+    '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">'+
+      '<div style="background:#e8f5e9;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1B5E20;">'+data.length+'</strong> <span style="color:#6b7280;">Total</span></div>'+
+      '<div style="background:#dbeafe;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1d4ed8;">'+active+'</strong> <span style="color:#6b7280;">Active</span></div>'+
+      '<div style="background:#fef3c7;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#92400e;">'+withIndex+'</strong> <span style="color:#6b7280;">With Index No.</span></div>'+
+    '</div>'+
+    '<div class="tbl-wrap"><table><thead><tr>'+
+      '<th>Name</th><th>Email</th><th>Phone</th><th>Program</th><th>Level</th>'+
+      '<th>Index Number <small style="font-weight:400;color:#9ca3af;">(UETG/ENG/26/001)</small></th>'+
+      '<th>Status</th><th>Actions</th>'+
+    '</tr></thead><tbody>'+
     data.map(function(u){
       var dt = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
-      return '<tr>'+
-        '<td><strong>'+window.escHtml(u.full_name||'—')+'</strong></td>'+
+      var isActive = u.is_active !== false;
+      var statusBadge = isActive
+        ? '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Active</span>'
+        : '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Inactive</span>';
+      var safeEmail = window.escAttr(u.email||'');
+      var safeId = (u.id||'').replace(/[^a-z0-9]/gi,'');
+      return '<tr id="urow-'+safeId+'">'+
+        '<td><strong>'+window.escHtml(u.full_name||'—')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
         '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'—')+'</td>'+
         '<td style="font-size:0.8rem;">'+window.escHtml(u.phone||'—')+'</td>'+
         '<td style="font-size:0.82rem;">'+window.escHtml(u.program||'—')+'</td>'+
         '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(u.level||'—')+'</span></td>'+
-        '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
+        '<td>'+
+          '<div style="display:flex;gap:0.4rem;align-items:center;">'+
+            '<input type="text" id="idx-'+safeId+'" value="'+window.escAttr(u.index_number||'')+'" placeholder="UETG/ENG/26/001" '+
+              'style="padding:0.4rem 0.6rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;width:160px;outline:none;" '+
+              'onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'">'+
+            '<button class="btn-primary" style="padding:0.4rem 0.7rem;font-size:0.75rem;white-space:nowrap;" onclick="saveIndexNumber(\''+safeEmail+'\',\''+safeId+'\')">'+
+              '<i class="fas fa-save"></i> Save'+
+            '</button>'+
+          '</div>'+
+          '<div id="idx-status-'+safeId+'" style="font-size:0.75rem;margin-top:0.2rem;min-height:1rem;"></div>'+
+        '</td>'+
+        '<td>'+statusBadge+'</td>'+
+        '<td>'+
+          (isActive
+            ? '<button class="btn-danger" style="font-size:0.75rem;padding:0.3rem 0.6rem;white-space:nowrap;" onclick="deactivateUser(\''+safeEmail+'\',\''+safeId+'\')"><i class="fas fa-user-slash"></i> Deactivate</button>'
+            : '<button class="btn-success" style="font-size:0.75rem;padding:0.3rem 0.6rem;white-space:nowrap;" onclick="reactivateUser(\''+safeEmail+'\',\''+safeId+'\')"><i class="fas fa-user-check"></i> Reactivate</button>')+
+        '</td>'+
       '</tr>';
     }).join('')+
   '</tbody></table></div>';
+};
+
+window.saveIndexNumber = async function(email, safeId){
+  var inp = document.getElementById('idx-'+safeId);
+  var statusEl = document.getElementById('idx-status-'+safeId);
+  if(!inp) return;
+  var indexNum = inp.value.trim().toUpperCase();
+  if(!indexNum){ if(statusEl){ statusEl.textContent='Enter an index number.'; statusEl.style.color='#f59e0b'; } return; }
+
+  var sb = window.geramaSupabase; if(!sb) return;
+  if(statusEl){ statusEl.textContent='Saving...'; statusEl.style.color='#6b7280'; }
+
+  var {error} = await sb.from('user_profiles')
+    .update({index_number: indexNum, updated_at: new Date().toISOString()})
+    .eq('email', email);
+
+  if(error){
+    if(statusEl){ statusEl.textContent='❌ '+error.message; statusEl.style.color='#dc2626'; }
+    return;
+  }
+  if(statusEl){ statusEl.textContent='✅ Saved!'; statusEl.style.color='#059669'; }
+  window.logActivity('Assigned index number '+indexNum+' to '+email);
+  setTimeout(function(){ if(statusEl) statusEl.textContent=''; }, 3000);
+};
+
+window.deactivateUser = async function(email, safeId){
+  if(!confirm('Deactivate '+email+'? They will be logged out and blocked from the portal.')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {error} = await sb.from('user_profiles').update({is_active:false}).eq('email',email);
+  if(error){ alert('Error: '+error.message); return; }
+  // Sign out the user via Supabase admin (best effort)
+  try{ await sb.auth.admin.deleteUser(email); }catch(e){}
+  window.logActivity('Deactivated user: '+email);
+  window.loadUsers();
+};
+
+window.reactivateUser = async function(email, safeId){
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {error} = await sb.from('user_profiles').update({is_active:true}).eq('email',email);
+  if(error){ alert('Error: '+error.message); return; }
+  window.logActivity('Reactivated user: '+email);
+  window.loadUsers();
 };
