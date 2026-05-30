@@ -458,7 +458,7 @@ tr:hover td{background:#fafcfa;}
             var dt = s.submitted_at ? new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
             var pts = s._points;
             var cur = (s.score!==null&&s.score!==undefined&&s.score!=='') ? s.score : '';
-            var sid = s.id.replace(/[^a-z0-9]/gi,'');
+            var sid = String(s.id).replace(/[^a-z0-9]/gi,'');
             var badge = cur !== ''
               ? '<span style="background:#d1fae5;color:#065f46;font-size:0.82rem;font-weight:800;padding:0.2rem 0.6rem;border-radius:10px;">' + cur + (pts?'/'+pts:'') + '</span>'
               : '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:10px;">Ungraded</span>';
