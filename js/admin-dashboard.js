@@ -1190,41 +1190,41 @@ window.loadAsgList = async function(){
 
 window.loadSubmissionsTable = async function(){
   var el = document.getElementById('submissionsTable'); if(!el) return;
-
-  // Wait for Supabase
-  var waited = 0;
-  while(typeof window.geramaSupabase === 'undefined' && waited < 5000){
-    await new Promise(function(r){ setTimeout(r,200); }); waited += 200;
-  }
   var sb = window.geramaSupabase;
-  if(!sb){ el.innerHTML='<p style="color:#dc2626;">Supabase not connected. Refresh the page.</p>'; return; }
+  if(!sb){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">Not connected. Refresh the page.</p>'; return; }
 
   el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i> Loading submissions...</p>';
 
-  // Fetch ALL submissions — simple select, no joins, no filters
+  // Fetch ALL submissions with a 10-second timeout
   var subsRes;
   try {
-    subsRes = await sb.from('assignment_submissions').select('*').order('submitted_at', {ascending: false});
+    var fetchPromise = sb.from('assignment_submissions').select('*').order('submitted_at', {ascending: false});
+    var timeoutPromise = new Promise(function(_, reject){ setTimeout(function(){ reject(new Error('Request timed out after 10 seconds. Check your Supabase RLS policies.')); }, 10000); });
+    subsRes = await Promise.race([fetchPromise, timeoutPromise]);
   } catch(e) {
     el.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1rem;border-radius:10px;font-size:0.88rem;">'+
-      '<strong>Network error loading submissions:</strong> '+window.escHtml(e.message)+'<br><br>'+
-      '<button onclick="window.loadSubmissionsTable()" style="background:#dc2626;color:white;border:none;padding:0.4rem 1rem;border-radius:20px;cursor:pointer;font-size:0.82rem;">Retry</button>'+
+      '<strong>Error:</strong> '+window.escHtml(e.message)+'<br><br>'+
+      '<strong>Most likely fix — run this in Supabase SQL Editor:</strong><br>'+
+      '<code style="background:#fff;padding:0.4rem 0.6rem;border-radius:6px;font-size:0.78rem;display:block;margin-top:0.4rem;line-height:1.8;">'+
+        'ALTER TABLE assignment_submissions ENABLE ROW LEVEL SECURITY;<br>'+
+        'DROP POLICY IF EXISTS "open_assignment_submissions" ON assignment_submissions;<br>'+
+        'CREATE POLICY "open_assignment_submissions" ON assignment_submissions USING (true) WITH CHECK (true);'+
+      '</code><br>'+
+      '<button onclick="window.loadSubmissionsTable()" style="background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-weight:600;">↺ Retry</button>'+
     '</div>';
     return;
   }
 
-  // Show exact error if any
   if(subsRes.error){
     el.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1rem;border-radius:10px;font-size:0.88rem;">'+
-      '<strong>Database error:</strong> '+window.escHtml(subsRes.error.message)+'<br>'+
-      '<small style="opacity:0.8;">Code: '+window.escHtml(subsRes.error.code||'—')+'</small><br><br>'+
-      '<strong>Fix:</strong> Run this SQL in Supabase → SQL Editor:<br>'+
-      '<code style="background:#fff;padding:0.3rem 0.5rem;border-radius:6px;font-size:0.78rem;display:block;margin-top:0.4rem;word-break:break-all;">'+
-        'ALTER TABLE assignment_submissions ENABLE ROW LEVEL SECURITY; '+
-        'DROP POLICY IF EXISTS "open_assignment_submissions" ON assignment_submissions; '+
+      '<strong>Database error ('+window.escHtml(subsRes.error.code||'—')+'):</strong> '+window.escHtml(subsRes.error.message)+'<br><br>'+
+      '<strong>Fix — run this in Supabase SQL Editor:</strong><br>'+
+      '<code style="background:#fff;padding:0.4rem 0.6rem;border-radius:6px;font-size:0.78rem;display:block;margin-top:0.4rem;line-height:1.8;">'+
+        'ALTER TABLE assignment_submissions ENABLE ROW LEVEL SECURITY;<br>'+
+        'DROP POLICY IF EXISTS "open_assignment_submissions" ON assignment_submissions;<br>'+
         'CREATE POLICY "open_assignment_submissions" ON assignment_submissions USING (true) WITH CHECK (true);'+
-      '</code>'+
-      '<button onclick="window.loadSubmissionsTable()" style="background:#dc2626;color:white;border:none;padding:0.4rem 1rem;border-radius:20px;cursor:pointer;font-size:0.82rem;margin-top:0.6rem;">Retry</button>'+
+      '</code><br>'+
+      '<button onclick="window.loadSubmissionsTable()" style="background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-weight:600;">↺ Retry</button>'+
     '</div>';
     return;
   }
