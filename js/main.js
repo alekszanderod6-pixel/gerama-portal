@@ -497,6 +497,57 @@ if(!document.getElementById('confettiStyle')) {
           .then(function(){}).catch(function(){});
     }, 30000);
 })();
+// ── SYNC INDEX NUMBER FROM SUPABASE ──────────────────────────────
+(function() {
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(skip.indexOf(page) !== -1) return;
+
+    function syncIndexNumber() {
+        if(typeof window.geramaSupabase === 'undefined') { setTimeout(syncIndexNumber, 800); return; }
+        var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+        var email = profile.email || '';
+        if(!email) return;
+
+        window.geramaSupabase.from('user_profiles')
+            .select('index_number, is_active, full_name')
+            .eq('email', email)
+            .single()
+            .then(function(res) {
+                if(!res || !res.data) return;
+
+                // Check if deactivated
+                if(res.data.is_active === false) {
+                    window.geramaSupabase.auth.signOut();
+                    sessionStorage.clear();
+                    localStorage.removeItem('gerama_profile');
+                    alert('Your account has been deactivated by the admin. Please contact GERAMA.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                var updated = false;
+                if(res.data.index_number && res.data.index_number !== profile.index_number) {
+                    profile.index_number = res.data.index_number;
+                    updated = true;
+                }
+                if(res.data.full_name && !profile.name) { profile.name = res.data.full_name; updated = true; }
+
+                if(updated) {
+                    localStorage.setItem('gerama_profile', JSON.stringify(profile));
+                    var progEl = document.getElementById('drawerProgram');
+                    if(progEl) {
+                        var txt = 'Program: '+(profile.program||'Not set');
+                        if(profile.index_number) txt += ' · '+profile.index_number;
+                        progEl.textContent = txt;
+                    }
+                }
+            }).catch(function(){});
+    }
+    setTimeout(syncIndexNumber, 1500);
+})();
+
+// ── SITE BOTTOM NAV ───────────────────────────────────────────────
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';

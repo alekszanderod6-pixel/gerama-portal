@@ -1,4 +1,4 @@
-/* GERAMA Admin Dashboard — extracted JS
+﻿/* GERAMA Admin Dashboard — extracted JS
    This file is intentionally kept as plain JS (no build step).
 */
 
@@ -1677,10 +1677,14 @@ window.loadUsers = async function(){
   var withIndex = data.filter(function(u){ return u.index_number; }).length;
 
   el.innerHTML =
-    '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">'+
+    '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;">'+
       '<div style="background:#e8f5e9;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1B5E20;">'+data.length+'</strong> <span style="color:#6b7280;">Total</span></div>'+
       '<div style="background:#dbeafe;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1d4ed8;">'+active+'</strong> <span style="color:#6b7280;">Active</span></div>'+
       '<div style="background:#fef3c7;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#92400e;">'+withIndex+'</strong> <span style="color:#6b7280;">With Index No.</span></div>'+
+      '<div style="margin-left:auto;display:flex;gap:0.5rem;flex-wrap:wrap;">'+
+        '<button class="btn-gold" onclick="downloadUsersCSV()" style="padding:0.5rem 1rem;font-size:0.82rem;"><i class="fas fa-download"></i> Download CSV</button>'+
+        '<button class="btn-primary" onclick="printUsersTable()" style="padding:0.5rem 1rem;font-size:0.82rem;background:#6366f1;"><i class="fas fa-print"></i> Print</button>'+
+      '</div>'+
     '</div>'+
     '<div class="tbl-wrap"><table><thead><tr>'+
       '<th>Name</th><th>Email</th><th>Phone</th><th>Program</th><th>Level</th>'+
@@ -1730,7 +1734,35 @@ window.saveIndexNumber = async function(email, safeId){
   var indexNum = inp.value.trim().toUpperCase();
   if(!indexNum){ if(statusEl){ statusEl.textContent='Enter an index number.'; statusEl.style.color='#f59e0b'; } return; }
 
+  // Validate format loosely: must contain at least one slash
+  if(indexNum.indexOf('/') === -1){
+    if(statusEl){ statusEl.textContent='⚠️ Format: UETG/ENG/26/001'; statusEl.style.color='#f59e0b'; } return;
+  }
+
   var sb = window.geramaSupabase; if(!sb) return;
+  if(statusEl){ statusEl.textContent='Checking uniqueness...'; statusEl.style.color='#6b7280'; }
+
+  // ── CHECK UNIQUENESS: no other active user should have this index number ──
+  var {data: existing, error: checkErr} = await sb.from('user_profiles')
+    .select('email, full_name')
+    .eq('index_number', indexNum)
+    .neq('email', email)  // exclude current user
+    .eq('is_active', true)
+    .limit(1);
+
+  if(checkErr){ if(statusEl){ statusEl.textContent='❌ Check failed: '+checkErr.message; statusEl.style.color='#dc2626'; } return; }
+
+  if(existing && existing.length > 0){
+    var owner = existing[0].full_name || existing[0].email;
+    if(statusEl){
+      statusEl.textContent = '❌ "'+indexNum+'" is already assigned to '+owner+'. Each index number must be unique.';
+      statusEl.style.color = '#dc2626';
+    }
+    inp.style.borderColor = '#dc2626';
+    setTimeout(function(){ inp.style.borderColor='#e5e7eb'; }, 3000);
+    return;
+  }
+
   if(statusEl){ statusEl.textContent='Saving...'; statusEl.style.color='#6b7280'; }
 
   var {error} = await sb.from('user_profiles')
@@ -1741,9 +1773,18 @@ window.saveIndexNumber = async function(email, safeId){
     if(statusEl){ statusEl.textContent='❌ '+error.message; statusEl.style.color='#dc2626'; }
     return;
   }
-  if(statusEl){ statusEl.textContent='✅ Saved!'; statusEl.style.color='#059669'; }
+
+  if(statusEl){ statusEl.textContent='✅ Saved! Student will see it on next login.'; statusEl.style.color='#059669'; }
+  inp.style.borderColor = '#1B5E20';
   window.logActivity('Assigned index number '+indexNum+' to '+email);
-  setTimeout(function(){ if(statusEl) statusEl.textContent=''; }, 3000);
+
+  // ── PUSH TO STUDENT IN REAL-TIME via Supabase realtime (best effort) ──
+  // The student's portal will pick it up on next page load / login
+  // We also update the input to show it's confirmed
+  setTimeout(function(){
+    if(statusEl) statusEl.textContent='';
+    inp.style.borderColor = '#e5e7eb';
+  }, 4000);
 };
 
 window.deactivateUser = async function(email, safeId){
@@ -1763,4 +1804,70 @@ window.reactivateUser = async function(email, safeId){
   if(error){ alert('Error: '+error.message); return; }
   window.logActivity('Reactivated user: '+email);
   window.loadUsers();
+};
+
+// ─── DOWNLOAD USERS TABLE ────────────────────────────────────────
+window.downloadUsersCSV = async function(){
+  var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
+  var {data} = await sb.from('user_profiles').select('*').order('created_at',{ascending:false});
+  if(!data||!data.length){ alert('No users to download.'); return; }
+
+  var headers = ['Full Name','Email','Phone','Program','Level','Index Number','Status','Joined'];
+  var rows = data.map(function(u){
+    var dt = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB') : '';
+    var status = u.is_active === false ? 'Inactive' : 'Active';
+    return [
+      u.full_name||'', u.email||'', u.phone||'', u.program||'', u.level||'',
+      u.index_number||'', status, dt
+    ].map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
+  });
+
+  var csv = [headers.join(',')].concat(rows).join('\n');
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'GERAMA_Members_'+new Date().toISOString().split('T')[0]+'.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  window.logActivity('Downloaded members list as CSV');
+};
+
+window.printUsersTable = function(){
+  var el = document.getElementById('usersList');
+  if(!el){ alert('Load the users table first.'); return; }
+  var win = window.open('','_blank');
+  win.document.write('<html><head><title>GERAMA Members</title>'+
+    '<style>body{font-family:Inter,sans-serif;padding:2rem;}table{width:100%;border-collapse:collapse;font-size:0.85rem;}'+
+    'th{background:#1B5E20;color:white;padding:0.6rem 0.8rem;text-align:left;}'+
+    'td{padding:0.5rem 0.8rem;border-bottom:1px solid #e5e7eb;}'+
+    'tr:nth-child(even){background:#f8fafc;}'+
+    'h2{color:#1B5E20;margin-bottom:1rem;}'+
+    '.no-print{display:none;}'+
+    '@media print{.no-print{display:none;}}'+
+    '</style></head><body>'+
+    '<h2>GERAMA Registered Members — '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</h2>'+
+    '<table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Program</th><th>Level</th><th>Index No.</th><th>Status</th></tr></thead><tbody>'+
+    Array.from(el.querySelectorAll('tbody tr')).map(function(row, i){
+      var cells = row.querySelectorAll('td');
+      if(cells.length < 6) return '';
+      return '<tr>'+
+        '<td>'+(i+1)+'</td>'+
+        '<td>'+cells[0].querySelector('strong').textContent+'</td>'+
+        '<td>'+cells[1].textContent+'</td>'+
+        '<td>'+cells[2].textContent+'</td>'+
+        '<td>'+cells[3].textContent+'</td>'+
+        '<td>'+cells[4].textContent+'</td>'+
+        '<td><strong>'+(cells[5].querySelector('input')?cells[5].querySelector('input').value:'—')+'</strong></td>'+
+        '<td>'+cells[6].textContent.trim()+'</td>'+
+      '</tr>';
+    }).join('')+
+    '</tbody></table>'+
+    '<p style="margin-top:2rem;font-size:0.8rem;color:#9ca3af;">Generated by GERAMA Admin Dashboard</p>'+
+    '</body></html>');
+  win.document.close();
+  win.focus();
+  setTimeout(function(){ win.print(); }, 500);
 };
