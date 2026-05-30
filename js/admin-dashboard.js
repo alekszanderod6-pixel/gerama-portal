@@ -1613,6 +1613,7 @@ window.loadAttRecords = async function(){
         '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
         '<td style="font-size:0.78rem;color:#6b7280;">'+(r.location_name ? '📍 '+window.escHtml(r.location_name) : (r.latitude ? '📍 '+r.latitude.toFixed(4)+','+r.longitude.toFixed(4) : '—'))+'</td>'+
         '<td><span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">+'+( r.points||1)+' pt</span></td>'+
+        '<td><button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="removeAttRecord(\''+r.id+'\',\''+window.escAttr(r.student_name||'')+'\')" title="Remove (requires secret code)"><i class="fas fa-minus-circle"></i></button></td>'+
       '</tr>';
     }).join('');
     return '<div style="margin-bottom:1.5rem;">'+
@@ -1620,7 +1621,7 @@ window.loadAttRecords = async function(){
         '<strong style="font-size:0.95rem;">'+window.escHtml(title)+'</strong>'+
         '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.78rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">'+records.length+' student'+(records.length!==1?'s':'')+' present</span>'+
       '</div>'+
-      '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Phone</th><th>Time</th><th>Location</th><th>Points</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+      '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Phone</th><th>Time</th><th>Location</th><th>Points</th><th>Remove</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
     '</div>';
   }).join('');
 };
@@ -1870,4 +1871,219 @@ window.printUsersTable = function(){
   win.document.close();
   win.focus();
   setTimeout(function(){ win.print(); }, 500);
+};
+
+// ─── USERS SEARCH & FILTER ───────────────────────────────────────
+var _allUsersData = [];
+
+// Override loadUsers to store data for filtering
+var _origLoadUsers = window.loadUsers;
+window.loadUsers = async function(){
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {data, error} = await sb.from('user_profiles').select('*').order('created_at',{ascending:false});
+  if(error || !data) { if(_origLoadUsers) _origLoadUsers(); return; }
+  _allUsersData = data;
+  renderUsersTable(data);
+};
+
+window.filterUsers = function(){
+  var q = (document.getElementById('userSearch')||{}).value||'';
+  var prog = (document.getElementById('userFilterProgram')||{}).value||'';
+  var level = (document.getElementById('userFilterLevel')||{}).value||'';
+  q = q.toLowerCase();
+  var filtered = _allUsersData.filter(function(u){
+    var matchQ = !q || (u.full_name||'').toLowerCase().includes(q) ||
+                       (u.email||'').toLowerCase().includes(q) ||
+                       (u.index_number||'').toLowerCase().includes(q) ||
+                       (u.phone||'').includes(q);
+    var matchP = !prog || u.program === prog;
+    var matchL = !level || u.level === level;
+    return matchQ && matchP && matchL;
+  });
+  renderUsersTable(filtered);
+};
+
+function renderUsersTable(data){
+  var el = document.getElementById('usersList'); if(!el) return;
+  if(!data||!data.length){
+    el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No users match your search.</p>';
+    return;
+  }
+  var active = data.filter(function(u){ return u.is_active !== false; }).length;
+  var withIndex = data.filter(function(u){ return u.index_number; }).length;
+
+  el.innerHTML =
+    '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;">'+
+      '<div style="background:#e8f5e9;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1B5E20;">'+data.length+'</strong> <span style="color:#6b7280;">Shown</span></div>'+
+      '<div style="background:#dbeafe;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1d4ed8;">'+active+'</strong> <span style="color:#6b7280;">Active</span></div>'+
+      '<div style="background:#fef3c7;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#92400e;">'+withIndex+'</strong> <span style="color:#6b7280;">With Index No.</span></div>'+
+      '<div style="margin-left:auto;display:flex;gap:0.5rem;flex-wrap:wrap;">'+
+        '<button class="btn-gold" onclick="downloadUsersCSV()" style="padding:0.5rem 1rem;font-size:0.82rem;"><i class="fas fa-download"></i> Download CSV</button>'+
+        '<button class="btn-primary" onclick="printUsersTable()" style="padding:0.5rem 1rem;font-size:0.82rem;background:#6366f1;"><i class="fas fa-print"></i> Print</button>'+
+      '</div>'+
+    '</div>'+
+    '<div class="tbl-wrap"><table><thead><tr>'+
+      '<th>Name</th><th>Email</th><th>Phone</th><th>Program</th><th>Level</th>'+
+      '<th>Index Number</th><th>Status</th><th>Actions</th>'+
+    '</tr></thead><tbody>'+
+    data.map(function(u){
+      var dt = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      var isActive = u.is_active !== false;
+      var statusBadge = isActive
+        ? '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Active</span>'
+        : '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Inactive</span>';
+      var safeEmail = window.escAttr(u.email||'');
+      var safeId = (u.id||'').replace(/[^a-z0-9]/gi,'');
+      return '<tr id="urow-'+safeId+'">'+
+        '<td><strong>'+window.escHtml(u.full_name||'—')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
+        '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'—')+'</td>'+
+        '<td style="font-size:0.8rem;">'+window.escHtml(u.phone||'—')+'</td>'+
+        '<td style="font-size:0.82rem;">'+window.escHtml(u.program||'—')+'</td>'+
+        '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(u.level||'—')+'</span></td>'+
+        '<td>'+
+          '<div style="display:flex;gap:0.4rem;align-items:center;">'+
+            '<input type="text" id="idx-'+safeId+'" value="'+window.escAttr(u.index_number||'')+'" placeholder="UETG/ENG/26/001" '+
+              'style="padding:0.4rem 0.6rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;width:160px;outline:none;" '+
+              'onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'">'+
+            '<button class="btn-primary" style="padding:0.4rem 0.7rem;font-size:0.75rem;white-space:nowrap;" onclick="saveIndexNumber(\''+safeEmail+'\',\''+safeId+'\')">'+
+              '<i class="fas fa-save"></i> Save'+
+            '</button>'+
+          '</div>'+
+          '<div id="idx-status-'+safeId+'" style="font-size:0.75rem;margin-top:0.2rem;min-height:1rem;"></div>'+
+        '</td>'+
+        '<td>'+statusBadge+'</td>'+
+        '<td>'+
+          (isActive
+            ? '<button class="btn-danger" style="font-size:0.75rem;padding:0.3rem 0.6rem;white-space:nowrap;" onclick="deactivateUser(\''+safeEmail+'\',\''+safeId+'\')"><i class="fas fa-user-slash"></i> Deactivate</button>'
+            : '<button class="btn-success" style="font-size:0.75rem;padding:0.3rem 0.6rem;white-space:nowrap;" onclick="reactivateUser(\''+safeEmail+'\',\''+safeId+'\')"><i class="fas fa-user-check"></i> Reactivate</button>')+
+        '</td>'+
+      '</tr>';
+    }).join('')+
+  '</tbody></table></div>';
+}
+
+// ─── MANUAL ATTENDANCE ENTRY ─────────────────────────────────────
+var _ATTENDANCE_SECRET = '2026GERAMA';
+
+window.showAddAttendanceRow = function(){
+  var row = document.getElementById('addAttRow');
+  if(row) row.style.display = row.style.display==='none' ? 'block' : 'none';
+};
+
+window.searchAttUser = async function(q){
+  var sugEl = document.getElementById('addAttSuggestions');
+  if(!sugEl) return;
+  if(!q || q.length < 2){ sugEl.style.display='none'; return; }
+
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {data} = await sb.from('user_profiles')
+    .select('full_name,email,phone,index_number,program,level')
+    .or('full_name.ilike.%'+q+'%,index_number.ilike.%'+q+'%,email.ilike.%'+q+'%')
+    .eq('is_active', true)
+    .limit(8);
+
+  if(!data||!data.length){ sugEl.style.display='none'; return; }
+
+  sugEl.style.display = 'block';
+  sugEl.innerHTML = data.map(function(u){
+    return '<div onclick="fillAttUser(\''+window.escAttr(u.full_name||'')+'\',\''+window.escAttr(u.email||'')+'\',\''+window.escAttr(u.index_number||'')+'\')" '+
+      'style="padding:0.7rem 1rem;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:0.88rem;" '+
+      'onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'white\'">'+
+      '<strong>'+window.escHtml(u.full_name||'—')+'</strong>'+
+      (u.index_number?'<span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:10px;margin-left:0.5rem;">'+window.escHtml(u.index_number)+'</span>':'')+
+      '<br><small style="color:#9ca3af;">'+window.escHtml(u.email||'')+(u.program?' · '+u.program:'')+' '+window.escHtml(u.level||'')+'</small>'+
+    '</div>';
+  }).join('');
+};
+
+window.fillAttUser = function(name, email, indexNum){
+  var nameEl = document.getElementById('addAttName');
+  var emailEl = document.getElementById('addAttEmail');
+  var searchEl = document.getElementById('addAttSearch');
+  var sugEl = document.getElementById('addAttSuggestions');
+  if(nameEl) nameEl.value = name;
+  if(emailEl) emailEl.value = email;
+  if(searchEl) searchEl.value = name+(indexNum?' ('+indexNum+')':'');
+  if(sugEl) sugEl.style.display = 'none';
+};
+
+window.submitManualAttendance = async function(){
+  var name    = (document.getElementById('addAttName')||{}).value||'';
+  var email   = (document.getElementById('addAttEmail')||{}).value||'';
+  var cls     = (document.getElementById('addAttClass')||{}).value||'';
+  var pts     = parseInt((document.getElementById('addAttPoints')||{}).value)||1;
+  var secret  = (document.getElementById('addAttSecret')||{}).value||'';
+  var statusEl = document.getElementById('addAttStatus');
+
+  function setS(msg,type){ if(statusEl){ statusEl.textContent=msg; statusEl.className='status-msg status-'+type; statusEl.style.display='block'; } }
+
+  if(!name||!email||!cls){ setS('Please fill in Name, Email and Class Title.','err'); return; }
+  if(secret !== _ATTENDANCE_SECRET){ setS('❌ Wrong secret code. Access denied.','err'); return; }
+
+  var sb = window.geramaSupabase; if(!sb){ setS('Not connected.','err'); return; }
+  setS('Adding...','info');
+
+  var {error} = await sb.from('attendance_records').insert({
+    class_title:   cls,
+    student_name:  name.trim(),
+    student_email: email.trim().toLowerCase(),
+    points:        pts,
+    marked_at:     new Date().toISOString()
+  });
+
+  if(error){ setS('❌ '+error.message,'err'); return; }
+
+  window.logActivity('Manually added attendance: '+name+' for "'+cls+'"');
+  setS('✅ Attendance record added for '+name+'!','ok');
+
+  // Clear form
+  ['addAttName','addAttEmail','addAttClass','addAttSecret','addAttSearch'].forEach(function(id){
+    var e=document.getElementById(id); if(e) e.value='';
+  });
+  document.getElementById('addAttPoints').value='1';
+
+  setTimeout(function(){
+    document.getElementById('addAttRow').style.display='none';
+    window.loadAttRecords();
+    window.loadAttSessions();
+  }, 1500);
+};
+
+// Remove attendance record (with secret code)
+window.removeAttRecord = async function(id, name){
+  var secret = prompt('Enter admin secret code to remove this attendance record for '+name+':');
+  if(!secret) return;
+  if(secret !== _ATTENDANCE_SECRET){ alert('❌ Wrong secret code. Access denied.'); return; }
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {error} = await sb.from('attendance_records').delete().eq('id', id);
+  if(error){ alert('Error: '+error.message); return; }
+  window.logActivity('Removed attendance record for '+name);
+  window.loadAttRecords();
+};
+
+// ─── DOWNLOAD ATTENDANCE CSV ─────────────────────────────────────
+window.downloadAttCSV = async function(){
+  var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
+  var sessionId = (document.getElementById('attSessionFilter')||{}).value||'';
+  var query = sb.from('attendance_records').select('*').order('marked_at',{ascending:false});
+  if(sessionId) query = query.eq('session_id', sessionId);
+  var {data} = await query;
+  if(!data||!data.length){ alert('No records to download.'); return; }
+
+  var headers = ['Student Name','Email','Phone','Class','Date/Time','Points','Location'];
+  var rows = data.map(function(r){
+    var dt = r.marked_at ? new Date(r.marked_at).toLocaleString('en-GB') : '';
+    var loc = r.location_name || (r.latitude ? r.latitude+','+r.longitude : '');
+    return [r.student_name||'',r.student_email||'',r.student_phone||'',r.class_title||'',dt,r.points||1,loc]
+      .map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
+  });
+
+  var csv = [headers.join(',')].concat(rows).join('\n');
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url; a.download='GERAMA_Attendance_'+new Date().toISOString().split('T')[0]+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  window.logActivity('Downloaded attendance records as CSV');
 };

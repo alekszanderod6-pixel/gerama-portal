@@ -382,7 +382,7 @@ tr:hover td{background:#fafcfa;}
         <strong>How it works:</strong> Generate a random code, share it with students during a live class. Set a time window — students enter the code in their Classroom → Attendance tab to mark themselves present and earn 1 point.
       </div>
       <div class="form-grid">
-        <div class="form-field"><label>Class Title *</label><input type="text" id="attClassTitle" placeholder="e.g. Applied Electricity – Tutorial 3"></div>
+        <div class="form-field"><label>Class Title *</label><input type="text" id="attClassTitle" placeholder="e.g. Basic Electronics – Tutorial 3"></div>
         <div class="form-field"><label>Valid For (minutes) *</label><input type="number" id="attDuration" value="15" min="1" max="120" placeholder="e.g. 15"></div>
       </div>
       <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
@@ -401,11 +401,42 @@ tr:hover td{background:#fafcfa;}
     </div>
     <div class="card">
       <div class="card-title"><i class="fas fa-users"></i> Attendance Records</div>
-      <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">
-        <select id="attSessionFilter" style="padding:0.5rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onchange="loadAttRecords()">
-          <option value="">All Sessions</option>
-        </select>
+      <!-- Filters + Actions row -->
+      <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;align-items:flex-end;">
+        <div style="flex:1;min-width:160px;">
+          <label style="font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Filter by Session</label>
+          <select id="attSessionFilter" style="width:100%;padding:0.5rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onchange="loadAttRecords()">
+            <option value="">All Sessions</option>
+          </select>
+        </div>
         <button class="btn-gold" onclick="loadAttRecords()" style="padding:0.5rem 1rem;font-size:0.85rem;"><i class="fas fa-sync-alt"></i> Refresh</button>
+        <button class="btn-primary" onclick="downloadAttCSV()" style="padding:0.5rem 1rem;font-size:0.85rem;"><i class="fas fa-download"></i> Download CSV</button>
+        <button class="btn-primary" onclick="showAddAttendanceRow()" style="padding:0.5rem 1rem;font-size:0.85rem;background:#059669;"><i class="fas fa-user-plus"></i> Add Record</button>
+      </div>
+      <!-- Add attendance row (hidden by default) -->
+      <div id="addAttRow" style="display:none;background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:1.2rem;margin-bottom:1rem;">
+        <div style="font-size:0.88rem;font-weight:700;color:#166534;margin-bottom:0.8rem;"><i class="fas fa-lock" style="margin-right:0.4rem;"></i>Manual Attendance Entry — Admin Verification Required</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:0.8rem;">
+          <div style="grid-column:1/-1;position:relative;">
+            <input type="text" id="addAttSearch" placeholder="Search by name or index number..." autocomplete="off"
+              style="width:100%;padding:0.65rem 0.9rem;border:2px solid #86efac;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box;"
+              oninput="searchAttUser(this.value)">
+            <div id="addAttSuggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:2px solid #86efac;border-radius:0 0 10px 10px;z-index:100;max-height:200px;overflow-y:auto;box-shadow:0 8px 20px rgba(0,0,0,0.1);"></div>
+          </div>
+          <input type="text" id="addAttName" placeholder="Full name *" style="padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;">
+          <input type="email" id="addAttEmail" placeholder="Email *" style="padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;">
+          <input type="text" id="addAttClass" placeholder="Class title *" style="padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;">
+          <input type="number" id="addAttPoints" value="1" min="1" max="10" placeholder="Points" style="padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;">
+          <div style="grid-column:1/-1;">
+            <input type="password" id="addAttSecret" placeholder="Admin secret code *" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #fcd34d;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box;background:#fffbeb;">
+            <div style="font-size:0.75rem;color:#92400e;margin-top:0.3rem;"><i class="fas fa-shield-alt"></i> Required to prevent unauthorised changes</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+          <button class="btn-primary" onclick="submitManualAttendance()" style="background:#059669;"><i class="fas fa-check"></i> Add to Records</button>
+          <button class="btn-danger" onclick="document.getElementById('addAttRow').style.display='none'"><i class="fas fa-times"></i> Cancel</button>
+        </div>
+        <div class="status-msg" id="addAttStatus"></div>
       </div>
       <div id="attRecordsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
@@ -452,9 +483,28 @@ tr:hover td{background:#fafcfa;}
   <div class="panel" id="panel-users">
     <div class="card">
       <div class="card-title"><i class="fas fa-users"></i> Registered Users</div>
-      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">All students who have signed up and updated their profile. Phone numbers are shown here.</p>
-      <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">
-        <button class="btn-gold" onclick="loadUsers()" style="padding:0.5rem 1rem;font-size:0.85rem;"><i class="fas fa-sync-alt"></i> Refresh</button>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">All students who have signed up and updated their profile.</p>
+      <!-- Search + Filter row -->
+      <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0.8rem;margin-bottom:1rem;align-items:flex-end;flex-wrap:wrap;">
+        <input type="text" id="userSearch" placeholder="🔍 Search by name, email or index number..." oninput="filterUsers()"
+          style="padding:0.6rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;"
+          onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        <select id="userFilterProgram" onchange="filterUsers()" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.85rem;outline:none;font-family:'Inter',sans-serif;">
+          <option value="">All Programs</option>
+          <option>Mechanical Engineering</option>
+          <option>Electrical Engineering</option>
+          <option>Computer Engineering</option>
+          <option>Agricultural Engineering</option>
+          <option>Petroleum Engineering</option>
+          <option>Renewable Energy Engineering</option>
+          <option>Civil Engineering</option>
+          <option>Environmental Engineering</option>
+        </select>
+        <select id="userFilterLevel" onchange="filterUsers()" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.85rem;outline:none;font-family:'Inter',sans-serif;">
+          <option value="">All Levels</option>
+          <option>L100</option><option>L200</option><option>L300</option><option>L400</option>
+        </select>
+        <button class="btn-gold" onclick="loadUsers()" style="padding:0.6rem 1rem;font-size:0.85rem;white-space:nowrap;"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
       <div id="usersList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
