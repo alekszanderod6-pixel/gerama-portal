@@ -1206,61 +1206,123 @@ async function submitAssignment() {
   if(!name || !email){ showSubStatus('Please enter your name and email.','err'); return; }
   if(!selectedSubFile){ showSubStatus('Please attach your assignment file.','err'); return; }
   if(selectedSubFile.size > 20*1024*1024){ showSubStatus('File too large. Max 20 MB.','err'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showSubStatus('Please enter a valid email address.','err'); return; }
 
   var btn = document.getElementById('subSubmitBtn');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-  showSubStatus('Uploading your submission...','info');
 
+  // Wait for Supabase to be ready
+  var waited = 0;
+  while(typeof window.geramaSupabase === 'undefined' && waited < 5000){
+    await new Promise(function(r){ setTimeout(r, 200); });
+    waited += 200;
+  }
   var sb = window.geramaSupabase;
-  if(!sb){ showSubStatus('Service not available. Please refresh and try again.','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit'; return; }
+  if(!sb){
+    showSubStatus('❌ Service not available. Please refresh the page and try again.','err');
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit';
+    return;
+  }
 
+  var fileUrl = null;
+  var storagePath = null;
+
+  // ── STEP 1: Upload file (3 attempts, non-blocking if all fail) ──
   try {
-    var ext = selectedSubFile.name.split('.').pop();
-    var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now()+'.'+ext;
-    var storagePath = 'submissions/'+assignId+'/'+safeName;
+    showSubStatus('📤 Uploading file... (1/2)','info');
+    var ext = selectedSubFile.name.split('.').pop().toLowerCase();
+    var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,30)+'-'+Date.now()+'.'+ext;
+    storagePath = 'submissions/'+(assignId||'general')+'/'+safeName;
 
-    // Upload file with retry on network error
     var upRes = null;
     for(var attempt = 1; attempt <= 3; attempt++){
       try {
-        upRes = await sb.storage.from('gerama-materials').upload(storagePath, selectedSubFile, {upsert:true, contentType: selectedSubFile.type});
-        if(!upRes.error) break;
-        if(attempt < 3) { showSubStatus('Upload attempt '+attempt+' failed, retrying...','info'); await new Promise(function(r){setTimeout(r,1500);}); }
+        upRes = await sb.storage.from('gerama-materials').upload(storagePath, selectedSubFile, {
+          upsert: true,
+          contentType: selectedSubFile.type || 'application/octet-stream'
+        });
+        if(!upRes.error){ break; }
+        // Storage error (not network) — no point retrying
+        if(upRes.error && !upRes.error.message.toLowerCase().includes('fetch')){
+          console.warn('Storage error:', upRes.error.message);
+          upRes = null; break;
+        }
+        if(attempt < 3){
+          showSubStatus('Upload attempt '+attempt+' failed, retrying in 2s...','info');
+          await new Promise(function(r){ setTimeout(r, 2000); });
+        }
       } catch(netErr) {
-        if(attempt < 3) { showSubStatus('Network error, retrying ('+attempt+'/3)...','info'); await new Promise(function(r){setTimeout(r,2000);}); }
-        else throw new Error('Network error after 3 attempts. Please check your connection and try again.');
+        if(attempt < 3){
+          showSubStatus('Network hiccup, retrying ('+attempt+'/3)...','info');
+          await new Promise(function(r){ setTimeout(r, 2500); });
+        }
       }
     }
 
-    if(upRes && upRes.error) throw new Error('Upload failed: '+upRes.error.message);
+    if(upRes && !upRes.error){
+      fileUrl = sb.storage.from('gerama-materials').getPublicUrl(storagePath).data.publicUrl;
+    } else {
+      // File upload failed — still save the record without file
+      console.warn('File upload failed after retries, saving record without file.');
+      storagePath = null;
+    }
+  } catch(uploadErr) {
+    console.warn('Upload exception:', uploadErr.message);
+    storagePath = null;
+  }
 
-    var fileUrl = sb.storage.from('gerama-materials').getPublicUrl(storagePath).data.publicUrl;
+  // ── STEP 2: Save submission record to database ──
+  try {
+    showSubStatus('💾 Saving submission... (2/2)','info');
 
-    var {error: dbErr} = await sb.from('assignment_submissions').insert({
-      assignment_id:    assignId,
+    var record = {
       assignment_title: assignTitle,
       student_name:     name,
-      student_email:    email,
+      student_email:    email.toLowerCase(),
       index_number:     index || null,
       comment:          comment || null,
-      file_url:         fileUrl,
-      storage_path:     storagePath,
+      file_url:         fileUrl || null,
+      storage_path:     storagePath || null,
       submitted_at:     new Date().toISOString(),
       status:           'submitted'
-    });
+    };
 
-    if(dbErr) throw new Error('Could not save submission: '+dbErr.message);
+    // Only include assignment_id if it looks like a valid UUID
+    if(assignId && /^[0-9a-f-]{36}$/i.test(assignId)){
+      record.assignment_id = assignId;
+    }
 
-    showSubStatus('✅ Submitted successfully! Your tutor will review it shortly.','ok');
-    btn.innerHTML = '✅ Submitted';
-    setTimeout(function(){ closeModal(); btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit'; }, 2500);
+    var dbRes = await sb.from('assignment_submissions').insert(record);
+
+    if(dbRes.error){
+      // Check for duplicate submission
+      if(dbRes.error.message.toLowerCase().includes('duplicate') || dbRes.error.code === '23505'){
+        showSubStatus('⚠️ You have already submitted this assignment.','err');
+      } else {
+        throw new Error(dbRes.error.message);
+      }
+      btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit';
+      return;
+    }
+
+    // Success
+    if(fileUrl){
+      showSubStatus('✅ Submitted successfully with your file! Your tutor will review it shortly.','ok');
+    } else {
+      showSubStatus('✅ Submission recorded! (File upload failed — please email your file to the tutor directly if needed.)','ok');
+    }
+    btn.innerHTML = '<i class="fas fa-check"></i> Submitted';
+    if(window.launchConfetti) window.launchConfetti();
+    setTimeout(function(){ closeModal(); btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit'; }, 3000);
 
   } catch(err) {
     var msg = err.message || 'Unknown error';
-    if(msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('network')){
-      showSubStatus('❌ Network error — please check your internet connection and try again.','err');
-    } else if(msg.toLowerCase().includes('row-level security') || msg.toLowerCase().includes('rls')){
-      showSubStatus('❌ Permission error. Please contact admin.','err');
+    if(msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror') || msg.toLowerCase().includes('network request')){
+      showSubStatus('❌ Network error — check your internet connection and try again.','err');
+    } else if(msg.toLowerCase().includes('row-level security') || msg.toLowerCase().includes('rls') || msg.toLowerCase().includes('permission')){
+      showSubStatus('❌ Permission error. Please contact the admin.','err');
+    } else if(msg.toLowerCase().includes('does not exist') || msg.toLowerCase().includes('relation')){
+      showSubStatus('❌ Database not set up yet. Please contact the admin.','err');
     } else {
       showSubStatus('❌ '+msg,'err');
     }
