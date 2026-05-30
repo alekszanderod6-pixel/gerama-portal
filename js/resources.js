@@ -543,12 +543,23 @@ function renderCourses(filterText) {
             '<span class="material-name">' + m.name + '</span>' +
           '</div>' +
           '<div class="material-actions">' +
-            '<button class="btn-dl download" onclick="downloadFile(\'' + dlUrl.replace(/'/g, "\\'") + '\',\'' + m.name.replace(/'/g, "\\'") + '\')">' +
-              '<i class="fas fa-download"></i> Download' +
-            '</button>' +
-            '<a class="btn-dl view" href="' + viewUrl + '" target="_blank" rel="noopener">' +
-              '<i class="fas fa-eye"></i> View' +
-            '</a>' +
+            // Detect source type
+            (function(){
+              var isTelegram = dlUrl && (dlUrl.indexOf('t.me') !== -1 || dlUrl.indexOf('telegram') !== -1);
+              var isGdrive   = dlUrl && (dlUrl.indexOf('drive.google') !== -1 || dlUrl.indexOf('docs.google') !== -1 || dlUrl.indexOf('dropbox') !== -1);
+              if(isTelegram){
+                return '<a class="btn-dl download" href="'+dlUrl+'" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#0088cc,#006aaa);text-decoration:none;"><i class="fab fa-telegram"></i> Open in Telegram</a>';
+              } else if(isGdrive){
+                return '<a class="btn-dl download" href="'+dlUrl+'" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#4285F4,#1a73e8);text-decoration:none;"><i class="fab fa-google-drive"></i> Open in Drive</a>';
+              } else {
+                return '<button class="btn-dl download" onclick="downloadFile(\'' + dlUrl.replace(/'/g, "\\'") + '\',\'' + m.name.replace(/'/g, "\\'") + '\')">' +
+                  '<i class="fas fa-download"></i> Download' +
+                '</button>' +
+                '<a class="btn-dl view" href="' + viewUrl + '" target="_blank" rel="noopener">' +
+                  '<i class="fas fa-eye"></i> View' +
+                '</a>';
+              }
+            })() +
             '<button class="btn-dl" id="bm-' + btoa(dlUrl).replace(/[^a-zA-Z0-9]/g,'').substring(0,12) + '" onclick="toggleBookmark(\'' + dlUrl.replace(/'/g,"\\'") + '\',\'' + m.name.replace(/'/g,"\\'") + '\',this)" style="background:none;border:1px solid #e5e7eb;color:#9ca3af;padding:0.4rem 0.6rem;" title="Bookmark">' +
               '<i class="fas fa-bookmark"></i>' +
             '</button>' +

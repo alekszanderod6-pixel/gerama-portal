@@ -794,6 +794,21 @@
   });
 
   // ─── UPLOAD MATERIAL ───────────────────────────────────────
+  window.toggleMatSource = function(){
+    var val = document.querySelector('input[name="matSourceType"]:checked').value;
+    document.getElementById('matFileField').style.display     = val==='file'     ? 'block' : 'none';
+    document.getElementById('matTelegramField').style.display = val==='telegram' ? 'block' : 'none';
+    document.getElementById('matGdriveField').style.display   = val==='gdrive'   ? 'block' : 'none';
+    // Highlight active label
+    ['matSrcFileLabel','matSrcTgLabel','matSrcGdLabel'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.style.borderColor='#e5e7eb';
+    });
+    var activeMap = {file:'matSrcFileLabel',telegram:'matSrcTgLabel',gdrive:'matSrcGdLabel'};
+    var activeEl = document.getElementById(activeMap[val]);
+    if(activeEl) activeEl.style.borderColor='#1B5E20';
+  };
+
   window.uploadMaterial = async function(){
     var level  = document.getElementById('matLevel').value;
     var sem    = document.getElementById('matSem').value;
@@ -801,47 +816,72 @@
     var type   = document.getElementById('matType').value;
     var name   = document.getElementById('matName').value.trim();
     var desc   = document.getElementById('matDesc').value.trim();
+    var srcType = document.querySelector('input[name="matSourceType"]:checked').value;
 
     if(!course || !name){ window.showStatus('matStatus','Please fill in Course Name and Display Name.','err'); return; }
-    if(!selectedMatFile){ window.showStatus('matStatus','Please select a file to upload.','err'); return; }
-    if(selectedMatFile.size > 50*1024*1024){ window.showStatus('matStatus','File too large. Max 50 MB.','err'); return; }
 
     var btn = document.getElementById('uploadMatBtn');
-    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Uploading...';
-    window.showStatus('matStatus','Uploading to Supabase...','info');
+    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving...';
+    window.showStatus('matStatus','Processing...','info');
 
     try{
       var sb = window.geramaSupabase;
       if(!sb) throw new Error('Supabase not connected. Check Settings.');
 
-      var ext = selectedMatFile.name.split('.').pop();
-      var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now()+'.'+ext;
-      var storagePath = level.toLowerCase()+'/semester-'+sem+'/'+course.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'/'+type+'/'+safeName;
+      var fileUrl = null;
+      var storagePath = null;
 
-      var { error: upErr } = await sb.storage.from(window.BUCKET).upload(storagePath, selectedMatFile, { upsert:true, contentType: selectedMatFile.type });
-      if(upErr) throw new Error('Upload failed: '+upErr.message);
+      if(srcType === 'telegram'){
+        var tgUrl = document.getElementById('matTelegramUrl').value.trim();
+        if(!tgUrl) throw new Error('Please enter the Telegram link.');
+        fileUrl = tgUrl;
+        window.showStatus('matStatus','Saving Telegram link...','info');
 
-      var fileUrl = sb.storage.from(window.BUCKET).getPublicUrl(storagePath).data.publicUrl;
+      } else if(srcType === 'gdrive'){
+        var gdUrl = document.getElementById('matGdriveUrl').value.trim();
+        if(!gdUrl) throw new Error('Please enter the Google Drive / external link.');
+        fileUrl = gdUrl;
+        window.showStatus('matStatus','Saving external link...','info');
+
+      } else {
+        // File upload
+        var fileInput = document.getElementById('matFile');
+        var file = fileInput && fileInput.files && fileInput.files[0];
+        if(!file) throw new Error('Please select a file to upload.');
+        if(file.size > 50*1024*1024) throw new Error('File too large. Max 50 MB.');
+
+        window.showStatus('matStatus','Uploading file to Supabase...','info');
+        var ext = file.name.split('.').pop();
+        var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now()+'.'+ext;
+        storagePath = level.toLowerCase()+'/semester-'+sem+'/'+course.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'/'+type+'/'+safeName;
+
+        var { error: upErr } = await sb.storage.from(window.BUCKET).upload(storagePath, file, { upsert:true, contentType: file.type });
+        if(upErr) throw new Error('Upload failed: '+upErr.message);
+        fileUrl = sb.storage.from(window.BUCKET).getPublicUrl(storagePath).data.publicUrl;
+      }
 
       var { error: dbErr } = await sb.from('materials').insert({
         level: level, semester: parseInt(sem), course: course,
         type: type, name: name, description: desc||null,
-        file_url: fileUrl, storage_path: storagePath,
+        file_url: fileUrl, storage_path: storagePath||null,
+        source_type: srcType,
         uploaded_by: 'admin', status: 'approved',
         created_at: new Date().toISOString()
       });
       if(dbErr) throw new Error('DB save failed: '+dbErr.message+(dbErr.code==='42501'?' (check RLS policy)':''));
 
-      window.logActivity('Uploaded: '+name+' ('+level+' Sem '+sem+')');
+      window.logActivity('Uploaded: '+name+' ('+level+' Sem '+sem+') via '+srcType);
       window.showStatus('matStatus','✅ "'+name+'" is now live on the Resources page!','ok');
 
+      // Clear form
       document.getElementById('matCourse').value='';
       document.getElementById('matName').value='';
       document.getElementById('matDesc').value='';
       document.getElementById('matFileChosen').textContent='';
-      selectedMatFile = null;
+      var fi=document.getElementById('matFile'); if(fi) fi.value='';
+      var tg=document.getElementById('matTelegramUrl'); if(tg) tg.value='';
+      var gd=document.getElementById('matGdriveUrl'); if(gd) gd.value='';
 
-      // Refresh history
       window.loadData();
     }catch(err){
       window.showStatus('matStatus','❌ '+err.message,'err');

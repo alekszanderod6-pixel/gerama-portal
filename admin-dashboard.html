@@ -230,13 +230,45 @@ tr:hover td{background:#fafcfa;}
       <div class="form-grid">
         <div class="form-field"><label>Academic Level *</label><select id="matLevel"><option value="L100">L100</option><option value="L200">L200</option><option value="L300">L300</option><option value="L400">L400</option></select></div>
         <div class="form-field"><label>Semester *</label><select id="matSem"><option value="1">Semester 1</option><option value="2">Semester 2</option></select></div>
-        <div class="form-field full"><label>Course Name *</label><input type="text" id="matCourse"></div>
+        <div class="form-field full"><label>Course Name *</label><input type="text" id="matCourse" placeholder="e.g. Applied Electricity"></div>
         <div class="form-field"><label>Material Type *</label><select id="matType"><option value="slides">Slides</option><option value="books">Books</option><option value="pastq">Past Q</option><option value="videos">Videos</option></select></div>
-        <div class="form-field full"><label>Display Name *</label><input type="text" id="matName"></div>
-        <div class="form-field full"><label>Description</label><input type="text" id="matDesc"></div>
+        <div class="form-field full"><label>Display Name *</label><input type="text" id="matName" placeholder="e.g. Applied Electricity Handout – Week 3"></div>
+        <div class="form-field full"><label>Description</label><input type="text" id="matDesc" placeholder="Brief description of this material"></div>
+
+        <!-- Source type toggle -->
         <div class="form-field full">
-          <label>File *</label>
-          <div class="drop-zone" id="matDropZone"><i class="fas fa-cloud-upload-alt"></i><p>Drag &amp; drop or click to browse</p><p class="file-chosen" id="matFileChosen"></p><input type="file" id="matFile" accept=".pdf,.ppt,.pptx,.mp4" style="display:none;"></div>
+          <label>Source Type *</label>
+          <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-top:0.3rem;">
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500;padding:0.5rem 1rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;" id="matSrcFileLabel">
+              <input type="radio" name="matSourceType" value="file" id="matSrcFile" checked onchange="toggleMatSource()"> <i class="fas fa-upload" style="color:#1B5E20;"></i> Upload File
+            </label>
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500;padding:0.5rem 1rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;" id="matSrcTgLabel">
+              <input type="radio" name="matSourceType" value="telegram" id="matSrcTelegram" onchange="toggleMatSource()"> <i class="fab fa-telegram" style="color:#0088cc;"></i> Telegram Link
+            </label>
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500;padding:0.5rem 1rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;" id="matSrcGdLabel">
+              <input type="radio" name="matSourceType" value="gdrive" id="matSrcGdrive" onchange="toggleMatSource()"> <i class="fab fa-google-drive" style="color:#4285F4;"></i> Google Drive / Link
+            </label>
+          </div>
+        </div>
+
+        <!-- File upload -->
+        <div class="form-field full" id="matFileField">
+          <label>File * (PDF, PPT, PPTX, MP4 — max 50 MB)</label>
+          <div class="drop-zone" id="matDropZone"><i class="fas fa-cloud-upload-alt"></i><p>Drag &amp; drop your file here, or <strong>click to browse</strong></p><p class="file-chosen" id="matFileChosen"></p><input type="file" id="matFile" accept=".pdf,.ppt,.pptx,.mp4" style="display:none;"></div>
+        </div>
+
+        <!-- Telegram link -->
+        <div class="form-field full" id="matTelegramField" style="display:none;">
+          <label>Telegram Message Link *</label>
+          <input type="url" id="matTelegramUrl" placeholder="https://t.me/channel/123 or https://t.me/c/...">
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;"><i class="fab fa-telegram" style="color:#0088cc;"></i> Right-click any message in your Telegram channel → Copy Message Link → paste here. Students will tap to open in Telegram.</small>
+        </div>
+
+        <!-- Google Drive / external link -->
+        <div class="form-field full" id="matGdriveField" style="display:none;">
+          <label>Google Drive / External Link *</label>
+          <input type="url" id="matGdriveUrl" placeholder="https://drive.google.com/file/d/... or any direct URL">
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;"><i class="fab fa-google-drive" style="color:#4285F4;"></i> Paste a Google Drive share link, Dropbox link, or any direct file URL. Make sure sharing is set to "Anyone with the link".</small>
         </div>
       </div>
       <div style="margin-top:1rem;"><button class="btn-primary" id="uploadMatBtn" type="button"><i class="fas fa-upload"></i> Upload &amp; Go Live</button></div>
