@@ -1,6 +1,4 @@
-﻿/* GERAMA Admin Dashboard — extracted JS
-   This file is intentionally kept as plain JS (no build step).
-*/
+﻿/* GERAMA Admin Dashboard — extracted JS — v2 */
 
 (function(){
   'use strict';
