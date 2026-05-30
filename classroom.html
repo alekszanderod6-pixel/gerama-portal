@@ -1108,14 +1108,26 @@ function loadAssignments() {
       if(attempts > 0) { setTimeout(function(){ tryLoad(attempts-1); }, 200); return; }
       renderAssignments([]); return;
     }
-    sb.from('assignments').select('*').order('created_at',{ascending:false}).then(function(res){
-      renderAssignments(res.data || []);
+    // Fetch assignments + student's grades in parallel
+    var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+    var myEmail = profile.email || '';
+    Promise.all([
+      sb.from('assignments').select('*').order('created_at',{ascending:false}),
+      myEmail ? sb.from('student_grades').select('*').eq('student_email', myEmail) : Promise.resolve({data:[]})
+    ]).then(function(results){
+      var assignments = results[0].data || [];
+      var grades = results[1].data || [];
+      // Build grade map by assignment title
+      var gradeMap = {};
+      grades.forEach(function(g){ gradeMap[g.assignment_title] = g; });
+      renderAssignments(assignments, gradeMap);
     }).catch(function(){ renderAssignments([]); });
   }
   tryLoad(15);
 }
 
-function renderAssignments(assignments) {
+function renderAssignments(assignments, gradeMap) {
+  gradeMap = gradeMap || {};
   var el = document.getElementById('assignmentsList');
   if(!assignments.length){
     el.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><p>No assignments posted yet.<br>Check back soon.</p></div>';
@@ -1135,6 +1147,21 @@ function renderAssignments(assignments) {
     var fileLink = a.file_url ? '<a href="'+a.file_url+'" target="_blank" style="color:#1B5E20;font-size:0.82rem;"><i class="fas fa-download"></i> Download Assignment File</a>' : '';
     var submitBtn = isPast ? '<button class="btn-submit-assign" disabled><i class="fas fa-lock"></i> Deadline Passed</button>' :
       '<button class="btn-submit-assign" onclick="openSubmitModal(\''+a.id+'\',\''+escAttr(a.title)+'\')"><i class="fas fa-paper-plane"></i> Submit Work</button>';
+
+    // Show grade if available
+    var grade = gradeMap[a.title];
+    var gradeHtml = '';
+    if(grade && grade.score !== null && grade.score !== undefined){
+      gradeHtml = '<div style="margin-top:0.8rem;background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:12px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.6rem;">'+
+        '<i class="fas fa-check-circle" style="color:#059669;font-size:1.1rem;"></i>'+
+        '<div>'+
+          '<div style="font-size:0.78rem;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:0.5px;">Your Score</div>'+
+          '<div style="font-size:1.4rem;font-weight:900;color:#065f46;line-height:1.1;">'+grade.score+(a.points?'<span style="font-size:0.85rem;font-weight:600;opacity:0.7;">/'+a.points+'</span>':'')+'</div>'+
+        '</div>'+
+        (grade.graded_at?'<div style="margin-left:auto;font-size:0.72rem;color:#065f46;opacity:0.7;">Graded '+new Date(grade.graded_at).toLocaleDateString('en-GB',{day:\'numeric\',month:\'short\'})+'</div>':'')+
+      '</div>';
+    }
+
     return '<div class="assign-card">'+
       '<div class="assign-header"><div class="assign-title">'+escHtml(a.title)+'</div>'+dlBadge+'</div>'+
       '<div class="assign-meta">'+
@@ -1143,7 +1170,8 @@ function renderAssignments(assignments) {
         (a.points ? '<div><i class="fas fa-star"></i> '+a.points+' marks</div>' : '')+
       '</div>'+
       (a.description ? '<div class="assign-desc">'+escHtml(a.description)+'</div>' : '')+
-      '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;align-items:center;">'+submitBtn+fileLink+'</div>'+
+      gradeHtml+
+      '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;align-items:center;margin-top:0.8rem;">'+submitBtn+fileLink+'</div>'+
     '</div>';
   }).join('');
 }
