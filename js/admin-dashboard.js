@@ -322,6 +322,27 @@
     updateStats();
   };
 
+  window.removeAnnImg = function(idx){
+    if(!window._annImages) return;
+    window._annImages.splice(idx,1);
+    // Re-trigger preview render
+    var prevEl = document.getElementById('annImgPreviews');
+    var chosenEl = document.getElementById('annFileChosen');
+    if(prevEl) prevEl.innerHTML='';
+    if(!window._annImages.length){ if(chosenEl) chosenEl.textContent=''; return; }
+    window._annImages.forEach(function(img,i){
+      var reader=new FileReader();
+      reader.onload=function(e){
+        var div=document.createElement('div'); div.style.cssText='position:relative;display:inline-block;';
+        div.innerHTML='<img src="'+e.target.result+'" style="width:70px;height:70px;border-radius:8px;object-fit:cover;border:2px solid #e5e7eb;">'+
+          '<button onclick="removeAnnImg('+i+')" style="position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>';
+        if(prevEl) prevEl.appendChild(div);
+      };
+      reader.readAsDataURL(img);
+    });
+    if(chosenEl) chosenEl.textContent='✅ '+window._annImages.length+' image'+(window._annImages.length!==1?'s':'')+' selected';
+  };
+
   // --- Announcements ---
   window.publishAnnouncement = async function(){
     var title = document.getElementById('annTitle').value.trim();
@@ -333,20 +354,25 @@
     var btn = document.getElementById('publishAnnBtn');
     btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Publishing...';
 
-    var imgUrl = null;
-    if(selectedAnnImage){
+    // Upload multiple images
+    var imageUrls = [];
+    var annImages = window._annImages || [];
+    if(annImages.length > 0){
       try{
-        var sb = window.geramaSupabase;
-        if(sb){
-          var ext = selectedAnnImage.name.split('.').pop();
-          var imgPath = 'announcements/'+Date.now()+'.'+ext;
-          var up = await sb.storage.from(window.BUCKET).upload(imgPath, selectedAnnImage, { upsert:true });
-          if(!up.error){
-            var urlData = sb.storage.from(window.BUCKET).getPublicUrl(imgPath).data;
-            imgUrl = urlData.publicUrl;
+        var sb0 = window.geramaSupabase;
+        if(sb0){
+          for(var i=0;i<Math.min(annImages.length,5);i++){
+            var f = annImages[i];
+            var ext = f.name.split('.').pop();
+            var imgPath = 'announcements/'+Date.now()+'-'+i+'.'+ext;
+            var up = await sb0.storage.from(window.BUCKET).upload(imgPath, f, {upsert:true});
+            if(!up.error){
+              var url = sb0.storage.from(window.BUCKET).getPublicUrl(imgPath).data.publicUrl;
+              imageUrls.push(url);
+            }
           }
         }
-      }catch(e){ /* ignore */ }
+      }catch(e){ /* ignore upload errors */ }
     }
 
     var ann = {
@@ -354,7 +380,8 @@
       title: title,
       message: msg,
       priority: pri,
-      image: imgUrl,
+      image: imageUrls[0] || null,        // first image for backward compat
+      images: imageUrls,                   // all images
       date: new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})
     };
 
@@ -365,22 +392,24 @@
       var sb2 = window.geramaSupabase;
       if(sb2) await sb2.from('announcements').insert({
         title: ann.title, message: ann.message, priority: ann.priority,
-        image_url: ann.image, created_at: new Date().toISOString()
+        image_url: ann.image,
+        images: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null,
+        created_at: new Date().toISOString()
       });
     }catch(e){}
 
-    window.logActivity('Published announcement: '+title);
+    window.logActivity('Published announcement: '+title+(imageUrls.length?' ('+imageUrls.length+' image'+(imageUrls.length!==1?'s':'')+')'):''));
     renderAnnouncements();
     updateStats();
 
     document.getElementById('annTitle').value='';
     document.getElementById('annMessage').value='';
     document.getElementById('annFileChosen').textContent='';
-    document.getElementById('annImgPreview').style.display='none';
-    selectedAnnImage=null;
+    var prevEl = document.getElementById('annImgPreviews');
+    if(prevEl) prevEl.innerHTML='';
+    window._annImages = [];
 
     window.showStatus('annStatus','✅ Announcement published! It is now live on the home page.','ok');
-
     btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Publish to Site';
   };
 
@@ -734,16 +763,33 @@
     });
 
     setupDropZone('annDropZone','annImage',function(f){
-      selectedAnnImage = f;
-      var el = document.getElementById('annFileChosen');
-      if(el) el.textContent = '✅ '+f.name;
-
-      var reader = new FileReader();
-      reader.onload = function(e){
-        var img = document.getElementById('annImgPreview');
-        if(img){ img.src = e.target.result; img.style.display='block'; }
-      };
-      reader.readAsDataURL(f);
+      // Multi-image: accumulate up to 5
+      if(!window._annImages) window._annImages = [];
+      var files = document.getElementById('annImage').files;
+      var newFiles = files ? Array.from(files) : [f];
+      newFiles.forEach(function(file){
+        if(window._annImages.length >= 5) return;
+        if(!file.type.startsWith('image/')) return;
+        window._annImages.push(file);
+      });
+      // Show previews
+      var prevEl = document.getElementById('annImgPreviews');
+      var chosenEl = document.getElementById('annFileChosen');
+      if(prevEl){
+        prevEl.innerHTML = '';
+        window._annImages.forEach(function(img, i){
+          var reader = new FileReader();
+          reader.onload = function(e){
+            var div = document.createElement('div');
+            div.style.cssText = 'position:relative;display:inline-block;';
+            div.innerHTML = '<img src="'+e.target.result+'" style="width:70px;height:70px;border-radius:8px;object-fit:cover;border:2px solid #e5e7eb;">'+
+              '<button onclick="removeAnnImg('+i+')" style="position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>';
+            prevEl.appendChild(div);
+          };
+          reader.readAsDataURL(img);
+        });
+      }
+      if(chosenEl) chosenEl.textContent = '✅ '+window._annImages.length+' image'+(window._annImages.length!==1?'s':'')+' selected';
     });
 
     setupDropZone('swDropZone','swFile',function(f){
@@ -1201,34 +1247,64 @@ window.deleteAssignment = async function(id){
 };
 
 // ─── SCHEDULE CLASS ───────────────────────────────────────
+window.toggleClsType = function(){
+  var val = document.querySelector('input[name="clsType"]:checked').value;
+  var isVirtual = val === 'virtual';
+  document.getElementById('clsVirtualInfo').style.display  = isVirtual ? 'block' : 'none';
+  document.getElementById('clsVenueField').style.display   = isVirtual ? 'none'  : 'block';
+  document.getElementById('clsMapField').style.display     = isVirtual ? 'none'  : 'block';
+  document.getElementById('clsHintBox').style.display      = isVirtual ? 'block' : 'none';
+  // Highlight active label
+  document.getElementById('clsTypeVirtualLabel').style.borderColor  = isVirtual ? '#1d4ed8' : '#e5e7eb';
+  document.getElementById('clsTypeInPersonLabel').style.borderColor = isVirtual ? '#e5e7eb' : '#dc2626';
+};
+
 window.scheduleClass = async function(){
   var course = document.getElementById('clsCourse').value.trim();
   var topic  = document.getElementById('clsTopic').value.trim();
   var tutor  = document.getElementById('clsTutor').value.trim();
   var dt     = document.getElementById('clsDateTime').value;
   var desc   = document.getElementById('clsDesc').value.trim();
+  var clsType = document.querySelector('input[name="clsType"]:checked').value;
+  var venue  = clsType === 'inperson' ? (document.getElementById('clsVenue').value.trim()) : '';
+  var mapLink= clsType === 'inperson' ? (document.getElementById('clsMapLink').value.trim()) : '';
+
   if(!course||!topic||!dt){ window.showStatus('clsStatus','Please fill in Course, Topic and Date/Time.','err'); return; }
+  if(clsType === 'inperson' && !venue){ window.showStatus('clsStatus','Please enter the venue/location.','err'); return; }
+
   var btn = document.getElementById('scheduleClsBtn');
   btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Scheduling...';
   try{
     var sb = window.geramaSupabase; if(!sb) throw new Error('Not connected.');
-    var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
-    var meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
+    var meetLink = null;
+
+    if(clsType === 'virtual'){
+      var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
+      meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
+    }
+
     var {error} = await sb.from('classes').insert({
       course:course, topic:topic, tutor:tutor||null, description:desc||null,
-      scheduled_at:new Date(dt).toISOString(), meet_link:meetLink,
+      scheduled_at:new Date(dt).toISOString(),
+      meet_link: meetLink,
+      class_type: clsType,
+      venue: venue||null,
+      map_link: mapLink||null,
       status:'upcoming', created_at:new Date().toISOString()
     });
     if(error) throw new Error(error.message);
-    document.getElementById('clsLinkInput').value = meetLink;
-    document.getElementById('clsLinkOpen').href = meetLink;
-    document.getElementById('clsLinkBox').style.display = 'block';
-    window.logActivity('Scheduled class: '+course+' – '+topic);
-    window.showStatus('clsStatus','✅ Class scheduled! Share the link with students.','ok');
-    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+
+    if(clsType === 'virtual' && meetLink){
+      document.getElementById('clsLinkInput').value = meetLink;
+      document.getElementById('clsLinkOpen').href = meetLink;
+      document.getElementById('clsLinkBox').style.display = 'block';
+    }
+    window.logActivity('Scheduled '+(clsType==='inperson'?'in-person':'virtual')+' class: '+course+' – '+topic);
+    window.showStatus('clsStatus','✅ Class scheduled! '+(clsType==='inperson'?'Venue: '+venue:'Share the link with students.'),'ok');
+    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime','clsVenue','clsMapLink'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
     window.loadClsList();
   }catch(e){ window.showStatus('clsStatus','❌ '+e.message,'err'); }
-  btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Generate Link';
+  btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish';
 };
 
 window.copyClsLink = function(){
@@ -1246,6 +1322,15 @@ window.loadClsList = async function(){
 
   var now = Date.now();
 
+  // Sort: live first, then upcoming soonest first, then ended most recent first
+  data.sort(function(a,b){
+    var aLive=a.status==='live', bLive=b.status==='live';
+    var aEnd=a.status==='ended', bEnd=b.status==='ended';
+    if(aLive&&!bLive) return -1; if(!aLive&&bLive) return 1;
+    if(aEnd&&!bEnd) return 1; if(!aEnd&&bEnd) return -1;
+    return new Date(a.scheduled_at)-new Date(b.scheduled_at);
+  });
+
   // Separate active (upcoming/live) from ended (history)
   var active = data.filter(function(c){ return c.status !== 'ended'; });
   var ended  = data.filter(function(c){ return c.status === 'ended'; });
@@ -1255,6 +1340,7 @@ window.loadClsList = async function(){
     var isLive   = c.status === 'live';
     var isEnded  = c.status === 'ended';
     var isPast   = new Date(c.scheduled_at).getTime() < now;
+    var isInPerson = c.class_type === 'inperson';
 
     var badge = isLive
       ? '<span style="background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;animation:pulse 2s infinite;">🔴 LIVE NOW</span>'
@@ -1264,23 +1350,24 @@ window.loadClsList = async function(){
           ? '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">⏰ Time Passed</span>'
           : '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">📅 Upcoming</span>';
 
-    // Buttons:
-    // - Not live + not ended → show "Go Live" (always, even if time passed)
-    // - Live → show "End Class" 
-    // - Ended → show "Reopen" (in case of mistake)
-    var goLiveBtn   = (!isLive && !isEnded) ? '<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'live\')"><i class="fas fa-broadcast-tower"></i> Go Live</button>' : '';
-    var endBtn      = isLive ? '<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:#dc2626;" onclick="setClassStatus(\''+c.id+'\',\'ended\')"><i class="fas fa-stop-circle"></i> End Class</button>' : '';
-    var reopenBtn   = isEnded ? '<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'upcoming\')"><i class="fas fa-redo"></i> Reopen</button>' : '';
-    var deleteBtn   = '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')" style="font-size:0.78rem;padding:0.4rem 0.7rem;"><i class="fas fa-trash"></i></button>';
+    var typeBadge = isInPerson
+      ? '<span style="background:#fce7f3;color:#9d174d;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.4rem;"><i class="fas fa-map-marker-alt"></i> In-Person</span>'
+      : '<span style="background:#dbeafe;color:#1e40af;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.4rem;"><i class="fas fa-video"></i> Virtual</span>';
+
+    var goLiveBtn = (!isLive&&!isEnded)?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'live\')"><i class="fas fa-broadcast-tower"></i> Go Live</button>':'';
+    var endBtn    = isLive?'<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:#dc2626;" onclick="setClassStatus(\''+c.id+'\',\'ended\')"><i class="fas fa-stop-circle"></i> End Class</button>':'';
+    var reopenBtn = isEnded?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'upcoming\')"><i class="fas fa-redo"></i> Reopen</button>':'';
+    var deleteBtn = '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')" style="font-size:0.78rem;padding:0.4rem 0.7rem;"><i class="fas fa-trash"></i></button>';
+
+    var locationInfo = isInPerson
+      ? '<br><i class="fas fa-map-marker-alt" style="color:#dc2626;margin-right:0.3rem;"></i><strong>Venue:</strong> '+window.escHtml(c.venue||'—')+
+        (c.map_link?'&nbsp;<a href="'+window.escAttr(c.map_link)+'" target="_blank" style="color:#4285F4;font-size:0.8rem;"><i class="fab fa-google"></i> View Map</a>':'')
+      : (c.meet_link?'<br><a href="'+window.escAttr(c.meet_link)+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;"><i class="fas fa-link"></i> '+window.escHtml(c.meet_link.substring(0,55))+'</a>':'');
 
     return '<div class="sub-card" style="'+(isLive?'border-left:4px solid #dc2626;background:linear-gradient(135deg,#fff5f5,#fff);':'')+'">'+
       '<div class="sub-info">'+
-        '<strong>'+window.escHtml(c.course)+' — '+window.escHtml(c.topic)+' '+badge+'</strong>'+
-        '<div class="sub-meta">'+
-          '<b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+
-          (isLive?'<br><span style="color:#dc2626;font-weight:600;font-size:0.8rem;"><i class="fas fa-circle" style="animation:pulse 1s infinite;"></i> Class is currently LIVE</span>':'')+
-          '<br><a href="'+window.escAttr(c.meet_link||'#')+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;"><i class="fas fa-link"></i> '+window.escHtml((c.meet_link||'').substring(0,55))+'</a>'+
-        '</div>'+
+        '<strong>'+window.escHtml(c.course)+' — '+window.escHtml(c.topic)+' '+badge+typeBadge+'</strong>'+
+        '<div class="sub-meta"><b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+locationInfo+'</div>'+
       '</div>'+
       '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+deleteBtn+'</div>'+
     '</div>';

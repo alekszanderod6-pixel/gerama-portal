@@ -715,9 +715,35 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
     var hasMore = anns.length > 6;
     container.innerHTML = shown.map(function(a, idx){
       var imgSrc = a.image || a.image_url || null;
-      var imgHtml = imgSrc
-        ? '<img class="ann-card-img" src="'+imgSrc+'" alt="" onclick="openAnnLightbox(\''+imgSrc+'\')" onerror="this.style.display=\'none\'">'
-        : '';
+      // Parse multiple images
+      var allImages = [];
+      try{ if(a.images) allImages = typeof a.images==='string' ? JSON.parse(a.images) : a.images; }catch(e){}
+      if(!allImages.length && imgSrc) allImages = [imgSrc];
+
+      // Build image grid (Facebook/LinkedIn style)
+      var imgHtml = '';
+      if(allImages.length === 1){
+        imgHtml = '<img class="ann-card-img" src="'+allImages[0]+'" alt="" onclick="openAnnLightbox(\''+allImages[0]+'\')" onerror="this.style.display=\'none\'">';
+      } else if(allImages.length === 2){
+        imgHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;max-height:200px;overflow:hidden;cursor:pointer;">'+
+          allImages.map(function(u){ return '<img src="'+u+'" style="width:100%;height:200px;object-fit:cover;" onclick="openAnnLightbox(\''+u+'\')" onerror="this.style.display=\'none\'">'; }).join('')+
+        '</div>';
+      } else if(allImages.length === 3){
+        imgHtml = '<div style="display:grid;grid-template-columns:2fr 1fr;gap:2px;max-height:200px;overflow:hidden;cursor:pointer;">'+
+          '<img src="'+allImages[0]+'" style="width:100%;height:200px;object-fit:cover;" onclick="openAnnLightbox(\''+allImages[0]+'\')" onerror="this.style.display=\'none\'">'+
+          '<div style="display:grid;grid-template-rows:1fr 1fr;gap:2px;">'+
+            allImages.slice(1).map(function(u){ return '<img src="'+u+'" style="width:100%;height:99px;object-fit:cover;" onclick="openAnnLightbox(\''+u+'\')" onerror="this.style.display=\'none\'">'; }).join('')+
+          '</div>'+
+        '</div>';
+      } else if(allImages.length >= 4){
+        var extra = allImages.length - 4;
+        imgHtml = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;max-height:200px;overflow:hidden;cursor:pointer;">'+
+          allImages.slice(0,3).map(function(u){ return '<img src="'+u+'" style="width:100%;height:99px;object-fit:cover;" onclick="openAnnLightbox(\''+u+'\')" onerror="this.style.display=\'none\'">'; }).join('')+
+          '<div style="position:relative;"><img src="'+allImages[3]+'" style="width:100%;height:99px;object-fit:cover;" onclick="openAnnLightbox(\''+allImages[3]+'\')" onerror="this.style.display=\'none\'">'+
+          (extra>0?'<div onclick="openAnnLightbox(\''+allImages[3]+'\')" style="position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:white;font-size:1.4rem;font-weight:800;cursor:pointer;">+'+extra+'</div>':'')+
+          '</div>'+
+        '</div>';
+      }
       var dateStr = a.date || (a.created_at ? new Date(a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '');
       var annId = String(a.id || a.created_at || dateStr);
       var safeId = annId.replace(/[^a-z0-9]/gi, '-');
@@ -771,7 +797,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
       var { data, error } = await sb.from('announcements')
         .select('*').order('created_at',{ascending:false}).limit(50);
       if(error||!data||!data.length) throw new Error('no data');
-      render(data.map(function(r){ return { id:r.id, title:r.title, message:r.message, date:r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '', image:r.image_url||null }; }));
+      render(data.map(function(r){ return { id:r.id, title:r.title, message:r.message, date:r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '', image:r.image_url||null, images:r.images||null }; }));
     } catch(e) {
       var stored = localStorage.getItem('gerama_announcements');
       if(stored){ try{ render(JSON.parse(stored)); return; }catch(ex){} }

@@ -1001,18 +1001,43 @@ function renderClasses(classes) {
   }
   var now = Date.now();
   var userEmail = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email) || '';
+
+  // Sort: live first, then upcoming soonest first, then ended
+  classes.sort(function(a,b){
+    var aL=a.status==='live',bL=b.status==='live',aE=a.status==='ended',bE=b.status==='ended';
+    if(aL&&!bL) return -1; if(!aL&&bL) return 1;
+    if(aE&&!bE) return 1; if(!aE&&bE) return -1;
+    return new Date(a.scheduled_at)-new Date(b.scheduled_at);
+  });
+
   el.innerHTML = classes.map(function(c){
     var dt = new Date(c.scheduled_at);
     var isLive = c.status === 'live';
     var isEnded = c.status === 'ended';
     var isUpcoming = !isLive && !isEnded;
+    var isInPerson = c.class_type === 'inperson';
     var badgeClass = isLive ? 'live' : (isEnded ? 'ended' : 'upcoming');
     var badgeText = isLive ? '🔴 LIVE NOW' : (isEnded ? 'Ended' : '📅 Upcoming');
-    var joinBtn = '';
-    if(c.meet_link && !isEnded){
-      joinBtn = '<a href="'+c.meet_link+'" target="_blank" rel="noopener" class="btn-join'+(isLive?' gold':'')+'"><i class="fas fa-video"></i> '+(isLive?'Join Now':'Join When Live')+'</a>';
+
+    // Type badge
+    var typeBadge = isInPerson
+      ? '<span style="background:#fce7f3;color:#9d174d;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;margin-left:0.4rem;"><i class="fas fa-map-marker-alt"></i> In-Person</span>'
+      : '<span style="background:#dbeafe;color:#1e40af;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;margin-left:0.4rem;"><i class="fas fa-video"></i> Virtual</span>';
+
+    // Action buttons
+    var actionBtn = '';
+    if(isInPerson && !isEnded){
+      // In-person: show venue + optional map link
+      actionBtn = '<span style="background:#fce7f3;color:#9d174d;border:none;padding:0.6rem 1.2rem;border-radius:30px;font-weight:700;font-size:0.85rem;display:inline-flex;align-items:center;gap:0.5rem;"><i class="fas fa-map-marker-alt"></i> '+escHtml(c.venue||'Venue TBA')+'</span>';
+      if(c.map_link){
+        actionBtn += '<a href="'+c.map_link+'" target="_blank" rel="noopener" class="btn-join" style="background:linear-gradient(135deg,#4285F4,#1a73e8);"><i class="fab fa-google"></i> View Map</a>';
+      }
+    } else if(c.meet_link && !isEnded){
+      actionBtn = '<a href="'+c.meet_link+'" target="_blank" rel="noopener" class="btn-join'+(isLive?' gold':'')+'"><i class="fas fa-video"></i> '+(isLive?'Join Now':'Join When Live')+'</a>';
     }
-    var copyBtn = c.meet_link ? '<button class="btn-copy" onclick="copyLink(\''+c.meet_link+'\')"><i class="fas fa-copy"></i> Copy Link</button>' : '';
+
+    var copyBtn = (!isInPerson && c.meet_link) ? '<button class="btn-copy" onclick="copyLink(\''+c.meet_link+'\')"><i class="fas fa-copy"></i> Copy Link</button>' : '';
+
     var countdown = '';
     if(isUpcoming){
       var diff = dt.getTime() - now;
@@ -1023,31 +1048,29 @@ function renderClasses(classes) {
         countdown = '<div class="countdown"><i class="fas fa-clock"></i> Starts in: '+(days>0?days+'d ':'')+hrs+'h '+mins+'m</div>';
       }
     }
-    // Delete/postpone — show if user is requester or admin
+
     var isOwner = c.requester_email && userEmail && c.requester_email === userEmail;
     var hoursToClass = (dt.getTime() - now) / 3600000;
-    var canPostpone = isUpcoming && hoursToClass > 12;
-    var canDelete   = true; // always can delete
     var mgmtBtns = '';
     if(isOwner || isAdmin()){
-      if(canPostpone){
-        mgmtBtns += '<button class="btn-warn-sm" onclick="postponeClass(\''+c.id+'\')"><i class="fas fa-clock"></i> Postpone</button>';
-      }
-      if(canDelete){
-        mgmtBtns += '<button class="btn-danger-sm" onclick="deleteClassFromPage(\''+c.id+'\')"><i class="fas fa-trash"></i> Delete</button>';
-      }
+      if(isUpcoming && hoursToClass > 12) mgmtBtns += '<button class="btn-warn-sm" onclick="postponeClass(\''+c.id+'\')"><i class="fas fa-clock"></i> Postpone</button>';
+      mgmtBtns += '<button class="btn-danger-sm" onclick="deleteClassFromPage(\''+c.id+'\')"><i class="fas fa-trash"></i> Delete</button>';
     }
+
     return '<div class="class-card">'+
-      '<div class="class-badge '+badgeClass+'">'+badgeText+'</div>'+
+      '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.6rem;">'+
+        '<div class="class-badge '+badgeClass+'">'+badgeText+'</div>'+typeBadge+
+      '</div>'+
       '<div class="class-title">'+escHtml(c.course)+' — '+escHtml(c.topic)+'</div>'+
       '<div class="class-meta">'+
         '<div><i class="fas fa-calendar"></i> '+dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div>'+
         '<div><i class="fas fa-clock"></i> '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+'</div>'+
         (c.tutor ? '<div><i class="fas fa-user-tie"></i> '+escHtml(c.tutor)+'</div>' : '')+
+        (isInPerson && c.venue ? '<div><i class="fas fa-map-marker-alt" style="color:#dc2626;"></i> '+escHtml(c.venue)+'</div>' : '')+
         (c.description ? '<div style="margin-top:0.4rem;color:#374151;">'+escHtml(c.description)+'</div>' : '')+
       '</div>'+
       countdown+
-      '<div class="class-actions">'+joinBtn+copyBtn+mgmtBtns+'</div>'+
+      '<div class="class-actions">'+actionBtn+copyBtn+mgmtBtns+'</div>'+
     '</div>';
   }).join('');
 }

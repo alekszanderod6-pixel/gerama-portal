@@ -317,13 +317,14 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field"><label>Priority</label><select id="annPriority"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select></div>
         <div class="form-field full"><label>Message *</label><textarea id="annMessage" rows="3" placeholder="Write your announcement here..."></textarea></div>
         <div class="form-field full">
-          <label>Image (optional)</label>
+          <label>Images (optional — up to 5 images, stored as compressed previews)</label>
           <div class="drop-zone" id="annDropZone" style="padding:1rem;">
-            <i class="fas fa-image"></i><p>Attach an image (optional)</p>
+            <i class="fas fa-images"></i>
+            <p>Attach up to 5 images — tap or drag &amp; drop</p>
             <p class="file-chosen" id="annFileChosen"></p>
-            <input type="file" id="annImage" accept="image/*" style="display:none;">
+            <input type="file" id="annImage" accept="image/*" multiple style="display:none;">
           </div>
-          <img id="annImgPreview" style="display:none;width:80px;height:80px;border-radius:10px;object-fit:cover;margin-top:0.5rem;" alt="">
+          <div id="annImgPreviews" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;"></div>
         </div>
       </div>
       <div style="margin-top:1rem;"><button class="btn-primary" id="publishAnnBtn"><i class="fas fa-paper-plane"></i> Publish to Site</button></div>
@@ -477,17 +478,46 @@ tr:hover td{background:#fafcfa;}
   <div class="panel" id="panel-classes">
     <div class="card">
       <div class="card-title"><i class="fas fa-plus-circle"></i> Schedule New Class</div>
-      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#92400e;">
+
+      <!-- Class type toggle -->
+      <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1.2rem;">
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;padding:0.6rem 1.2rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;font-size:0.9rem;" id="clsTypeVirtualLabel">
+          <input type="radio" name="clsType" value="virtual" id="clsTypeVirtual" checked onchange="toggleClsType()"> <i class="fas fa-video" style="color:#1d4ed8;"></i> Virtual / Online
+        </label>
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;padding:0.6rem 1.2rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;font-size:0.9rem;" id="clsTypeInPersonLabel">
+          <input type="radio" name="clsType" value="inperson" id="clsTypeInPerson" onchange="toggleClsType()"> <i class="fas fa-map-marker-alt" style="color:#dc2626;"></i> In-Person / Physical
+        </label>
+      </div>
+
+      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#92400e;" id="clsHintBox">
         <strong><i class="fas fa-video"></i> Powered by Jitsi Meet — free, no account needed.</strong> A unique meeting link is generated automatically.
       </div>
+
       <div class="form-grid">
         <div class="form-field"><label>Course Name *</label><input type="text" id="clsCourse" placeholder="e.g. Applied Electricity"></div>
         <div class="form-field"><label>Topic / Title *</label><input type="text" id="clsTopic" placeholder="e.g. Kirchhoff's Laws"></div>
         <div class="form-field"><label>Tutor / Host</label><input type="text" id="clsTutor" placeholder="e.g. Edem H.K Prince"></div>
         <div class="form-field"><label>Date &amp; Time *</label><input type="datetime-local" id="clsDateTime"></div>
         <div class="form-field full"><label>Description (optional)</label><input type="text" id="clsDesc" placeholder="Brief note about what will be covered"></div>
+
+        <!-- Virtual: auto-generated link (shown by default) -->
+        <div class="form-field full" id="clsVirtualInfo" style="background:#dbeafe;border-radius:10px;padding:0.8rem 1rem;font-size:0.85rem;color:#1e40af;">
+          <i class="fas fa-info-circle"></i> A Jitsi Meet link will be generated automatically when you schedule.
+        </div>
+
+        <!-- In-person: venue fields -->
+        <div class="form-field full" id="clsVenueField" style="display:none;">
+          <label>Venue / Location *</label>
+          <input type="text" id="clsVenue" placeholder="e.g. UENR Engineering Block, Room 204">
+        </div>
+        <div class="form-field full" id="clsMapField" style="display:none;">
+          <label>Google Maps Link (optional)</label>
+          <input type="url" id="clsMapLink" placeholder="https://maps.google.com/...">
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Paste a Google Maps link so students can navigate to the venue.</small>
+        </div>
       </div>
-      <div style="margin-top:1rem;"><button class="btn-primary" id="scheduleClsBtn"><i class="fas fa-calendar-plus"></i> Schedule &amp; Generate Link</button></div>
+
+      <div style="margin-top:1rem;"><button class="btn-primary" id="scheduleClsBtn"><i class="fas fa-calendar-plus"></i> Schedule &amp; Publish</button></div>
       <div class="status-msg" id="clsStatus"></div>
       <div id="clsLinkBox" style="display:none;margin-top:1rem;background:#e8f5e9;border-radius:12px;padding:1rem 1.2rem;border:1px solid #c8e6c9;">
         <strong style="display:block;color:#1B5E20;margin-bottom:0.5rem;"><i class="fas fa-link"></i> Class Link Generated!</strong>
