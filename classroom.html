@@ -1195,7 +1195,7 @@ function closeModal() {
   document.getElementById('submitModal').classList.remove('open');
 }
 
-function submitAssignment() {
+async function submitAssignment() {
   var name    = document.getElementById('subName').value.trim();
   var email   = document.getElementById('subEmail').value.trim();
   var index   = document.getElementById('subIndex').value.trim();
@@ -1212,40 +1212,60 @@ function submitAssignment() {
   showSubStatus('Uploading your submission...','info');
 
   var sb = window.geramaSupabase;
-  if(!sb){ showSubStatus('Service not available. Please try again.','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit'; return; }
+  if(!sb){ showSubStatus('Service not available. Please refresh and try again.','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit'; return; }
 
-  var ext = selectedSubFile.name.split('.').pop();
-  var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now()+'.'+ext;
-  var storagePath = 'submissions/'+assignId+'/'+safeName;
+  try {
+    var ext = selectedSubFile.name.split('.').pop();
+    var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now()+'.'+ext;
+    var storagePath = 'submissions/'+assignId+'/'+safeName;
 
-  sb.storage.from('gerama-materials').upload(storagePath, selectedSubFile, {upsert:true})
-  .then(function(upRes){
-    if(upRes.error) throw new Error(upRes.error.message);
-    var urlRes = sb.storage.from('gerama-materials').getPublicUrl(storagePath);
-    var fileUrl = urlRes.data.publicUrl;
-    return sb.from('assignment_submissions').insert({
-      assignment_id: assignId,
+    // Upload file with retry on network error
+    var upRes = null;
+    for(var attempt = 1; attempt <= 3; attempt++){
+      try {
+        upRes = await sb.storage.from('gerama-materials').upload(storagePath, selectedSubFile, {upsert:true, contentType: selectedSubFile.type});
+        if(!upRes.error) break;
+        if(attempt < 3) { showSubStatus('Upload attempt '+attempt+' failed, retrying...','info'); await new Promise(function(r){setTimeout(r,1500);}); }
+      } catch(netErr) {
+        if(attempt < 3) { showSubStatus('Network error, retrying ('+attempt+'/3)...','info'); await new Promise(function(r){setTimeout(r,2000);}); }
+        else throw new Error('Network error after 3 attempts. Please check your connection and try again.');
+      }
+    }
+
+    if(upRes && upRes.error) throw new Error('Upload failed: '+upRes.error.message);
+
+    var fileUrl = sb.storage.from('gerama-materials').getPublicUrl(storagePath).data.publicUrl;
+
+    var {error: dbErr} = await sb.from('assignment_submissions').insert({
+      assignment_id:    assignId,
       assignment_title: assignTitle,
-      student_name: name,
-      student_email: email,
-      index_number: index || null,
-      comment: comment || null,
-      file_url: fileUrl,
-      storage_path: storagePath,
-      submitted_at: new Date().toISOString(),
-      status: 'submitted'
+      student_name:     name,
+      student_email:    email,
+      index_number:     index || null,
+      comment:          comment || null,
+      file_url:         fileUrl,
+      storage_path:     storagePath,
+      submitted_at:     new Date().toISOString(),
+      status:           'submitted'
     });
-  })
-  .then(function(dbRes){
-    if(dbRes.error) throw new Error(dbRes.error.message);
+
+    if(dbErr) throw new Error('Could not save submission: '+dbErr.message);
+
     showSubStatus('✅ Submitted successfully! Your tutor will review it shortly.','ok');
     btn.innerHTML = '✅ Submitted';
     setTimeout(function(){ closeModal(); btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit'; }, 2500);
-  })
-  .catch(function(err){
-    showSubStatus('❌ '+err.message,'err');
+
+  } catch(err) {
+    var msg = err.message || 'Unknown error';
+    if(msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('network')){
+      showSubStatus('❌ Network error — please check your internet connection and try again.','err');
+    } else if(msg.toLowerCase().includes('row-level security') || msg.toLowerCase().includes('rls')){
+      showSubStatus('❌ Permission error. Please contact admin.','err');
+    } else {
+      showSubStatus('❌ '+msg,'err');
+    }
     btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit';
-  });
+  }
 }
 
 function showSubStatus(msg, type) {
