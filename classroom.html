@@ -161,21 +161,27 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 @media(max-width:500px){
   .qr-grid{grid-template-columns:1fr !important;}
 }
-/* ── LEADERBOARD ── */
-.lb-card{background:white;border-radius:16px;padding:1rem 1.4rem;margin-bottom:0.7rem;display:flex;align-items:center;gap:1rem;box-shadow:0 2px 10px rgba(0,0,0,0.05);border:1px solid #e8f0e8;transition:all 0.2s;}
-.lb-card:hover{transform:translateX(4px);}
-.lb-card.top1{background:linear-gradient(135deg,#fffbeb,#fef3c7);border-color:#fcd34d;}
-.lb-card.top2{background:linear-gradient(135deg,#f8fafc,#f1f5f9);border-color:#cbd5e1;}
-.lb-card.top3{background:linear-gradient(135deg,#fff7ed,#fed7aa);border-color:#fdba74;}
-.lb-rank{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.9rem;flex-shrink:0;}
-.lb-rank.r1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:white;}
-.lb-rank.r2{background:linear-gradient(135deg,#94a3b8,#64748b);color:white;}
-.lb-rank.r3{background:linear-gradient(135deg,#fb923c,#ea580c);color:white;}
-.lb-rank.rn{background:#f1f5f9;color:#6b7280;}
-.lb-name{flex:1;font-weight:700;font-size:0.95rem;color:var(--text);}
-.lb-pts{font-weight:800;font-size:1.1rem;color:var(--primary);}
-.lb-pts-lbl{font-size:0.72rem;color:var(--muted);font-weight:600;}
-.lb-you{background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;margin-left:0.4rem;}
+/* Planner grid: single column on mobile */
+@media(max-width:640px){
+  #tab-planner > div:nth-child(2){grid-template-columns:1fr !important;}
+}
+/* ── STUDY PLANNER ── */
+.deadline-item{display:flex;align-items:center;gap:0.8rem;background:rgba(255,255,255,0.1);border-radius:12px;padding:0.7rem 1rem;}
+.deadline-item.urgent{background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);}
+.deadline-item.soon{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);}
+.deadline-type{font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;flex-shrink:0;}
+.deadline-type.asg{background:rgba(27,94,32,0.3);color:#4ade80;}
+.deadline-type.qz{background:rgba(99,102,241,0.3);color:#a5b4fc;}
+.deadline-title{flex:1;font-size:0.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.deadline-time{font-size:0.78rem;font-weight:700;opacity:0.85;white-space:nowrap;}
+/* Goal items */
+.goal-item{display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.6rem;border-radius:10px;background:#f8fafc;border:1px solid #e5e7eb;transition:all 0.2s;}
+.goal-item.done{opacity:0.5;text-decoration:line-through;}
+.goal-check{width:20px;height:20px;border-radius:50%;border:2px solid #6366f1;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.goal-check.checked{background:#6366f1;border-color:#6366f1;color:white;font-size:0.7rem;}
+.goal-text{flex:1;font-size:0.88rem;color:var(--text);}
+.goal-del{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.8rem;padding:0.2rem;opacity:0;transition:opacity 0.2s;}
+.goal-item:hover .goal-del{opacity:1;}
   #tab-quizzes .qr-grid{grid-template-columns:1fr !important;}
 }
 .reel-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;}
@@ -413,7 +419,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <button class="tab-btn" onclick="showTab('assignments')"><i class="fas fa-tasks"></i> Assignments</button>
   <button class="tab-btn" onclick="showTab('quizzes')"><i class="fas fa-brain"></i> Quizzes <span id="quizBadge" style="display:none;background:#6366f1;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
   <button class="tab-btn" onclick="showTab('attendance')"><i class="fas fa-clipboard-check"></i> Attendance</button>
-  <button class="tab-btn" onclick="showTab('leaderboard')"><i class="fas fa-trophy"></i> Leaderboard</button>
+  <button class="tab-btn" onclick="showTab('planner')"><i class="fas fa-calendar-alt"></i> Study Planner</button>
   <button class="tab-btn" id="qaTabBtn" onclick="showTab('qa')"><i class="fas fa-comments"></i> Q&amp;A <span id="qaBadge" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
   <button class="tab-btn" onclick="showTab('reels')"><i class="fas fa-film"></i> Reels</button>
 </div>
@@ -711,16 +717,72 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
-<!-- ═══ LEADERBOARD TAB ═══ -->
-<div class="tab-section" id="tab-leaderboard">
-  <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:20px;padding:2rem;color:white;margin-bottom:1.5rem;text-align:center;position:relative;overflow:hidden;">
+<!-- ═══ STUDY PLANNER TAB ═══ -->
+<div class="tab-section" id="tab-planner">
+
+  <!-- Upcoming deadlines -->
+  <div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);border-radius:20px;padding:1.8rem;color:white;margin-bottom:1.5rem;position:relative;overflow:hidden;">
     <div style="position:absolute;top:-30px;right:-30px;width:150px;height:150px;background:rgba(255,193,7,0.06);border-radius:50%;"></div>
-    <div style="font-size:2.5rem;margin-bottom:0.5rem;">🏆</div>
-    <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:0.3rem;">Attendance Leaderboard</h2>
-    <p style="font-size:0.88rem;opacity:0.8;">Top students by attendance points. Keep showing up!</p>
+    <div style="position:relative;z-index:1;">
+      <div style="font-size:0.8rem;font-weight:700;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;"><i class="fas fa-calendar-alt" style="margin-right:0.4rem;"></i>Upcoming Deadlines</div>
+      <div id="plannerDeadlines" style="display:flex;flex-direction:column;gap:0.6rem;margin-top:0.8rem;">
+        <div style="opacity:0.6;font-size:0.88rem;">Loading deadlines...</div>
+      </div>
+    </div>
   </div>
-  <div id="leaderboardList">
-    <div class="empty-state"><i class="fas fa-trophy"></i><p>Loading leaderboard...</p></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;">
+
+    <!-- Study Goals -->
+    <div style="background:white;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <div style="font-size:1rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-bullseye" style="color:#6366f1;"></i> Study Goals</div>
+        <span id="goalProgress" style="font-size:0.78rem;font-weight:700;color:#6366f1;background:#ede9fe;padding:0.2rem 0.6rem;border-radius:20px;">0/0</span>
+      </div>
+      <div style="display:flex;gap:0.5rem;margin-bottom:0.8rem;">
+        <input type="text" id="goalInput" placeholder="Add a study goal..." maxlength="80"
+          style="flex:1;padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;"
+          onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e5e7eb'"
+          onkeydown="if(event.key==='Enter') addGoal()">
+        <button onclick="addGoal()" style="background:#6366f1;color:white;border:none;padding:0.6rem 0.9rem;border-radius:10px;cursor:pointer;font-size:0.9rem;"><i class="fas fa-plus"></i></button>
+      </div>
+      <div id="goalsList" style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:0.4rem;">
+        <div style="text-align:center;padding:1.5rem;color:#9ca3af;font-size:0.85rem;"><i class="fas fa-bullseye" style="font-size:1.5rem;display:block;margin-bottom:0.4rem;opacity:0.3;"></i>No goals yet. Add one above!</div>
+      </div>
+    </div>
+
+    <!-- Pomodoro Timer -->
+    <div style="background:white;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;text-align:center;">
+      <div style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:0.8rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;"><i class="fas fa-clock" style="color:#dc2626;"></i> Study Timer</div>
+      <div id="pomodoroMode" style="font-size:0.78rem;font-weight:700;color:#dc2626;background:#fee2e2;padding:0.2rem 0.8rem;border-radius:20px;display:inline-block;margin-bottom:1rem;">🍅 Focus Time</div>
+      <div id="pomodoroDisplay" style="font-size:3.5rem;font-weight:900;color:var(--text);line-height:1;margin-bottom:1rem;font-variant-numeric:tabular-nums;letter-spacing:-2px;">25:00</div>
+      <div style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;">
+        <button id="pomodoroBtn" onclick="togglePomodoro()" style="background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;border:none;padding:0.65rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 12px rgba(220,38,38,0.3);transition:all 0.2s;"><i class="fas fa-play"></i> Start</button>
+        <button onclick="resetPomodoro()" style="background:#f1f5f9;color:var(--text);border:none;padding:0.65rem 1rem;border-radius:30px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-redo"></i> Reset</button>
+      </div>
+      <div style="display:flex;gap:0.5rem;justify-content:center;">
+        <button onclick="setPomodoroMode('focus')" style="background:#fee2e2;color:#dc2626;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">🍅 25 min</button>
+        <button onclick="setPomodoroMode('short')" style="background:#d1fae5;color:#065f46;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">☕ 5 min</button>
+        <button onclick="setPomodoroMode('long')" style="background:#dbeafe;color:#1d4ed8;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">🌙 15 min</button>
+      </div>
+      <div id="pomodoroSessions" style="margin-top:0.8rem;font-size:0.78rem;color:#9ca3af;"></div>
+    </div>
+  </div>
+
+  <!-- Quick Notes -->
+  <div style="background:white;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;margin-top:1.2rem;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;">
+      <div style="font-size:1rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-sticky-note" style="color:#f59e0b;"></i> Quick Notes</div>
+      <span style="font-size:0.75rem;color:#9ca3af;">Auto-saved</span>
+    </div>
+    <textarea id="quickNotes" placeholder="Jot down anything — formulas, reminders, ideas..." rows="5"
+      style="width:100%;padding:0.8rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;resize:vertical;outline:none;line-height:1.6;box-sizing:border-box;"
+      onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e5e7eb'"
+      oninput="saveNotes(this.value)"></textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
+      <span id="notesSaved" style="font-size:0.75rem;color:#9ca3af;"></span>
+      <button onclick="clearNotes()" style="background:none;border:none;color:#9ca3af;font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;">Clear notes</button>
+    </div>
   </div>
 </div>
 
@@ -834,7 +896,7 @@ function showTab(name) {
   if(name === 'assignments') loadAssignments();
   if(name === 'quizzes')     loadQuizzes();
   if(name === 'attendance')  loadAttendance();
-  if(name === 'leaderboard') loadLeaderboard();
+  if(name === 'planner')     loadPlanner();
   if(name === 'qa'){
     loadQA();
     localStorage.setItem('gerama_qa_last_read', new Date().toISOString());
@@ -2450,63 +2512,184 @@ async function markAttendance() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// LEADERBOARD
+// STUDY PLANNER
 // ══════════════════════════════════════════════════════════════
-async function loadLeaderboard() {
-  var el = document.getElementById('leaderboardList'); if(!el) return;
+var _pomodoroTimer = null;
+var _pomodoroSecs  = 25 * 60;
+var _pomodoroTotal = 25 * 60;
+var _pomodoroRunning = false;
+var _pomodoroSessionsDone = 0;
+
+async function loadPlanner() {
+  // Load deadlines
   var sb = window.geramaSupabase;
-  if(!sb){ el.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><p>Not connected.</p></div>'; return; }
+  var dlEl = document.getElementById('plannerDeadlines');
+  if(sb && dlEl){
+    var now = new Date();
+    var in7d = new Date(now.getTime() + 7*24*60*60*1000).toISOString();
+    try{
+      var [asgRes, qzRes] = await Promise.all([
+        sb.from('assignments').select('title,deadline').gt('deadline', now.toISOString()).lt('deadline', in7d).order('deadline',{ascending:true}).limit(5),
+        sb.from('quizzes').select('title,deadline').neq('status','closed').gt('deadline', now.toISOString()).lt('deadline', in7d).order('deadline',{ascending:true}).limit(5)
+      ]);
+      var items = [];
+      (asgRes.data||[]).forEach(function(a){ items.push({title:a.title, deadline:a.deadline, type:'asg'}); });
+      (qzRes.data||[]).forEach(function(q){ items.push({title:q.title, deadline:q.deadline, type:'qz'}); });
+      items.sort(function(a,b){ return new Date(a.deadline)-new Date(b.deadline); });
 
-  el.innerHTML='<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></div>';
+      if(!items.length){
+        dlEl.innerHTML = '<div style="opacity:0.6;font-size:0.88rem;"><i class="fas fa-check-circle" style="color:#4ade80;margin-right:0.4rem;"></i>No deadlines in the next 7 days. You\'re all clear!</div>';
+      } else {
+        dlEl.innerHTML = items.map(function(item){
+          var dl = new Date(item.deadline);
+          var diff = dl.getTime() - now.getTime();
+          var hrs = Math.floor(diff/3600000);
+          var days = Math.floor(diff/86400000);
+          var timeStr = days > 1 ? days+'d left' : hrs > 0 ? hrs+'h left' : 'Due soon';
+          var urgency = hrs < 24 ? 'urgent' : hrs < 72 ? 'soon' : '';
+          return '<div class="deadline-item '+urgency+'">'+
+            '<span class="deadline-type '+item.type+'">'+(item.type==='asg'?'📝 Assignment':'🧠 Quiz')+'</span>'+
+            '<span class="deadline-title">'+escHtml(item.title)+'</span>'+
+            '<span class="deadline-time">'+(urgency==='urgent'?'⚠️ ':'')+timeStr+'</span>'+
+          '</div>';
+        }).join('');
+      }
+    }catch(e){ dlEl.innerHTML='<div style="opacity:0.5;font-size:0.85rem;">Could not load deadlines.</div>'; }
+  }
 
-  var {data, error} = await sb.from('attendance_records')
-    .select('student_name, student_email, points');
+  // Load goals
+  renderGoals();
 
-  if(error||!data||!data.length){
-    el.innerHTML='<div class="empty-state"><i class="fas fa-trophy"></i><p>No attendance data yet.<br>Be the first to mark attendance!</p></div>';
+  // Load notes
+  var notes = localStorage.getItem('gerama_notes')||'';
+  var notesEl = document.getElementById('quickNotes');
+  if(notesEl) notesEl.value = notes;
+
+  // Update pomodoro display
+  updatePomodoroDisplay();
+}
+
+// ── GOALS ──────────────────────────────────────────────────────
+function renderGoals(){
+  var goals = JSON.parse(localStorage.getItem('gerama_goals')||'[]');
+  var el = document.getElementById('goalsList');
+  var prog = document.getElementById('goalProgress');
+  if(!el) return;
+  var done = goals.filter(function(g){ return g.done; }).length;
+  if(prog) prog.textContent = done+'/'+goals.length;
+  if(!goals.length){
+    el.innerHTML='<div style="text-align:center;padding:1.5rem;color:#9ca3af;font-size:0.85rem;"><i class="fas fa-bullseye" style="font-size:1.5rem;display:block;margin-bottom:0.4rem;opacity:0.3;"></i>No goals yet. Add one above!</div>';
     return;
   }
-
-  // Aggregate points per student
-  var totals = {};
-  data.forEach(function(r){
-    var key = r.student_email || r.student_name || 'Unknown';
-    var name = r.student_name || r.student_email || 'Student';
-    if(!totals[key]) totals[key] = {name: name, pts: 0};
-    totals[key].pts += (r.points||1);
-  });
-
-  var sorted = Object.keys(totals).map(function(k){ return totals[k]; })
-    .sort(function(a,b){ return b.pts - a.pts; });
-
-  var myEmail = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email)||'';
-  var myName  = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').name)||'';
-
-  var medals = ['🥇','🥈','🥉'];
-  var rankClasses = ['top1','top2','top3'];
-  var rankBtnClasses = ['r1','r2','r3'];
-
-  el.innerHTML = sorted.slice(0,20).map(function(s, i){
-    var rank = i+1;
-    var isMe = myEmail && (s.name === myName || s.name === myEmail);
-    var rankClass = i < 3 ? rankClasses[i] : '';
-    var rankBtnClass = i < 3 ? rankBtnClasses[i] : 'rn';
-    var rankDisplay = i < 3 ? medals[i] : rank;
-    return '<div class="lb-card '+rankClass+'">'+
-      '<div class="lb-rank '+rankBtnClass+'">'+rankDisplay+'</div>'+
-      '<div class="lb-name">'+escHtml(s.name)+(isMe?'<span class="lb-you">You</span>':'')+'</div>'+
-      '<div style="text-align:right;">'+
-        '<div class="lb-pts">'+s.pts+'</div>'+
-        '<div class="lb-pts-lbl">point'+(s.pts!==1?'s':'')+'</div>'+
-      '</div>'+
+  el.innerHTML = goals.map(function(g,i){
+    return '<div class="goal-item'+(g.done?' done':'')+'">'+
+      '<div class="goal-check'+(g.done?' checked':'')+'" onclick="toggleGoal('+i+')">'+(g.done?'✓':'')+'</div>'+
+      '<span class="goal-text">'+escHtml(g.text)+'</span>'+
+      '<button class="goal-del" onclick="deleteGoal('+i+')" title="Remove"><i class="fas fa-times"></i></button>'+
     '</div>';
   }).join('');
+}
 
-  // Show user's own rank if not in top 20
-  var myRank = sorted.findIndex(function(s){ return s.name===myName||s.name===myEmail; });
-  if(myRank >= 20){
-    el.innerHTML += '<div style="text-align:center;padding:0.8rem;font-size:0.85rem;color:var(--muted);">Your rank: <strong>#'+(myRank+1)+'</strong> with <strong>'+sorted[myRank].pts+' pts</strong></div>';
+function addGoal(){
+  var inp = document.getElementById('goalInput');
+  var text = (inp&&inp.value||'').trim();
+  if(!text) return;
+  var goals = JSON.parse(localStorage.getItem('gerama_goals')||'[]');
+  goals.unshift({text:text, done:false, created:new Date().toISOString()});
+  localStorage.setItem('gerama_goals', JSON.stringify(goals));
+  if(inp) inp.value='';
+  renderGoals();
+}
+
+function toggleGoal(i){
+  var goals = JSON.parse(localStorage.getItem('gerama_goals')||'[]');
+  if(goals[i]) goals[i].done = !goals[i].done;
+  localStorage.setItem('gerama_goals', JSON.stringify(goals));
+  renderGoals();
+}
+
+function deleteGoal(i){
+  var goals = JSON.parse(localStorage.getItem('gerama_goals')||'[]');
+  goals.splice(i,1);
+  localStorage.setItem('gerama_goals', JSON.stringify(goals));
+  renderGoals();
+}
+
+// ── POMODORO TIMER ─────────────────────────────────────────────
+function updatePomodoroDisplay(){
+  var m = Math.floor(_pomodoroSecs/60);
+  var s = _pomodoroSecs % 60;
+  var el = document.getElementById('pomodoroDisplay');
+  if(el) el.textContent = m+':'+(s<10?'0':'')+s;
+  // Update page title when running
+  if(_pomodoroRunning) document.title = m+':'+(s<10?'0':'')+s+' — GERAMA';
+  else document.title = 'GERAMA Classroom | Assignments & Online Classes';
+}
+
+function setPomodoroMode(mode){
+  clearInterval(_pomodoroTimer);
+  _pomodoroRunning = false;
+  var btn = document.getElementById('pomodoroBtn');
+  var modeEl = document.getElementById('pomodoroMode');
+  if(mode==='focus'){ _pomodoroSecs=25*60; _pomodoroTotal=25*60; if(modeEl){modeEl.textContent='🍅 Focus Time';modeEl.style.background='#fee2e2';modeEl.style.color='#dc2626';} }
+  if(mode==='short'){ _pomodoroSecs=5*60;  _pomodoroTotal=5*60;  if(modeEl){modeEl.textContent='☕ Short Break';modeEl.style.background='#d1fae5';modeEl.style.color='#065f46';} }
+  if(mode==='long'){  _pomodoroSecs=15*60; _pomodoroTotal=15*60; if(modeEl){modeEl.textContent='🌙 Long Break';modeEl.style.background='#dbeafe';modeEl.style.color='#1d4ed8';} }
+  if(btn){ btn.innerHTML='<i class="fas fa-play"></i> Start'; btn.style.background='linear-gradient(135deg,#dc2626,#b91c1c)'; }
+  updatePomodoroDisplay();
+}
+
+function togglePomodoro(){
+  var btn = document.getElementById('pomodoroBtn');
+  if(_pomodoroRunning){
+    clearInterval(_pomodoroTimer);
+    _pomodoroRunning = false;
+    if(btn){ btn.innerHTML='<i class="fas fa-play"></i> Resume'; }
+  } else {
+    _pomodoroRunning = true;
+    if(btn){ btn.innerHTML='<i class="fas fa-pause"></i> Pause'; }
+    _pomodoroTimer = setInterval(function(){
+      _pomodoroSecs--;
+      updatePomodoroDisplay();
+      if(_pomodoroSecs <= 0){
+        clearInterval(_pomodoroTimer);
+        _pomodoroRunning = false;
+        _pomodoroSessionsDone++;
+        var sessEl = document.getElementById('pomodoroSessions');
+        if(sessEl) sessEl.textContent = '🍅 '.repeat(Math.min(_pomodoroSessionsDone,8))+' '+_pomodoroSessionsDone+' session'+(  _pomodoroSessionsDone!==1?'s':'');
+        if(window.launchConfetti) window.launchConfetti();
+        // Play a soft notification sound (best effort)
+        try{ var ctx=new AudioContext(); var osc=ctx.createOscillator(); var gain=ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value=880; gain.gain.setValueAtTime(0.3,ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.8); osc.start(); osc.stop(ctx.currentTime+0.8); }catch(e){}
+        if(btn){ btn.innerHTML='<i class="fas fa-play"></i> Start'; }
+        alert('⏰ Time\'s up! Great work. Take a break.');
+      }
+    }, 1000);
   }
+}
+
+function resetPomodoro(){
+  clearInterval(_pomodoroTimer);
+  _pomodoroRunning = false;
+  _pomodoroSecs = _pomodoroTotal;
+  var btn = document.getElementById('pomodoroBtn');
+  if(btn){ btn.innerHTML='<i class="fas fa-play"></i> Start'; }
+  updatePomodoroDisplay();
+}
+
+// ── NOTES ──────────────────────────────────────────────────────
+var _notesSaveTimer = null;
+function saveNotes(val){
+  clearTimeout(_notesSaveTimer);
+  _notesSaveTimer = setTimeout(function(){
+    localStorage.setItem('gerama_notes', val);
+    var el = document.getElementById('notesSaved');
+    if(el){ el.textContent='Saved ✓'; setTimeout(function(){ el.textContent=''; },2000); }
+  }, 600);
+}
+function clearNotes(){
+  if(!confirm('Clear all notes?')) return;
+  localStorage.removeItem('gerama_notes');
+  var el = document.getElementById('quickNotes');
+  if(el) el.value='';
 }
 
 function toggleFab() {
