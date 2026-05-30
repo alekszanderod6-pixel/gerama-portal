@@ -509,14 +509,16 @@ tr:hover td{background:#fafcfa;}
 
       // Make doLoadSubs globally accessible for retry buttons
       window.doLoadSubs = doLoadSubs;
-      // Override the JS-file version too
       window.loadSubmissionsTable = doLoadSubs;
 
-      // Auto-run when assignments panel opens
-      var _origSwitch = window.switchPanel;
+      // Run immediately — keep retrying until Supabase is ready
+      doLoadSubs();
+
+      // Also hook into switchPanel
+      var _orig = window.switchPanel;
       window.switchPanel = function(name){
-        if(_origSwitch) _origSwitch(name);
-        if(name === 'assignments') setTimeout(doLoadSubs, 300);
+        if(_orig) _orig(name);
+        if(name === 'assignments') setTimeout(doLoadSubs, 200);
       };
     })();
     </script>
