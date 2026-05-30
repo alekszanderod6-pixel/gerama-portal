@@ -230,6 +230,9 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 .ann-card:hover { transform:translateY(-4px); box-shadow:var(--shadow); }
 .ann-card-img { width:100%; height:180px; object-fit:cover; display:block; cursor:pointer; transition:transform 0.3s; }
 .ann-card-img:hover { transform:scale(1.02); }
+.ann-img-grid { cursor:pointer; border-radius:12px; overflow:hidden; margin-bottom:0; }
+.ann-img-grid img { transition:opacity 0.2s; }
+.ann-img-grid img:hover { opacity:0.9; }
 .ann-card-body { padding:1.4rem; flex:1; display:flex; flex-direction:column; }
 .ann-date { font-size:0.8rem; color:var(--text-muted); margin-bottom:0.4rem; font-weight:500; }
 .ann-card h3 { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; color:var(--text); }
@@ -709,6 +712,10 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
     { title:'🎓 Mid-Semester Tutorials', message:'Join our weekly tutor sessions every Saturday at 10am. WhatsApp group link in contact page.', date:'April 28, 2026' },
     { title:'🤝 Mentorship Program Launch', message:'Connect with senior students and alumni for academic and career guidance.', date:'April 20, 2026' }
   ];
+  // Track last visit to announcements
+  var lastAnnVisit = localStorage.getItem('gerama_ann_last_visit');
+  if(!lastAnnVisit) localStorage.setItem('gerama_ann_last_visit', new Date().toISOString());
+
   function render(anns){
     if (!anns || !anns.length) { render(demo); return; }
     var shown = anns.slice(0, 6);

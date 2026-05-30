@@ -398,7 +398,7 @@
       });
     }catch(e){}
 
-    window.logActivity('Published announcement: '+title+(imageUrls.length?' ('+imageUrls.length+' image'+(imageUrls.length!==1?'s':'')+')'):''));
+    window.logActivity('Published announcement: '+title+(imageUrls.length?' ('+imageUrls.length+' image'+(imageUrls.length!==1?'s':'')+')':''));
     renderAnnouncements();
     updateStats();
 
