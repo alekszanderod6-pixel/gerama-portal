@@ -602,21 +602,22 @@
     var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
     try{
-      var {data:all}   = await sb.from('page_views').select('id, page, visited_at', {count:'exact'});
-      var {data:today} = await sb.from('page_views').select('id').gte('visited_at', todayStart);
-      var {data:week}  = await sb.from('page_views').select('id').gte('visited_at', weekStart);
-      var {data:month} = await sb.from('page_views').select('id').gte('visited_at', monthStart);
+      // Use count queries (accurate, no row limit issues)
+      var safe = async function(fn){ try{ return await fn(); }catch(e){ return {count:0}; } };
+      var todayRes  = await safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',todayStart); });
+      var weekRes   = await safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',weekStart); });
+      var monthRes  = await safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',monthStart); });
+      var totalRes  = await safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}); });
 
-      var setEl = function(id,val){ var e=document.getElementById(id); if(e) e.textContent=val; };
-      setEl('vsToday', (today||[]).length);
-      setEl('vsWeek', (week||[]).length);
-      setEl('vsMonth', (month||[]).length);
-      setEl('vsTotal', (all||[]).length);
+      var setEl = function(id,val){ var e=document.getElementById(id); if(e) e.textContent=val||0; };
+      // Only update the visitor-panel specific elements (NOT the overview stat boxes — those are handled by loadOverviewStats)
+      setEl('vsToday',  todayRes.count||0);
+      setEl('vsWeek',   weekRes.count||0);
+      setEl('vsMonth',  monthRes.count||0);
+      setEl('vsTotal',  totalRes.count||0);
 
-      setEl('statVisitsToday', (today||[]).length);
-      setEl('statVisitsWeek', (week||[]).length);
-      setEl('statVisitsTotal', (all||[]).length);
-
+      // Page breakdown — fetch limited rows for display only
+      var {data:all} = await sb.from('page_views').select('page').limit(1000);
       var pageCounts = {};
       (all||[]).forEach(function(v){
         var p = v.page || 'unknown';
