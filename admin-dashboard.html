@@ -135,8 +135,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="review"><i class="fas fa-inbox"></i> Review Submissions <span id="subBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="announcements"><i class="fas fa-bullhorn"></i> Announcements</div>
     <div class="nav-item" data-panel="assignments"><i class="fas fa-tasks"></i> Assignments</div>
-    <div class="nav-item" data-panel="grades"><i class="fas fa-graduation-cap" style="color:#FFC107;"></i> Submissions & Grades</div>
-    <div class="nav-item" data-panel="grades"><i class="fas fa-star-half-alt" style="color:#FFC107;"></i> Submissions & Grades</div>
+    <div class="nav-item" data-panel="grades"><i class="fas fa-graduation-cap" style="color:#FFC107;"></i> Submissions &amp; Grades</div>
     <div class="nav-item" data-panel="quizzes"><i class="fas fa-question-circle"></i> Quizzes</div>
     <div class="nav-item" data-panel="quizrequests"><i class="fas fa-inbox" style="color:#6366f1;"></i> Quiz Requests <span id="quizReqBadge" style="background:#6366f1;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="classes"><i class="fas fa-video"></i> Schedule Class</div>
@@ -373,7 +372,7 @@ tr:hover td{background:#fafcfa;}
     <div class="card">
       <div class="card-title"><i class="fas fa-star-half-alt" style="color:#FFC107;"></i> Student Submissions &amp; Grades</div>
       <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">All assignments submitted by students. Enter a score and click Grade to save.</p>
-      <div id="gradesTableWrap"><p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p></div>
+      <div id="gradesTableWrap"><div style="text-align:center;padding:2rem;"><button onclick="loadGradesPanel()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.8rem 2rem;border-radius:30px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.5rem;"><i class="fas fa-sync-alt"></i> Load Submissions</button><p style="color:#9ca3af;font-size:0.82rem;margin-top:0.8rem;">Click to fetch all submitted assignments from the database</p></div></div>
     </div>
     <script>
     (function(){
@@ -568,7 +567,13 @@ tr:hover td{background:#fafcfa;}
       var _origSwitch = window.switchPanel;
       window.switchPanel = function(name) {
         if (_origSwitch) _origSwitch(name);
-        if (name === 'grades') setTimeout(loadGradesPanel, 100);
+        if (name === 'grades') {
+          var wrap = document.getElementById('gradesTableWrap');
+          // Only auto-load if not already showing data
+          if (wrap && wrap.querySelector('button[onclick="loadGradesPanel()"]')) {
+            setTimeout(loadGradesPanel, 200);
+          }
+        }
       };
     })();
     </script>
