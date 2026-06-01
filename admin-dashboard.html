@@ -143,6 +143,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="attendance"><i class="fas fa-clipboard-check" style="color:#4ade80;"></i> Attendance</div>
     <div class="nav-item" data-panel="classrequests"><i class="fas fa-hand-paper"></i> Class Requests <span id="reqBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="visitors"><i class="fas fa-chart-line"></i> Visitor Stats</div>
+    <div class="nav-item" data-panel="messages"><i class="fas fa-envelope" style="color:#3b82f6;"></i> Contact Messages <span id="msgBadge" style="background:#3b82f6;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="users"><i class="fas fa-users"></i> Registered Users</div>
     <div class="nav-item" data-panel="potw"><i class="fas fa-star"></i> Personality of Week</div>
     <div class="nav-item" data-panel="reels"><i class="fas fa-film"></i> Manage Reels</div>
@@ -1188,6 +1189,21 @@ tr:hover td{background:#fafcfa;}
         <button class="btn-gold" onclick="loadUsers()" style="padding:0.6rem 1rem;font-size:0.85rem;white-space:nowrap;"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
       <div id="usersList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
+
+  <!-- CONTACT MESSAGES PANEL -->
+  <div class="panel" id="panel-messages">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-envelope" style="color:#3b82f6;"></i> Contact Messages</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Messages sent from the Contact page by students and visitors.</p>
+      <div style="display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+        <button onclick="loadContactMessages('all')" id="msgFilterAll" class="btn-primary" style="font-size:0.8rem;padding:0.35rem 0.9rem;">All</button>
+        <button onclick="loadContactMessages('contact')" id="msgFilterContact" class="btn-gold" style="font-size:0.8rem;padding:0.35rem 0.9rem;">Contact</button>
+        <button onclick="loadContactMessages('assistance')" id="msgFilterAssist" class="btn-gold" style="font-size:0.8rem;padding:0.35rem 0.9rem;">Assistance</button>
+        <button onclick="loadContactMessages('all')" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.35rem 0.9rem;border-radius:20px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-left:auto;"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+      <div id="contactMessagesList"><p style="color:#9ca3af;text-align:center;padding:2rem;">Loading messages...</p></div>
     </div>
   </div>
 

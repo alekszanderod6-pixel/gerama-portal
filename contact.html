@@ -426,8 +426,11 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
 <script src="js/main.js"></script>
 <script>
+var SUPA_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+
 // ── CONTACT FORM ──────────────────────────────────────────────
-document.getElementById('contactForm').addEventListener('submit', function(e) {
+document.getElementById('contactForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   var btn = document.getElementById('sendMsgBtn');
   btn.classList.add('loading');
@@ -438,48 +441,61 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
     email:   document.getElementById('cEmail').value.trim(),
     subject: document.getElementById('cSubject').value.trim(),
     message: document.getElementById('cMsg').value.trim(),
-    date:    new Date().toISOString()
+    sent_at: new Date().toISOString(),
+    type:    'contact'
   };
 
-  // Save to localStorage so admin can review
-  var contacts = JSON.parse(localStorage.getItem('gerama_contacts') || '[]');
-  contacts.push(data);
-  localStorage.setItem('gerama_contacts', JSON.stringify(contacts));
+  // Save to Supabase
+  try {
+    await fetch(SUPA_URL + '/rest/v1/contact_messages', {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(data)
+    });
+  } catch(e) {
+    // Fallback to localStorage if Supabase fails
+    var contacts = JSON.parse(localStorage.getItem('gerama_contacts') || '[]');
+    contacts.push(data);
+    localStorage.setItem('gerama_contacts', JSON.stringify(contacts));
+  }
 
-  // Simulate send delay then show success
-  setTimeout(function() {
-    document.getElementById('contactForm').style.display = 'none';
-    document.getElementById('msgSuccess').style.display = 'block';
-    btn.classList.remove('loading');
-  }, 1200);
+  document.getElementById('contactForm').style.display = 'none';
+  document.getElementById('msgSuccess').style.display = 'block';
+  btn.classList.remove('loading');
 });
 
 // ── ASSISTANCE FORM ───────────────────────────────────────────
-document.getElementById('assistForm').addEventListener('submit', function(e) {
+document.getElementById('assistForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   var btn = document.getElementById('sendAssistBtn');
   btn.classList.add('loading');
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
   var data = {
-    level:     document.getElementById('aLevel').value,
-    program:   document.getElementById('aProgram').value,
-    course:    document.getElementById('aCourse').value.trim(),
-    challenge: document.getElementById('aChallenge').value.trim(),
+    name:      'Academic Assistance Request',
     email:     document.getElementById('aEmail').value.trim(),
-    date:      new Date().toISOString()
+    subject:   'Assistance: ' + document.getElementById('aCourse').value.trim(),
+    message:   'Level: ' + document.getElementById('aLevel').value + '\nProgram: ' + document.getElementById('aProgram').value + '\nCourse: ' + document.getElementById('aCourse').value.trim() + '\nChallenge: ' + document.getElementById('aChallenge').value.trim(),
+    sent_at:   new Date().toISOString(),
+    type:      'assistance'
   };
 
-  // Save to localStorage for admin review
-  var requests = JSON.parse(localStorage.getItem('gerama_assistance_requests') || '[]');
-  requests.push(data);
-  localStorage.setItem('gerama_assistance_requests', JSON.stringify(requests));
+  // Save to Supabase
+  try {
+    await fetch(SUPA_URL + '/rest/v1/contact_messages', {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(data)
+    });
+  } catch(e) {
+    var requests = JSON.parse(localStorage.getItem('gerama_assistance_requests') || '[]');
+    requests.push(data);
+    localStorage.setItem('gerama_assistance_requests', JSON.stringify(requests));
+  }
 
-  setTimeout(function() {
-    document.getElementById('assistForm').style.display = 'none';
-    document.getElementById('assistSuccess').style.display = 'block';
-    btn.classList.remove('loading');
-  }, 1200);
+  document.getElementById('assistForm').style.display = 'none';
+  document.getElementById('assistSuccess').style.display = 'block';
+  btn.classList.remove('loading');
 });
 
 // ── FAQ ACCORDION ─────────────────────────────────────────────
@@ -487,9 +503,7 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
   q.addEventListener('click', function() {
     var item = q.parentElement;
     var isOpen = item.classList.contains('open');
-    // Close all
     document.querySelectorAll('.faq-item').forEach(function(i){ i.classList.remove('open'); });
-    // Toggle clicked
     if (!isOpen) item.classList.add('open');
   });
 });

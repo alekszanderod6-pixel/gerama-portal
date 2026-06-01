@@ -86,7 +86,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     <a href="index.html"><i class="fas fa-home"></i> Home</a>
                     <a href="resources.html"><i class="fas fa-book-open"></i> Resources</a>
                     <a href="classroom.html"><i class="fas fa-chalkboard-teacher"></i> Classroom <span id="navBadgeClassroom" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
-                    <a href="mall.html"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</a>
+                    <a href="mall.html" style="background:rgba(255,193,7,0.12);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-store" style="color:#FFC107;"></i> 🛍️ Urban Mall <span style="background:#FFC107;color:#0a2f1f;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;">NEW</span></a>
                     <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
                     <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
                 </div>
@@ -562,7 +562,7 @@ if(!document.getElementById('confettiStyle')) {
         { href:'index.html',     icon:'fas fa-home',               label:'Home' },
         { href:'resources.html', icon:'fas fa-book-open',          label:'Resources' },
         { href:'classroom.html', icon:'fas fa-chalkboard-teacher', label:'Classroom' },
-        { href:'about.html',     icon:'fas fa-users',              label:'About' },
+        { href:'mall.html',      icon:'fas fa-store',              label:'Mall' },
         { href:'contact.html',   icon:'fas fa-envelope',           label:'Contact' }
     ];
 

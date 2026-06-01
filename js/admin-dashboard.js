@@ -74,6 +74,7 @@
     if(name === 'attendance') setTimeout(function(){ if(window.loadAttSessions) window.loadAttSessions(); if(window.loadAttRecords) window.loadAttRecords(); }, 150);
     if(name === 'classrequests' && window.loadClassRequests) setTimeout(window.loadClassRequests, 150);
     if(name === 'visitors' && window.loadVisitorStats) setTimeout(window.loadVisitorStats, 150);
+    if(name === 'messages' && window.loadContactMessages) setTimeout(function(){ window.loadContactMessages('all'); }, 150);
     if(name === 'users') setTimeout(function(){ if(window.loadUsers) window.loadUsers(); }, 150);
     if(name === 'potw' && window.loadPotwList) setTimeout(window.loadPotwList, 150);
     if(name === 'reels' && window.loadAdminReels) setTimeout(window.loadAdminReels, 150);
@@ -2391,4 +2392,60 @@ window.downloadAttCSV = async function(){
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
   window.logActivity('Downloaded attendance records as CSV');
+};
+
+// ─── CONTACT MESSAGES ────────────────────────────────────────
+window.loadContactMessages = async function(filter){
+  var el = document.getElementById('contactMessagesList');
+  if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+
+  el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p>';
+
+  try {
+    var query = sb.from('contact_messages').select('*').order('sent_at',{ascending:false}).limit(100);
+    if(filter && filter !== 'all') query = query.eq('type', filter);
+    var {data, error} = await query;
+
+    if(error) throw new Error(error.message);
+    if(!data||!data.length){
+      el.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-inbox" style="font-size:2.5rem;display:block;margin-bottom:0.8rem;opacity:0.3;"></i><p>No messages yet.</p></div>';
+      return;
+    }
+
+    // Update badge
+    var badge = document.getElementById('msgBadge');
+    if(badge){ badge.textContent=data.length; badge.style.display='inline'; }
+
+    el.innerHTML = data.map(function(m){
+      var dt = m.sent_at ? new Date(m.sent_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      var typeBadge = m.type==='assistance'
+        ? '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">Assistance</span>'
+        : '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">Contact</span>';
+      return '<div class="sub-card" style="margin-bottom:0.8rem;">'+
+        '<div class="sub-info">'+
+          '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;">'+
+            '<strong>'+window.escHtml(m.name||'—')+'</strong>'+typeBadge+
+            '<span style="font-size:0.75rem;color:#9ca3af;margin-left:auto;">'+dt+'</span>'+
+          '</div>'+
+          '<div style="font-size:0.82rem;color:#6b7280;margin-bottom:0.3rem;"><i class="fas fa-envelope" style="margin-right:0.3rem;"></i>'+window.escHtml(m.email||'—')+'</div>'+
+          (m.subject?'<div style="font-size:0.85rem;font-weight:600;color:#374151;margin-bottom:0.3rem;">'+window.escHtml(m.subject)+'</div>':'')+
+          '<div style="font-size:0.88rem;color:#374151;background:#f8fafc;border-radius:10px;padding:0.6rem 0.8rem;border-left:3px solid #1B5E20;white-space:pre-wrap;">'+window.escHtml(m.message||'')+'</div>'+
+        '</div>'+
+        '<div class="sub-actions">'+
+          '<a href="mailto:'+window.escAttr(m.email||'')+'" class="btn-primary" style="font-size:0.78rem;padding:0.35rem 0.8rem;text-decoration:none;"><i class="fas fa-reply"></i> Reply</a>'+
+          '<button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="deleteContactMsg(\''+m.id+'\')"><i class="fas fa-trash"></i></button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML='<p style="color:#dc2626;padding:1rem;">Error: '+window.escHtml(e.message)+'</p>';
+  }
+};
+
+window.deleteContactMsg = async function(id){
+  if(!confirm('Delete this message?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('contact_messages').delete().eq('id',id);
+  window.loadContactMessages('all');
 };
