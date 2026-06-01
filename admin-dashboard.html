@@ -625,7 +625,18 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field"><label>Sizes (comma-separated)</label><input type="text" id="mallProdSizes" placeholder="S,M,L,XL,XXL,3XL"></div>
         <div class="form-field"><label>Stock Quantity</label><input type="number" id="mallProdStock" placeholder="50" min="0"></div>
         <div class="form-field full"><label>Description *</label><textarea id="mallProdDesc" rows="3" placeholder="Describe the product..."></textarea></div>
-        <div class="form-field full"><label>Image URL *</label><input type="url" id="mallProdImg" placeholder="https://..."></div>
+        <div class="form-field full">
+          <label>Product Image or Video * <small style="color:#6b7280;font-weight:400;">(upload from device)</small></label>
+          <div class="drop-zone" id="mallImgZone" style="padding:1rem;cursor:pointer;" onclick="document.getElementById('mallProdFile').click()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Click to upload image or video (max 10MB)</p>
+            <p class="file-chosen" id="mallProdFileChosen"></p>
+          </div>
+          <input type="file" id="mallProdFile" accept="image/*,video/*" style="display:none;" onchange="previewMallFile(this)">
+          <div id="mallProdPreview" style="margin-top:0.5rem;display:none;">
+            <img id="mallProdPreviewImg" style="max-width:120px;max-height:120px;border-radius:10px;object-fit:cover;border:2px solid #e5e7eb;" src="" alt="">
+          </div>
+        </div>
         <div class="form-field"><label>Badge (optional)</label>
           <select id="mallProdBadge">
             <option value="">None</option>
@@ -728,15 +739,22 @@ tr:hover td{background:#fafcfa;}
       if (!r.ok) throw new Error('HTTP '+r.status);
       var data = await r.json();
       if (!data||!data.length) { el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No products yet.</p>'; return; }
-      el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Seller</th><th>Seller ID</th><th>Actions</th></tr></thead><tbody>'+
+      el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Image</th><th>Product</th><th>Category</th><th>Price</th><th>Seller / Phone</th><th>ID</th><th>Actions</th></tr></thead><tbody>'+
         data.map(function(p){
+          var imgHtml = p.image_url
+            ? '<img src="'+window.escAttr(p.image_url)+'" style="width:48px;height:48px;object-fit:cover;border-radius:8px;border:1px solid #e5e7eb;" onerror="this.style.display=\'none\'">'
+            : '<div style="width:48px;height:48px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:1.2rem;"><i class="fas fa-image"></i></div>';
           return '<tr>'+
-            '<td><strong>'+window.escHtml(p.name||'—')+'</strong></td>'+
+            '<td>'+imgHtml+'</td>'+
+            '<td><strong>'+window.escHtml(p.name||'—')+'</strong>'+(p.badge?'<br><span style="background:#fee2e2;color:#dc2626;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:8px;">'+window.escHtml(p.badge)+'</span>':'')+'</td>'+
             '<td>'+window.escHtml(p.category||'—')+'</td>'+
             '<td>GH₵'+p.price+(p.original_price?'<br><small style="text-decoration:line-through;color:#9ca3af;">GH₵'+p.original_price+'</small>':'')+'</td>'+
             '<td>'+window.escHtml(p.seller_name||'—')+'<br><small style="color:#6b7280;">'+window.escHtml(p.seller_whatsapp||'')+'</small></td>'+
             '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(p.seller_id||'—')+'</span></td>'+
-            '<td><button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="deleteMallProduct(\''+p.id+'\')"><i class="fas fa-trash"></i></button></td>'+
+            '<td style="white-space:nowrap;">'+
+              '<button class="btn-gold" style="font-size:0.72rem;padding:0.25rem 0.6rem;margin-right:0.3rem;" onclick="openEditMallProduct(\''+p.id+'\')"><i class="fas fa-edit"></i> Edit</button>'+
+              '<button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="deleteMallProduct(\''+p.id+'\')"><i class="fas fa-trash"></i></button>'+
+            '</td>'+
           '</tr>';
         }).join('')+
       '</tbody></table></div>';
@@ -775,6 +793,20 @@ tr:hover td{background:#fafcfa;}
     } catch(e) { el.innerHTML='<p style="color:#dc2626;padding:1rem;">Error: '+e.message+'</p>'; }
   }
 
+  window.previewMallFile = function(input) {
+    var file = input.files && input.files[0];
+    if (!file) return;
+    var chosen = document.getElementById('mallProdFileChosen');
+    var preview = document.getElementById('mallProdPreview');
+    var previewImg = document.getElementById('mallProdPreviewImg');
+    if (chosen) chosen.textContent = '✅ ' + file.name;
+    if (file.type.startsWith('image/') && preview && previewImg) {
+      var reader = new FileReader();
+      reader.onload = function(e) { previewImg.src = e.target.result; preview.style.display = 'block'; };
+      reader.readAsDataURL(file);
+    }
+  };
+
   window.adminPostProduct = async function() {
     var name = (document.getElementById('mallProdName').value||'').trim();
     var cat  = document.getElementById('mallProdCat').value;
@@ -783,14 +815,42 @@ tr:hover td{background:#fafcfa;}
     var seller = (document.getElementById('mallProdSeller').value||'').trim();
     var wa = (document.getElementById('mallProdWA').value||'').trim();
     var desc = (document.getElementById('mallProdDesc').value||'').trim();
-    var img = (document.getElementById('mallProdImg').value||'').trim();
     var coloursRaw = (document.getElementById('mallProdColours').value||'').trim();
     var colourNamesRaw = (document.getElementById('mallProdColourNames').value||'').trim();
     var sizesRaw = (document.getElementById('mallProdSizes').value||'').trim();
     var stock = parseInt(document.getElementById('mallProdStock').value)||0;
     var badge = document.getElementById('mallProdBadge').value;
+    var fileInput = document.getElementById('mallProdFile');
+    var file = fileInput && fileInput.files && fileInput.files[0];
 
-    if (!name||!cat||isNaN(price)||!seller||!wa||!desc) { window.showStatus('mallPostStatus','Please fill in all required fields.','err'); return; }
+    if (!name||!cat||isNaN(price)||!seller||!wa||!desc) {
+      window.showStatus('mallPostStatus','Please fill in all required fields.','err'); return;
+    }
+
+    var btn = document.querySelector('[onclick="adminPostProduct()"]');
+    if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Posting...'; }
+    window.showStatus('mallPostStatus','Uploading...','info');
+
+    var imgUrl = null;
+
+    // Upload file to Supabase storage if provided
+    if (file) {
+      try {
+        var sb = window.geramaSupabase;
+        if (sb) {
+          var ext = file.name.split('.').pop().toLowerCase();
+          var path = 'mall/' + Date.now() + '-' + name.toLowerCase().replace(/[^a-z0-9]/g,'-').substring(0,20) + '.' + ext;
+          var upRes = await sb.storage.from('gerama-materials').upload(path, file, {upsert:true, contentType:file.type});
+          if (!upRes.error) {
+            imgUrl = sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
+          } else {
+            window.showStatus('mallPostStatus','⚠️ Image upload failed: '+upRes.error.message+'. Posting without image.','info');
+          }
+        }
+      } catch(e) {
+        window.showStatus('mallPostStatus','⚠️ Image upload error. Posting without image.','info');
+      }
+    }
 
     var sellerId = 'GUM-' + String(Date.now()).slice(-4);
     var colours = coloursRaw ? JSON.stringify(coloursRaw.split(',').map(function(s){return s.trim();})) : '[]';
@@ -798,19 +858,141 @@ tr:hover td{background:#fafcfa;}
     var sizes = sizesRaw ? JSON.stringify(sizesRaw.split(',').map(function(s){return s.trim();})) : '[]';
 
     try {
-      var r = await mallFetch('mall_products', {method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({
-        name:name, category:cat, price:price, original_price:origPrice,
-        description:desc, image_url:img||null, seller_name:seller,
-        seller_whatsapp:wa, seller_id:sellerId, status:'approved',
-        colours:colours, colour_names:colourNames, sizes:sizes,
-        stock:stock, verified:true, featured:true, badge:badge||null,
-        created_at:new Date().toISOString()
-      })});
+      var r = await mallFetch('mall_products', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({
+          name:name, category:cat, price:price, original_price:origPrice,
+          description:desc, image_url:imgUrl||null, seller_name:seller,
+          seller_whatsapp:wa, seller_id:sellerId, status:'approved',
+          colours:colours, colour_names:colourNames, sizes:sizes,
+          stock:stock, verified:true, featured:true, badge:badge||null,
+          created_at:new Date().toISOString()
+        })
+      });
       if (!r.ok) throw new Error('HTTP '+r.status);
       window.showStatus('mallPostStatus','✅ Product posted! Seller ID: '+sellerId,'ok');
       window.logActivity('Posted mall product: '+name+' ('+sellerId+')');
+      // Clear form
+      ['mallProdName','mallProdPrice','mallProdOrigPrice','mallProdSeller','mallProdWA','mallProdDesc','mallProdColours','mallProdColourNames','mallProdSizes','mallProdStock'].forEach(function(id){
+        var e=document.getElementById(id); if(e) e.value='';
+      });
+      document.getElementById('mallProdCat').value='';
+      document.getElementById('mallProdBadge').value='';
+      document.getElementById('mallProdFileChosen').textContent='';
+      document.getElementById('mallProdPreview').style.display='none';
+      if(fileInput) fileInput.value='';
       loadMallProducts();
-    } catch(e) { window.showStatus('mallPostStatus','❌ '+e.message,'err'); }
+    } catch(e) {
+      window.showStatus('mallPostStatus','❌ '+e.message,'err');
+    }
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Post to Mall'; }
+  };
+
+  // ── EDIT PRODUCT ──────────────────────────────────────────
+  window.openEditMallProduct = async function(id) {
+    // Fetch product
+    var r = await mallFetch('mall_products?id=eq.'+id+'&select=*');
+    if (!r.ok) { alert('Could not load product.'); return; }
+    var data = await r.json();
+    var p = data && data[0];
+    if (!p) { alert('Product not found.'); return; }
+
+    // Build edit modal
+    var existing = document.getElementById('mallEditModal');
+    if (existing) existing.remove();
+
+    var modal = document.createElement('div');
+    modal.id = 'mallEditModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;display:flex;align-items:center;justify-content:center;padding:1rem;';
+    modal.innerHTML =
+      '<div style="background:white;border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,0.3);">'+
+        '<div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;padding:1.2rem 1.5rem;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between;">'+
+          '<div><strong style="font-size:1rem;">✏️ Edit Product</strong><div style="font-size:0.82rem;opacity:0.8;margin-top:0.2rem;">'+window.escHtml(p.name)+'</div></div>'+
+          '<button onclick="document.getElementById(\'mallEditModal\').remove()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;">✕</button>'+
+        '</div>'+
+        '<div style="padding:1.5rem;">'+
+          '<div class="form-grid">'+
+            '<div class="form-field"><label>Product Name</label><input type="text" id="editName" value="'+window.escAttr(p.name||'')+'"></div>'+
+            '<div class="form-field"><label>Category</label>'+
+              '<select id="editCat">'+
+                ['fashion','food','electronics','books','other'].map(function(c){return '<option value="'+c+'"'+(p.category===c?' selected':'')+'>'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>';}).join('')+
+              '</select>'+
+            '</div>'+
+            '<div class="form-field"><label>Price (GH₵)</label><input type="number" id="editPrice" value="'+p.price+'"></div>'+
+            '<div class="form-field"><label>Original Price (GH₵)</label><input type="number" id="editOrigPrice" value="'+(p.original_price||'')+'"></div>'+
+            '<div class="form-field"><label>Seller Name</label><input type="text" id="editSeller" value="'+window.escAttr(p.seller_name||'')+'"></div>'+
+            '<div class="form-field"><label>Seller WhatsApp</label><input type="tel" id="editWA" value="'+window.escAttr(p.seller_whatsapp||'')+'"></div>'+
+            '<div class="form-field"><label>Sizes (comma-separated)</label><input type="text" id="editSizes" value="'+window.escAttr((function(){try{return JSON.parse(p.sizes||'[]').join(',');}catch(e){return '';}})())+'"></div>'+
+            '<div class="form-field"><label>Stock</label><input type="number" id="editStock" value="'+(p.stock||0)+'"></div>'+
+            '<div class="form-field full"><label>Description</label><textarea id="editDesc" rows="3" style="width:100%;padding:0.65rem;border:2px solid #e5e7eb;border-radius:10px;font-family:\'Inter\',sans-serif;outline:none;resize:vertical;">'+window.escHtml(p.description||'')+'</textarea></div>'+
+            '<div class="form-field full">'+
+              '<label>Replace Image/Video <small style="color:#6b7280;font-weight:400;">(leave empty to keep current)</small></label>'+
+              (p.image_url?'<img src="'+window.escAttr(p.image_url)+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-bottom:0.5rem;display:block;" onerror="this.style.display=\'none\'">':'')+
+              '<div class="drop-zone" style="padding:0.8rem;cursor:pointer;" onclick="document.getElementById(\'editProdFile\').click()">'+
+                '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload new image or video</p>'+
+                '<p class="file-chosen" id="editFileChosen"></p>'+
+              '</div>'+
+              '<input type="file" id="editProdFile" accept="image/*,video/*" style="display:none;" onchange="document.getElementById(\'editFileChosen\').textContent=\'✅ \'+this.files[0].name">'+
+            '</div>'+
+          '</div>'+
+          '<div id="editStatus" style="display:none;padding:0.6rem 1rem;border-radius:10px;font-size:0.87rem;margin-bottom:0.8rem;"></div>'+
+          '<button onclick="saveMallProductEdit(\''+p.id+'\')" style="width:100%;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.8rem;border-radius:30px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;">'+
+            '<i class="fas fa-save"></i> Save Changes'+
+          '</button>'+
+        '</div>'+
+      '</div>';
+    document.body.appendChild(modal);
+  };
+
+  window.saveMallProductEdit = async function(id) {
+    var name = (document.getElementById('editName').value||'').trim();
+    var cat  = document.getElementById('editCat').value;
+    var price = parseFloat(document.getElementById('editPrice').value);
+    var origPrice = parseFloat(document.getElementById('editOrigPrice').value)||null;
+    var seller = (document.getElementById('editSeller').value||'').trim();
+    var wa = (document.getElementById('editWA').value||'').trim();
+    var desc = (document.getElementById('editDesc').value||'').trim();
+    var sizesRaw = (document.getElementById('editSizes').value||'').trim();
+    var stock = parseInt(document.getElementById('editStock').value)||0;
+    var fileInput = document.getElementById('editProdFile');
+    var file = fileInput && fileInput.files && fileInput.files[0];
+
+    var statusEl = document.getElementById('editStatus');
+    function setStatus(msg,type){ statusEl.style.display='block'; statusEl.style.background=type==='ok'?'#d1fae5':'#fee2e2'; statusEl.style.color=type==='ok'?'#065f46':'#991b1b'; statusEl.textContent=msg; }
+
+    if (!name||!cat||isNaN(price)||!seller||!wa) { setStatus('Please fill in all required fields.','err'); return; }
+
+    var imgUrl = null;
+    if (file) {
+      try {
+        var sb = window.geramaSupabase;
+        if (sb) {
+          var ext = file.name.split('.').pop().toLowerCase();
+          var path = 'mall/' + Date.now() + '-edit.' + ext;
+          var upRes = await sb.storage.from('gerama-materials').upload(path, file, {upsert:true, contentType:file.type});
+          if (!upRes.error) imgUrl = sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
+        }
+      } catch(e) {}
+    }
+
+    var sizes = sizesRaw ? JSON.stringify(sizesRaw.split(',').map(function(s){return s.trim();})) : '[]';
+    var updates = { name:name, category:cat, price:price, original_price:origPrice, description:desc, seller_name:seller, seller_whatsapp:wa, sizes:sizes, stock:stock };
+    if (imgUrl) updates.image_url = imgUrl;
+
+    try {
+      var r = await mallFetch('mall_products?id=eq.'+id, {
+        method:'PATCH',
+        headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify(updates)
+      });
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      setStatus('✅ Product updated successfully!','ok');
+      window.logActivity('Edited mall product: '+name);
+      setTimeout(function(){ document.getElementById('mallEditModal').remove(); loadMallProducts(); }, 1500);
+    } catch(e) {
+      setStatus('❌ '+e.message,'err');
+    }
   };
 
   // Hook into switchPanel

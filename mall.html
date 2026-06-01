@@ -323,7 +323,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <!-- Buyer Phone -->
       <div class="form-row">
         <label>Your Phone Number</label>
-        <input type="tel" id="buyerPhone" placeholder="e.g. 0551234567">
+        <input type="tel" id="buyerPhone" placeholder="e.g. 0555749497">
       </div>
 
       <!-- Order Total -->
@@ -380,9 +380,17 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div class="form-row"><label>Price (GH₵) *</label><input type="number" id="sellPrice" placeholder="e.g. 48" min="1"></div>
       <div class="form-row"><label>Original Price (GH₵) — if discounted</label><input type="number" id="sellOrigPrice" placeholder="e.g. 60" min="1"></div>
       <div class="form-row"><label>Description *</label><textarea id="sellDesc" rows="3" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;" placeholder="Describe your product — colours, sizes, materials..."></textarea></div>
-      <div class="form-row"><label>Your WhatsApp Number *</label><input type="tel" id="sellWhatsapp" placeholder="e.g. 0551234567"></div>
+      <div class="form-row"><label>Your WhatsApp Number *</label><input type="tel" id="sellWhatsapp" placeholder="e.g. 0555749497"></div>
       <div class="form-row"><label>Your Name / Business Name *</label><input type="text" id="sellSellerName" placeholder="e.g. Aleks ZanderOD"></div>
-      <div class="form-row"><label>Image URL (optional — paste a direct image link)</label><input type="url" id="sellImageUrl" placeholder="https://..."></div>
+      <div class="form-row">
+        <label>Product Image or Video <small style="color:#6b7280;font-weight:400;">(upload from device)</small></label>
+        <div class="drop-zone" style="padding:0.8rem;cursor:pointer;" onclick="document.getElementById('sellFile').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Click to upload image or video of your product</p>
+          <p class="file-chosen" id="sellFileChosen"></p>
+        </div>
+        <input type="file" id="sellFile" accept="image/*,video/*" style="display:none;" onchange="document.getElementById('sellFileChosen').textContent='✅ '+this.files[0].name">
+      </div>
       <div id="sellStatus" style="display:none;padding:0.7rem 1rem;border-radius:10px;font-size:0.87rem;margin-bottom:0.8rem;"></div>
       <button onclick="submitSellRequest()" style="width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;padding:0.8rem;border-radius:30px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
         <i class="fas fa-paper-plane"></i> Submit for Review
@@ -400,7 +408,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <!-- FOOTER -->
 <footer class="site-footer">
   <div class="footer-bottom-bar">
-    <p class="footer-copy">© 2025 GERAMA Urban Mall. All rights reserved.</p>
+    <p class="footer-copy">© 2026 GERAMA Urban Mall. All rights reserved.</p>
     <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> · Editor: <strong>Edem H.K Prince</strong></p>
   </div>
 </footer>
@@ -434,7 +442,7 @@ var SEED_PRODUCTS = [
     description: 'Official GERAMA team round neck T-shirt. Premium quality cotton. Available in multiple colours and sizes. Perfect for GERAMA members and supporters.',
     image_url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80',
     seller_name: 'Aleks ZanderOD',
-    seller_whatsapp: '0551234567',
+    seller_whatsapp: '0555749497',
     seller_id: 'GUM-001',
     colours: ['white','#8B4513','#1B5E20','#1e2a3e','#dc2626'],
     colour_names: ['White','Brown','Green','Navy','Red'],
@@ -453,7 +461,7 @@ var SEED_PRODUCTS = [
     description: 'Fresh homemade creamy yoghurt — smooth, pink and delicious. Perfect for a healthy snack. Order 10 for just GH₵70! Made fresh daily.',
     image_url: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',
     seller_name: 'GERAMA Canteen',
-    seller_whatsapp: '0551234567',
+    seller_whatsapp: '0555749497',
     seller_id: 'GUM-002',
     colours: [],
     colour_names: [],
