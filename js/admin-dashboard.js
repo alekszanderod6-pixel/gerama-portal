@@ -1228,7 +1228,7 @@ window._renderSubmissions = function(data, el){
     var subs=byCourse[course], cg=subs.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
     var rows=subs.map(function(s){
       var dt=s.submitted_at?new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-      var pts=s._points, cur=(s.score!==null&&s.score!==undefined&&s.score!=='')?s.score:'', sid=s.id.replace(/[^a-z0-9]/gi,'');
+      var pts=s._points, cur=(s.score!==null&&s.score!==undefined&&s.score!=='')?s.score:'', sid=String(s.id).replace(/[^a-z0-9]/gi,'');
       var badge=cur!==''?'<span style="background:#d1fae5;color:#065f46;font-size:0.82rem;font-weight:800;padding:0.2rem 0.6rem;border-radius:10px;">'+cur+(pts?'/'+pts:'')+'</span>':'<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:10px;">Ungraded</span>';
       return '<tr>'+
         '<td><strong style="font-size:0.88rem;">'+window.escHtml(s.student_name||'—')+'</strong><div style="font-size:0.75rem;color:#6b7280;">'+window.escHtml(s.student_email||'')+'</div>'+(s.index_number?'<div style="font-size:0.7rem;color:#9ca3af;">'+window.escHtml(s.index_number)+'</div>':'')+'</td>'+
