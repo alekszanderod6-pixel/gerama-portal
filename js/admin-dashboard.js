@@ -67,7 +67,6 @@
     if(name === 'software') setTimeout(window.loadSwList, 150);
     if(name === 'assignments') setTimeout(function(){
       if(window.loadAsgList) window.loadAsgList();
-      if(window.loadSubmissionsTable) window.loadSubmissionsTable();
     }, 150);
     if(name === 'quizzes' && window.loadQzList) setTimeout(function(){ window.loadQzList(); window.loadQzAttempts && window.loadQzAttempts(); }, 150);
     if(name === 'quizrequests' && window.loadQuizRequests) setTimeout(window.loadQuizRequests, 150);
@@ -1361,7 +1360,7 @@ window.gradeSubmission = async function(btn){
   setTimeout(function(){
     if(statusEl) statusEl.textContent='';
     btn.style.background='';
-    window.loadSubmissionsTable();
+    if(window.loadGradesPanel) window.loadGradesPanel();
   }, 2000);
 };
 
