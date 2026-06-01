@@ -86,6 +86,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     <a href="index.html"><i class="fas fa-home"></i> Home</a>
                     <a href="resources.html"><i class="fas fa-book-open"></i> Resources</a>
                     <a href="classroom.html"><i class="fas fa-chalkboard-teacher"></i> Classroom <span id="navBadgeClassroom" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
+                    <a href="mall.html"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</a>
                     <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
                     <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
                 </div>

@@ -146,6 +146,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="users"><i class="fas fa-users"></i> Registered Users</div>
     <div class="nav-item" data-panel="potw"><i class="fas fa-star"></i> Personality of Week</div>
     <div class="nav-item" data-panel="reels"><i class="fas fa-film"></i> Manage Reels</div>
+    <div class="nav-item" data-panel="mall"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</div>
     <div class="nav-item" data-panel="settings"><i class="fas fa-cog"></i> Settings</div>
   </nav>
   <div class="sidebar-footer">
@@ -869,6 +870,238 @@ tr:hover td{background:#fafcfa;}
       <div id="adminReelsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
   </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       URBAN MALL ADMIN PANEL
+  ═══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-mall">
+    <!-- Seller Requests -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-inbox" style="color:#FFC107;"></i> Seller Requests <span id="mallReqBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:0.5rem;display:none;"></span></div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Review product listings submitted by users. Approve to publish live on the mall, or reject.</p>
+      <div id="mallRequestsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+    <!-- Post Product (Admin) -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-plus-circle" style="color:#1B5E20;"></i> Post Product Directly</div>
+      <div class="form-grid">
+        <div class="form-field"><label>Product Name *</label><input type="text" id="mallProdName" placeholder="e.g. GERAMA Round Neck T-Shirt"></div>
+        <div class="form-field"><label>Category *</label>
+          <select id="mallProdCat">
+            <option value="">Select</option>
+            <option value="fashion">Fashion</option>
+            <option value="food">Food & Drinks</option>
+            <option value="electronics">Electronics</option>
+            <option value="books">Books</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Price (GH₵) *</label><input type="number" id="mallProdPrice" placeholder="48" min="1"></div>
+        <div class="form-field"><label>Original Price (GH₵) — if discounted</label><input type="number" id="mallProdOrigPrice" placeholder="60" min="1"></div>
+        <div class="form-field"><label>Seller Name *</label><input type="text" id="mallProdSeller" placeholder="e.g. Aleks ZanderOD"></div>
+        <div class="form-field"><label>Seller WhatsApp *</label><input type="tel" id="mallProdWA" placeholder="0551234567"></div>
+        <div class="form-field"><label>Colours (comma-separated hex or names)</label><input type="text" id="mallProdColours" placeholder="white,#8B4513,#1B5E20"></div>
+        <div class="form-field"><label>Colour Names (comma-separated)</label><input type="text" id="mallProdColourNames" placeholder="White,Brown,Green"></div>
+        <div class="form-field"><label>Sizes (comma-separated)</label><input type="text" id="mallProdSizes" placeholder="S,M,L,XL,XXL,3XL"></div>
+        <div class="form-field"><label>Stock Quantity</label><input type="number" id="mallProdStock" placeholder="50" min="0"></div>
+        <div class="form-field full"><label>Description *</label><textarea id="mallProdDesc" rows="3" placeholder="Describe the product..."></textarea></div>
+        <div class="form-field full"><label>Image URL *</label><input type="url" id="mallProdImg" placeholder="https://..."></div>
+        <div class="form-field"><label>Badge (optional)</label>
+          <select id="mallProdBadge">
+            <option value="">None</option>
+            <option value="SALE">SALE</option>
+            <option value="NEW">NEW</option>
+            <option value="HOT">HOT</option>
+            <option value="FRESH">FRESH</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:1rem;"><button class="btn-primary" onclick="adminPostProduct()"><i class="fas fa-paper-plane"></i> Post to Mall</button></div>
+      <div class="status-msg" id="mallPostStatus"></div>
+    </div>
+    <!-- Live Products -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-store"></i> Live Products</div>
+      <div id="mallProductsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+    <!-- Orders -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-shopping-bag"></i> Recent Orders</div>
+      <div id="mallOrdersList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
+
+  <script>
+  // ── MALL ADMIN ──────────────────────────────────────────
+  var MALL_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var MALL_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+
+  async function mallFetch(path, opts) {
+    var headers = Object.assign({'apikey':MALL_KEY,'Authorization':'Bearer '+MALL_KEY}, opts&&opts.headers||{});
+    return fetch(MALL_URL+'/rest/v1/'+path, Object.assign({}, opts, {headers:headers}));
+  }
+
+  window.loadMallAdmin = async function() {
+    loadMallRequests();
+    loadMallProducts();
+    loadMallOrders();
+  };
+
+  async function loadMallRequests() {
+    var el = document.getElementById('mallRequestsList');
+    if (!el) return;
+    try {
+      var r = await mallFetch('mall_seller_requests?select=*&order=submitted_at.desc');
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      var data = await r.json();
+      var badge = document.getElementById('mallReqBadge');
+      var pending = (data||[]).filter(function(x){return x.status==='pending';}).length;
+      if (badge) { badge.textContent=pending; badge.style.display=pending>0?'inline':'none'; }
+      if (!data||!data.length) { el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No seller requests yet.</p>'; return; }
+      el.innerHTML = data.map(function(r) {
+        var badge2 = r.status==='approved'?'<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Approved</span>':r.status==='rejected'?'<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Rejected</span>':'<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Pending</span>';
+        return '<div class="sub-card">'+
+          '<div class="sub-info"><strong>'+window.escHtml(r.product_name||'—')+' '+badge2+'</strong>'+
+          '<div class="sub-meta"><b>Seller:</b> '+window.escHtml(r.seller_name||'—')+' · '+window.escHtml(r.seller_whatsapp||'—')+' | <b>Cat:</b> '+window.escHtml(r.category||'—')+' | <b>Price:</b> GH₵'+r.price+'</div>'+
+          '<div class="sub-meta" style="margin-top:0.2rem;">'+window.escHtml((r.description||'').substring(0,100))+'</div></div>'+
+          '<div class="sub-actions">'+
+            (r.status==='pending'?'<button class="btn-success" onclick="approveMallRequest(\''+r.id+'\',\''+window.escAttr(JSON.stringify(r))+'\')"><i class="fas fa-check"></i> Approve</button>':'') +
+            (r.status==='pending'?'<button class="btn-danger" onclick="rejectMallRequest(\''+r.id+'\')"><i class="fas fa-times"></i> Reject</button>':'') +
+          '</div></div>';
+      }).join('');
+    } catch(e) { el.innerHTML='<p style="color:#dc2626;padding:1rem;">Error: '+e.message+'</p>'; }
+  }
+
+  window.approveMallRequest = async function(id, dataStr) {
+    if (!confirm('Approve this seller request and publish the product?')) return;
+    try {
+      var d = JSON.parse(dataStr);
+      // Generate seller ID
+      var sellerId = 'GUM-' + String(Date.now()).slice(-4);
+      // Post to mall_products
+      await mallFetch('mall_products', {method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({
+        name:d.product_name, category:d.category, price:d.price, original_price:d.original_price||null,
+        description:d.description, image_url:d.image_url||null, seller_name:d.seller_name,
+        seller_whatsapp:d.seller_whatsapp, seller_id:sellerId, status:'approved',
+        colours:'[]', colour_names:'[]', sizes:'[]', stock:0, verified:true, featured:false,
+        created_at:new Date().toISOString()
+      })});
+      // Update request status
+      await mallFetch('mall_seller_requests?id=eq.'+id, {method:'PATCH',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({status:'approved',seller_id:sellerId})});
+      window.logActivity('Approved mall seller request: '+d.product_name+' → '+sellerId);
+      alert('✅ Approved! Product is now live. Seller ID: '+sellerId);
+      loadMallRequests(); loadMallProducts();
+    } catch(e) { alert('Error: '+e.message); }
+  };
+
+  window.rejectMallRequest = async function(id) {
+    if (!confirm('Reject this seller request?')) return;
+    await mallFetch('mall_seller_requests?id=eq.'+id, {method:'PATCH',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({status:'rejected'})});
+    loadMallRequests();
+  };
+
+  async function loadMallProducts() {
+    var el = document.getElementById('mallProductsList');
+    if (!el) return;
+    try {
+      var r = await mallFetch('mall_products?select=*&order=created_at.desc');
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      var data = await r.json();
+      if (!data||!data.length) { el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No products yet.</p>'; return; }
+      el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Seller</th><th>Seller ID</th><th>Actions</th></tr></thead><tbody>'+
+        data.map(function(p){
+          return '<tr>'+
+            '<td><strong>'+window.escHtml(p.name||'—')+'</strong></td>'+
+            '<td>'+window.escHtml(p.category||'—')+'</td>'+
+            '<td>GH₵'+p.price+(p.original_price?'<br><small style="text-decoration:line-through;color:#9ca3af;">GH₵'+p.original_price+'</small>':'')+'</td>'+
+            '<td>'+window.escHtml(p.seller_name||'—')+'<br><small style="color:#6b7280;">'+window.escHtml(p.seller_whatsapp||'')+'</small></td>'+
+            '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(p.seller_id||'—')+'</span></td>'+
+            '<td><button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="deleteMallProduct(\''+p.id+'\')"><i class="fas fa-trash"></i></button></td>'+
+          '</tr>';
+        }).join('')+
+      '</tbody></table></div>';
+    } catch(e) { el.innerHTML='<p style="color:#dc2626;padding:1rem;">Error: '+e.message+'</p>'; }
+  }
+
+  window.deleteMallProduct = async function(id) {
+    if (!confirm('Remove this product from the mall?')) return;
+    await mallFetch('mall_products?id=eq.'+id, {method:'DELETE'});
+    window.logActivity('Deleted mall product: '+id);
+    loadMallProducts();
+  };
+
+  async function loadMallOrders() {
+    var el = document.getElementById('mallOrdersList');
+    if (!el) return;
+    try {
+      var r = await mallFetch('mall_orders?select=*&order=ordered_at.desc&limit=50');
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      var data = await r.json();
+      if (!data||!data.length) { el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No orders yet.</p>'; return; }
+      el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Buyer</th><th>Phone</th><th>Qty</th><th>Total</th><th>Location</th><th>Date</th></tr></thead><tbody>'+
+        data.map(function(o){
+          var dt = o.ordered_at ? new Date(o.ordered_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+          return '<tr>'+
+            '<td>'+window.escHtml(o.product_name||'—')+'<br><small style="color:#9ca3af;">'+window.escHtml(o.seller_id||'')+'</small></td>'+
+            '<td>'+window.escHtml(o.buyer_name||'—')+'</td>'+
+            '<td>'+window.escHtml(o.buyer_phone||'—')+'</td>'+
+            '<td>'+o.quantity+'</td>'+
+            '<td>GH₵'+o.total_price+'</td>'+
+            '<td style="font-size:0.8rem;">'+window.escHtml(o.delivery_location||'—')+'</td>'+
+            '<td style="font-size:0.78rem;white-space:nowrap;">'+dt+'</td>'+
+          '</tr>';
+        }).join('')+
+      '</tbody></table></div>';
+    } catch(e) { el.innerHTML='<p style="color:#dc2626;padding:1rem;">Error: '+e.message+'</p>'; }
+  }
+
+  window.adminPostProduct = async function() {
+    var name = (document.getElementById('mallProdName').value||'').trim();
+    var cat  = document.getElementById('mallProdCat').value;
+    var price = parseFloat(document.getElementById('mallProdPrice').value);
+    var origPrice = parseFloat(document.getElementById('mallProdOrigPrice').value)||null;
+    var seller = (document.getElementById('mallProdSeller').value||'').trim();
+    var wa = (document.getElementById('mallProdWA').value||'').trim();
+    var desc = (document.getElementById('mallProdDesc').value||'').trim();
+    var img = (document.getElementById('mallProdImg').value||'').trim();
+    var coloursRaw = (document.getElementById('mallProdColours').value||'').trim();
+    var colourNamesRaw = (document.getElementById('mallProdColourNames').value||'').trim();
+    var sizesRaw = (document.getElementById('mallProdSizes').value||'').trim();
+    var stock = parseInt(document.getElementById('mallProdStock').value)||0;
+    var badge = document.getElementById('mallProdBadge').value;
+
+    if (!name||!cat||isNaN(price)||!seller||!wa||!desc) { window.showStatus('mallPostStatus','Please fill in all required fields.','err'); return; }
+
+    var sellerId = 'GUM-' + String(Date.now()).slice(-4);
+    var colours = coloursRaw ? JSON.stringify(coloursRaw.split(',').map(function(s){return s.trim();})) : '[]';
+    var colourNames = colourNamesRaw ? JSON.stringify(colourNamesRaw.split(',').map(function(s){return s.trim();})) : '[]';
+    var sizes = sizesRaw ? JSON.stringify(sizesRaw.split(',').map(function(s){return s.trim();})) : '[]';
+
+    try {
+      var r = await mallFetch('mall_products', {method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({
+        name:name, category:cat, price:price, original_price:origPrice,
+        description:desc, image_url:img||null, seller_name:seller,
+        seller_whatsapp:wa, seller_id:sellerId, status:'approved',
+        colours:colours, colour_names:colourNames, sizes:sizes,
+        stock:stock, verified:true, featured:true, badge:badge||null,
+        created_at:new Date().toISOString()
+      })});
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      window.showStatus('mallPostStatus','✅ Product posted! Seller ID: '+sellerId,'ok');
+      window.logActivity('Posted mall product: '+name+' ('+sellerId+')');
+      loadMallProducts();
+    } catch(e) { window.showStatus('mallPostStatus','❌ '+e.message,'err'); }
+  };
+
+  // Hook into switchPanel
+  (function(){
+    var _o = window.switchPanel;
+    window.switchPanel = function(name) {
+      if (_o) _o(name);
+      if (name === 'mall') setTimeout(window.loadMallAdmin, 100);
+    };
+  })();
+  </script>
 
   <div class="panel" id="panel-settings">
     <div class="card">
