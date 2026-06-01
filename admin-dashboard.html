@@ -751,8 +751,18 @@ tr:hover td{background:#fafcfa;}
     if(!el) return;
     el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Fetching from Supabase...</p>';
     if(btn){btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Loading...';}
+
+    // 15-second timeout
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = setTimeout(function(){ if(controller) controller.abort(); }, 15000);
+
     try{
-      var resp=await fetch(SUPA_URL2+'/rest/v1/assignment_submissions?select=*&order=submitted_at.desc&limit=500',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+SUPA_KEY2}});
+      var fetchOpts = { headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+SUPA_KEY2} };
+      if(controller) fetchOpts.signal = controller.signal;
+
+      var resp=await fetch(SUPA_URL2+'/rest/v1/assignment_submissions?select=*&order=submitted_at.desc&limit=500', fetchOpts);
+      clearTimeout(timer);
+
       if(!resp.ok){var t=await resp.text();throw new Error('HTTP '+resp.status+': '+t.substring(0,300));}
       var rows=await resp.json();
       if(!rows||!rows.length){
@@ -808,7 +818,9 @@ tr:hover td{background:#fafcfa;}
       });
       el.innerHTML=html;
     }catch(err){
-      el.innerHTML='<div style="background:#fee2e2;color:#991b1b;padding:1.2rem;border-radius:12px;font-size:0.9rem;"><strong>❌ Error:</strong> '+err.message+'<br><br><button onclick="loadGradesPanel()" style="background:#1B5E20;color:white;border:none;padding:0.5rem 1.4rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:700;">↺ Retry</button></div>';
+      clearTimeout(timer);
+      var msg = err.name === 'AbortError' ? 'Request timed out after 15 seconds. Check your internet connection or if Supabase project is paused.' : err.message;
+      el.innerHTML='<div style="background:#fee2e2;color:#991b1b;padding:1.2rem;border-radius:12px;font-size:0.9rem;"><strong>❌ Error:</strong> '+msg+'<br><br><button onclick="loadGradesPanel()" style="background:#1B5E20;color:white;border:none;padding:0.5rem 1.4rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:700;">↺ Retry</button></div>';
     }
     if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-sync-alt"></i> Load / Refresh Submissions';}
   }
