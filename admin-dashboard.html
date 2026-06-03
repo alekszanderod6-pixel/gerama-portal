@@ -411,19 +411,23 @@ tr:hover td{background:#fafcfa;}
             s._points = a.points || null;
           });
 
-          // Group by course
-          var byCourse = {};
-          rows.forEach(function(s) { var c=s._course; if(!byCourse[c]) byCourse[c]=[]; byCourse[c].push(s); });
+          // Group by assignment title (Assignment 1, Assignment 2, etc.)
+          var byAssignment = {};
+          rows.forEach(function(s) {
+            var key = s.assignment_title || 'Untitled Assignment';
+            if(!byAssignment[key]) byAssignment[key] = [];
+            byAssignment[key].push(s);
+          });
 
           var total  = rows.length;
           var graded = rows.filter(function(s){ return s.score!==null && s.score!==undefined && s.score!==''; }).length;
 
           var html = '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;margin-bottom:1.5rem;padding:1rem 1.2rem;background:linear-gradient(135deg,#f0fdf4,#f8fafc);border-radius:14px;border:1px solid #c8e6c9;">' +
             '<div>' +
-              '<div style="font-size:1.1rem;font-weight:800;color:#1B5E20;"><i class="fas fa-file-alt"></i> ' + total + ' Submissions</div>' +
+              '<div style="font-size:1.1rem;font-weight:800;color:#1B5E20;"><i class="fas fa-file-alt"></i> ' + total + ' Submissions · ' + Object.keys(byAssignment).length + ' Assignment' + (Object.keys(byAssignment).length!==1?'s':'') + '</div>' +
               '<div style="font-size:0.85rem;color:#6b7280;margin-top:0.3rem;">' +
-                '<span style="background:#d1fae5;color:#065f46;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.5rem;">' + graded + ' graded</span>' +
-                '<span style="background:#fef3c7;color:#92400e;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;">' + (total-graded) + ' pending</span>' +
+                '<span style="background:#d1fae5;color:#065f46;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.5rem;">✅ ' + graded + ' graded</span>' +
+                '<span style="background:#fef3c7;color:#92400e;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;">⏳ ' + (total-graded) + ' pending</span>' +
               '</div>' +
             '</div>' +
             '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">' +
@@ -432,14 +436,18 @@ tr:hover td{background:#fafcfa;}
             '</div>' +
           '</div>';
 
-          Object.keys(byCourse).sort().forEach(function(course) {
-            var subs = byCourse[course];
+          Object.keys(byAssignment).sort().forEach(function(assignTitle) {
+            var subs = byAssignment[assignTitle];
             var cg = subs.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
+            // Get points from first submission's asgMap lookup
+            var firstAsg = asgMap[subs[0].assignment_id] || asgMap[assignTitle] || {};
+            var assignPoints = firstAsg.points || null;
+            var assignCourse = firstAsg.course || subs[0]._course || '';
 
             var tableRows = subs.map(function(s) {
               var sid  = String(s.id).replace(/[^a-z0-9]/gi,'');
+              var pts  = s._points || assignPoints;
               var dt   = s.submitted_at ? new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
-              var pts  = s._points;
               var cur  = (s.score!==null && s.score!==undefined && s.score!=='') ? s.score : '';
               var badge = cur !== ''
                 ? '<span style="background:#d1fae5;color:#065f46;font-size:0.85rem;font-weight:800;padding:0.25rem 0.7rem;border-radius:10px;">' + cur + (pts?'/'+pts:'') + '</span>'
@@ -447,11 +455,10 @@ tr:hover td{background:#fafcfa;}
 
               return '<tr>' +
                 '<td>' +
-                  '<strong>' + (s.student_name||'—') + '</strong>' +
+                  '<strong style="font-size:0.9rem;">' + (s.student_name||'—') + '</strong>' +
                   '<div style="font-size:0.78rem;color:#6b7280;">' + (s.student_email||'') + '</div>' +
-                  (s.index_number ? '<div style="font-size:0.72rem;color:#9ca3af;">' + s.index_number + '</div>' : '') +
+                  (s.index_number ? '<div style="font-size:0.72rem;color:#1B5E20;font-weight:600;">' + s.index_number + '</div>' : '') +
                 '</td>' +
-                '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (s.assignment_title||'—') + '</td>' +
                 '<td style="font-size:0.82rem;color:#6b7280;white-space:nowrap;">' + dt + '</td>' +
                 '<td>' + (s.file_url
                   ? '<a href="' + s.file_url + '" target="_blank" style="color:#1B5E20;font-weight:600;font-size:0.85rem;display:inline-flex;align-items:center;gap:0.3rem;"><i class="fas fa-download"></i> Download</a>'
@@ -459,13 +466,14 @@ tr:hover td{background:#fafcfa;}
                 '<td>' + badge + '</td>' +
                 '<td>' +
                   '<div style="display:flex;gap:0.4rem;align-items:center;">' +
-                    '<input type="number" id="gscore-' + sid + '" value="' + cur + '" min="0"' + (pts?' max="'+pts+'"':'') + ' placeholder="Score" ' +
-                      'style="width:65px;padding:0.35rem 0.5rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.85rem;outline:none;font-family:\'Inter\',sans-serif;text-align:center;" ' +
+                    '<input type="number" id="gscore-' + sid + '" value="' + cur + '" min="0"' + (pts?' max="'+pts+'"':'') + ' placeholder="0" ' +
+                      'style="width:65px;padding:0.35rem 0.5rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.88rem;outline:none;font-family:\'Inter\',sans-serif;text-align:center;font-weight:700;" ' +
                       'onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
-                    (pts ? '<span style="font-size:0.78rem;color:#9ca3af;">/'+pts+'</span>' : '') +
+                    (pts ? '<span style="font-size:0.78rem;color:#9ca3af;white-space:nowrap;">/'+pts+'</span>' : '') +
                     '<button onclick="saveGrade(\''+s.id+'\',\''+sid+'\',\''+(s.student_email||'')+'\',\''+(s.assignment_title||'').replace(/'/g,'').replace(/"/g,'')+'\''+')" ' +
-                      'style="background:#1B5E20;color:white;border:none;padding:0.35rem 0.8rem;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;white-space:nowrap;">' +
-                      '<i class="fas fa-check"></i> Grade' +
+                      'style="background:#1B5E20;color:white;border:none;padding:0.4rem 0.9rem;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;white-space:nowrap;transition:background 0.2s;" ' +
+                      'onmouseover="this.style.background=\'#059669\'" onmouseout="this.style.background=\'#1B5E20\'">' +
+                      '<i class="fas fa-check"></i> ' + (cur !== '' ? 'Update' : 'Grade') +
                     '</button>' +
                   '</div>' +
                   '<div id="gstatus-' + sid + '" style="font-size:0.75rem;margin-top:0.2rem;color:#059669;min-height:1rem;"></div>' +
@@ -474,21 +482,25 @@ tr:hover td{background:#fafcfa;}
             }).join('');
 
             html += '<div style="margin-bottom:2.5rem;">' +
-              '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;flex-wrap:wrap;gap:0.5rem;">' +
-                '<div style="display:flex;align-items:center;gap:0.7rem;">' +
-                  '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.85rem;font-weight:700;padding:0.4rem 1.1rem;border-radius:20px;"><i class="fas fa-book" style="margin-right:0.4rem;"></i>' + course + '</span>' +
-                  '<span style="font-size:0.82rem;color:#6b7280;">' + subs.length + ' submission' + (subs.length!==1?'s':'') + (cg?' · <span style="color:#059669;font-weight:700;">'+cg+' graded</span>':'') + '</span>' +
+              '<div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;border-radius:14px 14px 0 0;padding:1rem 1.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">' +
+                '<div>' +
+                  '<div style="font-size:1rem;font-weight:800;"><i class="fas fa-file-alt" style="margin-right:0.5rem;opacity:0.8;"></i>' + assignTitle + '</div>' +
+                  (assignCourse ? '<div style="font-size:0.78rem;opacity:0.75;margin-top:0.2rem;"><i class="fas fa-book" style="margin-right:0.3rem;"></i>' + assignCourse + (assignPoints ? ' · ' + assignPoints + ' marks' : '') + '</div>' : '') +
+                '</div>' +
+                '<div style="display:flex;align-items:center;gap:0.8rem;">' +
+                  '<span style="background:rgba(255,255,255,0.15);padding:0.25rem 0.8rem;border-radius:20px;font-size:0.82rem;font-weight:700;">' + subs.length + ' submitted</span>' +
+                  '<span style="background:rgba(255,193,7,0.25);color:#FFC107;padding:0.25rem 0.8rem;border-radius:20px;font-size:0.82rem;font-weight:700;">' + cg + ' graded</span>' +
+                  (subs.length - cg > 0 ? '<span style="background:rgba(220,38,38,0.25);color:#fca5a5;padding:0.25rem 0.8rem;border-radius:20px;font-size:0.82rem;font-weight:700;">' + (subs.length-cg) + ' pending</span>' : '') +
                 '</div>' +
               '</div>' +
-              '<div class="tbl-wrap">' +
+              '<div class="tbl-wrap" style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 14px 14px;overflow:hidden;">' +
                 '<table>' +
-                  '<thead><tr>' +
+                  '<thead><tr style="background:#f8fafc;">' +
                     '<th>Student</th>' +
-                    '<th>Assignment</th>' +
                     '<th>Submitted</th>' +
                     '<th>File</th>' +
                     '<th>Score</th>' +
-                    '<th>Grade Action</th>' +
+                    '<th>Save Grade</th>' +
                   '</tr></thead>' +
                   '<tbody>' + tableRows + '</tbody>' +
                 '</table>' +
@@ -511,27 +523,46 @@ tr:hover td{background:#fafcfa;}
         var statusEl = document.getElementById('gstatus-' + sid);
         if (!scoreEl) return;
         var score = parseFloat(scoreEl.value);
-        if (isNaN(score) || score < 0) { if(statusEl) { statusEl.textContent='Enter a valid score.'; statusEl.style.color='#f59e0b'; } return; }
+        if (isNaN(score) || score < 0) {
+          if(statusEl) { statusEl.textContent='Enter a valid score.'; statusEl.style.color='#f59e0b'; }
+          return;
+        }
         if (statusEl) { statusEl.textContent='Saving...'; statusEl.style.color='#6b7280'; }
 
+        var graded_at = new Date().toISOString();
+
         try {
-          // Update assignment_submissions
+          // 1. Update assignment_submissions with the score
           var r1 = await fetch(SUPA + '/rest/v1/assignment_submissions?id=eq.' + subId, {
             method: 'PATCH',
             headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-            body: JSON.stringify({ score: score, graded_at: new Date().toISOString() })
+            body: JSON.stringify({ score: score, graded_at: graded_at })
           });
           if (!r1.ok) throw new Error('Save failed: HTTP ' + r1.status);
 
-          // Upsert to student_grades
-          await fetch(SUPA + '/rest/v1/student_grades', {
-            method: 'POST',
-            headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-            body: JSON.stringify({ student_email: email, assignment_title: title, score: score, submission_id: subId, graded_at: new Date().toISOString() })
+          // 2. Delete existing grade for this student+assignment, then insert fresh
+          //    This avoids unique constraint issues
+          await fetch(SUPA + '/rest/v1/student_grades?student_email=eq.' + encodeURIComponent(email) + '&assignment_title=eq.' + encodeURIComponent(title), {
+            method: 'DELETE',
+            headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
           });
 
-          if (statusEl) { statusEl.textContent = '✅ Saved!'; statusEl.style.color = '#059669'; }
-          setTimeout(function() { if(statusEl) statusEl.textContent=''; }, 3000);
+          await fetch(SUPA + '/rest/v1/student_grades', {
+            method: 'POST',
+            headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+            body: JSON.stringify({
+              student_email: email,
+              assignment_title: title,
+              score: score,
+              submission_id: subId,
+              graded_at: graded_at
+            })
+          });
+
+          if (statusEl) { statusEl.textContent = '✅ Saved! Student can now see their grade.'; statusEl.style.color = '#059669'; }
+          // Update the score badge in the row without reloading the whole table
+          var badgeEl = scoreEl.closest('tr') && scoreEl.closest('tr').querySelector('td:nth-child(4) span');
+          setTimeout(function() { if(statusEl) statusEl.textContent=''; }, 4000);
         } catch(err) {
           if (statusEl) { statusEl.textContent = '❌ ' + err.message; statusEl.style.color = '#dc2626'; }
         }
