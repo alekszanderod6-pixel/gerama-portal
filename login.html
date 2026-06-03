@@ -180,51 +180,76 @@
                     return;
                 }
                 
-                // Store session and profile
+                // Store session and profile - ALWAYS fetch from Supabase first (cross-device sync)
                 sessionStorage.setItem('gerama_loggedIn', 'true');
-                
-                // Update profile in localStorage for sidebar
-                const meta = data.user.user_metadata || {};
-                const username = meta.username || meta.full_name || email.split('@')[0];
-                const existingProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
-                const profileData = {
-                    email:   email,
-                    name:    existingProfile.name    || username,
-                    program: existingProfile.program || meta.program || 'GERAMA Member',
-                    level:   existingProfile.level   || meta.level   || '',
-                    img:     existingProfile.img     || null,
-                    phone:   existingProfile.phone   || meta.phone   || ''
-                };
-                localStorage.setItem('gerama_profile', JSON.stringify(profileData));
 
-                // Save to Supabase user_profiles table
+                // Fetch the canonical profile from Supabase
+                var profileData = { email: email };
                 try {
-                    await window.geramaSupabase.from('user_profiles').upsert({
-                        email:     email,
-                        full_name: profileData.name,
-                        phone:     profileData.phone || null,
-                        program:   profileData.program || null,
-                        level:     profileData.level   || null,
-                        updated_at: new Date().toISOString()
-                    }, { onConflict: 'email' });
-
-                    // Fetch index number assigned by admin
                     var {data: upData} = await window.geramaSupabase
-                        .from('user_profiles').select('index_number,is_active').eq('email',email).single();
-                    if(upData && upData.index_number) {
-                        profileData.index_number = upData.index_number;
-                        localStorage.setItem('gerama_profile', JSON.stringify(profileData));
+                        .from('user_profiles')
+                        .select('full_name, phone, program, level, index_number, is_active')
+                        .eq('email', email)
+                        .single();
+
+                    if (upData) {
+                        // Check if deactivated
+                        if (upData.is_active === false) {
+                            await window.geramaSupabase.auth.signOut();
+                            sessionStorage.clear();
+                            localStorage.removeItem('gerama_profile');
+                            alert('Your account has been deactivated. Please contact the admin.');
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        // Use Supabase as source of truth — overrides any stale localStorage
+                        const meta = data.user.user_metadata || {};
+                        profileData = {
+                            email:        email,
+                            name:         upData.full_name || meta.full_name || email.split('@')[0],
+                            program:      upData.program   || meta.program   || 'GERAMA Member',
+                            level:        upData.level     || meta.level     || '',
+                            phone:        upData.phone     || meta.phone     || '',
+                            index_number: upData.index_number || null,
+                            img:          JSON.parse(localStorage.getItem('gerama_profile') || '{}').img || null
+                        };
+                    } else {
+                        // No Supabase record yet — create one
+                        const meta = data.user.user_metadata || {};
+                        const existingProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+                        profileData = {
+                            email:   email,
+                            name:    meta.full_name || email.split('@')[0],
+                            program: meta.program || existingProfile.program || 'GERAMA Member',
+                            level:   meta.level   || existingProfile.level   || '',
+                            phone:   meta.phone   || existingProfile.phone   || '',
+                            img:     existingProfile.img || null
+                        };
+                        // Create the user_profiles record
+                        await window.geramaSupabase.from('user_profiles').upsert({
+                            email:      email,
+                            full_name:  profileData.name,
+                            phone:      profileData.phone  || null,
+                            program:    profileData.program || null,
+                            level:      profileData.level   || null,
+                            updated_at: new Date().toISOString()
+                        }, { onConflict: 'email' });
                     }
-                    // Check if deactivated
-                    if(upData && upData.is_active === false) {
-                        await window.geramaSupabase.auth.signOut();
-                        sessionStorage.clear();
-                        localStorage.removeItem('gerama_profile');
-                        alert('Your account has been deactivated. Please contact the admin.');
-                        window.location.href = 'login.html';
-                        return;
-                    }
-                } catch(e) { /* non-critical */ }
+                } catch(e) {
+                    // Supabase unreachable — use what we have
+                    const meta = data.user.user_metadata || {};
+                    const existingProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+                    profileData = {
+                        email:   email,
+                        name:    existingProfile.name    || meta.full_name || email.split('@')[0],
+                        program: existingProfile.program || meta.program   || 'GERAMA Member',
+                        level:   existingProfile.level   || meta.level     || '',
+                        phone:   existingProfile.phone   || meta.phone     || '',
+                        img:     existingProfile.img     || null
+                    };
+                }
+
+                localStorage.setItem('gerama_profile', JSON.stringify(profileData));
                 
                 // Redirect to home page
                 window.location.href = 'index.html';

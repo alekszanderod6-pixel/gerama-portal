@@ -511,7 +511,7 @@ if(!document.getElementById('confettiStyle')) {
         if(!email) return;
 
         window.geramaSupabase.from('user_profiles')
-            .select('index_number, is_active, full_name')
+            .select('index_number, is_active, full_name, program, level, phone')
             .eq('email', email)
             .single()
             .then(function(res) {
@@ -528,14 +528,28 @@ if(!document.getElementById('confettiStyle')) {
                 }
 
                 var updated = false;
+                // Always sync ALL fields from Supabase — this is the cross-device fix
                 if(res.data.index_number && res.data.index_number !== profile.index_number) {
-                    profile.index_number = res.data.index_number;
-                    updated = true;
+                    profile.index_number = res.data.index_number; updated = true;
                 }
-                if(res.data.full_name && !profile.name) { profile.name = res.data.full_name; updated = true; }
+                if(res.data.full_name && res.data.full_name !== profile.name) {
+                    profile.name = res.data.full_name; updated = true;
+                }
+                if(res.data.program && res.data.program !== profile.program) {
+                    profile.program = res.data.program; updated = true;
+                }
+                if(res.data.level && res.data.level !== profile.level) {
+                    profile.level = res.data.level; updated = true;
+                }
+                if(res.data.phone && res.data.phone !== profile.phone) {
+                    profile.phone = res.data.phone; updated = true;
+                }
 
                 if(updated) {
                     localStorage.setItem('gerama_profile', JSON.stringify(profile));
+                    // Update the sidebar UI immediately
+                    var nameEl = document.getElementById('drawerName');
+                    if(nameEl && profile.name) nameEl.textContent = profile.name;
                     var progEl = document.getElementById('drawerProgram');
                     if(progEl) {
                         var txt = 'Program: '+(profile.program||'Not set');

@@ -1110,17 +1110,35 @@ function loadAssignments() {
     }
     // Fetch assignments + student's grades in parallel
     var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
-    var myEmail = profile.email || '';
+    var myEmail = (profile.email || '').toLowerCase().trim();
+    var myIndex = profile.index_number || '';
+
+    var gradesQuery = myEmail
+      ? sb.from('student_grades').select('*').eq('student_email', myEmail)
+      : Promise.resolve({data:[]});
+
     Promise.all([
       sb.from('assignments').select('*').order('created_at',{ascending:false}),
-      myEmail ? sb.from('student_grades').select('*').eq('student_email', myEmail) : Promise.resolve({data:[]})
+      gradesQuery
     ]).then(function(results){
       var assignments = results[0].data || [];
       var grades = results[1].data || [];
+
       // Build grade map by assignment title
       var gradeMap = {};
       grades.forEach(function(g){ gradeMap[g.assignment_title] = g; });
-      renderAssignments(assignments, gradeMap);
+
+      // If no grades found by email but we have index number, try that
+      if(!grades.length && myIndex) {
+        sb.from('student_grades').select('*').eq('index_number', myIndex)
+          .then(function(r2){
+            var g2 = r2.data || [];
+            g2.forEach(function(g){ gradeMap[g.assignment_title] = g; });
+            renderAssignments(assignments, gradeMap);
+          }).catch(function(){ renderAssignments(assignments, gradeMap); });
+      } else {
+        renderAssignments(assignments, gradeMap);
+      }
     }).catch(function(){ renderAssignments([]); });
   }
   tryLoad(15);
@@ -1180,9 +1198,11 @@ function renderAssignments(assignments, gradeMap) {
 function openSubmitModal(id, title) {
   document.getElementById('modalAssignId').value = id;
   document.getElementById('modalAssignTitle').value = title;
-  document.getElementById('subName').value = '';
-  document.getElementById('subEmail').value = '';
-  document.getElementById('subIndex').value = '';
+  // Pre-fill from profile so grade email matches lookup email
+  var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+  document.getElementById('subName').value = profile.name || '';
+  document.getElementById('subEmail').value = profile.email || '';
+  document.getElementById('subIndex').value = profile.index_number || '';
   document.getElementById('subComment').value = '';
   document.getElementById('subFileChosen').textContent = '';
   document.getElementById('subStatus').className = 'status-msg';
