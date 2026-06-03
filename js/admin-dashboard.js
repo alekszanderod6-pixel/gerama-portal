@@ -1917,15 +1917,19 @@ window.loadAttRecords = async function(){
   }
 
   // Group by session
+  // Group by session — use session_id if available, fall back to class_title
   var bySession = {};
   data.forEach(function(r){
-    var key = r.class_title||'Unknown Session';
-    if(!bySession[key]) bySession[key] = [];
-    bySession[key].push(r);
+    var key = r.session_id ? r.session_id : (r.class_title||'Unknown Session');
+    if(!bySession[key]) bySession[key] = {title: r.class_title||'Unknown Session', session_id: r.session_id||null, records: []};
+    bySession[key].records.push(r);
   });
 
-  el.innerHTML = Object.keys(bySession).map(function(title){
-    var records = bySession[title];
+  el.innerHTML = Object.keys(bySession).map(function(key){
+    var group = bySession[key];
+    var title = group.title;
+    var sessionId = group.session_id;
+    var records = group.records;
     var rows = records.map(function(r){
       var dt = r.marked_at ? new Date(r.marked_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
       return '<tr>'+
@@ -1940,8 +1944,16 @@ window.loadAttRecords = async function(){
     }).join('');
     return '<div style="margin-bottom:1.5rem;">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem;flex-wrap:wrap;gap:0.5rem;">'+
-        '<strong style="font-size:0.95rem;">'+window.escHtml(title)+'</strong>'+
-        '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.78rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">'+records.length+' student'+(records.length!==1?'s':'')+' present</span>'+
+        '<div style="display:flex;align-items:center;gap:0.6rem;">'+
+          '<strong style="font-size:0.95rem;">'+window.escHtml(title)+'</strong>'+
+          '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.78rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">'+records.length+' student'+(records.length!==1?'s':'')+' present</span>'+
+        '</div>'+
+        '<button class="btn-danger" style="font-size:0.75rem;padding:0.3rem 0.8rem;" '+
+          'data-session-id="'+(sessionId||'')+'" data-session-title="'+window.escAttr(title)+'" '+
+          'onclick="deleteEntireSession(this.getAttribute(\'data-session-id\'),this.getAttribute(\'data-session-title\'))" '+
+          'title="Delete entire session and all its records (requires admin code)">'+
+          '<i class="fas fa-trash-alt"></i> Delete Session'+
+        '</button>'+
       '</div>'+
       '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Phone</th><th>Time</th><th>Location</th><th>Points</th><th>Remove</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
     '</div>';
@@ -2381,6 +2393,36 @@ window.removeAttRecord = async function(id, name){
   if(error){ alert('Error: '+error.message); return; }
   window.logActivity('Removed attendance record for '+name);
   window.loadAttRecords();
+};
+
+// Delete an entire attendance session and ALL its records (with secret code)
+window.deleteEntireSession = async function(sessionId, sessionTitle){
+  var secret = prompt('⚠️ This will delete ALL attendance records for "'+sessionTitle+'".\n\nEnter admin code to confirm:');
+  if(!secret) return;
+  if(secret !== _ATTENDANCE_SECRET){ alert('❌ Wrong code. Access denied.'); return; }
+
+  var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
+
+  try {
+    // Delete all attendance records for this session
+    if(sessionId) {
+      var {error: recErr} = await sb.from('attendance_records').delete().eq('session_id', sessionId);
+      if(recErr) throw new Error('Records: '+recErr.message);
+      // Also delete the session itself
+      var {error: sesErr} = await sb.from('attendance_sessions').delete().eq('id', sessionId);
+      if(sesErr) throw new Error('Session: '+sesErr.message);
+    } else {
+      // No session_id — delete by class title
+      var {error: recErr2} = await sb.from('attendance_records').delete().eq('class_title', sessionTitle);
+      if(recErr2) throw new Error('Records: '+recErr2.message);
+    }
+    window.logActivity('Deleted entire attendance session: "'+sessionTitle+'"');
+    alert('✅ Session "'+sessionTitle+'" and all its records have been deleted.');
+    window.loadAttRecords();
+    window.loadAttSessions();
+  } catch(e) {
+    alert('❌ Error: '+e.message);
+  }
 };
 
 // ─── DOWNLOAD ATTENDANCE CSV ─────────────────────────────────────
