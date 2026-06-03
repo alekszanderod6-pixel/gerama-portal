@@ -1802,6 +1802,7 @@ window.generateAttendanceCode = async function(){
   if(!title){ window.showStatus('attStatus','Please enter a class title.','err'); return; }
 
   var sb = window.geramaSupabase; if(!sb){ window.showStatus('attStatus','Not connected.','err'); return; }
+  window.showStatus('attStatus','Generating code...','info');
 
   // Generate random 6-char code
   var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -1810,19 +1811,34 @@ window.generateAttendanceCode = async function(){
 
   var expiresAt = new Date(Date.now() + duration*60*1000).toISOString();
 
-  // Close any existing active session first
-  await sb.from('attendance_sessions').update({is_active:false}).eq('is_active',true);
+  // Close any existing active sessions first (best-effort, don't block on error)
+  try { await sb.from('attendance_sessions').update({is_active:false}).eq('is_active',true); } catch(e){}
 
-  var {data, error} = await sb.from('attendance_sessions').insert({
-    code: code,
+  // Insert the new session — only include columns that definitely exist
+  var insertPayload = {
+    code:       code,
     class_title: title,
-    duration_mins: duration,
     expires_at: expiresAt,
-    is_active: true,
+    is_active:  true,
     created_at: new Date().toISOString()
-  }).select().single();
+  };
 
-  if(error){ window.showStatus('attStatus','❌ '+error.message,'err'); return; }
+  // Try with duration_mins first, fall back without it if column doesn't exist
+  var data, error;
+  var res1 = await sb.from('attendance_sessions').insert({...insertPayload, duration_mins: duration}).select().single();
+  if(res1.error && (res1.error.message.includes('duration_mins') || res1.error.code === '42703')) {
+    // Column doesn't exist — insert without it
+    var res2 = await sb.from('attendance_sessions').insert(insertPayload).select().single();
+    data = res2.data; error = res2.error;
+  } else {
+    data = res1.data; error = res1.error;
+  }
+
+  if(error){
+    window.showStatus('attStatus','❌ DB error: '+error.message,'err');
+    console.error('Attendance session insert error:', error);
+    return;
+  }
 
   _attSessionId = data ? data.id : null;
   window.logActivity('Generated attendance code: '+code+' for "'+title+'"');

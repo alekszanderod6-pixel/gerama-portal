@@ -2624,11 +2624,21 @@ async function markAttendance() {
     }
   } catch(e){}
 
+  // Look up the session by code — accept it if it is still active OR if expires_at is still in
+  // the future. This makes the system resilient to the admin's browser closing/refreshing before
+  // the timer fires (which would have left is_active stuck at true anyway).
+  var now = new Date().toISOString();
   var {data: sessions, error: sessErr} = await sb.from('attendance_sessions')
-    .select('*').eq('code', code).eq('is_active', true).limit(1);
+    .select('*').eq('code', code).gte('expires_at', now).limit(1);
 
   if(sessErr || !sessions || !sessions.length){
-    setStatus('❌ Invalid or expired code. Ask your tutor for the active code.','#f87171'); return;
+    // Fallback: maybe expires_at is null (older sessions) — try is_active flag only
+    var {data: sessions2, error: sessErr2} = await sb.from('attendance_sessions')
+      .select('*').eq('code', code).eq('is_active', true).limit(1);
+    if(sessErr2 || !sessions2 || !sessions2.length){
+      setStatus('❌ Invalid or expired code. Ask your tutor for the active code.','#f87171'); return;
+    }
+    sessions = sessions2;
   }
 
   var session = sessions[0];
