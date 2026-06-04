@@ -172,6 +172,13 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .img-lightbox img{max-width:90vw;max-height:88vh;border-radius:12px;}
 .img-lightbox-close{position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.15);border:none;color:white;width:44px;height:44px;border-radius:50%;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
+/* DROP ZONE */
+.drop-zone{border:2.5px dashed #c8e6c9;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.3s;background:#f9fdf9;}
+.drop-zone:hover{border-color:var(--primary);background:#e8f5e9;}
+.drop-zone i{font-size:1.8rem;color:var(--primary);margin-bottom:0.4rem;display:block;}
+.drop-zone p{color:#555;font-size:0.88rem;margin:0;}
+.file-chosen{font-weight:600;color:var(--primary);margin-top:0.4rem;font-size:0.82rem;}
+
 /* LOADING SKELETON */
 .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;}
 @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
@@ -751,14 +758,15 @@ async function submitSellRequest() {
   var desc = (document.getElementById('sellDesc').value||'').trim();
   var wa   = (document.getElementById('sellWhatsapp').value||'').trim();
   var seller = (document.getElementById('sellSellerName').value||'').trim();
-  var imgUrl = (document.getElementById('sellImageUrl').value||'').trim();
   var origPrice = parseFloat(document.getElementById('sellOrigPrice').value) || null;
+  var fileInput = document.getElementById('sellFile');
+  var selectedFile = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
 
   var statusEl = document.getElementById('sellStatus');
   function showStatus(msg, type) {
     statusEl.style.display = 'block';
-    statusEl.style.background = type==='ok' ? '#d1fae5' : '#fee2e2';
-    statusEl.style.color = type==='ok' ? '#065f46' : '#991b1b';
+    statusEl.style.background = type==='ok' ? '#d1fae5' : type==='info' ? '#dbeafe' : '#fee2e2';
+    statusEl.style.color = type==='ok' ? '#065f46' : type==='info' ? '#1e40af' : '#991b1b';
     statusEl.textContent = msg;
   }
 
@@ -766,6 +774,34 @@ async function submitSellRequest() {
   if (price < 1) { showStatus('Price must be at least GH₵1.','err'); return; }
 
   showStatus('Submitting your listing for review...','info');
+
+  var imgUrl = null;
+
+  // Upload image/video to Supabase Storage if one was selected
+  if (selectedFile) {
+    if (selectedFile.size > 10 * 1024 * 1024) { showStatus('File too large. Max 10 MB.','err'); return; }
+    try {
+      showStatus('Uploading image... please wait.','info');
+      var ext = selectedFile.name.split('.').pop().toLowerCase();
+      var safeName = seller.toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,20) + '-' + Date.now() + '.' + ext;
+      var storagePath = 'mall-listings/' + safeName;
+      var sb = window.geramaSupabase;
+      if (sb) {
+        var upRes = await sb.storage.from('gerama-materials').upload(storagePath, selectedFile, {
+          upsert: true,
+          contentType: selectedFile.type || 'application/octet-stream'
+        });
+        if (!upRes.error) {
+          imgUrl = sb.storage.from('gerama-materials').getPublicUrl(storagePath).data.publicUrl;
+        }
+      }
+    } catch(uploadErr) {
+      // Non-blocking — submission still goes through without image
+      console.warn('Image upload failed:', uploadErr);
+    }
+  }
+
+  showStatus('Saving your listing request...','info');
 
   try {
     var resp = await fetch(SUPA_URL + '/rest/v1/mall_seller_requests', {

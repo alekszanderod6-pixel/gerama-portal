@@ -2471,7 +2471,6 @@ window.loadContactMessages = async function(filter){
       return;
     }
 
-    // Update badge
     var badge = document.getElementById('msgBadge');
     if(badge){ badge.textContent=data.length; badge.style.display='inline'; }
 
@@ -2480,7 +2479,8 @@ window.loadContactMessages = async function(filter){
       var typeBadge = m.type==='assistance'
         ? '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">Assistance</span>'
         : '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">Contact</span>';
-      return '<div class="sub-card" style="margin-bottom:0.8rem;">'+
+      var replyId = 'reply-box-' + window.escAttr(String(m.id).replace(/[^a-z0-9]/gi,''));
+      return '<div class="sub-card" style="margin-bottom:0.8rem;" id="msg-card-'+window.escAttr(String(m.id).replace(/[^a-z0-9]/gi,''))+'">'+
         '<div class="sub-info">'+
           '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;">'+
             '<strong>'+window.escHtml(m.name||'—')+'</strong>'+typeBadge+
@@ -2488,10 +2488,21 @@ window.loadContactMessages = async function(filter){
           '</div>'+
           '<div style="font-size:0.82rem;color:#6b7280;margin-bottom:0.3rem;"><i class="fas fa-envelope" style="margin-right:0.3rem;"></i>'+window.escHtml(m.email||'—')+'</div>'+
           (m.subject?'<div style="font-size:0.85rem;font-weight:600;color:#374151;margin-bottom:0.3rem;">'+window.escHtml(m.subject)+'</div>':'')+
-          '<div style="font-size:0.88rem;color:#374151;background:#f8fafc;border-radius:10px;padding:0.6rem 0.8rem;border-left:3px solid #1B5E20;white-space:pre-wrap;">'+window.escHtml(m.message||'')+'</div>'+
+          '<div style="font-size:0.88rem;color:#374151;background:#f8fafc;border-radius:10px;padding:0.6rem 0.8rem;border-left:3px solid #1B5E20;white-space:pre-wrap;margin-bottom:0.5rem;">'+window.escHtml(m.message||'')+'</div>'+
+          (m.admin_reply ? '<div style="font-size:0.85rem;color:#065f46;background:#d1fae5;border-radius:10px;padding:0.6rem 0.8rem;border-left:3px solid #059669;"><strong>✅ Admin replied:</strong> '+window.escHtml(m.admin_reply)+'</div>' : '')+
+          '<div id="'+replyId+'" style="display:none;margin-top:0.6rem;">'+
+            '<textarea id="reply-text-'+window.escAttr(String(m.id).replace(/[^a-z0-9]/gi,''))+'" rows="3" placeholder="Type your reply to '+window.escHtml(m.name||'this user')+'..." style="width:100%;padding:0.65rem 0.8rem;border:2px solid #c8e6c9;border-radius:10px;font-size:0.88rem;font-family:\'Inter\',sans-serif;outline:none;resize:vertical;"></textarea>'+
+            '<div style="display:flex;gap:0.5rem;margin-top:0.4rem;">'+
+              '<button onclick="sendContactReply(\''+window.escAttr(String(m.id))+'\',\''+window.escAttr(m.email||'')+'\',\''+window.escAttr(m.name||'')+'\',\''+window.escAttr(String(m.id).replace(/[^a-z0-9]/gi,''))+'\')" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.4rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;">'+
+                '<i class="fas fa-paper-plane"></i> Send Reply</button>'+
+              '<button onclick="document.getElementById(\''+replyId+'\').style.display=\'none\'" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.82rem;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>'+
+            '</div>'+
+            '<div id="reply-status-'+window.escAttr(String(m.id).replace(/[^a-z0-9]/gi,''))+'" style="font-size:0.8rem;margin-top:0.3rem;"></div>'+
+          '</div>'+
         '</div>'+
         '<div class="sub-actions">'+
-          '<a href="mailto:'+window.escAttr(m.email||'')+'" class="btn-primary" style="font-size:0.78rem;padding:0.35rem 0.8rem;text-decoration:none;"><i class="fas fa-reply"></i> Reply</a>'+
+          '<button onclick="document.getElementById(\''+replyId+'\').style.display=(document.getElementById(\''+replyId+'\').style.display===\'none\'?\'block\':\'none\')" class="btn-primary" style="font-size:0.78rem;padding:0.35rem 0.8rem;"><i class="fas fa-reply"></i> Reply</button>'+
+          '<a href="mailto:'+window.escAttr(m.email||'')+'" class="btn-gold" style="font-size:0.78rem;padding:0.35rem 0.8rem;text-decoration:none;" title="Open in email app"><i class="fas fa-external-link-alt"></i> Email</a>'+
           '<button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="deleteContactMsg(\''+m.id+'\')"><i class="fas fa-trash"></i></button>'+
         '</div>'+
       '</div>';
@@ -2499,6 +2510,29 @@ window.loadContactMessages = async function(filter){
   } catch(e) {
     el.innerHTML='<p style="color:#dc2626;padding:1rem;">Error: '+window.escHtml(e.message)+'</p>';
   }
+};
+
+window.sendContactReply = async function(msgId, toEmail, toName, safeId){
+  var replyText = (document.getElementById('reply-text-'+safeId).value||'').trim();
+  var statusEl = document.getElementById('reply-status-'+safeId);
+  if(!replyText){ if(statusEl){statusEl.textContent='Please type a reply.';statusEl.style.color='#f59e0b';} return; }
+
+  var sb = window.geramaSupabase; if(!sb) return;
+  if(statusEl){statusEl.textContent='Sending...';statusEl.style.color='#6b7280';}
+
+  // Save reply to contact_messages record
+  var {error} = await sb.from('contact_messages')
+    .update({ admin_reply: replyText, replied_at: new Date().toISOString() })
+    .eq('id', msgId);
+
+  if(error){
+    if(statusEl){statusEl.textContent='❌ '+error.message;statusEl.style.color='#dc2626';}
+    return;
+  }
+
+  window.logActivity('Replied to message from '+(toName||toEmail));
+  if(statusEl){statusEl.textContent='✅ Reply saved! The student will see it in their portal.';statusEl.style.color='#059669';}
+  setTimeout(function(){ window.loadContactMessages('all'); }, 1500);
 };
 
 window.deleteContactMsg = async function(id){

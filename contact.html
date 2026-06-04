@@ -507,6 +507,48 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
     if (!isOpen) item.classList.add('open');
   });
 });
+
+// ── CHECK FOR ADMIN REPLIES (shown if user sent a message before) ─
+(function() {
+  var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+  var myEmail = (profile.email || '').toLowerCase().trim();
+  if (!myEmail) return;
+
+  async function checkReplies() {
+    try {
+      var resp = await fetch(SUPA_URL + '/rest/v1/contact_messages?email=eq.' + encodeURIComponent(myEmail) + '&admin_reply=not.is.null&order=replied_at.desc&limit=5', {
+        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+      });
+      if (!resp.ok) return;
+      var msgs = await resp.json();
+      if (!msgs || !msgs.length) return;
+
+      // Show reply notification
+      var repliesEl = document.getElementById('adminRepliesSection');
+      if (!repliesEl) {
+        // Create the section if it doesn't exist
+        repliesEl = document.createElement('div');
+        repliesEl.id = 'adminRepliesSection';
+        repliesEl.style.cssText = 'margin-top:1.5rem;';
+        repliesEl.innerHTML = '<h3 style="font-size:1rem;font-weight:700;color:#1B5E20;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-reply" style="color:#FFC107;"></i> Admin Replies</h3>';
+        var formsCol = document.querySelector('.forms-col');
+        if (formsCol) formsCol.appendChild(repliesEl);
+      }
+
+      repliesEl.innerHTML = '<h3 style="font-size:1rem;font-weight:700;color:#1B5E20;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-reply" style="color:#FFC107;"></i> Replies to Your Messages</h3>' +
+        msgs.map(function(m) {
+          var dt = m.replied_at ? new Date(m.replied_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+          return '<div style="background:linear-gradient(135deg,#f0fdf4,#e8f5e9);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border-left:4px solid #1B5E20;">' +
+            '<div style="font-size:0.78rem;color:#6b7280;margin-bottom:0.4rem;">Re: <strong>' + (m.subject || m.message.substring(0,50) + '...') + '</strong> · ' + dt + '</div>' +
+            '<div style="font-size:0.92rem;color:#1e2a3e;font-weight:500;">' + m.admin_reply + '</div>' +
+            '<div style="font-size:0.75rem;color:#6b7280;margin-top:0.3rem;">— GERAMA Admin</div>' +
+          '</div>';
+        }).join('');
+    } catch(e) {}
+  }
+
+  setTimeout(checkReplies, 1500);
+})();
 </script>
 </body>
 </html>
