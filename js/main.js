@@ -84,51 +84,91 @@ window.showStatus = window.showStatus || function(id, msg, type) {
 
     // Show guest navigation for non-logged-in visitors on public pages
     function showGuestUI() {
-        // Inject a compact guest header bar if not already present
-        var existing = document.getElementById('guestBar');
-        if (existing) return;
+        if (document.getElementById('guestBar')) return;
 
+        // 1. Hide the hamburger menu toggle (no sidebar for guests)
+        var menuBtn = document.getElementById('menuToggle2') || document.getElementById('menuToggle');
+        if (menuBtn) menuBtn.style.display = 'none';
+
+        // 2. Inject guest-only nav links into the header nav
+        var headerNav = document.querySelector('.header-nav');
+        if (headerNav) {
+            headerNav.innerHTML =
+                '<a href="index.html" style="' + (currentPage === 'index.html' ? 'color:#FFC107;' : '') + '">Home</a>' +
+                '<a href="about.html" style="' + (currentPage === 'about.html' ? 'color:#FFC107;' : '') + '">About</a>' +
+                '<a href="contact.html" style="' + (currentPage === 'contact.html' ? 'color:#FFC107;' : '') + '">Contact</a>' +
+                '<div style="width:1px;height:20px;background:rgba(255,255,255,0.2);margin:0 0.3rem;"></div>' +
+                '<a href="login.html" style="color:rgba(255,255,255,0.9);padding:0.4rem 1rem;border-radius:20px;border:1px solid rgba(255,255,255,0.25);">Sign In</a>' +
+                '<a href="signup.html" style="background:#FFC107;color:#0a2f1f;padding:0.4rem 1rem;border-radius:20px;font-weight:800;font-size:0.88rem;">Join Free</a>';
+        }
+
+        // 3. Mobile bottom bar: Sign In + Join Free
         var bar = document.createElement('div');
         bar.id = 'guestBar';
         bar.style.cssText = [
-            'position:fixed', 'bottom:0', 'left:0', 'right:0',
-            'background:linear-gradient(135deg,#0a2f1f,#1B5E20)',
-            'color:white', 'z-index:9000',
-            'display:flex', 'align-items:center', 'justify-content:space-between',
-            'padding:0.8rem 5%', 'box-shadow:0 -4px 20px rgba(0,0,0,0.25)',
-            'flex-wrap:wrap', 'gap:0.6rem'
+            'position:fixed','bottom:0','left:0','right:0','z-index:9000',
+            'background:linear-gradient(135deg,#0a2f1f 0%,#1B5E20 100%)',
+            'display:flex','align-items:center','justify-content:space-between',
+            'padding:0.7rem 5%','box-shadow:0 -4px 20px rgba(0,0,0,0.3)',
+            'gap:0.8rem'
         ].join(';');
-
-        bar.innerHTML = '<div style="display:flex;align-items:center;gap:0.8rem;">' +
-            '<span style="font-size:1.4rem;">🎓</span>' +
-            '<div>' +
-                '<div style="font-size:0.85rem;font-weight:700;line-height:1.2;">Join GERAMA — Free Access to All Resources</div>' +
-                '<div style="font-size:0.75rem;opacity:0.8;">Classes · Assignments · Attendance · Q&A · Urban Mall</div>' +
+        bar.innerHTML =
+            '<div style="display:flex;align-items:center;gap:0.7rem;flex:1;min-width:0;">' +
+                '<span style="font-size:1.3rem;flex-shrink:0;">🎓</span>' +
+                '<div style="min-width:0;">' +
+                    '<div style="font-size:0.82rem;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Join GERAMA — It\'s Free</div>' +
+                    '<div style="font-size:0.7rem;color:rgba(255,255,255,0.7);">Resources · Classes · Assignments · Mall</div>' +
+                '</div>' +
             '</div>' +
-        '</div>' +
-        '<div style="display:flex;gap:0.5rem;flex-shrink:0;">' +
-            '<a href="login.html" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);padding:0.5rem 1.1rem;border-radius:20px;font-size:0.85rem;font-weight:600;text-decoration:none;transition:all 0.2s;font-family:\'Inter\',sans-serif;">Sign In</a>' +
-            '<a href="signup.html" style="background:#FFC107;color:#0a2f1f;padding:0.5rem 1.2rem;border-radius:20px;font-size:0.85rem;font-weight:800;text-decoration:none;font-family:\'Inter\',sans-serif;box-shadow:0 2px 8px rgba(255,193,7,0.4);">Join Free →</a>' +
-        '</div>';
-
+            '<div style="display:flex;gap:0.5rem;flex-shrink:0;">' +
+                '<a href="login.html" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.35);padding:0.5rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:600;text-decoration:none;white-space:nowrap;">Sign In</a>' +
+                '<a href="signup.html" style="background:#FFC107;color:#0a2f1f;padding:0.5rem 1.1rem;border-radius:20px;font-size:0.82rem;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(255,193,7,0.4);">Join Free →</a>' +
+            '</div>';
         document.body.appendChild(bar);
-        // Add bottom padding so content isn't hidden behind the bar
-        document.body.style.paddingBottom = '70px';
+        document.body.style.paddingBottom = '65px';
 
-        // Also update any "Explore Resources" links to point to login/signup instead
+        // 4. Intercept protected links — redirect to signup
         setTimeout(function() {
-            document.querySelectorAll('a[href="resources.html"], a[href="classroom.html"]').forEach(function(link) {
-                var origHref = link.getAttribute('href');
-                link.addEventListener('click', function(e) {
-                    if (!window._geramaLoggedIn) {
+            var protectedHrefs = ['resources.html','classroom.html','dashboard.html'];
+            document.querySelectorAll('a[href]').forEach(function(link) {
+                var href = link.getAttribute('href') || '';
+                if (protectedHrefs.some(function(p){ return href.includes(p); })) {
+                    link.addEventListener('click', function(e) {
                         e.preventDefault();
-                        if (confirm('You need to sign in to access ' + origHref.replace('.html','') + '.\n\nClick OK to go to the sign-in page, or Cancel to stay here.')) {
-                            window.location.href = 'login.html';
-                        }
-                    }
-                });
+                        window.location.href = 'signup.html';
+                    });
+                }
             });
-        }, 500);
+        }, 400);
+
+        // 5. Add mobile guest nav (replaces bottom-nav for guests on mobile)
+        var mobileNav = document.createElement('nav');
+        mobileNav.id = 'guestMobileNav';
+        mobileNav.style.cssText = [
+            'display:none','position:fixed','bottom:65px','left:0','right:0',
+            'background:white','border-top:1px solid #e5e7eb','z-index:399',
+            'box-shadow:0 -2px 10px rgba(0,0,0,0.06)'
+        ].join(';');
+        mobileNav.innerHTML = [
+            {href:'index.html', icon:'fas fa-home', label:'Home'},
+            {href:'about.html', icon:'fas fa-users', label:'About'},
+            {href:'contact.html', icon:'fas fa-envelope', label:'Contact'},
+            {href:'mall.html', icon:'fas fa-store', label:'Mall'},
+        ].map(function(l) {
+            var active = currentPage === l.href ? 'color:#1B5E20;' : 'color:#9ca3af;';
+            return '<a href="'+l.href+'" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;text-decoration:none;font-size:0.6rem;font-weight:600;gap:0.2rem;transition:color 0.2s;'+active+'">' +
+                '<i class="'+l.icon+'" style="font-size:1.1rem;"></i><span>'+l.label+'</span></a>';
+        }).join('');
+        document.body.appendChild(mobileNav);
+
+        function checkMobileGuest() {
+            var isMobile = window.innerWidth <= 640;
+            mobileNav.style.display = isMobile ? 'flex' : 'none';
+            if (isMobile) document.body.style.paddingBottom = '120px';
+            else document.body.style.paddingBottom = '65px';
+        }
+        checkMobileGuest();
+        window.addEventListener('resize', checkMobileGuest);
     }
 
     function initializeSidebar() {
