@@ -2378,21 +2378,29 @@ async function loadQuizzes() {
 }
 
 function openQuizFromData(q) {
+  // If this quiz has typed questions (Question Paper mode), open branded workspace
+  if(q.paper_questions) {
+    try {
+      var questions = typeof q.paper_questions === 'string' ? JSON.parse(q.paper_questions) : q.paper_questions;
+      if(Array.isArray(questions) && questions.length) {
+        openQuestionPaper(q, questions);
+        return;
+      }
+    } catch(e) {}
+  }
+
   // quiz_url is now a JSON array of links OR a plain URL string
   var url = '';
   try {
     var links = JSON.parse(q.quiz_url || '[]');
     if(Array.isArray(links) && links.length){
-      // Pick random link for anti-copy shuffle
       url = links[Math.floor(Math.random() * links.length)];
     } else if(typeof links === 'string' && links) {
       url = links;
     }
   } catch(e) {
-    // Plain URL string
     url = q.quiz_url || '';
   }
-  // Also check form_links field (legacy)
   if(!url) {
     try {
       var fl = JSON.parse(q.form_links || '[]');
@@ -2401,6 +2409,160 @@ function openQuizFromData(q) {
   }
   if(!url){ alert('No quiz link available for this quiz.'); return; }
   openQuiz(q.id, q.title, url, q.duration_mins||0, q.course||'', q.description||q.instructions||'');
+}
+
+// ── QUESTION PAPER BRANDED WORKSPACE ──────────────────────────
+function openQuestionPaper(quiz, questions) {
+  // Remove existing paper modal if any
+  var existing = document.getElementById('questionPaperModal');
+  if(existing) existing.remove();
+
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var studentName = profile.name || 'Student';
+  var studentIndex = profile.index_number || '';
+  var now = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  var totalMarks = questions.reduce(function(sum,q){ return sum + (parseInt(q.marks)||2); }, 0);
+
+  var questionsHtml = questions.map(function(q, i) {
+    var answerField = '';
+    if(q.type === 'mc') {
+      var opts = [q.optA||'', q.optB||'', q.optC||'', q.optD||''].filter(function(o){ return o; });
+      answerField = opts.map(function(opt, j) {
+        return '<label style="display:flex;align-items:flex-start;gap:0.6rem;padding:0.5rem;border:2px solid #e5e7eb;border-radius:10px;cursor:pointer;margin-bottom:0.4rem;transition:all 0.2s;" onmouseover="this.style.borderColor=\'#1B5E20\'" onmouseout="this.style.borderColor=\'#e5e7eb\'">' +
+          '<input type="radio" name="q'+i+'" value="'+['A','B','C','D'][j]+'" style="margin-top:0.15rem;accent-color:#1B5E20;flex-shrink:0;">' +
+          '<span style="font-size:0.9rem;"><strong style="color:#1B5E20;">'+['A','B','C','D'][j]+'.</strong> '+opt+'</span>' +
+          '</label>';
+      }).join('');
+    } else if(q.type === 'short') {
+      answerField = '<input type="text" id="ans-'+i+'" placeholder="Your answer..." style="width:100%;padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;" onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'">';
+    } else {
+      answerField = '<textarea id="ans-'+i+'" rows="4" placeholder="Write your answer here..." style="width:100%;padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;resize:vertical;" onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'"></textarea>';
+    }
+    return '<div style="margin-bottom:1.5rem;padding:1.2rem;background:white;border-radius:14px;border:1px solid #e8f0e8;box-shadow:0 2px 8px rgba(0,0,0,0.04);">' +
+      '<div style="display:flex;align-items:flex-start;gap:0.8rem;margin-bottom:0.8rem;">' +
+        '<span style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;font-weight:800;font-size:0.85rem;padding:0.3rem 0.7rem;border-radius:20px;white-space:nowrap;flex-shrink:0;">Q'+(i+1)+'</span>' +
+        '<div style="flex:1;">' +
+          '<div style="font-size:0.95rem;font-weight:600;color:#1e2a3e;line-height:1.5;">'+q.text+'</div>' +
+          '<div style="font-size:0.75rem;color:#6b7280;margin-top:0.2rem;font-weight:600;">['+q.marks+' mark'+(q.marks!=1?'s':'')+']</div>' +
+        '</div>' +
+      '</div>' +
+      answerField +
+    '</div>';
+  }).join('');
+
+  var modal = document.createElement('div');
+  modal.id = 'questionPaperModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;display:flex;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;backdrop-filter:blur(4px);';
+
+  modal.innerHTML =
+    '<div style="background:#f8fafc;border-radius:20px;width:100%;max-width:740px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.3);margin:auto;">' +
+
+      // GERAMA BRANDED HEADER
+      '<div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;padding:1.5rem 2rem;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">' +
+          '<div>' +
+            '<div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">UNIVERSITY OF ENERGY AND NATURAL RESOURCES · TEAM GERAMA</div>' +
+            '<div style="font-size:1.3rem;font-weight:800;margin-bottom:0.2rem;">'+quiz.title+'</div>' +
+            '<div style="font-size:0.85rem;opacity:0.8;">'+(quiz.course||'')+(quiz.course&&quiz.tutor?' · ':'')+''+(quiz.tutor||quiz.posted_by||'')+'</div>' +
+          '</div>' +
+          '<button onclick="document.getElementById(\'questionPaperModal\').remove()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>' +
+        '</div>' +
+        '<div style="display:flex;gap:1.5rem;margin-top:1rem;flex-wrap:wrap;">' +
+          '<div style="font-size:0.82rem;opacity:0.8;"><i class="fas fa-calendar" style="margin-right:0.3rem;"></i>'+now+'</div>' +
+          '<div style="font-size:0.82rem;opacity:0.8;"><i class="fas fa-star" style="margin-right:0.3rem;color:#FFC107;"></i>Total: '+totalMarks+' marks</div>' +
+          (quiz.duration_mins ? '<div style="font-size:0.82rem;opacity:0.8;"><i class="fas fa-clock" style="margin-right:0.3rem;"></i>'+quiz.duration_mins+' minutes</div>' : '')+
+          '<div style="font-size:0.82rem;opacity:0.8;"><i class="fas fa-list-ol" style="margin-right:0.3rem;"></i>'+questions.length+' question'+(questions.length!==1?'s':'')+' </div>' +
+        '</div>' +
+      '</div>' +
+
+      // STUDENT INFO BAR
+      '<div style="background:white;padding:1rem 2rem;border-bottom:1px solid #e5e7eb;display:flex;gap:2rem;flex-wrap:wrap;">' +
+        '<div><div style="font-size:0.7rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;">Student Name</div><div style="font-size:0.9rem;font-weight:600;color:#1e2a3e;">'+studentName+'</div></div>' +
+        (studentIndex?'<div><div style="font-size:0.7rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;">Index Number</div><div style="font-size:0.9rem;font-weight:600;color:#1e2a3e;">'+studentIndex+'</div></div>':'')+
+        (quiz.instructions?'<div style="flex:1;"><div style="font-size:0.7rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.2rem;">Instructions</div><div style="font-size:0.82rem;color:#374151;">'+quiz.instructions+'</div></div>':'')+
+      '</div>' +
+
+      // QUESTIONS
+      '<div style="padding:1.5rem 2rem;" id="paperQuestionsArea">' +
+        questionsHtml +
+      '</div>' +
+
+      // ACTION BUTTONS
+      '<div style="padding:1.2rem 2rem;background:white;border-top:1px solid #e5e7eb;display:flex;gap:0.8rem;flex-wrap:wrap;align-items:center;">' +
+        '<button onclick="submitQuestionPaper(\''+quiz.id+'\',\''+quiz.title.replace(/'/g,"\\'")+'\','+questions.length+')" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.75rem 1.8rem;border-radius:30px;font-size:0.92rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-paper-plane"></i> Submit Answers</button>' +
+        '<button onclick="downloadQuestionPaperPDF(\''+quiz.id+'\')" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.75rem 1.5rem;border-radius:30px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-file-pdf" style="color:#dc2626;"></i> Download as PDF</button>' +
+        '<button onclick="document.getElementById(\'questionPaperModal\').remove()" style="background:none;color:#6b7280;border:none;padding:0.75rem;border-radius:30px;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;">Close</button>' +
+        '<div id="paperSubmitStatus" style="font-size:0.85rem;font-weight:600;"></div>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+}
+
+async function submitQuestionPaper(qid, qtitle, numQ) {
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var email = profile.email || '';
+  var name = profile.name || 'Student';
+  var statusEl = document.getElementById('paperSubmitStatus');
+  if(statusEl){statusEl.textContent='Submitting...';statusEl.style.color='#6b7280';}
+
+  // Collect answers
+  var answers = [];
+  for(var i=0;i<numQ;i++){
+    var el = document.getElementById('ans-'+i);
+    var radioVal = document.querySelector('input[name="q'+i+'"]:checked');
+    var ans = el ? el.value : (radioVal ? radioVal.value : '');
+    answers.push(ans);
+  }
+
+  var sb = window.geramaSupabase;
+  if(!sb || !email){ if(statusEl){statusEl.textContent='❌ Not logged in.';statusEl.style.color='#dc2626';} return; }
+
+  try {
+    await sb.from('quiz_attempts').insert({
+      quiz_id: qid,
+      student_email: email,
+      student_name: name,
+      answers: JSON.stringify(answers),
+      completed_at: new Date().toISOString()
+    });
+    if(statusEl){statusEl.textContent='✅ Answers submitted! Your tutor will grade them.';statusEl.style.color='#059669';}
+    if(window.launchConfetti) window.launchConfetti();
+    setTimeout(function(){
+      var modal = document.getElementById('questionPaperModal');
+      if(modal) modal.remove();
+      loadQuizzes();
+    }, 2500);
+  } catch(e) {
+    if(statusEl){statusEl.textContent='❌ '+e.message;statusEl.style.color='#dc2626';}
+  }
+}
+
+function downloadQuestionPaperPDF(qid) {
+  // Open print dialog on the paper area styled for printing
+  var paperArea = document.getElementById('paperQuestionsArea');
+  var modal = document.getElementById('questionPaperModal');
+  if(!modal) return;
+  var header = modal.querySelector('div[style*="linear-gradient"]');
+  var studentBar = header ? header.nextElementSibling : null;
+
+  var win = window.open('','_blank');
+  win.document.write('<!DOCTYPE html><html><head><title>GERAMA Quiz</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">' +
+    '<style>body{font-family:Inter,sans-serif;margin:0;padding:2rem;color:#1e2a3e;} ' +
+    '.header{background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;padding:1.5rem 2rem;border-radius:12px;margin-bottom:1.5rem;} ' +
+    '.q-block{background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:1rem;margin-bottom:1rem;} ' +
+    '.q-num{background:#1B5E20;color:white;font-weight:800;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.8rem;margin-right:0.5rem;} ' +
+    '.answer-line{border-bottom:1px solid #ccc;height:2rem;margin:0.4rem 0;} ' +
+    '@media print{body{padding:1cm;} .no-print{display:none;}}</style></head><body>' +
+    (header ? header.outerHTML : '') +
+    (studentBar ? studentBar.outerHTML : '') +
+    (paperArea ? paperArea.innerHTML.replace(/textarea/g,'div').replace(/input/g,'div') : '') +
+    '<p style="font-size:0.75rem;color:#9ca3af;text-align:center;margin-top:2rem;border-top:1px solid #e5e7eb;padding-top:0.8rem;">GERAMA Academic Resources Centre · UENR · Generated '+new Date().toLocaleDateString('en-GB')+'</p>' +
+    '</body></html>');
+  win.document.close();
+  win.focus();
+  setTimeout(function(){ win.print(); }, 500);
 }
 
 function openQuiz(qid, title, url, durationMins, course, instructions) {

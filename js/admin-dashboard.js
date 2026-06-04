@@ -1110,16 +1110,41 @@ async function publishQuiz(){
   var desc     = (document.getElementById('qzDesc')||{}).value||'';
   title = title.trim(); course = course.trim(); desc = desc.trim();
 
-  // Collect up to 3 links
-  var links = [];
-  ['qzUrl1','qzUrl2','qzUrl3'].forEach(function(id){
-    var el = document.getElementById(id);
-    if(el && el.value.trim()) links.push(el.value.trim());
-  });
-
   if(!title){ window.showStatus('quizStatus','Quiz title is required.','err'); return; }
-  if(!links.length){ window.showStatus('quizStatus','At least one quiz link is required.','err'); return; }
   if(!deadline){ window.showStatus('quizStatus','Please set a deadline.','err'); return; }
+
+  // Detect mode: link or question paper
+  var isPaper = document.getElementById('qzPaperSection') && document.getElementById('qzPaperSection').style.display !== 'none';
+
+  var links = [];
+  var paperQuestions = null;
+
+  if(isPaper){
+    // Collect typed questions
+    var blocks = document.querySelectorAll('.qz-question-block');
+    var qs = [];
+    blocks.forEach(function(block){
+      var text = (block.querySelector('.qz-q-text')||{}).value||'';
+      var type = (block.querySelector('.qz-q-type')||{}).value||'text';
+      var marks = parseInt((block.querySelector('.qz-q-marks')||{}).value)||2;
+      if(!text.trim()) return;
+      var q = {text:text.trim(), type:type, marks:marks};
+      if(type==='mc'){
+        var opts = block.querySelectorAll('.mc-options input');
+        q.optA = opts[0]?opts[0].value:''; q.optB = opts[1]?opts[1].value:'';
+        q.optC = opts[2]?opts[2].value:''; q.optD = opts[3]?opts[3].value:'';
+      }
+      qs.push(q);
+    });
+    if(!qs.length){ window.showStatus('quizStatus','Please add at least one question.','err'); return; }
+    paperQuestions = JSON.stringify(qs);
+  } else {
+    ['qzUrl1','qzUrl2','qzUrl3'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el && el.value.trim()) links.push(el.value.trim());
+    });
+    if(!links.length){ window.showStatus('quizStatus','At least one quiz link is required.','err'); return; }
+  }
 
   var btn = document.getElementById('publishQuizBtn');
   btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Publishing...';
@@ -1128,18 +1153,16 @@ async function publishQuiz(){
     var sb = window.geramaSupabase;
     if(!sb) throw new Error('Supabase not connected. Check your connection.');
 
-    // Store links as JSON array in quiz_url; first link also in quiz_url for backward compat
-    var linksJson = JSON.stringify(links);
-
     var record = {
       title:        title,
       course:       course || null,
       tutor:        tutor  || null,
       duration_mins: duration || null,
       points:       points  || null,
-      quiz_url:     linksJson,          // JSON array of all links
+      quiz_url:     links.length ? JSON.stringify(links) : null,
+      paper_questions: paperQuestions,
       deadline:     new Date(deadline).toISOString(),
-      description:  desc   || null,     // use 'description' — matches Supabase schema
+      description:  desc   || null,
       status:       'active',
       created_at:   new Date().toISOString()
     };
@@ -1147,13 +1170,22 @@ async function publishQuiz(){
     var {error} = await sb.from('quizzes').insert(record);
     if(error) throw new Error(error.message + (error.details ? ' — '+error.details : ''));
 
-    window.logActivity('Published quiz: '+title+(links.length>1?' ('+links.length+' versions)':''));
-    window.showStatus('quizStatus','✅ Quiz published! Students can now take it on the Classroom page.','ok');
+    var mode = isPaper ? 'Question Paper ('+JSON.parse(paperQuestions).length+' questions)' : 'Link'+(links.length>1?' ('+links.length+' versions)':'');
+    window.logActivity('Published quiz: '+title+' — '+mode);
+    window.showStatus('quizStatus','✅ Quiz published! Students can now '+(isPaper?'open the question paper':'take it')+' on the Classroom page.','ok');
 
     // Clear form
     ['qzTitle','qzCourse','qzDuration','qzPoints','qzTutor','qzDeadline','qzDesc','qzUrl1','qzUrl2','qzUrl3'].forEach(function(id){
       var el = document.getElementById(id); if(el) el.value = id==='qzDuration'?'0':'';
     });
+    // Clear question paper blocks
+    var container = document.getElementById('qzQuestionsContainer');
+    if(container){
+      var blocks2 = container.querySelectorAll('.qz-question-block');
+      for(var k=1;k<blocks2.length;k++) blocks2[k].remove();
+      var firstTA = container.querySelector('textarea');
+      if(firstTA) firstTA.value='';
+    }
     window.loadQzList();
   }catch(err){
     window.showStatus('quizStatus','❌ '+err.message,'err');
