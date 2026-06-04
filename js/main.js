@@ -39,8 +39,11 @@ window.showStatus = window.showStatus || function(id, msg, type) {
 
 (function() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    // Public pages — no auth required
+    const publicPages = ['index.html', 'about.html', 'contact.html', 'login.html', 'signup.html', 'reset-code.html', 'admin-dashboard.html', ''];
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html' || currentPage === 'reset-code.html' || currentPage === 'admin-dashboard.html';
-    
+    const isPublicPage = publicPages.indexOf(currentPage) !== -1;
+
     if (!isAuthPage) {
         // Wait for Supabase to be ready (it loads async via CDN)
         function checkAuth(attempts) {
@@ -49,23 +52,83 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     var session = result && result.data && result.data.session;
                     if (!session) {
                         sessionStorage.removeItem('gerama_loggedIn');
-                        window.location.href = 'login.html';
+                        if (isPublicPage) {
+                            // Public page — show guest UI instead of redirecting
+                            showGuestUI();
+                        } else {
+                            window.location.href = 'login.html';
+                        }
                         return;
                     }
                     initializeSidebar();
                     updateSidebarUI();
                 }).catch(function() {
-                    window.location.href = 'login.html';
+                    if (isPublicPage) {
+                        showGuestUI();
+                    } else {
+                        window.location.href = 'login.html';
+                    }
                 });
             } else if (attempts > 0) {
-                // Retry up to 20 times (2 seconds total)
                 setTimeout(function() { checkAuth(attempts - 1); }, 100);
             } else {
-                // Supabase never loaded — redirect to login
-                window.location.href = 'login.html';
+                if (isPublicPage) {
+                    showGuestUI();
+                } else {
+                    window.location.href = 'login.html';
+                }
             }
         }
         checkAuth(20);
+    }
+
+    // Show guest navigation for non-logged-in visitors on public pages
+    function showGuestUI() {
+        // Inject a compact guest header bar if not already present
+        var existing = document.getElementById('guestBar');
+        if (existing) return;
+
+        var bar = document.createElement('div');
+        bar.id = 'guestBar';
+        bar.style.cssText = [
+            'position:fixed', 'bottom:0', 'left:0', 'right:0',
+            'background:linear-gradient(135deg,#0a2f1f,#1B5E20)',
+            'color:white', 'z-index:9000',
+            'display:flex', 'align-items:center', 'justify-content:space-between',
+            'padding:0.8rem 5%', 'box-shadow:0 -4px 20px rgba(0,0,0,0.25)',
+            'flex-wrap:wrap', 'gap:0.6rem'
+        ].join(';');
+
+        bar.innerHTML = '<div style="display:flex;align-items:center;gap:0.8rem;">' +
+            '<span style="font-size:1.4rem;">🎓</span>' +
+            '<div>' +
+                '<div style="font-size:0.85rem;font-weight:700;line-height:1.2;">Join GERAMA — Free Access to All Resources</div>' +
+                '<div style="font-size:0.75rem;opacity:0.8;">Classes · Assignments · Attendance · Q&A · Urban Mall</div>' +
+            '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:0.5rem;flex-shrink:0;">' +
+            '<a href="login.html" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);padding:0.5rem 1.1rem;border-radius:20px;font-size:0.85rem;font-weight:600;text-decoration:none;transition:all 0.2s;font-family:\'Inter\',sans-serif;">Sign In</a>' +
+            '<a href="signup.html" style="background:#FFC107;color:#0a2f1f;padding:0.5rem 1.2rem;border-radius:20px;font-size:0.85rem;font-weight:800;text-decoration:none;font-family:\'Inter\',sans-serif;box-shadow:0 2px 8px rgba(255,193,7,0.4);">Join Free →</a>' +
+        '</div>';
+
+        document.body.appendChild(bar);
+        // Add bottom padding so content isn't hidden behind the bar
+        document.body.style.paddingBottom = '70px';
+
+        // Also update any "Explore Resources" links to point to login/signup instead
+        setTimeout(function() {
+            document.querySelectorAll('a[href="resources.html"], a[href="classroom.html"]').forEach(function(link) {
+                var origHref = link.getAttribute('href');
+                link.addEventListener('click', function(e) {
+                    if (!window._geramaLoggedIn) {
+                        e.preventDefault();
+                        if (confirm('You need to sign in to access ' + origHref.replace('.html','') + '.\n\nClick OK to go to the sign-in page, or Cancel to stay here.')) {
+                            window.location.href = 'login.html';
+                        }
+                    }
+                });
+            });
+        }, 500);
     }
 
     function initializeSidebar() {

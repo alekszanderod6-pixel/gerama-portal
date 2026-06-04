@@ -437,7 +437,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <h1 class="hero-title">Empowering <span>Engineering Excellence</span> at UENR</h1>
     <p class="hero-subtitle">Access comprehensive lecture slides, textbooks, past questions and video tutorials — curated by students, for students.</p>
     <div class="hero-actions">
-      <a href="resources.html" class="btn-hero-primary"><i class="fas fa-book-open"></i> Explore Resources</a>
+      <a href="signup.html" class="btn-hero-primary" id="heroCtaPrimary"><i class="fas fa-rocket"></i> Get Started Free</a>
       <a href="about.html" class="btn-hero-secondary"><i class="fas fa-users"></i> Meet the Team</a>
     </div>
   </div>
@@ -456,6 +456,25 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     </div>
   </div>
 </div>
+
+<!-- GUEST WELCOME SECTION (shown only to non-logged-in visitors) -->
+<section id="guestWelcomeSection" style="display:none;background:linear-gradient(135deg,#f0fdf4,#e8f5e9);padding:2rem 5%;border-bottom:1px solid #c8e6c9;">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;">
+    <div>
+      <h2 style="font-size:1.4rem;font-weight:800;color:#1B5E20;margin-bottom:0.5rem;">👋 Welcome to GERAMA!</h2>
+      <p style="color:#374151;font-size:0.95rem;max-width:500px;line-height:1.6;">Create a free account to access study materials, join live classes, mark attendance, submit assignments, and more — all in one place.</p>
+      <div style="display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;color:#1B5E20;font-weight:600;"><i class="fas fa-check-circle"></i> Free forever</div>
+        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;color:#1B5E20;font-weight:600;"><i class="fas fa-check-circle"></i> 1000+ study materials</div>
+        <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;color:#1B5E20;font-weight:600;"><i class="fas fa-check-circle"></i> Live classes & attendance</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:0.8rem;flex-shrink:0;flex-wrap:wrap;">
+      <a href="signup.html" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;padding:0.8rem 1.8rem;border-radius:50px;font-weight:800;font-size:0.95rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;box-shadow:0 4px 16px rgba(27,94,32,0.3);"><i class="fas fa-user-plus"></i> Create Free Account</a>
+      <a href="login.html" style="background:white;color:#1B5E20;border:2px solid #1B5E20;padding:0.8rem 1.5rem;border-radius:50px;font-weight:700;font-size:0.95rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;"><i class="fas fa-sign-in-alt"></i> Sign In</a>
+    </div>
+  </div>
+</section>
 
 <!-- GERAMA URBAN MALL BANNER -->
 <section style="background:linear-gradient(135deg,#0a2f1f 0%,#1B5E20 60%,#2E7D32 100%);padding:2rem 5%;position:relative;overflow:hidden;">
@@ -599,6 +618,16 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
       <input type="text" id="potwRole" placeholder="Their role in GERAMA (e.g. Lead Tutor)" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;">
       <textarea id="potwBio" rows="4" placeholder="Describe their impact and contribution *" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;"></textarea>
       <input type="text" id="potwNomBy" placeholder="Your name (nominator)" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;">
+      <div>
+        <label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.4rem;">Photo of the person (optional)</label>
+        <div onclick="document.getElementById('potwNomPhoto').click()" style="border:2.5px dashed #c8e6c9;border-radius:12px;padding:1rem;text-align:center;cursor:pointer;background:#f9fdf9;transition:all 0.2s;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background='#f9fdf9'">
+          <i class="fas fa-camera" style="font-size:1.5rem;color:#1B5E20;display:block;margin-bottom:0.3rem;"></i>
+          <p style="font-size:0.82rem;color:#555;margin:0;">Click to upload a photo</p>
+          <p id="potwNomPhotoChosen" style="font-size:0.78rem;color:#1B5E20;font-weight:600;margin-top:0.3rem;"></p>
+        </div>
+        <input type="file" id="potwNomPhoto" accept="image/*" style="display:none;" onchange="previewPotwNomPhoto(this)">
+        <img id="potwNomPhotoPreview" style="display:none;width:70px;height:70px;border-radius:50%;object-fit:cover;margin-top:0.5rem;border:3px solid #FFC107;" alt="">
+      </div>
       <div id="potwStatus" style="display:none;padding:0.7rem 1rem;border-radius:10px;font-size:0.87rem;font-weight:500;"></div>
       <div style="display:flex;gap:0.8rem;">
         <button onclick="submitPotwNomination()" style="flex:1;background:var(--primary);color:white;border:none;padding:0.75rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;">Submit Nomination</button>
@@ -698,6 +727,69 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 
 <script src="js/main.js"></script>
 <script>
+// ── GUEST/LOGGED-IN STATE DETECTION ──────────────────────────────
+(function() {
+  // Check auth state and update UI accordingly
+  function applyGuestUI(isGuest) {
+    var guestSection = document.getElementById('guestWelcomeSection');
+    var heroBtn = document.getElementById('heroCtaPrimary');
+
+    if (isGuest) {
+      // Show the welcome/signup section
+      if (guestSection) guestSection.style.display = 'block';
+      // Update hero CTA
+      if (heroBtn) { heroBtn.innerHTML = '<i class="fas fa-rocket"></i> Get Started Free'; heroBtn.href = 'signup.html'; }
+    } else {
+      // Logged in — hide guest section, restore resources link
+      window._geramaLoggedIn = true;
+      if (guestSection) guestSection.style.display = 'none';
+      if (heroBtn) { heroBtn.innerHTML = '<i class="fas fa-book-open"></i> Explore Resources'; heroBtn.href = 'resources.html'; }
+    }
+  }
+
+  function detectAuth() {
+    if (typeof window.geramaSupabase === 'undefined') {
+      setTimeout(detectAuth, 300); return;
+    }
+    window.geramaSupabase.auth.getSession().then(function(r) {
+      var loggedIn = r && r.data && r.data.session;
+      applyGuestUI(!loggedIn);
+    }).catch(function() { applyGuestUI(true); });
+  }
+  detectAuth();
+})();
+
+// ── GUEST UI — show/hide welcome section based on login state ──
+(function() {
+  function applyGuestState(isGuest) {
+    var guestSection = document.getElementById('guestWelcomeSection');
+    var heroCta = document.getElementById('heroCtaPrimary');
+    if (isGuest) {
+      // Show the welcome CTA section
+      if (guestSection) guestSection.style.display = 'block';
+      // Hero button already points to signup.html
+    } else {
+      // Logged in — hide guest section, update hero button
+      if (guestSection) guestSection.style.display = 'none';
+      if (heroCta) { heroCta.href = 'resources.html'; heroCta.innerHTML = '<i class="fas fa-book-open"></i> Explore Resources'; }
+      window._geramaLoggedIn = true;
+    }
+  }
+  // Wait for Supabase and check session
+  function checkLoginState(attempts) {
+    if (typeof window.geramaSupabase !== 'undefined') {
+      window.geramaSupabase.auth.getSession().then(function(r) {
+        applyGuestState(!r.data || !r.data.session);
+      }).catch(function(){ applyGuestState(true); });
+    } else if (attempts > 0) {
+      setTimeout(function(){ checkLoginState(attempts-1); }, 150);
+    } else {
+      applyGuestState(true);
+    }
+  }
+  checkLoginState(15);
+})();
+
 function openAnnLightbox(src) {
   var lb = document.getElementById('annLightbox');
   var img = document.getElementById('annLightboxImg');
@@ -946,27 +1038,70 @@ function togglePotwBio(id, btn) {
   }
 }
 
-function submitPotwNomination() {
+function previewPotwNomPhoto(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  document.getElementById('potwNomPhotoChosen').textContent = '✅ ' + file.name;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var prev = document.getElementById('potwNomPhotoPreview');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitPotwNomination() {
   var name   = document.getElementById('potwName').value.trim();
   var role   = document.getElementById('potwRole').value.trim();
   var bio    = document.getElementById('potwBio').value.trim();
   var nomBy  = document.getElementById('potwNomBy').value.trim();
+  var photoInput = document.getElementById('potwNomPhoto');
+  var photoFile  = photoInput && photoInput.files && photoInput.files[0] ? photoInput.files[0] : null;
   var status = document.getElementById('potwStatus');
-  if(!name || !bio){ status.style.display='block'; status.style.background='#fee2e2'; status.style.color='#991b1b'; status.textContent='Please fill in the name and description.'; return; }
+
+  if(!name || !bio){
+    status.style.display='block'; status.style.background='#fee2e2'; status.style.color='#991b1b';
+    status.textContent='Please fill in the name and description.'; return;
+  }
   var sb = window.geramaSupabase;
-  if(!sb){ status.style.display='block'; status.style.background='#fee2e2'; status.style.color='#991b1b'; status.textContent='Not connected. Please try again.'; return; }
-  status.style.display='block'; status.style.background='#dbeafe'; status.style.color='#1e40af'; status.textContent='Submitting...';
+  if(!sb){
+    status.style.display='block'; status.style.background='#fee2e2'; status.style.color='#991b1b';
+    status.textContent='Not connected. Please try again.'; return;
+  }
+
+  status.style.display='block'; status.style.background='#dbeafe'; status.style.color='#1e40af';
+  status.textContent = photoFile ? 'Uploading photo...' : 'Submitting...';
+
+  // Upload photo if provided
+  var photoUrl = null;
+  if (photoFile) {
+    try {
+      var ext = photoFile.name.split('.').pop().toLowerCase();
+      var path = 'potw-nominations/' + Date.now() + '.' + ext;
+      var up = await sb.storage.from('gerama-materials').upload(path, photoFile, {upsert:true, contentType:photoFile.type});
+      if (!up.error) {
+        photoUrl = sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
+        status.textContent = 'Saving nomination...';
+      }
+    } catch(e) { /* continue without photo */ }
+  }
+
   sb.from('potw_nominations').insert({
     name: name, role: role||null, bio: bio,
-    nominated_by: nomBy||null, status: 'pending',
-    created_at: new Date().toISOString()
+    nominated_by: nomBy||null, photo_url: photoUrl||null,
+    status: 'pending', created_at: new Date().toISOString()
   }).then(function(res){
     if(res.error){ status.style.background='#fee2e2'; status.style.color='#991b1b'; status.textContent='Error: '+res.error.message; return; }
     status.style.background='#d1fae5'; status.style.color='#065f46';
-    status.textContent='✅ Nomination submitted! The admin will review it.';
+    status.textContent='✅ Nomination submitted! The admin will review it soon.';
     setTimeout(function(){
       document.getElementById('potwModal').classList.remove('open');
       ['potwName','potwRole','potwBio','potwNomBy'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+      document.getElementById('potwNomPhotoChosen').textContent='';
+      var prev = document.getElementById('potwNomPhotoPreview');
+      if(prev){ prev.style.display='none'; prev.src=''; }
+      if(photoInput) photoInput.value='';
       status.style.display='none';
     }, 2500);
   }).catch(function(e){ status.style.background='#fee2e2'; status.style.color='#991b1b'; status.textContent='Error: '+e.message; });
