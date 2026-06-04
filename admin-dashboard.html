@@ -146,6 +146,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="users"><i class="fas fa-users"></i> Registered Users</div>
     <div class="nav-item" data-panel="potw"><i class="fas fa-star"></i> Personality of Week</div>
     <div class="nav-item" data-panel="reels"><i class="fas fa-film"></i> Manage Reels</div>
+    <div class="nav-item" data-panel="adminprofiles"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> Admin Profiles</div>
     <div class="nav-item" data-panel="mall"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</div>
     <div class="nav-item" data-panel="settings"><i class="fas fa-cog"></i> Settings</div>
   </nav>
@@ -1042,6 +1043,41 @@ tr:hover td{background:#fafcfa;}
   })();
   </script>
 
+  <!-- ═══════════════════════════════════════
+       ADMIN PROFILES PANEL
+  ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-adminprofiles">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> My Admin Profile</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Set your identity so other admins know who made changes. Visible to all admin panel users.</p>
+      <div class="form-grid">
+        <div class="form-field"><label>Your Name *</label><input type="text" id="apName" placeholder="e.g. Alexander Dwumaah"></div>
+        <div class="form-field"><label>Role / Title</label><input type="text" id="apRole" placeholder="e.g. Lead Admin · Developer"></div>
+        <div class="form-field"><label>Email</label><input type="email" id="apEmail" placeholder="your@email.com"></div>
+        <div class="form-field"><label>WhatsApp</label><input type="tel" id="apPhone" placeholder="0551234567"></div>
+        <div class="form-field full">
+          <label>Profile Photo</label>
+          <div class="drop-zone" style="padding:0.8rem;cursor:pointer;" onclick="document.getElementById('apPhoto').click()">
+            <i class="fas fa-camera"></i><p>Click to upload photo</p>
+            <p class="file-chosen" id="apPhotoChosen"></p>
+          </div>
+          <input type="file" id="apPhoto" accept="image/*" style="display:none;" onchange="previewApPhoto(this)">
+          <img id="apPhotoPreview" style="display:none;width:80px;height:80px;border-radius:50%;object-fit:cover;margin-top:0.5rem;border:3px solid #a78bfa;" alt="">
+        </div>
+        <div class="form-field full"><label>Short Bio</label><textarea id="apBio" rows="2" placeholder="e.g. GERAMA founder, electrical engineering student at UENR."></textarea></div>
+      </div>
+      <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="saveAdminProfile()"><i class="fas fa-save"></i> Save My Profile</button>
+        <button class="btn-gold" onclick="loadAdminProfiles()" style="padding:0.6rem 1.2rem;font-size:0.88rem;"><i class="fas fa-users"></i> View All Admins</button>
+      </div>
+      <div class="status-msg" id="apStatus"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-users"></i> All Admin Profiles</div>
+      <div id="adminProfilesList"><p style="color:#9ca3af;font-size:0.88rem;">Click "View All Admins" to load.</p></div>
+    </div>
+  </div>
+
   <div class="panel" id="panel-settings">
     <div class="card">
       <div class="card-title"><i class="fas fa-cog"></i> Settings</div>
@@ -1286,8 +1322,15 @@ tr:hover td{background:#fafcfa;}
   <div class="panel" id="panel-quizzes">
     <div class="card">
       <div class="card-title"><i class="fas fa-plus-circle"></i> Post a New Quiz</div>
+
+      <!-- QUIZ TYPE SELECTOR -->
+      <div style="display:flex;gap:0.6rem;margin-bottom:1.2rem;flex-wrap:wrap;">
+        <button id="qzTypeLink" onclick="setQzType('link',this)" style="flex:1;padding:0.6rem 1rem;border-radius:10px;border:2px solid #1B5E20;background:#1B5E20;color:white;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.4rem;"><i class="fas fa-link"></i> Link / URL</button>
+        <button id="qzTypePaper" onclick="setQzType('paper',this)" style="flex:1;padding:0.6rem 1rem;border-radius:10px;border:2px solid #e5e7eb;background:white;color:#374151;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.4rem;"><i class="fas fa-file-alt"></i> Question Paper</button>
+      </div>
+
       <div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#5b21b6;line-height:1.6;">
-        <strong><i class="fas fa-random"></i> Anti-copy shuffle:</strong> Add up to 3 different quiz links (Google Forms, Testmoz, Kahoot, etc.). Each student gets a <strong>random</strong> one when they tap "Take Quiz" — preventing copying.
+        <strong><i class="fas fa-random"></i> Anti-copy shuffle:</strong> Add up to 3 different quiz links. Each student gets a <strong>random</strong> one — preventing copying.
       </div>
       <div class="form-grid">
         <div class="form-field full"><label>Quiz Title *</label><input type="text" id="qzTitle" placeholder="e.g. Applied Electricity Mid-Semester Quiz"></div>
@@ -1296,23 +1339,86 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field"><label>Points / Marks</label><input type="text" id="qzPoints" placeholder="e.g. 20"></div>
         <div class="form-field"><label>Tutor / Posted By</label><input type="text" id="qzTutor" placeholder="e.g. Edem H.K Prince"></div>
         <div class="form-field"><label>Deadline *</label><input type="datetime-local" id="qzDeadline"></div>
-        <div class="form-field full">
-          <label>Quiz Link 1 * <span style="color:#6b7280;font-weight:400;">(Google Forms, Testmoz, Kahoot, any URL)</span></label>
-          <input type="url" id="qzUrl1" placeholder="https://testmoz.com/q/... or https://forms.gle/...">
-        </div>
-        <div class="form-field full">
-          <label>Quiz Link 2 <span style="color:#6b7280;font-weight:400;">(optional — different version for shuffle)</span></label>
-          <input type="url" id="qzUrl2" placeholder="https://forms.gle/... (optional)">
-        </div>
-        <div class="form-field full">
-          <label>Quiz Link 3 <span style="color:#6b7280;font-weight:400;">(optional)</span></label>
-          <input type="url" id="qzUrl3" placeholder="https://kahoot.it/... (optional)">
-        </div>
         <div class="form-field full"><label>Description / Instructions</label><textarea id="qzDesc" rows="2" placeholder="e.g. Answer all questions. No calculators. 30 minutes."></textarea></div>
       </div>
+
+      <!-- LINK MODE -->
+      <div id="qzLinkSection">
+        <div class="form-grid">
+          <div class="form-field full">
+            <label>Quiz Link 1 * <span style="color:#6b7280;font-weight:400;">(Google Forms, Testmoz, Kahoot, any URL)</span></label>
+            <input type="url" id="qzUrl1" placeholder="https://testmoz.com/q/... or https://forms.gle/...">
+          </div>
+          <div class="form-field full">
+            <label>Quiz Link 2 <span style="color:#6b7280;font-weight:400;">(optional — different version for shuffle)</span></label>
+            <input type="url" id="qzUrl2" placeholder="https://forms.gle/... (optional)">
+          </div>
+          <div class="form-field full">
+            <label>Quiz Link 3 <span style="color:#6b7280;font-weight:400;">(optional)</span></label>
+            <input type="url" id="qzUrl3" placeholder="https://kahoot.it/... (optional)">
+          </div>
+        </div>
+      </div>
+
+      <!-- QUESTION PAPER MODE -->
+      <div id="qzPaperSection" style="display:none;">
+        <div style="background:#f0fdf4;border:1px solid #c8e6c9;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;font-size:0.85rem;color:#1B5E20;">
+          <strong><i class="fas fa-file-alt"></i> Question Paper Mode:</strong> Type your questions below. Students will see them in a beautiful GERAMA-branded workspace, type their answers, and can download as a PDF.
+        </div>
+        <div id="qzQuestionsContainer">
+          <div class="qz-question-block" data-q="1" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:1rem;margin-bottom:0.8rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">
+              <span style="background:#1B5E20;color:white;font-weight:800;font-size:0.82rem;padding:0.2rem 0.6rem;border-radius:20px;">Q1</span>
+              <span style="font-size:0.82rem;color:#6b7280;">Question 1</span>
+              <button onclick="removeQuestion(this)" style="margin-left:auto;background:#fee2e2;color:#dc2626;border:none;padding:0.2rem 0.5rem;border-radius:8px;cursor:pointer;font-size:0.75rem;font-family:'Inter',sans-serif;">Remove</button>
+            </div>
+            <textarea class="qz-q-text" placeholder="Type your question here..." rows="2" style="width:100%;border:2px solid #e5e7eb;border-radius:8px;padding:0.6rem;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;align-items:center;flex-wrap:wrap;">
+              <select class="qz-q-type" style="padding:0.3rem 0.6rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.8rem;font-family:'Inter',sans-serif;outline:none;" onchange="toggleMCOptions(this)">
+                <option value="text">Long Answer</option>
+                <option value="short">Short Answer</option>
+                <option value="mc">Multiple Choice</option>
+              </select>
+              <input type="number" class="qz-q-marks" placeholder="Marks" min="1" value="2" style="width:80px;padding:0.3rem 0.6rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.8rem;font-family:'Inter',sans-serif;outline:none;">
+              <span style="font-size:0.75rem;color:#9ca3af;">marks for this question</span>
+            </div>
+            <div class="mc-options" style="display:none;margin-top:0.5rem;">
+              <input type="text" placeholder="Option A" style="width:100%;margin-bottom:0.3rem;padding:0.4rem 0.7rem;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;">
+              <input type="text" placeholder="Option B" style="width:100%;margin-bottom:0.3rem;padding:0.4rem 0.7rem;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;">
+              <input type="text" placeholder="Option C" style="width:100%;margin-bottom:0.3rem;padding:0.4rem 0.7rem;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;">
+              <input type="text" placeholder="Option D" style="width:100%;padding:0.4rem 0.7rem;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;">
+            </div>
+          </div>
+        </div>
+        <button onclick="addQuestion()" style="background:#f0fdf4;color:#1B5E20;border:2px dashed #c8e6c9;padding:0.6rem 1.2rem;border-radius:10px;cursor:pointer;font-size:0.85rem;font-weight:600;font-family:'Inter',sans-serif;width:100%;margin-top:0.2rem;"><i class="fas fa-plus"></i> Add Another Question</button>
+      </div>
+
       <button class="btn-primary" id="publishQuizBtn" style="margin-top:1rem;"><i class="fas fa-paper-plane"></i> Publish Quiz Live</button>
       <div class="status-msg" id="quizStatus"></div>
     </div>
+
+    <!-- SCORE IMPORT -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-file-import" style="color:#059669;"></i> Import Quiz Scores from External Platform</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Done a quiz on Testmoz, Google Forms, or any platform? Paste the scores as CSV below — the system will auto-match students by email and update their grades.</p>
+      <div style="background:#f0fdf4;border:1px solid #c8e6c9;border-radius:12px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.83rem;color:#1B5E20;">
+        <strong>📋 Format required:</strong> CSV with columns — <code style="background:white;padding:0.1rem 0.3rem;border-radius:4px;">email,score</code> — one student per row.<br>
+        <strong>Example:</strong> <code style="background:white;padding:0.1rem 0.3rem;border-radius:4px;">student@gmail.com,18</code><br>
+        Export from Testmoz: Results → Export CSV. Google Sheets: File → Download → CSV.
+      </div>
+      <div class="form-grid">
+        <div class="form-field full"><label>Select Quiz to Import Scores For</label>
+          <select id="importQzSelect"><option value="">Loading quizzes...</option></select>
+        </div>
+        <div class="form-field full">
+          <label>Paste CSV Data (email,score — one per line)</label>
+          <textarea id="importCsvData" rows="8" placeholder="email,score&#10;john@gmail.com,18&#10;amara@gmail.com,20&#10;kofi@gmail.com,15" style="font-family:monospace;font-size:0.85rem;"></textarea>
+        </div>
+      </div>
+      <button onclick="importScoresFromCSV()" style="background:linear-gradient(135deg,#059669,#10b981);color:white;border:none;padding:0.7rem 1.5rem;border-radius:30px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-top:0.5rem;"><i class="fas fa-file-import"></i> Import Scores</button>
+      <div class="status-msg" id="importStatus"></div>
+    </div>
+
     <div class="card">
       <div class="card-title"><i class="fas fa-list"></i> Posted Quizzes</div>
       <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">
@@ -1322,11 +1428,47 @@ tr:hover td{background:#fafcfa;}
       <div id="quizzesAdminList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
     <div class="card">
-      <div class="card-title"><i class="fas fa-users"></i> Quiz Attempts</div>
-      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Students who have completed quizzes.</p>
+      <div class="card-title"><i class="fas fa-users"></i> Quiz Attempts & Scores</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Students who have completed quizzes and their scores.</p>
       <div id="qzAttemptsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
   </div>
+
+  <!-- ═══ ADMIN PROFILES PANEL ═══ -->
+  <div class="panel" id="panel-adminprofiles">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> My Admin Profile</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Set your identity as an admin. All admins logged in can see each other's profiles.</p>
+      <div class="form-grid">
+        <div class="form-field"><label>Display Name *</label><input type="text" id="apName" placeholder="e.g. Alexander Dwumaah"></div>
+        <div class="form-field"><label>Role / Title *</label><input type="text" id="apRole" placeholder="e.g. Lead Coordinator"></div>
+        <div class="form-field"><label>Email</label><input type="email" id="apEmail" placeholder="gerama.uenr@gmail.com"></div>
+        <div class="form-field"><label>Phone</label><input type="tel" id="apPhone" placeholder="0555749497"></div>
+        <div class="form-field full"><label>Bio / Description</label><textarea id="apBio" rows="2" placeholder="Brief description of your role in GERAMA..."></textarea></div>
+        <div class="form-field full">
+          <label>Profile Photo</label>
+          <div class="drop-zone" style="padding:1rem;" onclick="document.getElementById('apPhotoFile').click()">
+            <i class="fas fa-camera"></i><p>Click to upload photo</p>
+            <p class="file-chosen" id="apPhotoChosen"></p>
+          </div>
+          <input type="file" id="apPhotoFile" accept="image/*" style="display:none;" onchange="previewAdminPhoto(this)">
+          <img id="apPhotoPreview" style="display:none;width:80px;height:80px;border-radius:50%;object-fit:cover;margin-top:0.5rem;border:3px solid #a78bfa;" alt="">
+        </div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:0.8rem;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="saveAdminProfile()"><i class="fas fa-save"></i> Save My Profile</button>
+        <button class="btn-gold" onclick="loadAdminProfiles()"><i class="fas fa-sync-alt"></i> Refresh All Profiles</button>
+      </div>
+      <div class="status-msg" id="apStatus"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-users-cog"></i> All Admin Profiles</div>
+      <div id="adminProfilesList"><p style="color:#9ca3af;text-align:center;padding:1.5rem;">Loading profiles...</p></div>
+    </div>
+  </div>
+
+  <!-- ═══ SCORE IMPORT PANEL (inside quizzes — accessed via button) ═══ -->
+  <!-- Injected dynamically -->
 
 </div><!-- end dash-main -->
 </div><!-- end flex wrapper -->

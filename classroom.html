@@ -2230,7 +2230,7 @@ async function loadQuizzes() {
 
   // Load this student's attempts
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
-  var myEmail = profile.email || localStorage.getItem('gerama_uid') || '';
+  var myEmail = (profile.email || localStorage.getItem('gerama_uid') || '').toLowerCase().trim();
   var doneIds = {};
   if(myEmail){
     var attRes = await sb.from('quiz_attempts').select('quiz_id').eq('student_email', myEmail);
@@ -2239,6 +2239,15 @@ async function loadQuizzes() {
   // Also check localStorage fallback
   var localDone = JSON.parse(localStorage.getItem('gerama_quizzes_done')||'{}');
   Object.keys(localDone).forEach(function(id){ doneIds[id] = true; });
+
+  // Load student's quiz grades from student_grades table
+  var gradeMap = {};
+  if(myEmail){
+    try{
+      var grRes = await sb.from('student_grades').select('*').eq('student_email', myEmail);
+      (grRes.data||[]).forEach(function(g){ gradeMap[g.assignment_title] = g; });
+    }catch(e){}
+  }
 
   var now = Date.now();
   var openCount = 0, soonCount = 0, doneCount = 0;
@@ -2292,11 +2301,25 @@ async function loadQuizzes() {
       ? '<span class="quiz-done-badge"><i class="fas fa-check-circle"></i> Completed</span>'
       : (isClosed||isPast)
         ? '<button class="btn-take-quiz" disabled style="opacity:0.5;cursor:not-allowed;"><i class="fas fa-lock"></i> Closed</button>'
-        : '<button class="btn-take-quiz" data-qid="'+q.id+'"><i class="fas fa-play"></i> Take Quiz</button>';
+        : (q.paper_questions ? '<button class="btn-take-quiz" data-qid="'+q.id+'"><i class="fas fa-file-alt"></i> Open Question Paper</button>' : '<button class="btn-take-quiz" data-qid="'+q.id+'"><i class="fas fa-play"></i> Take Quiz</button>');
 
     var durationTag = q.duration_mins ? '<span class="quiz-timer"><i class="fas fa-clock"></i> '+q.duration_mins+' min</span>' : '';
     var pointsTag   = q.points ? '<span class="quiz-points-badge"><i class="fas fa-star"></i> '+q.points+' pts</span>' : '';
     var cardClass   = isDone ? 'quiz-card quiz-done' : (isClosed||isPast) ? 'quiz-card quiz-closed' : 'quiz-card';
+
+    // Show grade if student has been graded for this quiz
+    var quizGrade = gradeMap ? gradeMap[q.title] : null;
+    var gradeHtml = '';
+    if(quizGrade && quizGrade.score !== null && quizGrade.score !== undefined){
+      gradeHtml = '<div style="margin-top:0.8rem;background:linear-gradient(135deg,#ede9fe,#ddd6fe);border-radius:12px;padding:0.7rem 1rem;display:flex;align-items:center;gap:0.6rem;">' +
+        '<i class="fas fa-star" style="color:#7c3aed;font-size:1rem;"></i>' +
+        '<div>' +
+          '<div style="font-size:0.75rem;font-weight:700;color:#5b21b6;text-transform:uppercase;letter-spacing:0.5px;">Your Quiz Score</div>' +
+          '<div style="font-size:1.3rem;font-weight:900;color:#5b21b6;line-height:1.1;">'+quizGrade.score+(q.points?'<span style="font-size:0.82rem;font-weight:600;opacity:0.7;">/'+q.points+'</span>':'')+'</div>' +
+        '</div>' +
+        (quizGrade.graded_at?'<div style="margin-left:auto;font-size:0.72rem;color:#7c3aed;opacity:0.8;">Graded '+new Date(quizGrade.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+'</div>':'')+
+      '</div>';
+    }
 
     return '<div class="'+cardClass+'" id="qcard-'+q.id+'">'+
       '<span class="quiz-status-badge '+statusClass+'">'+statusText+'</span>'+
@@ -2309,7 +2332,8 @@ async function loadQuizzes() {
       (dlText ? '<div class="quiz-deadline '+dlClass+'"><i class="fas fa-calendar-times"></i> '+dlText+'</div>' : '')+
       countdownHtml+
       '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem;margin-bottom:0.8rem;">'+durationTag+pointsTag+'</div>'+
-      '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">'+actionBtn+'</div>'+
+      gradeHtml+
+      '<div style="display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;margin-top:0.6rem;">'+actionBtn+'</div>'+
     '</div>';
   }).join('');
 

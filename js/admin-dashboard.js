@@ -2541,3 +2541,191 @@ window.deleteContactMsg = async function(id){
   await sb.from('contact_messages').delete().eq('id',id);
   window.loadContactMessages('all');
 };
+
+// ─── QUIZ TYPE TOGGLE ────────────────────────────────────────────
+window.setQzType = function(type, btn) {
+  document.querySelectorAll('[id^="qzType"]').forEach(function(b) {
+    b.style.background='white'; b.style.color='#374151'; b.style.borderColor='#e5e7eb';
+  });
+  btn.style.background='#1B5E20'; btn.style.color='white'; btn.style.borderColor='#1B5E20';
+  document.getElementById('qzLinkSection').style.display = type==='link' ? 'block' : 'none';
+  document.getElementById('qzPaperSection').style.display = type==='paper' ? 'block' : 'none';
+};
+
+window.addQuestion = function() {
+  var container = document.getElementById('qzQuestionsContainer');
+  var blocks = container.querySelectorAll('.qz-question-block');
+  var n = blocks.length + 1;
+  var div = document.createElement('div');
+  div.className = 'qz-question-block';
+  div.setAttribute('data-q', n);
+  div.style.cssText = 'background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:1rem;margin-bottom:0.8rem;';
+  div.innerHTML = '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">' +
+    '<span style="background:#1B5E20;color:white;font-weight:800;font-size:0.82rem;padding:0.2rem 0.6rem;border-radius:20px;">Q'+n+'</span>' +
+    '<span style="font-size:0.82rem;color:#6b7280;">Question '+n+'</span>' +
+    '<button onclick="removeQuestion(this)" style="margin-left:auto;background:#fee2e2;color:#dc2626;border:none;padding:0.2rem 0.5rem;border-radius:8px;cursor:pointer;font-size:0.75rem;font-family:\'Inter\',sans-serif;">Remove</button>' +
+    '</div>' +
+    '<textarea class="qz-q-text" placeholder="Type your question here..." rows="2" style="width:100%;border:2px solid #e5e7eb;border-radius:8px;padding:0.6rem;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;resize:vertical;" onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'"></textarea>' +
+    '<div style="display:flex;gap:0.5rem;margin-top:0.5rem;align-items:center;flex-wrap:wrap;">' +
+      '<select class="qz-q-type" style="padding:0.3rem 0.6rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.8rem;font-family:\'Inter\',sans-serif;outline:none;" onchange="toggleMCOptions(this)">' +
+        '<option value="text">Long Answer</option><option value="short">Short Answer</option><option value="mc">Multiple Choice</option>' +
+      '</select>' +
+      '<input type="number" class="qz-q-marks" placeholder="Marks" min="1" value="2" style="width:80px;padding:0.3rem 0.6rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.8rem;font-family:\'Inter\',sans-serif;outline:none;">' +
+      '<span style="font-size:0.75rem;color:#9ca3af;">marks</span>' +
+    '</div>' +
+    '<div class="mc-options" style="display:none;margin-top:0.5rem;">' +
+      '<input type="text" placeholder="Option A" style="width:100%;margin-bottom:0.3rem;padding:0.4rem 0.7rem;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.85rem;font-family:\'Inter\',sans-serif;outline:none;">' +
+      '<input type="text" placeholder="Option B" style="width:100%;margin-bottom:0.3rem;padding:0.4rem 0.7rem;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.85rem;font-family:\'Inter\',sans-serif;outline:none;">' +
+      '<input type="text" placeholder="Option C" style="width:100%;margin-bottom:0.3rem;padding:0.4rem 0.7rem;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.85rem;font-family:\'Inter\',sans-serif;outline:none;">' +
+      '<input type="text" placeholder="Option D" style="width:100%;padding:0.4rem 0.7rem;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.85rem;font-family:\'Inter\',sans-serif;outline:none;">' +
+    '</div>';
+  container.appendChild(div);
+};
+
+window.removeQuestion = function(btn) {
+  var block = btn.closest('.qz-question-block');
+  if(block) block.remove();
+  // Renumber
+  var blocks = document.querySelectorAll('.qz-question-block');
+  blocks.forEach(function(b,i){
+    var badge = b.querySelector('span[style*="background:#1B5E20"]');
+    var lbl = b.querySelectorAll('span')[1];
+    if(badge) badge.textContent='Q'+(i+1);
+    if(lbl) lbl.textContent='Question '+(i+1);
+    b.setAttribute('data-q',i+1);
+  });
+};
+
+window.toggleMCOptions = function(sel) {
+  var mcDiv = sel.closest('.qz-question-block').querySelector('.mc-options');
+  if(mcDiv) mcDiv.style.display = sel.value==='mc' ? 'block' : 'none';
+};
+
+// ─── ADMIN PROFILES ──────────────────────────────────────────────
+window.switchPanel_old = window.switchPanel;
+// Add adminprofiles to switchPanel
+(function(){
+  var _orig = window.switchPanel;
+  window.switchPanel = function(name){
+    if(_orig) _orig(name);
+    if(name==='adminprofiles') setTimeout(loadAdminProfiles, 150);
+    if(name==='quizzes') setTimeout(function(){
+      // Pre-fill import quiz select
+      loadImportQzSelect();
+    }, 300);
+  };
+})();
+
+function loadImportQzSelect() {
+  var sel = document.getElementById('importQzSelect'); if(!sel) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  sb.from('quizzes').select('id,title').order('created_at',{ascending:false}).limit(50).then(function(res){
+    if(!res.data||!res.data.length){ sel.innerHTML='<option value="">No quizzes found</option>'; return; }
+    sel.innerHTML='<option value="">Select quiz...</option>'+res.data.map(function(q){ return '<option value="'+q.id+'">'+q.title+'</option>'; }).join('');
+  });
+}
+
+window.previewAdminPhoto = function(input) {
+  var file = input.files && input.files[0]; if(!file) return;
+  document.getElementById('apPhotoChosen').textContent = '✅ '+file.name;
+  var reader = new FileReader();
+  reader.onload = function(e){ var p=document.getElementById('apPhotoPreview'); p.src=e.target.result; p.style.display='block'; };
+  reader.readAsDataURL(file);
+};
+
+window.saveAdminProfile = async function() {
+  var name = (document.getElementById('apName').value||'').trim();
+  var role = (document.getElementById('apRole').value||'').trim();
+  var email = (document.getElementById('apEmail').value||'').trim();
+  var phone = (document.getElementById('apPhone').value||'').trim();
+  var bio = (document.getElementById('apBio').value||'').trim();
+  var photoFile = document.getElementById('apPhotoFile').files[0];
+  var statusEl = document.getElementById('apStatus');
+
+  if(!name||!role){ window.showStatus('apStatus','Please fill in Name and Role.','err'); return; }
+  var sb = window.geramaSupabase; if(!sb){ window.showStatus('apStatus','Not connected.','err'); return; }
+  window.showStatus('apStatus','Saving...','info');
+
+  var photoUrl = null;
+  if(photoFile){
+    try{
+      var ext = photoFile.name.split('.').pop();
+      var path = 'admin-profiles/'+Date.now()+'.'+ext;
+      var up = await sb.storage.from(window.BUCKET).upload(path, photoFile, {upsert:true});
+      if(!up.error) photoUrl = sb.storage.from(window.BUCKET).getPublicUrl(path).data.publicUrl;
+    }catch(e){}
+  }
+
+  var profile = { name:name, role:role, email:email||null, phone:phone||null, bio:bio||null, updated_at:new Date().toISOString() };
+  if(photoUrl) profile.photo_url = photoUrl;
+
+  var {error} = await sb.from('admin_profiles').upsert(profile, {onConflict:'email'});
+  if(error){ window.showStatus('apStatus','❌ '+error.message,'err'); return; }
+  window.logActivity('Updated admin profile: '+name);
+  window.showStatus('apStatus','✅ Profile saved and visible to all admins!','ok');
+  loadAdminProfiles();
+};
+
+window.loadAdminProfiles = async function() {
+  var el = document.getElementById('adminProfilesList'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {data} = await sb.from('admin_profiles').select('*').order('updated_at',{ascending:false});
+  if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;">No admin profiles yet. Add yours above!</p>'; return; }
+  el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;">'+
+    data.map(function(p){
+      return '<div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:16px;padding:1.2rem;border:1px solid #c4b5fd;">'+
+        (p.photo_url?'<img src="'+p.photo_url+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid #a78bfa;margin-bottom:0.8rem;display:block;">':
+          '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;font-weight:800;margin-bottom:0.8rem;">'+p.name.charAt(0)+'</div>')+
+        '<div style="font-weight:800;color:#1e2a3e;margin-bottom:0.2rem;">'+window.escHtml(p.name)+'</div>'+
+        '<div style="font-size:0.78rem;color:#7c3aed;font-weight:700;margin-bottom:0.4rem;">'+window.escHtml(p.role)+'</div>'+
+        (p.bio?'<div style="font-size:0.8rem;color:#6b7280;margin-bottom:0.4rem;">'+window.escHtml(p.bio)+'</div>':'')+
+        (p.phone?'<div style="font-size:0.78rem;color:#374151;"><i class="fas fa-phone" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.phone)+'</div>':'')+
+        (p.email?'<div style="font-size:0.78rem;color:#374151;"><i class="fas fa-envelope" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.email)+'</div>':'')+
+      '</div>';
+    }).join('')+
+  '</div>';
+};
+
+// ─── IMPORT SCORES FROM CSV ──────────────────────────────────────
+window.importScoresFromCSV = async function() {
+  var quizId = document.getElementById('importQzSelect').value;
+  var csvText = (document.getElementById('importCsvData').value||'').trim();
+  if(!quizId){ window.showStatus('importStatus','Please select a quiz.','err'); return; }
+  if(!csvText){ window.showStatus('importStatus','Please paste CSV data.','err'); return; }
+
+  var sb = window.geramaSupabase; if(!sb){ window.showStatus('importStatus','Not connected.','err'); return; }
+
+  // Get quiz title
+  var qzRes = await sb.from('quizzes').select('title,points').eq('id',quizId).single();
+  var qzTitle = qzRes.data ? qzRes.data.title : 'Quiz';
+
+  // Parse CSV
+  var lines = csvText.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l && !l.startsWith('email'); });
+  var parsed = [];
+  lines.forEach(function(line){
+    var parts = line.split(',');
+    var email = (parts[0]||'').trim().toLowerCase();
+    var score = parseFloat((parts[1]||'').trim());
+    if(email && email.includes('@') && !isNaN(score)) parsed.push({email:email, score:score});
+  });
+
+  if(!parsed.length){ window.showStatus('importStatus','No valid rows found. Format: email,score','err'); return; }
+  window.showStatus('importStatus','Importing '+parsed.length+' scores...','info');
+
+  var ok=0, fail=0;
+  for(var i=0;i<parsed.length;i++){
+    var row = parsed[i];
+    try{
+      // Upsert to student_grades
+      await sb.from('student_grades').upsert({
+        student_email: row.email,
+        assignment_title: qzTitle,
+        score: row.score,
+        graded_at: new Date().toISOString()
+      }, {onConflict:'student_email,assignment_title'});
+      ok++;
+    }catch(e){ fail++; }
+  }
+  window.logActivity('Imported '+ok+' quiz scores for: '+qzTitle);
+  window.showStatus('importStatus','✅ Imported '+ok+' scores'+(fail?' ('+fail+' failed)':'')+'! Students can now see their grades in the Classroom → Assignments tab.','ok');
+};
