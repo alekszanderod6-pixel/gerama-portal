@@ -36,8 +36,10 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .quick-item:hover i{color:var(--gold);}
 .quick-item span{font-weight:600;font-size:0.9rem;}
 /* MAIN LAYOUT */
-.contact-wrap{max-width:1200px;margin:0 auto;padding:4rem 5%;}
-.contact-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:2.5rem;align-items:start;}
+.contact-wrap{max-width:1100px;margin:0 auto;padding:4rem 5%;}
+.contact-grid{display:grid;grid-template-columns:380px 1fr;gap:2.5rem;align-items:start;}
+@media(max-width:900px){.contact-grid{grid-template-columns:1fr;}.info-card{position:static;}}
+@media(max-width:640px){.contact-wrap{padding:2rem 4%;}.quick-strip{gap:0.8rem;padding:1.2rem 4%;}.quick-item{padding:0.6rem 1rem;}.quick-item span{font-size:0.82rem;}}
 /* INFO CARD */
 .info-card{background:linear-gradient(135deg,var(--primary-dark),var(--primary));border-radius:24px;padding:2.5rem;color:white;position:sticky;top:90px;}
 .info-card h2{font-size:1.5rem;font-weight:800;margin-bottom:0.5rem;}
@@ -243,7 +245,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div class="form-card">
         <div class="form-card-header">
           <h3><i class="fas fa-paper-plane"></i> Send a Message</h3>
-          <p>Questions, feedback, or just want to say hi — we'd love to hear from you.</p>
+          <p>Questions, feedback, or just want to say hi — we'd love to hear from you. We respond within 24 hours.</p>
         </div>
         <form id="contactForm" novalidate>
           <div class="fld-row">
@@ -275,60 +277,14 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         </div>
       </div>
 
-      <!-- ACADEMIC ASSISTANCE -->
-      <div class="form-card">
-        <div class="form-card-header">
-          <h3><i class="fas fa-graduation-cap"></i> Request Academic Assistance</h3>
-          <p>Struggling with a course or topic? Our tutors will reach out to help you.</p>
-        </div>
-        <form id="assistForm" novalidate>
-          <div class="fld-row">
-            <div class="fld">
-              <label>Academic Level *</label>
-              <select id="aLevel" required>
-                <option value="">Select Level</option>
-                <option>L100 – First Year</option>
-                <option>L200 – Second Year</option>
-                <option>L300 – Third Year</option>
-                <option>L400 – Final Year</option>
-              </select>
-            </div>
-            <div class="fld">
-              <label>Engineering Program *</label>
-              <select id="aProgram" required>
-                <option value="">Select Program</option>
-                <option>Electrical Engineering</option>
-                <option>Mechanical Engineering</option>
-                <option>Computer Engineering</option>
-                <option>Agricultural Engineering</option>
-                <option>Petroleum Engineering</option>
-                <option>Renewable Energy Engineering</option>
-                <option>Civil Engineering</option>
-                <option>Environmental Engineering</option>
-                <option>other</option>
-              </select>
-            </div>
+      <!-- ADMIN REPLIES (shown if user has received a reply) -->
+      <div id="adminRepliesSection" style="display:none;">
+        <div class="form-card" style="border-top:4px solid #1B5E20;">
+          <div class="form-card-header">
+            <h3><i class="fas fa-reply" style="color:#1B5E20;"></i> Replies from GERAMA</h3>
+            <p>The admin has responded to your message. Check below.</p>
           </div>
-          <div class="fld">
-            <label>Course Name *</label>
-            <input type="text" id="aCourse" placeholder="e.g. Engineering Mathematics I" required>
-          </div>
-          <div class="fld">
-            <label>Describe what you need help with *</label>
-            <textarea id="aChallenge" placeholder="Describe the topic or problem you're struggling with..." required></textarea>
-          </div>
-          <div class="fld">
-            <label>Your Email *</label>
-            <input type="email" id="aEmail" placeholder="you@gmail.com" required>
-          </div>
-          <button type="submit" class="btn-send" id="sendAssistBtn">
-            <i class="fas fa-graduation-cap"></i> Request Assistance
-          </button>
-        </form>
-        <div class="form-success" id="assistSuccess">
-          <i class="fas fa-check-circle"></i>
-          <h4>Request Submitted!</h4>
-          <p>A GERAMA tutor will contact you within 24 hours. Keep an eye on your email.</p>
+          <div id="adminRepliesList"></div>
         </div>
       </div>
 
@@ -508,7 +464,7 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
   });
 });
 
-// ── CHECK FOR ADMIN REPLIES (shown if user sent a message before) ─
+// ── CHECK FOR ADMIN REPLIES (shown if user has received a reply) ─
 (function() {
   var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
   var myEmail = (profile.email || '').toLowerCase().trim();
@@ -516,37 +472,35 @@ document.querySelectorAll('.faq-q').forEach(function(q) {
 
   async function checkReplies() {
     try {
-      var resp = await fetch(SUPA_URL + '/rest/v1/contact_messages?email=eq.' + encodeURIComponent(myEmail) + '&admin_reply=not.is.null&order=replied_at.desc&limit=5', {
+      var resp = await fetch(SUPA_URL + '/rest/v1/contact_messages?email=eq.' + encodeURIComponent(myEmail) + '&admin_reply=not.is.null&order=replied_at.desc&limit=10', {
         headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
       });
       if (!resp.ok) return;
       var msgs = await resp.json();
       if (!msgs || !msgs.length) return;
 
-      // Show reply notification
-      var repliesEl = document.getElementById('adminRepliesSection');
-      if (!repliesEl) {
-        // Create the section if it doesn't exist
-        repliesEl = document.createElement('div');
-        repliesEl.id = 'adminRepliesSection';
-        repliesEl.style.cssText = 'margin-top:1.5rem;';
-        repliesEl.innerHTML = '<h3 style="font-size:1rem;font-weight:700;color:#1B5E20;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-reply" style="color:#FFC107;"></i> Admin Replies</h3>';
-        var formsCol = document.querySelector('.forms-col');
-        if (formsCol) formsCol.appendChild(repliesEl);
-      }
+      var section = document.getElementById('adminRepliesSection');
+      var listEl = document.getElementById('adminRepliesList');
+      if (!section || !listEl) return;
 
-      repliesEl.innerHTML = '<h3 style="font-size:1rem;font-weight:700;color:#1B5E20;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-reply" style="color:#FFC107;"></i> Replies to Your Messages</h3>' +
-        msgs.map(function(m) {
-          var dt = m.replied_at ? new Date(m.replied_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
-          return '<div style="background:linear-gradient(135deg,#f0fdf4,#e8f5e9);border-radius:14px;padding:1rem;margin-bottom:0.8rem;border-left:4px solid #1B5E20;">' +
-            '<div style="font-size:0.78rem;color:#6b7280;margin-bottom:0.4rem;">Re: <strong>' + (m.subject || m.message.substring(0,50) + '...') + '</strong> · ' + dt + '</div>' +
-            '<div style="font-size:0.92rem;color:#1e2a3e;font-weight:500;">' + m.admin_reply + '</div>' +
-            '<div style="font-size:0.75rem;color:#6b7280;margin-top:0.3rem;">— GERAMA Admin</div>' +
-          '</div>';
-        }).join('');
+      section.style.display = 'block';
+      listEl.innerHTML = msgs.map(function(m) {
+        var sent = m.sent_at ? new Date(m.sent_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+        var replied = m.replied_at ? new Date(m.replied_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+        return '<div style="background:#f8fafc;border-radius:14px;padding:1rem;margin-bottom:1rem;border-left:4px solid #1B5E20;">' +
+          '<div style="font-size:0.8rem;color:#6b7280;margin-bottom:0.5rem;">'+
+            '<strong style="color:#374151;">Your message</strong> · ' + sent +
+            (m.subject ? ' · <em>' + m.subject + '</em>' : '') +
+          '</div>' +
+          '<div style="font-size:0.88rem;color:#374151;margin-bottom:0.8rem;background:white;padding:0.6rem 0.8rem;border-radius:8px;">' + (m.message || '') + '</div>' +
+          '<div style="background:linear-gradient(135deg,#d1fae5,#e8f5e9);border-radius:10px;padding:0.8rem 1rem;">' +
+            '<div style="font-size:0.75rem;font-weight:700;color:#1B5E20;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.3rem;"><i class="fas fa-reply" style="margin-right:0.3rem;"></i>GERAMA Admin replied · ' + replied + '</div>' +
+            '<div style="font-size:0.92rem;color:#065f46;font-weight:500;">' + m.admin_reply + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
     } catch(e) {}
   }
-
   setTimeout(checkReplies, 1500);
 })();
 </script>

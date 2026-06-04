@@ -185,9 +185,9 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 .section-sub { color:var(--text-muted); max-width:560px; font-size:1rem; line-height:1.7; }
 .section-head { margin-bottom:3rem; }
 
-/* FEATURES GRID */
+/* FEATURES GRID — always 3 on desktop, 2 on tablet, 1 on mobile */
 .features-grid {
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  display:grid; grid-template-columns:repeat(3,1fr);
   gap:1.5rem;
 }
 .feature-card {
@@ -202,15 +202,16 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   display:flex; align-items:center; justify-content:center;
   color:white; font-size:1.4rem; margin-bottom:1.2rem;
 }
-.feature-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; color:var(--text); }
-.feature-card p { color:var(--text-muted); font-size:0.92rem; line-height:1.6; }
+.feature-card h3 { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; color:var(--text); }
+.feature-card p { color:var(--text-muted); font-size:0.9rem; line-height:1.6; }
 
-/* HOW IT WORKS */
+/* HOW IT WORKS — center-aligned heading + content */
 .steps-grid {
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  display:grid; grid-template-columns:repeat(3,1fr);
   gap:2rem; position:relative;
 }
-.step-card { text-align:center; padding:2rem 1.5rem; }
+.step-card { text-align:center; padding:2.5rem 1.5rem; background:white; border-radius:20px; box-shadow:0 2px 12px rgba(0,0,0,0.05); border:1px solid #e8f0e8; transition:all 0.3s; }
+.step-card:hover { transform:translateY(-4px); box-shadow:var(--shadow); }
 .step-num {
   width:60px; height:60px; border-radius:50%;
   background:linear-gradient(135deg,var(--gold),var(--gold-dark));
@@ -218,14 +219,23 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   display:flex; align-items:center; justify-content:center;
   margin:0 auto 1.2rem; box-shadow:0 4px 16px rgba(255,193,7,0.4);
 }
-.step-card h3 { font-size:1.1rem; font-weight:700; margin-bottom:0.5rem; }
-.step-card p { color:var(--text-muted); font-size:0.92rem; }
+.step-card h3 { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; text-align:center; }
+.step-card p { color:var(--text-muted); font-size:0.9rem; text-align:center; }
+/* Fix section-head alignment — always center */
+.section-head { margin-bottom:3rem; text-align:center; }
+.section-sub { margin:0 auto; }
 
-/* ANNOUNCEMENT CARDS */
+/* ANNOUNCEMENT CARDS — 3 per row on desktop */
+.ann-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.5rem;
+}
 .ann-card {
   background:white; border-radius:var(--radius);
-  border-left:4px solid var(--gold); box-shadow:0 2px 12px rgba(0,0,0,0.06);
+  border-top:4px solid var(--gold); box-shadow:0 2px 12px rgba(0,0,0,0.06);
   transition:all 0.3s; overflow:hidden; display:flex; flex-direction:column;
+  border-left:none;
 }
 .ann-card:hover { transform:translateY(-4px); box-shadow:var(--shadow); }
 .ann-card-img { width:100%; height:180px; object-fit:cover; display:block; cursor:pointer; transition:transform 0.3s; }
@@ -234,11 +244,11 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 .ann-img-grid img { transition:opacity 0.2s; }
 .ann-img-grid img:hover { opacity:0.9; }
 .ann-card-body { padding:1.4rem; flex:1; display:flex; flex-direction:column; }
-.ann-date { font-size:0.8rem; color:var(--text-muted); margin-bottom:0.4rem; font-weight:500; }
-.ann-card h3 { font-size:1.05rem; font-weight:700; margin-bottom:0.5rem; color:var(--text); }
-.ann-card-msg { color:var(--text-muted); font-size:0.9rem; line-height:1.6; flex:1; }
+.ann-date { font-size:0.78rem; color:var(--text-muted); margin-bottom:0.4rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; }
+.ann-card h3 { font-size:1rem; font-weight:700; margin-bottom:0.5rem; color:var(--text); }
+.ann-card-msg { color:var(--text-muted); font-size:0.88rem; line-height:1.6; flex:1; }
 .ann-card-msg.clamped { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-.ann-read-more { background:none; border:none; color:var(--primary); font-weight:600; font-size:0.85rem; cursor:pointer; padding:0; margin-top:0.3rem; font-family:'Inter',sans-serif; }
+.ann-read-more { background:none; border:none; color:var(--primary); font-weight:600; font-size:0.82rem; cursor:pointer; padding:0; margin-top:0.3rem; font-family:'Inter',sans-serif; }
 .ann-actions { display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem; padding-top:0.8rem; border-top:1px solid #f1f5f9; }
 .ann-action-btn { background:none; border:none; cursor:pointer; font-size:0.82rem; font-weight:600; display:inline-flex; align-items:center; gap:0.3rem; padding:0.3rem 0.7rem; border-radius:20px; transition:all 0.2s; font-family:'Inter',sans-serif; color:var(--text-muted); }
 .ann-action-btn:hover { background:#f1f5f9; color:var(--text); }
@@ -363,38 +373,42 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 .footer-copy, .footer-credits { font-size:0.82rem; color:rgba(255,255,255,0.4); margin:0; }
 .footer-credits strong { color:rgba(255,255,255,0.65); }
 
-/* RESPONSIVE */
+/* RESPONSIVE — Tablet (641–900px) */
 @media(max-width:900px) {
   .stats-bar { grid-template-columns:repeat(2,1fr); }
-  .footer-inner { grid-template-columns:1fr 1fr; }
+  .footer-inner { grid-template-columns:1fr 1fr; gap:2rem; }
   .footer-brand { grid-column:1/-1; }
+  .features-grid { grid-template-columns:repeat(3,1fr); gap:1rem; }
+  .ann-grid { grid-template-columns:repeat(2,1fr); gap:1.2rem; }
+  .steps-grid { grid-template-columns:repeat(3,1fr); gap:1rem; }
 }
+/* Mobile (<641px) */
 @media(max-width:640px) {
   .header-nav { display:none; }
-  .stats-bar { grid-template-columns:repeat(2,1fr); }
+  .stats-bar { grid-template-columns:repeat(2,1fr); padding:1.5rem 4%; }
   .footer-inner { grid-template-columns:1fr; gap:2rem; }
   .footer-brand { grid-column:auto; }
   .hero-actions { flex-direction:column; align-items:center; }
   .hero-content { padding:1.5rem 1rem; }
-  .section-wrap { padding:2rem 4%; }
-  .features-grid { grid-template-columns:1fr 1fr; gap:1rem; }
+  .section-wrap { padding:2.5rem 4%; }
+  .features-grid { grid-template-columns:repeat(2,1fr); gap:0.8rem; }
   .feature-card { padding:1.2rem; }
   .feature-icon { width:44px; height:44px; font-size:1.1rem; margin-bottom:0.8rem; }
-  .feature-card h3 { font-size:0.95rem; }
-  .feature-card p { font-size:0.82rem; display:none; }
-  .steps-grid { grid-template-columns:1fr; gap:1rem; }
+  .feature-card h3 { font-size:0.9rem; }
+  .feature-card p { font-size:0.8rem; }
+  .steps-grid { grid-template-columns:1fr; gap:0.8rem; }
   .step-card { padding:1.2rem 1rem; }
   .step-num { width:48px; height:48px; font-size:1.2rem; margin-bottom:0.8rem; }
-  .ann-grid { grid-template-columns:1fr; }
+  .ann-grid { grid-template-columns:1fr; gap:1rem; }
   .footer-bottom-bar { flex-direction:column; text-align:center; }
   .footer-tagline { max-width:100%; }
   .cta-banner { padding:2.5rem 4%; }
-  .stats-bar { padding:1.5rem 4%; }
-  .hero-title { font-size: clamp(1.6rem, 5vw, 3.8rem); }
-  .hero-subtitle { font-size: 0.95rem; }
-  .hero-badge { font-size: 0.75rem; padding: 0.3rem 0.9rem; }
-  .section-title { font-size:1.5rem; }
+  .hero-title { font-size:clamp(1.6rem,5vw,3.8rem); }
+  .hero-subtitle { font-size:0.95rem; }
+  .hero-badge { font-size:0.75rem; padding:0.3rem 0.9rem; }
+  .section-title { font-size:1.4rem; }
   .section-head { margin-bottom:1.5rem; }
+  .potw-grid { grid-template-columns:1fr; }
 }
 </style>
 </head>
@@ -560,7 +574,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 
 <!-- HOW IT WORKS -->
 <section class="section-wrap">
-  <div class="section-head">
+  <div class="section-head" style="text-align:center;">
     <div class="section-label">How It Works</div>
     <h2 class="section-title">Get Started in <span>3 Simple Steps</span></h2>
   </div>
@@ -614,7 +628,12 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:0.3rem;"><i class="fas fa-star" style="color:var(--gold);margin-right:0.4rem;"></i>Nominate a Personality</h3>
     <p style="font-size:0.85rem;color:#6b7280;margin-bottom:1.2rem;">Your nomination goes to the admin for review. Once approved it appears on the home page.</p>
     <div style="display:flex;flex-direction:column;gap:0.8rem;">
-      <input type="text" id="potwName" placeholder="Person's full name *" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;">
+      <div style="position:relative;">
+        <input type="text" id="potwName" placeholder="Start typing a name..." autocomplete="off"
+          style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;width:100%;"
+          oninput="searchPotwNames(this.value)" onfocus="searchPotwNames(this.value)">
+        <div id="potwNameSuggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:2px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;max-height:180px;overflow-y:auto;z-index:100;box-shadow:0 8px 20px rgba(0,0,0,0.1);"></div>
+      </div>
       <input type="text" id="potwRole" placeholder="Their role in GERAMA (e.g. Lead Tutor)" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;">
       <textarea id="potwBio" rows="4" placeholder="Describe their impact and contribution *" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;"></textarea>
       <input type="text" id="potwNomBy" placeholder="Your name (nominator)" style="padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;">
@@ -1037,6 +1056,57 @@ function togglePotwBio(id, btn) {
     btn.textContent = 'Read more';
   }
 }
+
+// ── POTW NAME AUTOCOMPLETE ──────────────────────────────────────
+var _potwNamesCache = null;
+async function searchPotwNames(query) {
+  var sugEl = document.getElementById('potwNameSuggestions');
+  if (!sugEl) return;
+
+  // Load names from user_profiles once and cache
+  if (!_potwNamesCache) {
+    try {
+      var sb = window.geramaSupabase;
+      if (!sb) { sugEl.style.display='none'; return; }
+      var res = await sb.from('user_profiles').select('full_name,program,level').eq('is_active',true).order('full_name',{ascending:true}).limit(200);
+      _potwNamesCache = (res.data || []).filter(function(u){ return u.full_name; });
+    } catch(e) { sugEl.style.display='none'; return; }
+  }
+
+  if (!query || query.length < 1) { sugEl.style.display='none'; return; }
+
+  var q = query.toLowerCase();
+  var matches = _potwNamesCache.filter(function(u){
+    return u.full_name.toLowerCase().includes(q);
+  }).slice(0, 8);
+
+  if (!matches.length) { sugEl.style.display='none'; return; }
+
+  sugEl.innerHTML = matches.map(function(u) {
+    return '<div onclick="selectPotwName(\'' + u.full_name.replace(/'/g,"\\'") + '\')" ' +
+      'style="padding:0.6rem 1rem;cursor:pointer;font-size:0.9rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:0.6rem;" ' +
+      'onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'white\'">' +
+      '<i class="fas fa-user-circle" style="color:#1B5E20;font-size:0.9rem;"></i>' +
+      '<div><div style="font-weight:600;">' + u.full_name + '</div>' +
+      (u.program || u.level ? '<div style="font-size:0.75rem;color:#6b7280;">' + (u.level||'') + (u.level&&u.program?' · ':'') + (u.program||'') + '</div>' : '') +
+      '</div></div>';
+  }).join('');
+  sugEl.style.display = 'block';
+}
+
+function selectPotwName(name) {
+  document.getElementById('potwName').value = name;
+  var sugEl = document.getElementById('potwNameSuggestions');
+  if (sugEl) sugEl.style.display = 'none';
+}
+
+// Close suggestions when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest || !e.target.closest('#potwModal')) {
+    var sugEl = document.getElementById('potwNameSuggestions');
+    if (sugEl) sugEl.style.display = 'none';
+  }
+});
 
 function previewPotwNomPhoto(input) {
   var file = input.files && input.files[0];

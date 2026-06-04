@@ -40,7 +40,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
 (function() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     // Public pages — no auth required
-    const publicPages = ['index.html', 'about.html', 'contact.html', 'login.html', 'signup.html', 'reset-code.html', 'admin-dashboard.html', ''];
+    const publicPages = ['index.html', 'about.html', 'contact.html', 'mall.html', 'login.html', 'signup.html', 'reset-code.html', 'admin-dashboard.html', ''];
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html' || currentPage === 'reset-code.html' || currentPage === 'admin-dashboard.html';
     const isPublicPage = publicPages.indexOf(currentPage) !== -1;
 
