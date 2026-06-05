@@ -120,8 +120,12 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .section-title span{color:var(--primary);}
 .section-sub{color:var(--muted);max-width:560px;margin:0 auto;font-size:1rem;}
 .team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.5rem;max-width:1200px;margin:0 auto;}
-.team-card{background:white;border-radius:20px;padding:1.8rem 1.5rem;text-align:center;border:1px solid #e8f0e8;transition:all 0.3s;box-shadow:0 2px 12px rgba(0,0,0,0.05);position:relative;overflow:hidden;}
-.team-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--primary),var(--gold));transform:scaleX(0);transition:transform 0.3s;}
+.team-card{background:white;border-radius:20px;padding:1.8rem 1.5rem;text-align:center;border:1px solid #e8f0e8;transition:all 0.3s;box-shadow:0 2px 12px rgba(0,0,0,0.05);position:relative;overflow:hidden;border-top:4px solid var(--primary);}
+.team-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(27,94,32,0.12);}
+.team-photo{width:90px;height:90px;border-radius:50%;object-fit:cover;object-position:top;border:3px solid var(--gold);margin:0 auto 1rem;display:block;box-shadow:0 4px 12px rgba(255,193,7,0.25);}
+.team-name{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:0.25rem;}
+.team-role{font-size:0.78rem;color:var(--primary);font-weight:600;line-height:1.4;}
+.team-email{font-size:0.75rem;color:var(--muted);margin-top:0.3rem;}
 .team-card:hover::before{transform:scaleX(1);}
 .team-card:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(0,0,0,0.12);}
 .team-photo{width:90px;height:90px;border-radius:50%;object-fit:cover;object-position:top center;border:3px solid var(--gold);margin:0 auto 1rem;display:block;transition:all 0.3s;}
@@ -282,86 +286,227 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <div class="section-head">
     <div class="section-label">Our People</div>
     <h2 class="section-title">Meet the <span>GERAMA Team</span></h2>
-    <p class="section-sub">Dedicated students and alumni committed to advancing engineering education at UENR.</p>
+    <p class="section-sub">The founding team, tutors, and coordinators driving engineering excellence at UENR.</p>
   </div>
-  <div class="team-grid">
+
+  <!-- FOUNDING TEAM -->
+  <div style="margin-bottom:0.8rem;text-align:center;">
+    <div style="display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;padding:0.5rem 1.5rem;border-radius:50px;font-size:0.82rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
+      <i class="fas fa-crown" style="color:#FFC107;"></i> Founding Team &amp; Core Leads
+    </div>
+  </div>
+  <div class="team-grid" style="margin-bottom:3.5rem;">
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/edem.jpg" alt="Edem">
       <div class="team-name">Edem H.K Prince</div>
-      <div class="team-role">Co-founder · Lead Tutor</div>
-      <div class="team-email">edem@gerama.org</div>
+      <div class="team-role">Co-founder · Lead Tutor &amp; Editor</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/gad.jpg" alt="Gad">
       <div class="team-name">Gad</div>
       <div class="team-role">Co-founder · Head of Academics</div>
-      <div class="team-email">gad@gerama.org</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/aaron.jpg" alt="Aaron">
       <div class="team-name">Aaron</div>
       <div class="team-role">Co-founder · Online Platforms</div>
-      <div class="team-email">aaron@gerama.org</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/rashida.jpg" alt="Rashida">
       <div class="team-name">Rashida</div>
-      <div class="team-role">Co-founder · Welfare</div>
-      <div class="team-email">rashida@gerama.org</div>
+      <div class="team-role">Co-founder · Student Welfare</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/mawuli.jpg" alt="Mawuli">
       <div class="team-name">Mawuli</div>
       <div class="team-role">Co-founder · PR &amp; Meetings</div>
-      <div class="team-email">mawuli@gerama.org</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/aleks.jpg" alt="Aleks">
       <div class="team-name">Alexander O. Dwumaah</div>
-      <div class="team-role">Resource Manager · Mentorship Lead</div>
-      <div class="team-email">aleks@gerama.org</div>
+      <div class="team-role">Resources &amp; Academic Mentorship Lead</div>
+      <div class="team-email">gerama.uenr@gmail.com</div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/pasword.jpg" alt="Password">
+      <div class="team-name">Password</div>
+      <div class="team-role">Core Member · Academic Support</div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/Kamal-deen.jpg" alt="Kamal-deen">
+      <div class="team-name">Kamal-deen</div>
+      <div class="team-role">Professional &amp; Career Mentorship Lead</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/mavis.jpg" alt="Mavis">
       <div class="team-name">Mavis</div>
       <div class="team-role">Core Member · Secretary</div>
-      <div class="team-email">mavis@gerama.org</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/abena.jpg" alt="Abena">
       <div class="team-name">Abena</div>
       <div class="team-role">Core Member · Alumni Relations</div>
-      <div class="team-email">abena@gerama.org</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/alma.jpg" alt="Alma">
       <div class="team-name">Alma</div>
       <div class="team-role">Core Member · Project Manager</div>
-      <div class="team-email">alma@gerama.org</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/emmanuel.jpg" alt="Emmanuel">
       <div class="team-name">Emmanuel (E)</div>
       <div class="team-role">Core Member</div>
-      <div class="team-email">emmanuel@gerama.org</div>
     </div>
+  </div>
+
+  <!-- GERAMA/25 TUTORS -->
+  <div style="margin-bottom:0.8rem;text-align:center;">
+    <div style="display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;padding:0.5rem 1.5rem;border-radius:50px;font-size:0.82rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
+      <i class="fas fa-user-graduate" style="color:#FFC107;"></i> GERAMA/25 Tutors
+    </div>
+  </div>
+  <p style="text-align:center;color:#6b7280;font-size:0.88rem;margin-bottom:1.5rem;">Our L200 tutors — the second generation of GERAMA leadership.</p>
+  <div class="team-grid" style="margin-bottom:3.5rem;">
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/bediser.jpg" alt="Bediser">
       <div class="team-name">Bediser</div>
-      <div class="team-role">Campus Coordinator · Lead Tutor</div>
-      <div class="team-email">bediser@gerama.org</div>
+      <div class="team-role">GERAMA/25 · Lead Tutor &amp; Campus Coordinator</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/kamil.jpg" alt="Kamil">
       <div class="team-name">Kamil</div>
-      <div class="team-role">Campus Executive</div>
-      <div class="team-email">kamil@gerama.org</div>
+      <div class="team-role">GERAMA/25 · Campus Executive</div>
     </div>
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/rabbi.jpg" alt="Rabby">
       <div class="team-name">Rabby</div>
-      <div class="team-role">Campus Executive</div>
-      <div class="team-email">rabby@gerama.org</div>
+      <div class="team-role">GERAMA/25 · Campus Executive</div>
+    </div>
+    <div class="team-card">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/gerama_25/Rafiq.jpg" alt="Rafiq">
+      <div class="team-name">Rafiq</div>
+      <div class="team-role">GERAMA/25 · Tutor</div>
+    </div>
+  </div>
+
+  <!-- GERAMA/26 TUTORS -->
+  <div style="margin-bottom:0.8rem;text-align:center;">
+    <div style="display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,#4338ca,#6366f1);color:white;padding:0.5rem 1.5rem;border-radius:50px;font-size:0.82rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
+      <i class="fas fa-star" style="color:#FFC107;"></i> GERAMA/26 Tutors &amp; Leadership
+    </div>
+  </div>
+  <p style="text-align:center;color:#6b7280;font-size:0.88rem;margin-bottom:1.5rem;">Our L100 tutors — the rising stars of GERAMA, currently shaping the next chapter.</p>
+  <div class="team-grid" style="margin-bottom:3.5rem;">
+    <div class="team-card" style="border-top-color:#6366f1;">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/gerama_26/jerome.jpg" alt="Jerome"
+        style="border-color:#6366f1;">
+      <div class="team-name">Jerome</div>
+      <div class="team-role" style="color:#4338ca;">Lead Academic Coordinator &amp; President</div>
+      <div style="font-size:0.72rem;background:#ede9fe;color:#4338ca;padding:0.15rem 0.6rem;border-radius:20px;display:inline-block;margin-top:0.3rem;font-weight:700;">GERAMA/26 President</div>
+    </div>
+    <div class="team-card" style="border-top-color:#6366f1;">
+      <div class="team-photo" style="background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;border-radius:50%;width:90px;height:90px;margin:0 auto 1rem;border:3px solid #FFC107;">👤</div>
+      <div class="team-name">Joseph</div>
+      <div class="team-role" style="color:#4338ca;">Dep. Coordinator — Admin Affairs &amp; Student Engagement</div>
+    </div>
+    <div class="team-card" style="border-top-color:#6366f1;">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/gerama_26/hebert.jpg" alt="Hebert"
+        style="border-color:#6366f1;">
+      <div class="team-name">Hebert</div>
+      <div class="team-role" style="color:#4338ca;">Dep. Coordinator — Academic Support</div>
+    </div>
+    <div class="team-card" style="border-top-color:#6366f1;">
+      <div class="team-photo" style="background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;border-radius:50%;width:90px;height:90px;margin:0 auto 1rem;border:3px solid #FFC107;">👩</div>
+      <div class="team-name">Hafsatu</div>
+      <div class="team-role" style="color:#4338ca;">GERAMA Secretary</div>
+    </div>
+    <div class="team-card" style="border-top-color:#6366f1;">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/gerama_26/seyram.jpg" alt="Seyram"
+        style="border-color:#6366f1;">
+      <div class="team-name">Seyram</div>
+      <div class="team-role" style="color:#4338ca;">Communications, PR &amp; Relations Coordinator</div>
+    </div>
+    <div class="team-card" style="border-top-color:#6366f1;">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/gerama_26/boateng.jpg" alt="Boateng"
+        style="border-color:#6366f1;">
+      <div class="team-name">Boateng</div>
+      <div class="team-role" style="color:#4338ca;">Research &amp; Innovations Coordinator</div>
+    </div>
+    <div class="team-card" style="border-top-color:#6366f1;">
+      <div class="team-photo" style="background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;border-radius:50%;width:90px;height:90px;margin:0 auto 1rem;border:3px solid #FFC107;">🎬</div>
+      <div class="team-name">Romeo</div>
+      <div class="team-role" style="color:#4338ca;">Media, Technology &amp; Learning Support Coordinator</div>
+    </div>
+    <div class="team-card" style="border-top-color:#6366f1;">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/gerama_26/jonathan.jpg" alt="Jonathan"
+        style="border-color:#6366f1;">
+      <div class="team-name">Jonathan</div>
+      <div class="team-role" style="color:#4338ca;">GERAMA/26 Tutor</div>
+    </div>
+    <div class="team-card" style="border-top-color:#6366f1;">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/gerama_26/selasi.jpg" alt="Selasi"
+        style="border-color:#6366f1;">
+      <div class="team-name">Selasi</div>
+      <div class="team-role" style="color:#4338ca;">GERAMA/26 Tutor</div>
+    </div>
+    <div class="team-card" style="border-top-color:#6366f1;">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/gerama_26/enoch.jpg" alt="Enoch"
+        style="border-color:#6366f1;">
+      <div class="team-name">Enoch</div>
+      <div class="team-role" style="color:#4338ca;">GERAMA/26 Tutor</div>
+    </div>
+  </div>
+
+  <!-- MEDIA TEAM -->
+  <div style="margin-bottom:0.8rem;text-align:center;">
+    <div style="display:inline-flex;align-items:center;gap:0.6rem;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:white;padding:0.5rem 1.5rem;border-radius:50px;font-size:0.82rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
+      <i class="fas fa-camera"></i> Media Team
+    </div>
+  </div>
+  <p style="text-align:center;color:#6b7280;font-size:0.88rem;margin-bottom:1.5rem;">The creative minds behind GERAMA's visual storytelling and digital presence.</p>
+  <div class="team-grid">
+    <div class="team-card" style="border-top-color:#0ea5e9;">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/media_team/Augustine.jpg" alt="Augustine"
+        style="border-color:#0ea5e9;">
+      <div class="team-name">Augustine</div>
+      <div class="team-role" style="color:#0369a1;">Media Team · Photographer</div>
+    </div>
+    <div class="team-card" style="border-top-color:#0ea5e9;">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/media_team/Stephen.jpg" alt="Stephen"
+        style="border-color:#0ea5e9;">
+      <div class="team-name">Stephen</div>
+      <div class="team-role" style="color:#0369a1;">Media Team · Videographer</div>
+    </div>
+    <div class="team-card" style="border-top-color:#0ea5e9;">
+      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/media_team/sikapa.jpg" alt="Sikapa"
+        style="border-color:#0ea5e9;">
+      <div class="team-name">Sikapa</div>
+      <div class="team-role" style="color:#0369a1;">Media Team · Graphic Designer</div>
+    </div>
+    <div class="team-card" style="border-top-color:#0ea5e9;">
+      <div class="team-photo" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;border-radius:50%;width:90px;height:90px;margin:0 auto 1rem;border:3px solid #FFC107;">📸</div>
+      <div class="team-name">Media Member 4</div>
+      <div class="team-role" style="color:#0369a1;">Media Team</div>
+    </div>
+    <div class="team-card" style="border-top-color:#0ea5e9;">
+      <div class="team-photo" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;border-radius:50%;width:90px;height:90px;margin:0 auto 1rem;border:3px solid #FFC107;">🎥</div>
+      <div class="team-name">Media Member 5</div>
+      <div class="team-role" style="color:#0369a1;">Media Team</div>
+    </div>
+    <div class="team-card" style="border-top-color:#0ea5e9;">
+      <div class="team-photo" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;border-radius:50%;width:90px;height:90px;margin:0 auto 1rem;border:3px solid #FFC107;">🎨</div>
+      <div class="team-name">Media Member 6</div>
+      <div class="team-role" style="color:#0369a1;">Media Team</div>
+    </div>
+    <div class="team-card" style="border-top-color:#0ea5e9;">
+      <div class="team-photo" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;border-radius:50%;width:90px;height:90px;margin:0 auto 1rem;border:3px solid #FFC107;">✍️</div>
+      <div class="team-name">Media Member 7</div>
+      <div class="team-role" style="color:#0369a1;">Media Team</div>
+    </div>
+    <div class="team-card" style="border-top-color:#0ea5e9;">
+      <div class="team-photo" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;border-radius:50%;width:90px;height:90px;margin:0 auto 1rem;border:3px solid #FFC107;">🎙️</div>
+      <div class="team-name">Media Member 8</div>
+      <div class="team-role" style="color:#0369a1;">Media Team</div>
     </div>
   </div>
 </section>

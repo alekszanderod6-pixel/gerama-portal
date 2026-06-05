@@ -1,6 +1,14 @@
 // ═════════════════════════════════════════════════════════════════
 // GERAMA Portal – Core: Sidebar, Profile, Auth Check
+// Version: 2026.06 — cache-bust
 // ═════════════════════════════════════════════════════════════════
+
+// Force fresh content check — unregister stale service workers
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(reg) { reg.unregister(); });
+    });
+}
 
 // Global XSS prevention helpers (used everywhere)
 window.escHtml = window.escHtml || function(s) {
@@ -224,7 +232,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     <div class="profile-form-group"><label>Profile Picture</label><div id="profilePreview" class="profile-picture-preview"><i class="fas fa-user"></i></div><input type="file" id="profilePictureUpload" accept="image/*"></div>
                     <div class="profile-form-group"><label>Name</label><input type="text" id="profileNameInput" placeholder="Your full name"></div>
                     <div class="profile-form-group"><label>Program</label><select id="profileProgramSelect"><option value="">Select program</option><option>Mechanical Engineering</option><option>Electrical Engineering</option><option>Computer Engineering</option><option>Agricultural Engineering</option><option>Petroleum Engineering</option><option>Renewable Energy Engineering</option><option>Civil Engineering</option><option>Environmental Engineering</option></select></div>
-                    <div class="profile-form-group"><label>Academic Level</label><select id="profileLevelSelect"><option>L100</option><option>L200</option><option>L300</option><option>L400</option></select></div>
+                    <div class="profile-form-group"><label>Academic Level</label><select id="profileLevelSelect"><option>L100</option><option>L200</option><option>L300</option><option>L400</option><option>Graduate</option><option>Visitor / Non-Student</option></select></div>
                     <div class="profile-form-group"><label>Phone Number</label><input type="tel" id="profilePhoneInput" placeholder="e.g. 0551234567"></div>
                     <button id="saveProfileModalBtn" class="profile-btn-save">Save Profile</button>
                     <button id="closeProfileModal" style="margin-top:1rem; background:#ccc; border:none; padding:0.5rem; border-radius:30px;">Cancel</button>
