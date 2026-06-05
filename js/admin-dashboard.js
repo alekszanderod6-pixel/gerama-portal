@@ -2761,3 +2761,118 @@ window.importScoresFromCSV = async function() {
   window.logActivity('Imported '+ok+' quiz scores for: '+qzTitle);
   window.showStatus('importStatus','✅ Imported '+ok+' scores'+(fail?' ('+fail+' failed)':'')+'! Students can now see their grades in the Classroom → Assignments tab.','ok');
 };
+
+// ─── CSV FILE UPLOAD FOR SCORE IMPORT ───────────────────────────
+window.loadCsvFile = function(input) {
+  var file = input.files && input.files[0]; if(!file) return;
+  document.getElementById('csvFileChosen').textContent = '✅ ' + file.name;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('importCsvData').value = e.target.result;
+  };
+  reader.readAsText(file);
+};
+
+// Smart CSV parser — auto-detects email and score columns
+function parseScoreCSV(csvText, emailColHint, scoreColHint) {
+  var lines = csvText.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  if(!lines.length) return [];
+
+  // Parse header
+  var header = lines[0].toLowerCase().split(',').map(function(h){ return h.replace(/"/g,'').trim(); });
+  var hasHeader = header.some(function(h){ return h.includes('email')||h.includes('name')||h.includes('student'); });
+
+  var emailIdx = -1, scoreIdx = -1;
+
+  if(emailColHint) {
+    var n = parseInt(emailColHint);
+    if(!isNaN(n)) emailIdx = n - 1;
+    else emailIdx = header.findIndex(function(h){ return h.includes(emailColHint.toLowerCase()); });
+  }
+  if(scoreColHint) {
+    var n2 = parseInt(scoreColHint);
+    if(!isNaN(n2)) scoreIdx = n2 - 1;
+    else scoreIdx = header.findIndex(function(h){ return h.includes(scoreColHint.toLowerCase()); });
+  }
+
+  // Auto-detect if not specified
+  if(emailIdx === -1) {
+    emailIdx = header.findIndex(function(h){ return h.includes('email')||h.includes('mail'); });
+  }
+  if(scoreIdx === -1) {
+    scoreIdx = header.findIndex(function(h){ return h.includes('score')||h.includes('mark')||h.includes('grade')||h.includes('result')||h.includes('total'); });
+  }
+  // Fallback: assume first col = email, second = score
+  if(emailIdx === -1) emailIdx = 0;
+  if(scoreIdx === -1) scoreIdx = 1;
+
+  var dataLines = hasHeader ? lines.slice(1) : lines;
+  var results = [];
+  dataLines.forEach(function(line) {
+    var cols = line.split(',').map(function(c){ return c.replace(/"/g,'').trim(); });
+    var email = (cols[emailIdx]||'').toLowerCase();
+    var score = parseFloat(cols[scoreIdx]);
+    if(email.includes('@') && !isNaN(score)) results.push({email:email, score:score});
+  });
+  return results;
+}
+
+window.previewCsvImport = function() {
+  var csvText = document.getElementById('importCsvData').value||'';
+  var emailCol = document.getElementById('importEmailCol').value||'';
+  var scoreCol = document.getElementById('importScoreCol').value||'';
+  var parsed = parseScoreCSV(csvText, emailCol, scoreCol);
+  var prevEl = document.getElementById('csvPreview');
+  if(!prevEl) return;
+  if(!parsed.length){ prevEl.style.display='block'; prevEl.innerHTML='<p style="color:#dc2626;">No valid rows found. Check your CSV format.</p>'; return; }
+  prevEl.style.display = 'block';
+  prevEl.innerHTML = '<div style="font-weight:700;color:#1B5E20;margin-bottom:0.5rem;">Preview ('+parsed.length+' students detected):</div>' +
+    '<div class="tbl-wrap"><table><thead><tr><th>Email</th><th>Score</th></tr></thead><tbody>' +
+    parsed.slice(0,10).map(function(r){
+      return '<tr><td style="font-size:0.85rem;">'+window.escHtml(r.email)+'</td><td><strong>'+r.score+'</strong></td></tr>';
+    }).join('') +
+    (parsed.length>10?'<tr><td colspan="2" style="color:#9ca3af;font-size:0.8rem;text-align:center;">...and '+(parsed.length-10)+' more</td></tr>':'')+
+    '</tbody></table></div>';
+};
+
+// Override the old importScoresFromCSV with smart version
+window.importScoresFromCSV = async function() {
+  var quizId = document.getElementById('importQzSelect').value;
+  var csvText = (document.getElementById('importCsvData').value||'').trim();
+  var emailCol = document.getElementById('importEmailCol').value||'';
+  var scoreCol = document.getElementById('importScoreCol').value||'';
+
+  if(!quizId){ window.showStatus('importStatus','Please select a quiz.','err'); return; }
+  if(!csvText){ window.showStatus('importStatus','Please paste CSV data or upload a file.','err'); return; }
+
+  var sb = window.geramaSupabase; if(!sb){ window.showStatus('importStatus','Not connected.','err'); return; }
+
+  var qzRes = await sb.from('quizzes').select('title,points').eq('id',quizId).single();
+  var qzTitle = qzRes.data ? qzRes.data.title : 'Quiz';
+
+  var parsed = parseScoreCSV(csvText, emailCol, scoreCol);
+  if(!parsed.length){ window.showStatus('importStatus','No valid email+score rows found. Try Preview to diagnose.','err'); return; }
+
+  window.showStatus('importStatus','Importing '+parsed.length+' scores...','info');
+
+  var ok=0, fail=0, errors=[];
+  for(var i=0;i<parsed.length;i++){
+    var row = parsed[i];
+    try{
+      // Delete existing then insert fresh (avoids unique constraint issues)
+      await sb.from('student_grades').delete().eq('student_email',row.email).eq('assignment_title',qzTitle);
+      await sb.from('student_grades').insert({
+        student_email: row.email,
+        assignment_title: qzTitle,
+        score: row.score,
+        graded_at: new Date().toISOString()
+      });
+      ok++;
+    }catch(e){ fail++; errors.push(row.email+': '+e.message); }
+  }
+  window.logActivity('Imported '+ok+' quiz scores for: '+qzTitle);
+  var msg = '✅ Successfully imported '+ok+' scores for "'+qzTitle+'"! Students can now see their grades in the Classroom → My Grades tab.';
+  if(fail) msg += ' ('+fail+' failed)';
+  window.showStatus('importStatus',msg,'ok');
+  if(errors.length) console.warn('Import errors:', errors);
+};

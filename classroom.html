@@ -418,8 +418,10 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <button class="tab-btn active" onclick="showTab('classes')"><i class="fas fa-video"></i> Classes</button>
   <button class="tab-btn" onclick="showTab('assignments')"><i class="fas fa-tasks"></i> Assignments</button>
   <button class="tab-btn" onclick="showTab('quizzes')"><i class="fas fa-brain"></i> Quizzes <span id="quizBadge" style="display:none;background:#6366f1;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
+  <button class="tab-btn" onclick="showTab('mygrades')"><i class="fas fa-star" style="color:#FFC107;"></i> My Grades</button>
   <button class="tab-btn" onclick="showTab('attendance')"><i class="fas fa-clipboard-check"></i> Attendance</button>
   <button class="tab-btn" onclick="showTab('planner')"><i class="fas fa-calendar-alt"></i> Study Planner</button>
+  <button class="tab-btn" onclick="showTab('assistance')"><i class="fas fa-graduation-cap" style="color:#059669;"></i> Get Help</button>
   <button class="tab-btn" id="qaTabBtn" onclick="showTab('qa')"><i class="fas fa-comments"></i> Q&amp;A <span id="qaBadge" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.68rem;font-weight:800;align-items:center;justify-content:center;margin-left:0.3rem;flex-shrink:0;"></span></button>
   <button class="tab-btn" onclick="showTab('reels')"><i class="fas fa-film"></i> Reels</button>
 </div>
@@ -680,6 +682,82 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 </div>
 
 <!-- ═══ ATTENDANCE TAB ═══ -->
+<div class="tab-section" id="tab-mygrades">
+  <div class="sec-head">
+    <div class="sec-title">⭐ My <span>Grades & Scores</span></div>
+  </div>
+
+  <div id="myGradesContent">
+    <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading your grades...</p></div>
+  </div>
+</div>
+
+<!-- ═══ ACADEMIC ASSISTANCE TAB ═══ -->
+<div class="tab-section" id="tab-assistance">
+  <div class="sec-head">
+    <div class="sec-title">🎓 Request <span>Academic Assistance</span></div>
+  </div>
+
+  <div style="max-width:640px;margin:0 auto;">
+    <div style="background:linear-gradient(135deg,#f0fdf4,#e8f5e9);border-radius:20px;padding:1.5rem;margin-bottom:1.5rem;border:1px solid #c8e6c9;">
+      <h3 style="font-size:1rem;font-weight:700;color:#1B5E20;margin-bottom:0.4rem;"><i class="fas fa-lightbulb"></i> How it works</h3>
+      <p style="font-size:0.88rem;color:#374151;line-height:1.65;">Struggling with a course or topic? Submit a request below. A GERAMA tutor will reach out via email within 24 hours to help you. This is completely free — it's what we're here for!</p>
+    </div>
+
+    <div style="background:white;border-radius:20px;padding:1.8rem;box-shadow:0 4px 20px rgba(0,0,0,0.07);border:1px solid #e8f0e8;">
+      <form id="assistForm" novalidate>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div>
+            <label style="display:block;font-size:0.78rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Academic Level *</label>
+            <select id="aLevel" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;background:white;">
+              <option value="">Select Level</option>
+              <option>L100 – First Year</option>
+              <option>L200 – Second Year</option>
+              <option>L300 – Third Year</option>
+              <option>L400 – Final Year</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.78rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Engineering Program *</label>
+            <select id="aProgram" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;background:white;">
+              <option value="">Select Program</option>
+              <option>Electrical Engineering</option>
+              <option>Mechanical Engineering</option>
+              <option>Computer Engineering</option>
+              <option>Agricultural Engineering</option>
+              <option>Petroleum Engineering</option>
+              <option>Renewable Energy Engineering</option>
+              <option>Civil Engineering</option>
+              <option>Environmental Engineering</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;font-size:0.78rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Course Name *</label>
+          <input type="text" id="aCourse" placeholder="e.g. Engineering Mathematics I" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;">
+        </div>
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;font-size:0.78rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">What do you need help with? *</label>
+          <textarea id="aChallenge" rows="4" placeholder="Describe the topic or problem you're struggling with..." required style="width:100%;padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;"></textarea>
+        </div>
+        <div style="margin-bottom:1.2rem;">
+          <label style="display:block;font-size:0.78rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Your Email *</label>
+          <input type="email" id="aEmail" placeholder="your@email.com" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;">
+        </div>
+        <button type="submit" id="sendAssistBtn" style="width:100%;padding:0.9rem;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;border-radius:50px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.3s;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+          <i class="fas fa-paper-plane"></i> Request Assistance
+        </button>
+      </form>
+      <div id="assistSuccess" style="display:none;text-align:center;padding:1.5rem;background:#d1fae5;border-radius:14px;margin-top:1rem;">
+        <i class="fas fa-check-circle" style="font-size:2.5rem;color:#1B5E20;margin-bottom:0.5rem;display:block;"></i>
+        <h4 style="color:#1B5E20;font-size:1rem;margin-bottom:0.3rem;">Request Submitted!</h4>
+        <p style="color:#065f46;font-size:0.9rem;">A GERAMA tutor will contact you within 24 hours.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ATTENDANCE TAB ═══ -->
 <div class="tab-section" id="tab-attendance">
 
   <!-- Hero: enter code -->
@@ -895,6 +973,8 @@ function showTab(name) {
   }
   if(name === 'assignments') loadAssignments();
   if(name === 'quizzes')     loadQuizzes();
+  if(name === 'mygrades')    loadMyGrades();
+  if(name === 'assistance')  initAssistanceForm();
   if(name === 'attendance')  loadAttendance();
   if(name === 'planner')     loadPlanner();
   if(name === 'qa'){
@@ -3061,6 +3141,126 @@ document.addEventListener('click', function(e){
   var fab = document.getElementById('fabContainer');
   if(fab && !fab.contains(e.target)) closeFab();
 });
+
+// ══════════════════════════════════════════════════════════════
+// MY GRADES TAB
+// ══════════════════════════════════════════════════════════════
+async function loadMyGrades() {
+  var el = document.getElementById('myGradesContent'); if(!el) return;
+  var sb = window.geramaSupabase;
+  if(!sb){ el.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><p>Connecting...</p></div>'; return; }
+
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var myEmail = (profile.email||'').toLowerCase().trim();
+  if(!myEmail){ el.innerHTML='<div class="empty-state"><i class="fas fa-user"></i><p>Please log in to see your grades.</p></div>'; return; }
+
+  el.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:1rem;display:block;"></i>Loading your grades...</div>';
+
+  try {
+    var {data: grades, error} = await sb.from('student_grades').select('*').eq('student_email', myEmail).order('graded_at',{ascending:false});
+    if(error) throw new Error(error.message);
+
+    if(!grades||!grades.length){
+      el.innerHTML='<div class="empty-state"><i class="fas fa-star"></i><p>No grades yet.<br>Your scores will appear here once assignments and quizzes are graded.</p></div>';
+      return;
+    }
+
+    var totalScore = 0, count = 0;
+    grades.forEach(function(g){ if(g.score!==null&&g.score!==undefined){ totalScore+=parseFloat(g.score); count++; } });
+    var avg = count ? (totalScore/count).toFixed(1) : '—';
+
+    el.innerHTML =
+      // Summary bar
+      '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;">' +
+        '<div style="flex:1;min-width:140px;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border-radius:16px;padding:1.2rem 1.5rem;">' +
+          '<div style="font-size:0.8rem;opacity:0.8;margin-bottom:0.3rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Graded Items</div>' +
+          '<div style="font-size:2rem;font-weight:900;">' + grades.length + '</div>' +
+        '</div>' +
+        '<div style="flex:1;min-width:140px;background:linear-gradient(135deg,#FFC107,#e6a800);color:#0a2f1f;border-radius:16px;padding:1.2rem 1.5rem;">' +
+          '<div style="font-size:0.8rem;margin-bottom:0.3rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Average Score</div>' +
+          '<div style="font-size:2rem;font-weight:900;">' + avg + '</div>' +
+        '</div>' +
+        '<div style="flex:1;min-width:140px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border-radius:16px;padding:1.2rem 1.5rem;">' +
+          '<div style="font-size:0.8rem;opacity:0.8;margin-bottom:0.3rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Points</div>' +
+          '<div style="font-size:2rem;font-weight:900;">' + totalScore.toFixed(0) + '</div>' +
+        '</div>' +
+      '</div>' +
+      // Grade list
+      '<div style="display:flex;flex-direction:column;gap:0.8rem;">' +
+      grades.map(function(g) {
+        var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+        var scoreColor = g.score >= 70 ? '#059669' : g.score >= 50 ? '#d97706' : '#dc2626';
+        var scoreBg = g.score >= 70 ? '#d1fae5' : g.score >= 50 ? '#fef3c7' : '#fee2e2';
+        return '<div style="background:white;border-radius:16px;padding:1.2rem 1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-weight:700;color:#1e2a3e;font-size:0.95rem;margin-bottom:0.2rem;">'+escHtml(g.assignment_title||'—')+'</div>' +
+            '<div style="font-size:0.78rem;color:#6b7280;display:flex;align-items:center;gap:0.5rem;">' +
+              '<i class="fas fa-calendar-check"></i> Graded '+dt+
+            '</div>' +
+          '</div>' +
+          '<div style="background:'+scoreBg+';color:'+scoreColor+';font-size:1.4rem;font-weight:900;padding:0.5rem 1.2rem;border-radius:12px;white-space:nowrap;">' +
+            g.score + '<span style="font-size:0.8rem;font-weight:600;opacity:0.7;"> pts</span>' +
+          '</div>' +
+        '</div>';
+      }).join('') +
+      '</div>';
+  } catch(e) {
+    el.innerHTML='<div style="background:#fee2e2;color:#991b1b;padding:1rem;border-radius:12px;">Error: '+escHtml(e.message)+'</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// ACADEMIC ASSISTANCE FORM (moved from contact page)
+// ══════════════════════════════════════════════════════════════
+var _assistanceFormReady = false;
+function initAssistanceForm() {
+  if(_assistanceFormReady) return;
+  _assistanceFormReady = true;
+
+  // Pre-fill email from profile
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var emailEl = document.getElementById('aEmail');
+  if(emailEl && profile.email) emailEl.value = profile.email;
+
+  var SUPA_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+
+  var form = document.getElementById('assistForm');
+  if(!form) return;
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('sendAssistBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    btn.disabled = true;
+
+    var data = {
+      name: profile.name || 'Student',
+      email: document.getElementById('aEmail').value.trim(),
+      subject: 'Assistance: ' + document.getElementById('aCourse').value.trim(),
+      message: 'Level: ' + document.getElementById('aLevel').value +
+               '\nProgram: ' + document.getElementById('aProgram').value +
+               '\nCourse: ' + document.getElementById('aCourse').value.trim() +
+               '\nChallenge: ' + document.getElementById('aChallenge').value.trim(),
+      sent_at: new Date().toISOString(),
+      type: 'assistance'
+    };
+
+    try {
+      await fetch(SUPA_URL + '/rest/v1/contact_messages', {
+        method: 'POST',
+        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify(data)
+      });
+      form.style.display = 'none';
+      document.getElementById('assistSuccess').style.display = 'block';
+    } catch(err) {
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Assistance';
+      btn.disabled = false;
+      alert('Could not submit. Please try again.');
+    }
+  });
+}
 </script>
 </body>
 </html>
