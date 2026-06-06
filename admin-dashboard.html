@@ -369,6 +369,7 @@ tr:hover td{background:#fafcfa;}
     <div class="card">
       <div class="card-title"><i class="fas fa-bolt" style="color:#f59e0b;"></i> Quick Actions</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.8rem;">
+        <button class="btn-primary" onclick="window.loadData && window.loadData();window.loadOverviewStats && window.loadOverviewStats();" style="background:linear-gradient(135deg,#059669,#10b981);"><i class="fas fa-sync-alt"></i> Refresh All Data</button>
         <button class="btn-primary" onclick="switchPanel('upload')"><i class="fas fa-upload"></i> Upload Material</button>
         <button class="btn-gold" onclick="switchPanel('announcements')"><i class="fas fa-bullhorn"></i> Post Announcement</button>
         <button class="btn-primary" onclick="switchPanel('quizzes')"><i class="fas fa-brain"></i> Post Quiz</button>
@@ -1965,20 +1966,29 @@ tr:hover td{background:#fafcfa;}
     };
 
     // Re-trigger all data loads now that login is confirmed.
-    // DOMContentLoaded may have fired before Supabase was ready,
-    // so we force a fresh load here.
+    // Poll until Supabase SDK is fully ready, then load everything.
+    var _loadAttempts = 0;
     function triggerDataLoad(){
-      if(window.geramaSupabase){
+      _loadAttempts++;
+      var sb = window.geramaSupabase;
+      if(sb){
+        // Supabase ready — load everything
+        console.log('[GERAMA] Supabase ready, loading dashboard data...');
         if(window.loadData) window.loadData();
-        // Give loadData a moment then load live stats
         setTimeout(function(){
           if(window.loadOverviewStats) window.loadOverviewStats();
-        }, 800);
+        }, 1000);
+      } else if(_loadAttempts < 40){
+        // Not ready yet — keep retrying every 500ms (up to 20 seconds)
+        setTimeout(triggerDataLoad, 500);
       } else {
-        setTimeout(triggerDataLoad, 400);
+        // Timeout — show message in overview
+        var ra = document.getElementById('recentActivity');
+        if(ra) ra.innerHTML = '<p style="color:#f59e0b;font-size:0.88rem;"><i class="fas fa-exclamation-triangle" style="margin-right:0.4rem;"></i>Could not connect to database. Check your internet and <button onclick="if(window.loadData)window.loadData()" style="background:#1B5E20;color:white;border:none;padding:0.3rem 0.8rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.82rem;font-weight:600;margin-left:0.4rem;">Retry</button></p>';
+        console.warn('[GERAMA] Supabase never connected after 20s');
       }
     }
-    setTimeout(triggerDataLoad, 300);
+    setTimeout(triggerDataLoad, 200);
   }
 
   //  Logout 

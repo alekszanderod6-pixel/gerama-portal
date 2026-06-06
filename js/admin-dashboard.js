@@ -651,8 +651,9 @@
     try{
       var sb = window.geramaSupabase;
       if(sb){
-        var { data } = await sb.from('materials').select('*').order('created_at',{ascending:false}).limit(200);
-        if(data && data.length){
+        var { data, error } = await sb.from('materials').select('*').order('created_at',{ascending:false}).limit(200);
+        if(error){ console.warn('[GERAMA] Materials load error:', error.message); }
+        else if(data && data.length){
           materialsHistory = data.map(function(r){
             return { level:r.level, sem:r.semester, course:r.course, type:r.type, name:r.name,
               desc:r.description||'', url:r.file_url, path:r.storage_path||'',
@@ -660,7 +661,7 @@
           });
         }
       }
-    }catch(e){}
+    }catch(e){ console.warn('[GERAMA] loadData materials error:', e); }
 
     try{
       var sb2 = window.geramaSupabase;
@@ -688,7 +689,8 @@
 
   async function loadOverviewStats(){
     window.loadOverviewStats = loadOverviewStats; // expose for inline script
-    var sb = window.geramaSupabase; if(!sb) return;
+    var sb = window.geramaSupabase;
+    if(!sb){ console.warn('[GERAMA] loadOverviewStats: Supabase not ready'); return; }
     var now = new Date();
     var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     var weekStart  = new Date(now.getTime() - 7*24*60*60*1000).toISOString();
