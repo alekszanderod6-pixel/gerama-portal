@@ -144,7 +144,8 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 .active-admin-role{color:rgba(255,255,255,0.5);font-size:0.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .switch-admin-btn{color:rgba(255,193,7,0.7);background:none;border:none;font-size:0.75rem;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;padding:0.2rem 0.4rem;}
 .switch-admin-btn:hover{color:#FFC107;}
-</style>
+
+/* ── MAIN DASHBOARD STYLES ── */
 .dash-sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:linear-gradient(180deg,#0a2f1f,#1B5E20);z-index:200;overflow-y:auto;display:flex;flex-direction:column;transition:transform 0.3s ease;}
 .sidebar-logo{padding:1.5rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;gap:0.8rem;}
 .sidebar-logo img{width:40px;border-radius:8px;flex-shrink:0;}
@@ -287,8 +288,8 @@ tr:hover td{background:#fafcfa;}
 <!-- CREATE ADMIN PROFILE MODAL -->
 <div id="adminCreateModal">
   <div class="create-box">
-    <h3><i class="fas fa-user-plus" style="color:#FFC107;margin-right:0.5rem;"></i> Create Admin Profile</h3>
-    <p>Set up your admin identity. Your name and role will be visible to other admins for accountability.</p>
+    <h3><i class="fas fa-user-plus" style="color:#FFC107;margin-right:0.5rem;"></i> Create / Set Up Profile</h3>
+    <p>New admin? Create your profile here. Already have a profile but no password yet? Enter your existing email to set one.</p>
     <div class="create-field"><label>Full Name *</label><input type="text" id="cpName" placeholder="e.g. Alexander Dwumaah" maxlength="60"></div>
     <div class="create-field"><label>Role / Title *</label><input type="text" id="cpRole" placeholder="e.g. Lead Admin · Developer" maxlength="60"></div>
     <div class="create-field"><label>Email (used as your login ID) *</label><input type="email" id="cpEmail" placeholder="your@email.com"></div>
@@ -1988,13 +1989,14 @@ tr:hover td{background:#fafcfa;}
 
     try {
       var hash = await sha256(pass);
-      var {error} = await sb.from('admin_profiles').insert({
+      // Try upsert — if profile with this email exists, just update the password/name/role
+      var {error} = await sb.from('admin_profiles').upsert({
         name: name, role: role, email: email,
         password_hash: hash,
         updated_at: new Date().toISOString()
-      });
+      }, { onConflict: 'email' });
       if(error) throw new Error(error.message);
-      showMsg('✅ Profile created! Click your name on the picker to sign in.','ok');
+      showMsg('✅ Profile saved! Go back and click your name to sign in.','ok');
       setTimeout(function(){
         document.getElementById('adminCreateModal').classList.remove('open');
         showPicker();
