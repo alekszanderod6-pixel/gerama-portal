@@ -308,7 +308,6 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         <div class="who-slide"><img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/mavis.jpg" alt="Mavis"></div>
         <div class="who-slide"><img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/abena.jpg" alt="Abena"></div>
         <div class="who-slide"><img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/alma.jpg" alt="Alma"></div>
-        <div class="who-slide"><img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/emmanuel.jpg" alt="Emmanuel"></div>
         <div class="who-slide"><img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/bediser.jpg" alt="Bediser"></div>
         <div class="who-slide"><img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/kamil.jpg" alt="Kamil"></div>
         <div class="who-slide"><img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/rabbi.jpg" alt="Rabby"></div>
@@ -342,7 +341,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <i class="fas fa-crown" style="color:#FFC107;"></i> Founding Team &amp; Core Leads
     </div>
   </div>
-  <div class="team-grid" style="margin-bottom:3.5rem;">
+  <div class="team-grid" id="teamGrid-founding" style="margin-bottom:3.5rem;">
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/edem.jpg" alt="Edem">
       <div class="team-name">Edem H.K Prince</div>
@@ -399,11 +398,6 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div class="team-name">Alma</div>
       <div class="team-role">Core Member · Project Manager</div>
     </div>
-    <div class="team-card">
-      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/emmanuel.jpg" alt="Emmanuel">
-      <div class="team-name">Emmanuel (E)</div>
-      <div class="team-role">Core Member</div>
-    </div>
   </div>
 
   <!-- GERAMA/25 TUTORS -->
@@ -413,7 +407,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     </div>
   </div>
   <p style="text-align:center;color:#6b7280;font-size:0.88rem;margin-bottom:1.5rem;">Our L200 tutors — the second generation of GERAMA leadership.</p>
-  <div class="team-grid" style="margin-bottom:3.5rem;">
+  <div class="team-grid" id="teamGrid-gerama25" style="margin-bottom:3.5rem;">
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/bediser.jpg" alt="Bediser">
       <div class="team-name">Bediser</div>
@@ -443,7 +437,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     </div>
   </div>
   <p style="text-align:center;color:#6b7280;font-size:0.88rem;margin-bottom:1.5rem;">Our L100 tutors — the rising stars of GERAMA, currently shaping the next chapter.</p>
-  <div class="team-grid" style="margin-bottom:3.5rem;">
+  <div class="team-grid" id="teamGrid-gerama26" style="margin-bottom:3.5rem;">
     <div class="team-card" style="border-top-color:#6366f1;">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/gerama_26/jerome.jpg" alt="Jerome"
         style="border-color:#6366f1;">
@@ -511,7 +505,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     </div>
   </div>
   <p style="text-align:center;color:#6b7280;font-size:0.88rem;margin-bottom:1.5rem;">The creative minds behind GERAMA's visual storytelling and digital presence.</p>
-  <div class="team-grid">
+  <div class="team-grid" id="teamGrid-media">
     <div class="team-card" style="border-top-color:#0ea5e9;">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/media_team/Augustine.jpg" alt="Augustine"
         style="border-color:#0ea5e9;">
@@ -697,6 +691,71 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   document.querySelectorAll('.reveal').forEach(function(el) {
     observer.observe(el);
   });
+})();
+
+// ── DYNAMIC TEAM MEMBERS (admin-added via dashboard) ─────────────
+(function(){
+  function waitForSB(cb, tries){
+    tries = tries || 0;
+    if(window.geramaSupabase){ cb(window.geramaSupabase); return; }
+    if(tries > 20) return;
+    setTimeout(function(){ waitForSB(cb, tries+1); }, 350);
+  }
+
+  // Group → accent colours
+  var groupStyles = {
+    'founding':  { border:'var(--primary)', photoShadow:'rgba(27,94,32,0.3)', roleColor:'var(--primary)' },
+    'gerama25':  { border:'var(--primary)', photoShadow:'rgba(27,94,32,0.3)', roleColor:'var(--primary)' },
+    'gerama26':  { border:'#6366f1',        photoShadow:'rgba(99,102,241,0.3)', roleColor:'#4338ca' },
+    'media':     { border:'#0ea5e9',        photoShadow:'rgba(14,165,233,0.3)', roleColor:'#0369a1' }
+  };
+
+  function buildCard(m){
+    var styles = groupStyles[m.group] || groupStyles['founding'];
+    var photoHtml = m.photo_url
+      ? '<img class="team-photo" src="'+m.photo_url+'" alt="'+escHtml(m.name)+'" style="border-color:'+styles.border+';box-shadow:0 6px 20px '+styles.photoShadow+';">'
+      : '<div class="team-photo" style="background:linear-gradient(135deg,'+styles.border+',#aaa);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;border-radius:50%;width:95px;height:95px;margin:0 auto 1.1rem;border:3.5px solid #FFC107;">'+(m.emoji||'👤')+'</div>';
+
+    var badgeHtml = m.badge_label
+      ? '<div style="font-size:0.72rem;background:#ede9fe;color:'+styles.roleColor+';padding:0.15rem 0.6rem;border-radius:20px;display:inline-block;margin-top:0.3rem;font-weight:700;">'+escHtml(m.badge_label)+'</div>'
+      : '';
+
+    return '<div class="team-card" style="border-top-color:'+styles.border+';">'+
+      photoHtml+
+      '<div class="team-name">'+escHtml(m.name)+'</div>'+
+      '<div class="team-role" style="color:'+styles.roleColor+';">'+escHtml(m.role)+'</div>'+
+      badgeHtml+
+    '</div>';
+  }
+
+  function escHtml(s){
+    return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  waitForSB(async function(sb){
+    try{
+      var {data} = await sb.from('team_members').select('*').eq('active',true).order('sort_order',{ascending:true}).order('created_at',{ascending:true});
+      if(!data||!data.length) return;
+      data.forEach(function(m){
+        var grid = document.getElementById('teamGrid-'+m.group);
+        if(!grid) return;
+        var card = document.createElement('div');
+        card.className = 'team-card reveal';
+        card.style.borderTopColor = (groupStyles[m.group]||groupStyles['founding']).border;
+        card.innerHTML = buildCard(m).replace(/^<div[^>]*>/,'').replace(/<\/div>$/,'');
+        grid.appendChild(card);
+        // Wire up scroll reveal observer
+        if(window._teamRevealObserver) window._teamRevealObserver.observe(card);
+      });
+    }catch(e){}
+  });
+
+  // Store observer reference for dynamically added cards
+  window._teamRevealObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){ entry.target.classList.add('visible'); window._teamRevealObserver.unobserve(entry.target); }
+    });
+  }, {threshold:0.1, rootMargin:'0px 0px -40px 0px'});
 })();
 </script>
 </body>

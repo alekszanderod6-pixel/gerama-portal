@@ -2801,6 +2801,7 @@ window.switchPanel_old = window.switchPanel;
   window.switchPanel = function(name){
     if(_orig) _orig(name);
     if(name==='adminprofiles') setTimeout(loadAdminProfiles, 150);
+    if(name==='team') setTimeout(function(){ if(window.loadTeamList) window.loadTeamList('all'); }, 150);
     if(name==='quizzes') setTimeout(function(){
       // Pre-fill import quiz select
       loadImportQzSelect();
@@ -3038,3 +3039,378 @@ window.importScoresFromCSV = async function() {
   window.showStatus('importStatus',msg,'ok');
   if(errors.length) console.warn('Import errors:', errors);
 };
+
+// ═══════════════════════════════════════════════════════════════
+// TEAM MEMBER MANAGEMENT — About Page
+// ═══════════════════════════════════════════════════════════════
+
+var _selectedTeamPhotoFile = null;
+
+// Wire up drop zone when DOM is ready
+document.addEventListener('DOMContentLoaded', function(){
+  var zone = document.getElementById('tmPhotoZone');
+  var inp  = document.getElementById('tmPhotoFile');
+  if(!zone || !inp) return;
+
+  zone.addEventListener('click', function(){ inp.click(); });
+  inp.addEventListener('change', function(){
+    if(this.files && this.files[0]) _handleTeamPhoto(this.files[0]);
+  });
+  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', function(){ zone.classList.remove('drag-over'); });
+  zone.addEventListener('drop', function(e){
+    e.preventDefault(); zone.classList.remove('drag-over');
+    if(e.dataTransfer && e.dataTransfer.files[0]) _handleTeamPhoto(e.dataTransfer.files[0]);
+  });
+
+  // Wire panel switch
+  var origSwitch = window.switchPanel;
+  window.switchPanel = function(name){
+    if(origSwitch) origSwitch(name);
+    if(name === 'team') setTimeout(function(){ window.loadTeamList('all'); }, 150);
+  };
+});
+
+function _handleTeamPhoto(file) {
+  if(file.size > 5*1024*1024){ alert('Photo too large — max 5MB.'); return; }
+  _selectedTeamPhotoFile = file;
+  var chosen = document.getElementById('tmPhotoChosen');
+  if(chosen) chosen.textContent = '✅ ' + file.name;
+  var preview = document.getElementById('tmPhotoPreview');
+  if(preview){
+    var reader = new FileReader();
+    reader.onload = function(e){ preview.src = e.target.result; preview.style.display = 'block'; };
+    reader.readAsDataURL(file);
+  }
+}
+
+window.saveTeamMember = async function(){
+  var name   = (document.getElementById('tmName').value||'').trim();
+  var role   = (document.getElementById('tmRole').value||'').trim();
+  var group  = document.getElementById('tmGroup').value;
+  var badge  = (document.getElementById('tmBadge').value||'').trim();
+  var emoji  = (document.getElementById('tmEmoji').value||'👤').trim();
+  var order  = parseInt(document.getElementById('tmOrder').value||'99');
+  var sb     = window.geramaSupabase;
+
+  if(!name || !role){ window.showStatus('tmStatus','Please fill in Name and Role.','err'); return; }
+  if(!sb){ window.showStatus('tmStatus','Not connected to Supabase.','err'); return; }
+
+  var btn = document.getElementById('tmSaveBtn');
+  if(btn){ btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; }
+  window.showStatus('tmStatus','Saving...','info');
+
+  try {
+    var photoUrl = null;
+
+    // Upload photo if selected
+    if(_selectedTeamPhotoFile){
+      var ext  = _selectedTeamPhotoFile.name.split('.').pop().toLowerCase();
+      var path = 'team-members/' + Date.now() + '-' + name.toLowerCase().replace(/[^a-z0-9]/g,'-') + '.' + ext;
+      var up   = await sb.storage.from(window.BUCKET||'gerama-materials').upload(path, _selectedTeamPhotoFile, {upsert:true});
+      if(up.error) throw new Error('Photo upload failed: ' + up.error.message);
+      photoUrl = sb.storage.from(window.BUCKET||'gerama-materials').getPublicUrl(path).data.publicUrl;
+    }
+
+    var record = {
+      name:       name,
+      role:       role,
+      group:      group,
+      badge_label: badge || null,
+      emoji:      emoji || '👤',
+      photo_url:  photoUrl,
+      sort_order: order,
+      active:     true,
+      created_at: new Date().toISOString()
+    };
+
+    var {error} = await sb.from('team_members').insert(record);
+    if(error) throw new Error(error.message);
+
+    window.logActivity('Added team member: ' + name + ' (' + group + ')');
+    window.showStatus('tmStatus', '✅ ' + name + ' added! They will now appear on the About page.', 'ok');
+
+    // Reset form
+    ['tmName','tmRole','tmBadge','tmEmoji'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.value = '';
+    });
+    var orderEl = document.getElementById('tmOrder'); if(orderEl) orderEl.value = '99';
+    var chosenEl = document.getElementById('tmPhotoChosen'); if(chosenEl) chosenEl.textContent = '';
+    var prevEl = document.getElementById('tmPhotoPreview'); if(prevEl){ prevEl.src=''; prevEl.style.display='none'; }
+    _selectedTeamPhotoFile = null;
+
+    window.loadTeamList('all');
+  } catch(e){
+    window.showStatus('tmStatus', '❌ ' + e.message, 'err');
+  }
+
+  if(btn){ btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Add to About Page'; }
+};
+
+window.loadTeamList = async function(filter){
+  var el = document.getElementById('tmList'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+  el.innerHTML = '<p style="color:#9ca3af;font-size:0.88rem;text-align:center;padding:1rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p>';
+
+  try {
+    var query = sb.from('team_members').select('*').order('sort_order',{ascending:true}).order('created_at',{ascending:true});
+    if(filter && filter !== 'all') query = query.eq('group', filter);
+    var {data, error} = await query;
+    if(error) throw new Error(error.message);
+    if(!data || !data.length){
+      el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:1.5rem;">No team members added via this panel yet.</p>';
+      return;
+    }
+
+    var groupLabels = {
+      'founding': 'Founding Team',
+      'gerama25': 'GERAMA/25',
+      'gerama26': 'GERAMA/26',
+      'media':    'Media Team'
+    };
+    var groupColors = {
+      'founding': '#1B5E20',
+      'gerama25': '#2E7D32',
+      'gerama26': '#6366f1',
+      'media':    '#0ea5e9'
+    };
+
+    el.innerHTML = data.map(function(m){
+      var gc = groupColors[m.group] || '#1B5E20';
+      var gl = groupLabels[m.group] || m.group;
+      var photoHtml = m.photo_url
+        ? '<img src="'+window.escAttr(m.photo_url)+'" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid '+gc+';flex-shrink:0;" alt="">'
+        : '<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,'+gc+',#aaa);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">'+(m.emoji||'👤')+'</div>';
+
+      return '<div class="sub-card" style="gap:0.8rem;align-items:center;">'+
+        photoHtml+
+        '<div class="sub-info" style="min-width:0;">'+
+          '<strong>'+window.escHtml(m.name)+'</strong>'+
+          '<div class="sub-meta">'+window.escHtml(m.role)+'<br>'+
+            '<span style="background:'+gc+'22;color:'+gc+';font-size:0.7rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:10px;">'+gl+'</span>'+
+            (m.badge_label ? ' &nbsp;<span style="background:#f3f4f6;color:#374151;font-size:0.7rem;font-weight:600;padding:0.1rem 0.5rem;border-radius:10px;">'+window.escHtml(m.badge_label)+'</span>' : '')+
+          '</div>'+
+        '</div>'+
+        '<div class="sub-actions">'+
+          '<button class="btn-'+(m.active?'success':'danger')+'" onclick="toggleTeamMember(\''+window.escAttr(m.id)+'\','+m.active+')" style="font-size:0.75rem;padding:0.3rem 0.7rem;" title="'+(m.active?'Hide from page':'Show on page')+'">'+
+            (m.active ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>')+
+          '</button>'+
+          '<button class="btn-danger" onclick="deleteTeamMember(\''+window.escAttr(m.id)+'\',\''+window.escAttr(m.name)+'\')" style="font-size:0.75rem;padding:0.3rem 0.7rem;"><i class="fas fa-trash"></i></button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  } catch(e){
+    el.innerHTML = '<p style="color:#dc2626;padding:1rem;">Error: '+window.escHtml(e.message)+'</p>';
+  }
+};
+
+window.toggleTeamMember = async function(id, currentlyActive){
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('team_members').update({active: !currentlyActive}).eq('id', id);
+  window.logActivity((currentlyActive ? 'Hidden' : 'Shown') + ' team member from About page');
+  window.loadTeamList('all');
+};
+
+window.deleteTeamMember = async function(id, name){
+  if(!confirm('Remove "'+name+'" from the About page? This cannot be undone.')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('team_members').delete().eq('id', id);
+  window.logActivity('Deleted team member: '+name);
+  window.loadTeamList('all');
+};
+
+// ═══════════════════════════════════════════════════════════════
+// TEAM MEMBERS MANAGEMENT (About Page)
+// ═══════════════════════════════════════════════════════════════
+
+var _tmPhotoFile = null;
+
+// Drop zone setup — runs after DOM ready
+document.addEventListener('DOMContentLoaded', function(){
+  var zone  = document.getElementById('tmPhotoZone');
+  var input = document.getElementById('tmPhotoFile');
+  var preview = document.getElementById('tmPhotoPreview');
+  if(!zone || !input) return;
+
+  zone.addEventListener('click', function(){ input.click(); });
+  input.addEventListener('change', function(){
+    var f = this.files && this.files[0];
+    if(!f) return;
+    _tmPhotoFile = f;
+    document.getElementById('tmPhotoChosen').textContent = '✅ ' + f.name;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(f);
+  });
+  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', function(){ zone.classList.remove('drag-over'); });
+  zone.addEventListener('drop', function(e){
+    e.preventDefault(); zone.classList.remove('drag-over');
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(!f) return;
+    _tmPhotoFile = f;
+    document.getElementById('tmPhotoChosen').textContent = '✅ ' + f.name;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      preview.src = ev.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(f);
+  });
+});
+
+window.saveTeamMember = async function(){
+  var name  = (document.getElementById('tmName').value||'').trim();
+  var role  = (document.getElementById('tmRole').value||'').trim();
+  var group = (document.getElementById('tmGroup').value||'founding');
+  var badge = (document.getElementById('tmBadge').value||'').trim();
+  var emoji = (document.getElementById('tmEmoji').value||'👤').trim();
+  var order = parseInt(document.getElementById('tmOrder').value||'99');
+
+  if(!name || !role){
+    window.showStatus('tmStatus','Please fill in Name and Role.','err');
+    return;
+  }
+
+  var sb = window.geramaSupabase;
+  if(!sb){ window.showStatus('tmStatus','Not connected.','err'); return; }
+
+  var btn = document.getElementById('tmSaveBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+  window.showStatus('tmStatus','Saving...','info');
+
+  try {
+    var photoUrl = null;
+
+    // Upload photo if selected
+    if(_tmPhotoFile){
+      if(_tmPhotoFile.size > 5 * 1024 * 1024){
+        throw new Error('Photo too large. Max 5 MB.');
+      }
+      var ext = _tmPhotoFile.name.split('.').pop().toLowerCase();
+      var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Date.now() + '.' + ext;
+      var storagePath = 'team-members/' + safeName;
+      var upRes = await sb.storage.from(window.BUCKET).upload(storagePath, _tmPhotoFile, { upsert: true });
+      if(upRes.error) throw new Error('Photo upload failed: ' + upRes.error.message);
+      photoUrl = sb.storage.from(window.BUCKET).getPublicUrl(storagePath).data.publicUrl;
+    }
+
+    var record = {
+      name:        name,
+      role:        role,
+      group:       group,
+      badge_label: badge || null,
+      emoji:       emoji || '👤',
+      photo_url:   photoUrl,
+      sort_order:  order,
+      active:      true,
+      created_at:  new Date().toISOString()
+    };
+
+    var {error} = await sb.from('team_members').insert(record);
+    if(error) throw new Error(error.message);
+
+    window.logActivity('Added team member: ' + name + ' (' + group + ')');
+    window.showStatus('tmStatus', '✅ ' + name + ' added! They will now appear on the About page.', 'ok');
+
+    // Reset form
+    ['tmName','tmRole','tmBadge','tmEmoji'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.value = '';
+    });
+    document.getElementById('tmOrder').value = '99';
+    document.getElementById('tmPhotoChosen').textContent = '';
+    var prev = document.getElementById('tmPhotoPreview');
+    if(prev){ prev.src=''; prev.style.display='none'; }
+    _tmPhotoFile = null;
+
+    // Reload list
+    loadTeamList('all');
+
+  } catch(e){
+    window.showStatus('tmStatus', '❌ ' + e.message, 'err');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-save"></i> Add to About Page';
+};
+
+window.loadTeamList = async function(filter){
+  var el = document.getElementById('tmList');
+  if(!el) return;
+  var sb = window.geramaSupabase;
+  if(!sb){ el.innerHTML = '<p style="color:#9ca3af;">Not connected.</p>'; return; }
+
+  el.innerHTML = '<p style="color:#9ca3af;font-size:0.88rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p>';
+
+  try {
+    var query = sb.from('team_members').select('*').order('group').order('sort_order').order('created_at');
+    if(filter && filter !== 'all') query = query.eq('group', filter);
+    var {data, error} = await query;
+    if(error) throw new Error(error.message);
+
+    if(!data || !data.length){
+      el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-users" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No members added yet.</p>';
+      return;
+    }
+
+    var groupLabels = {
+      founding:  'Founding Team & Core Leads',
+      gerama25:  'GERAMA/25 Tutors',
+      gerama26:  'GERAMA/26 Tutors & Leadership',
+      media:     'Media Team'
+    };
+
+    var groupColors = {
+      founding: '#1B5E20',
+      gerama25: '#2E7D32',
+      gerama26: '#6366f1',
+      media:    '#0ea5e9'
+    };
+
+    el.innerHTML = data.map(function(m){
+      var col = groupColors[m.group] || '#1B5E20';
+      var avatarHtml = m.photo_url
+        ? '<img src="'+window.escAttr(m.photo_url)+'" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid '+col+';flex-shrink:0;" alt="">'
+        : '<div style="width:48px;height:48px;border-radius:50%;background:'+col+';display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">'+(m.emoji||'👤')+'</div>';
+
+      return '<div class="sub-card" style="border-left:4px solid '+col+';">'+
+        avatarHtml+
+        '<div class="sub-info">'+
+          '<strong>'+window.escHtml(m.name)+'</strong>'+
+          '<div class="sub-meta">'+
+            '<span style="background:'+col+'22;color:'+col+';font-size:0.7rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:20px;margin-right:0.4rem;">'+window.escHtml(groupLabels[m.group]||m.group)+'</span>'+
+            window.escHtml(m.role||'')+(m.badge_label ? ' · <em>'+window.escHtml(m.badge_label)+'</em>' : '')+
+          '</div>'+
+        '</div>'+
+        '<div class="sub-actions">'+
+          '<button class="btn-danger" onclick="removeTeamMember(\''+window.escAttr(m.id)+'\',\''+window.escAttr(m.name)+'\')"><i class="fas fa-trash"></i> Remove</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+
+  } catch(e){
+    el.innerHTML = '<p style="color:#dc2626;">Error: '+window.escHtml(e.message)+'</p>';
+  }
+};
+
+window.removeTeamMember = async function(id, name){
+  if(!confirm('Remove "'+name+'" from the About page?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {error} = await sb.from('team_members').delete().eq('id', id);
+  if(error){ alert('Error: '+error.message); return; }
+  window.logActivity('Removed team member: '+name);
+  window.loadTeamList('all');
+};
+
+// Auto-load when panel opens
+(function(){
+  var _origSwitchTm = window.switchPanel;
+  window.switchPanel = function(name){
+    if(_origSwitchTm) _origSwitchTm(name);
+    if(name === 'team') setTimeout(function(){ window.loadTeamList('all'); }, 150);
+  };
+})();

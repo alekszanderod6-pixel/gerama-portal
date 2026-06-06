@@ -348,6 +348,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="potw"><i class="fas fa-star"></i> Personality of Week</div>
     <div class="nav-item" data-panel="reels"><i class="fas fa-film"></i> Manage Reels</div>
     <div class="nav-item" data-panel="adminprofiles"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> Admin Profiles</div>
+    <div class="nav-item" data-panel="team"><i class="fas fa-users-cog" style="color:#34d399;"></i> Manage Team</div>
     <div class="nav-item" data-panel="mall"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</div>
     <div class="nav-item" data-panel="settings"><i class="fas fa-cog"></i> Settings</div>
   </nav>
@@ -1300,6 +1301,56 @@ tr:hover td{background:#fafcfa;}
         <div style="font-size:0.88rem;font-weight:700;color:#374151;margin-bottom:0.6rem;">Active Suggestions</div>
         <div id="suggList"><p style="color:#9ca3af;font-size:0.85rem;">Loading...</p></div>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══ TEAM MANAGEMENT PANEL ═══ -->
+  <div class="panel" id="panel-team">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-user-plus" style="color:#34d399;"></i> Add New Team Member</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Members you add here will appear on the <strong>About page</strong> under the correct section automatically.</p>
+      <div class="form-grid">
+        <div class="form-field"><label>Full Name *</label><input type="text" id="tmName" placeholder="e.g. John Mensah"></div>
+        <div class="form-field"><label>Role / Position *</label><input type="text" id="tmRole" placeholder="e.g. GERAMA/26 · Tutor"></div>
+        <div class="form-field full"><label>Team Group *</label>
+          <select id="tmGroup">
+            <option value="founding">Founding Team &amp; Core Leads</option>
+            <option value="gerama25">GERAMA/25 Tutors</option>
+            <option value="gerama26">GERAMA/26 Tutors &amp; Leadership</option>
+            <option value="media">Media Team</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Badge Label (optional)</label><input type="text" id="tmBadge" placeholder="e.g. GERAMA/26 President"></div>
+        <div class="form-field"><label>Emoji (if no photo)</label><input type="text" id="tmEmoji" placeholder="👤" maxlength="4" style="font-size:1.2rem;"></div>
+        <div class="form-field full"><label>Sort Order (lower = appears first)</label><input type="number" id="tmOrder" value="99" min="1" max="999"></div>
+        <div class="form-field full">
+          <label>Profile Photo (upload — stored to Supabase)</label>
+          <div class="drop-zone" id="tmPhotoZone" style="padding:1.2rem;">
+            <i class="fas fa-camera" style="color:#34d399;"></i>
+            <p>Click to upload photo (JPG, PNG — max 5MB)</p>
+            <p class="file-chosen" id="tmPhotoChosen"></p>
+            <input type="file" id="tmPhotoFile" accept="image/*" style="display:none;">
+          </div>
+          <img id="tmPhotoPreview" style="display:none;width:80px;height:80px;border-radius:50%;object-fit:cover;margin-top:0.6rem;border:3px solid #34d399;" alt="">
+        </div>
+      </div>
+      <div style="margin-top:1rem;">
+        <button class="btn-primary" id="tmSaveBtn" onclick="saveTeamMember()" style="background:linear-gradient(135deg,#059669,#10b981);"><i class="fas fa-save"></i> Add to About Page</button>
+      </div>
+      <div class="status-msg" id="tmStatus"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="fas fa-list" style="color:#34d399;"></i> Current Team Members (Admin-Added)</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">These are members added via this panel. Static members (hardcoded on the About page) are not shown here.</p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <button onclick="loadTeamList('all')" class="btn-primary" style="font-size:0.8rem;padding:0.35rem 0.9rem;">All</button>
+        <button onclick="loadTeamList('founding')" class="btn-gold" style="font-size:0.8rem;padding:0.35rem 0.9rem;">Founding</button>
+        <button onclick="loadTeamList('gerama25')" class="btn-gold" style="font-size:0.8rem;padding:0.35rem 0.9rem;">GERAMA/25</button>
+        <button onclick="loadTeamList('gerama26')" class="btn-gold" style="font-size:0.8rem;padding:0.35rem 0.9rem;">GERAMA/26</button>
+        <button onclick="loadTeamList('media')" class="btn-gold" style="font-size:0.8rem;padding:0.35rem 0.9rem;">Media</button>
+      </div>
+      <div id="tmList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
   </div>
 
