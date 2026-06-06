@@ -687,6 +687,7 @@
   };
 
   async function loadOverviewStats(){
+    window.loadOverviewStats = loadOverviewStats; // expose for inline script
     var sb = window.geramaSupabase; if(!sb) return;
     var now = new Date();
     var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();

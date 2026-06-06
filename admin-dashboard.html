@@ -1928,7 +1928,7 @@ tr:hover td{background:#fafcfa;}
     reset();
   };
 
-  //  Enter dashboard 
+  //  Enter dashboard ───────────────────────────────────────────────
   function enterDashboard(session){
     // Hide picker
     var picker = document.getElementById('adminPickerScreen');
@@ -1957,12 +1957,28 @@ tr:hover td{background:#fafcfa;}
     if(apRole && !apRole.value)  apRole.value  = session.role  || '';
     if(apEmail) apEmail.value = session.email || '';
 
-    // Patch logActivity
+    // Patch logActivity to tag admin name
     window._activeAdminSession = session;
     var origLog = window.logActivity;
     window.logActivity = function(msg){
       if(origLog) origLog('['+(session.name||'Admin')+'] '+msg);
     };
+
+    // Re-trigger all data loads now that login is confirmed.
+    // DOMContentLoaded may have fired before Supabase was ready,
+    // so we force a fresh load here.
+    function triggerDataLoad(){
+      if(window.geramaSupabase){
+        if(window.loadData) window.loadData();
+        // Give loadData a moment then load live stats
+        setTimeout(function(){
+          if(window.loadOverviewStats) window.loadOverviewStats();
+        }, 800);
+      } else {
+        setTimeout(triggerDataLoad, 400);
+      }
+    }
+    setTimeout(triggerDataLoad, 300);
   }
 
   //  Logout 
