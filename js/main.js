@@ -756,3 +756,58 @@ if(!document.getElementById('confettiStyle')) {
     checkMobile();
     window.addEventListener('resize', checkMobile);
 })();
+
+// ── GLOBAL TOAST NOTIFICATION ─────────────────────────────────────
+window.showToast = function(msg, duration) {
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(skip.indexOf(page) !== -1) return;
+
+    var toast = document.getElementById('geramaToast');
+    if(!toast) {
+        toast = document.createElement('div');
+        toast.id = 'geramaToast';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, duration || 2800);
+};
+
+// ── SCROLL-TO-TOP BUTTON ──────────────────────────────────────────
+(function() {
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(skip.indexOf(page) !== -1) return;
+
+    var btn = document.createElement('button');
+    btn.id = 'scrollTopBtn';
+    btn.setAttribute('aria-label', 'Scroll to top');
+    btn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+    btn.onclick = function() { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    document.body.appendChild(btn);
+
+    window.addEventListener('scroll', function() {
+        if(window.scrollY > 400) btn.classList.add('visible');
+        else btn.classList.remove('visible');
+    }, { passive: true });
+})();
+
+// ── IMAGE LAZY LOADING ────────────────────────────────────────────
+(function() {
+    if(!('IntersectionObserver' in window)) return;
+    var imgs = document.querySelectorAll('img[data-src]');
+    if(!imgs.length) return;
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if(e.isIntersecting) {
+                var img = e.target;
+                img.src = img.dataset.src;
+                img.classList.add('loaded');
+                img.classList.remove('lazy');
+                obs.unobserve(img);
+            }
+        });
+    }, { rootMargin: '100px' });
+    imgs.forEach(function(img) { img.classList.add('lazy'); obs.observe(img); });
+})();
