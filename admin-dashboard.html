@@ -1762,14 +1762,30 @@ tr:hover td{background:#fafcfa;}
   // ── Supabase helper (wait for it to be ready) ──────────────────
   function getSB(){ return window.geramaSupabase || null; }
 
-  // ── On page load: check for active session or show picker ──────
-  document.addEventListener('DOMContentLoaded', function(){
-    var session = getSession();
-    if(session && session.id){
-      hidePicker(session);
-    } else {
-      showPicker();
+  // ── On page load: wait for all scripts then check session ──────
+  // Use 'load' event (not DOMContentLoaded) so supabase-config.js
+  // has fully executed and window.geramaSupabase is ready.
+  window.addEventListener('load', function(){
+    // Poll until Supabase is ready (supabase-config.js polls the CDN library)
+    var attempts = 0;
+    var maxAttempts = 30; // 15 seconds max
+    function tryInit(){
+      attempts++;
+      if(window.geramaSupabase){
+        var session = getSession();
+        if(session && session.id){
+          hidePicker(session);
+        } else {
+          showPicker();
+        }
+      } else if(attempts < maxAttempts){
+        setTimeout(tryInit, 500);
+      } else {
+        // Supabase never connected — show picker anyway (will show retry/bypass)
+        showPicker();
+      }
     }
+    setTimeout(tryInit, 200);
   });
 
   function getSession(){
@@ -1831,16 +1847,42 @@ tr:hover td{background:#fafcfa;}
     if(!overlay || !grid) return;
     overlay.style.display = 'flex';
 
-    var sb = getSB();
+    // Show loading while Supabase connects
+    grid.innerHTML = '<div style="color:rgba(255,255,255,0.5);text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin" style="font-size:2rem;display:block;margin-bottom:0.8rem;"></i>Connecting...</div>';
+
+    // Wait up to 8 seconds for Supabase to be ready
+    var sb = null;
+    for(var attempt = 0; attempt < 16; attempt++){
+      sb = getSB();
+      if(sb) break;
+      await new Promise(function(r){ setTimeout(r, 500); });
+    }
+
     if(!sb){
-      setTimeout(showPicker, 800); return;
+      grid.innerHTML =
+        '<div style="text-align:center;padding:1rem;">' +
+          '<div style="color:#f87171;font-size:0.88rem;margin-bottom:1.2rem;"><i class="fas fa-wifi" style="display:block;font-size:2rem;margin-bottom:0.5rem;opacity:0.6;"></i>Could not connect to server.<br>Check your internet connection.</div>' +
+          '<button onclick="showPicker()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.6rem 1.4rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.85rem;font-weight:600;margin-bottom:0.8rem;"><i class="fas fa-redo"></i> Retry</button><br>' +
+          '<button onclick="bypassWithMasterCode()" style="background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.3);color:#FFC107;padding:0.6rem 1.4rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.85rem;font-weight:600;">🔑 Enter with Master Code</button>' +
+        '</div>';
+      return;
     }
 
     try {
-      var {data} = await sb.from('admin_profiles').select('*').order('name',{ascending:true});
+      var {data, error} = await sb.from('admin_profiles').select('*').order('name',{ascending:true});
+      if(error) throw new Error(error.message);
       var profiles = data || [];
 
       var html = '';
+
+      // If no profiles exist yet, show a friendly first-time setup message
+      if(!profiles.length){
+        html = '<div style="text-align:center;color:rgba(255,255,255,0.6);font-size:0.88rem;padding:1rem 0 1.5rem;">' +
+          '<i class="fas fa-users" style="font-size:2.5rem;display:block;margin-bottom:0.8rem;opacity:0.4;"></i>' +
+          'No admin profiles yet. Create the first one below.' +
+        '</div>';
+      }
+
       profiles.forEach(function(p){
         var initial = (p.name||'A').charAt(0).toUpperCase();
         var avatarHtml = p.photo_url
@@ -1875,9 +1917,25 @@ tr:hover td{background:#fafcfa;}
         openPinModal(_pickerProfile);
       };
     } catch(err){
-      grid.innerHTML = '<div style="color:#f87171;text-align:center;padding:1rem;">Could not load profiles. Check connection.</div>';
+      grid.innerHTML =
+        '<div style="text-align:center;padding:1rem;">' +
+          '<div style="color:#f87171;font-size:0.88rem;margin-bottom:1.2rem;">Error: '+window.escHtml(err.message)+'</div>' +
+          '<button onclick="showPicker()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.85rem;font-weight:600;"><i class="fas fa-redo"></i> Retry</button>' +
+        '</div>';
     }
   }
+
+  // ── Master code bypass (emergency access if DB is down) ─────────
+  window.bypassWithMasterCode = function(){
+    var code = prompt('Enter master access code:');
+    if(!code) return;
+    if(code === '2026GERAMA'){
+      var fakeSession = { id:'master', name:'GERAMA Admin', role:'Super Admin', email:'gerama.uenr@gmail.com', photo:null };
+      hidePicker(fakeSession);
+    } else {
+      alert('❌ Wrong code.');
+    }
+  };
 
   // ── Profile colour hash ─────────────────────────────────────────
   function profileColor(name){
