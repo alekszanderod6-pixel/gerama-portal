@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -220,7 +220,12 @@ tr:hover td{background:#fafcfa;}
       <div style="color:white;font-size:1rem;font-weight:800;"><i class="fas fa-user-plus" style="color:#FFC107;margin-right:0.5rem;"></i> Create Admin Profile</div>
       <button onclick="document.getElementById('adminCreateModal').classList.remove('open')" style="background:rgba(255,255,255,0.1);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;">✕</button>
     </div>
-    <p style="color:rgba(255,255,255,0.45);font-size:0.8rem;margin-bottom:1.4rem;line-height:1.6;">Already have a profile but no password? Enter your email to set one. Otherwise fill everything to create new.</p>
+    <p style="color:rgba(255,255,255,0.45);font-size:0.8rem;margin-bottom:1.4rem;line-height:1.6;">Fill in your details to create an admin account. You need the invite code from the super admin to proceed.</p>
+    <div style="margin-bottom:0.9rem;">
+      <label style="display:block;color:rgba(255,255,255,0.55);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.35rem;">Admin Invite Code *</label>
+      <input type="password" id="cpInviteCode" placeholder="Get this from Alexander"
+        style="width:100%;padding:0.75rem 1rem;border:2px solid rgba(255,193,7,0.3);border-radius:10px;background:rgba(255,193,7,0.07);color:white;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
+        onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,193,7,0.3)'">
     <div style="margin-bottom:0.9rem;">
       <label style="display:block;color:rgba(255,255,255,0.55);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.35rem;">Full Name *</label>
       <input type="text" id="cpName" maxlength="60" placeholder="e.g. Alexander Dwumaah"
@@ -1976,17 +1981,24 @@ tr:hover td{background:#fafcfa;}
 
   //  Create / update profile 
   window.submitCreateProfile = async function(){
-    var name  = (document.getElementById('cpName').value||'').trim();
-    var role  = (document.getElementById('cpRole').value||'').trim();
-    var email = (document.getElementById('cpEmail').value||'').trim().toLowerCase();
-    var pass  = (document.getElementById('cpPass').value||'').trim();
-    var msg   = document.getElementById('cpMsg');
+    var name   = (document.getElementById('cpName').value||'').trim();
+    var role   = (document.getElementById('cpRole').value||'').trim();
+    var email  = (document.getElementById('cpEmail').value||'').trim().toLowerCase();
+    var pass   = (document.getElementById('cpPass').value||'').trim();
+    var invite = (document.getElementById('cpInviteCode') ? document.getElementById('cpInviteCode').value||'' : '').trim();
+    var msg    = document.getElementById('cpMsg');
     function showMsg(t,ok){ if(msg){msg.textContent=t;msg.style.color=ok?'#4ade80':'#f87171';} }
+
+    // Invite code gate — prevents random people creating admin accounts
+    // Alexander shares this code with trusted admins only
+    var INVITE = '2026GERAMA';
+    if(!invite){ showMsg('Enter the admin invite code from Alexander.',false); return; }
+    if(invite !== INVITE){ showMsg('Wrong invite code. Get it from Alexander.',false); return; }
 
     if(!name||!role){ showMsg('Fill in Name and Role.',false); return; }
     if(!email||!email.includes('@')){ showMsg('Enter a valid email.',false); return; }
     if(!pass||pass.length<6){ showMsg('Password must be at least 6 characters.',false); return; }
-    showMsg('Saving',true);
+    showMsg('Saving...', true);
 
     var sb = getSB();
     if(!sb){ showMsg('Not connected yet. Wait a moment and try again.',false); return; }
@@ -1998,15 +2010,16 @@ tr:hover td{background:#fafcfa;}
         updated_at:new Date().toISOString()
       },{onConflict:'email'});
       if(error) throw new Error(error.message);
-      showMsg(' Profile saved! Tap your name on the picker to sign in.',true);
+      showMsg('Profile saved! Tap your name on the picker to sign in.', true);
       setTimeout(function(){
         document.getElementById('adminCreateModal').classList.remove('open');
-        // Reset form
-        ['cpName','cpRole','cpEmail','cpPass'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+        ['cpName','cpRole','cpEmail','cpPass','cpInviteCode'].forEach(function(id){
+          var e=document.getElementById(id); if(e) e.value='';
+        });
         if(msg) msg.textContent='';
         loadAndRenderProfiles();
       }, 1600);
-    } catch(e){ showMsg(' '+e.message,false); }
+    } catch(e){ showMsg('Error: '+e.message, false); }
   };
 
   //  Master bypass (no profile card click) 
