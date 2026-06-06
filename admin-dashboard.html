@@ -180,9 +180,8 @@ tr:hover td{background:#fafcfa;}
       Loading profiles…
     </div>
   </div>
-  <div style="margin-top:2rem;color:rgba(255,255,255,0.25);font-size:0.75rem;text-align:center;">
-    New admin? Click <strong style="color:rgba(255,193,7,0.6);">+ Add Profile</strong> after profiles load.<br>
-    Emergency access: use password <strong style="color:rgba(255,193,7,0.6);">2026GERAMA</strong> with any profile.
+  <div style="margin-top:2rem;color:rgba(255,255,255,0.2);font-size:0.72rem;text-align:center;max-width:420px;">
+    New admin? Click <strong style="color:rgba(255,193,7,0.5);">+ Add Profile</strong> — you'll need the invite code from Alexander.
   </div>
 </div>
 
@@ -1711,7 +1710,8 @@ tr:hover td{background:#fafcfa;}
   'use strict';
 
   var SESSION_KEY  = 'gerama_admin_session';
-  var MASTER_PASS  = '2026GERAMA';
+  var MASTER_PASS  = '2026GERAMA';   // emergency bypass — works with any profile
+  var INVITE_CODE  = 'admin2026';    // required when creating a new admin profile
   var SUPER_SECRET = '2026GERAMAadmin';
   var _selProfile  = null; // profile the admin tapped on
 
@@ -1740,101 +1740,98 @@ tr:hover td{background:#fafcfa;}
   ];
   function profileBg(name){ return COLOURS[(name||'A').charCodeAt(0) % COLOURS.length]; }
 
-  //  STEP 1: Render picker immediately (static) 
-  // The picker overlay is already shown. We render it instantly so
-  // there is ZERO wait  then load real profiles in the background.
+  //  STEP 1: Render picker immediately (static) ──────────────────
+  var SUPA_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+
+  // Safe helpers (defined locally so we don't depend on admin-dashboard.js loading first)
+  function _esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
   document.addEventListener('DOMContentLoaded', function(){
-    // Check existing session first
     var session = getSession();
-    if(session && session.id){
-      enterDashboard(session);
-      return;
-    }
-    // No session  show picker. Start loading profiles right away.
+    if(session && session.id){ enterDashboard(session); return; }
     loadAndRenderProfiles();
   });
 
-  //  Load profiles (retries until Supabase is ready) 
+  // Use fetch directly — zero dependency on Supabase JS SDK timing
   function loadAndRenderProfiles(){
     var grid = document.getElementById('apGrid');
-    var attempts = 0;
+    if(grid) grid.innerHTML =
+      '<div style="color:rgba(255,255,255,0.35);text-align:center;padding:1.5rem 0;font-size:0.85rem;width:100%;">' +
+      '<i class="fas fa-circle-notch fa-spin" style="font-size:1.8rem;display:block;margin-bottom:0.6rem;opacity:0.5;"></i>Loading profiles...</div>';
 
-    function attempt(){
-      attempts++;
-      var sb = getSB();
-      if(sb){
-        renderProfilesFromDB(sb);
-      } else if(attempts < 30){
-        setTimeout(attempt, 600); // retry every 600ms, up to 18 seconds
-      } else {
-        // Still no Supabase after 18s  show emergency access
-        if(grid) grid.innerHTML =
-          '<div style="text-align:center;width:100%;padding:1rem;">' +
-            '<div style="color:#f87171;font-size:0.85rem;margin-bottom:1rem;"><i class="fas fa-wifi" style="display:block;font-size:2rem;margin-bottom:0.5rem;opacity:0.5;"></i>No connection. Use master password to enter.</div>' +
-            '<button onclick="loadAndRenderProfiles()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;padding:0.5rem 1.3rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.83rem;font-weight:600;margin-right:0.5rem;"><i class="fas fa-redo"></i> Retry</button>' +
-            '<button onclick="masterBypass()" style="background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.35);color:#FFC107;padding:0.5rem 1.3rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.83rem;font-weight:600;"> Master Access</button>' +
-          '</div>';
-      }
-    }
-    setTimeout(attempt, 200); // tiny delay to let supabase-config.js initialize
+    fetch(SUPA_URL + '/rest/v1/admin_profiles?select=id,name,role,email,photo_url,password_hash&order=name.asc', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' }
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(profiles){ renderProfiles(Array.isArray(profiles) ? profiles : []); })
+    .catch(function(err){
+      if(grid) grid.innerHTML =
+        '<div style="text-align:center;width:100%;padding:1rem;">' +
+          '<div style="color:#f87171;font-size:0.85rem;margin-bottom:1rem;">' +
+            '<i class="fas fa-wifi" style="display:block;font-size:2rem;margin-bottom:0.5rem;opacity:0.5;"></i>' +
+            'Could not load profiles. Check your connection.' +
+          '</div>' +
+          '<button onclick="loadAndRenderProfiles()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;padding:0.5rem 1.3rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.83rem;font-weight:600;margin-right:0.5rem;">' +
+            '<i class="fas fa-redo"></i> Retry' +
+          '</button>' +
+          '<button onclick="masterBypass()" style="background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.35);color:#FFC107;padding:0.5rem 1.3rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.83rem;font-weight:600;">' +
+            '<i class="fas fa-key"></i> Emergency Access' +
+          '</button>' +
+        '</div>';
+    });
   }
 
-  async function renderProfilesFromDB(sb){
+  function renderProfiles(profiles){
     var grid = document.getElementById('apGrid');
     if(!grid) return;
-    try {
-      var {data, error} = await sb.from('admin_profiles').select('*').order('name',{ascending:true});
-      if(error) throw new Error(error.message);
-      var profiles = data || [];
+    var html = '';
 
-      var html = '';
-      if(!profiles.length){
-        html = '<div style="color:rgba(255,255,255,0.4);text-align:center;font-size:0.85rem;width:100%;padding-bottom:1rem;">No profiles yet. Create the first one below.</div>';
-      }
-
-      profiles.forEach(function(p){
-        var initial = (p.name||'A').charAt(0).toUpperCase();
-        var avaInner = p.photo_url
-          ? '<img src="'+p.photo_url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:9px;">'
-          : initial;
-        var bg = p.photo_url ? '' : 'background:'+profileBg(p.name)+';';
-        html +=
-          '<div class="ap-card" data-pid="'+p.id+'" data-pname="'+window.escAttr(p.name||'')+'" data-prole="'+window.escAttr(p.role||'')+'" data-pemail="'+window.escAttr(p.email||'')+'" data-pphoto="'+window.escAttr(p.photo_url||'')+'" data-phash="'+window.escAttr(p.password_hash||'')+'">' +
-            '<div class="ap-avatar" style="'+bg+'">'+avaInner+'</div>' +
-            '<div class="ap-name">'+window.escHtml(p.name||'')+'</div>' +
-            '<div class="ap-role-sm">'+window.escHtml(p.role||'Admin')+'</div>' +
-          '</div>';
-      });
-
-      // "+" Add profile card
-      html += '<div class="ap-add" onclick="document.getElementById(\'adminCreateModal\').classList.add(\'open\')">' +
-        '<div class="ap-add-btn"><i class="fas fa-plus"></i></div>' +
-        '<div class="ap-name" style="color:rgba(255,255,255,0.4);">Add Profile</div>' +
-      '</div>';
-
-      grid.innerHTML = html;
-
-      // Attach click handler with event delegation
-      grid.onclick = function(e){
-        var card = e.target.closest('.ap-card');
-        if(!card) return;
-        _selProfile = {
-          id:    card.getAttribute('data-pid'),
-          name:  card.getAttribute('data-pname'),
-          role:  card.getAttribute('data-prole'),
-          email: card.getAttribute('data-pemail'),
-          photo: card.getAttribute('data-pphoto'),
-          hash:  card.getAttribute('data-phash')
-        };
-        openPinModal(_selProfile);
-      };
-    } catch(err){
-      if(grid) grid.innerHTML =
-        '<div style="color:#f87171;text-align:center;font-size:0.85rem;width:100%;padding:1rem;">' +
-          'Error: '+window.escHtml(err.message)+'<br><br>' +
-          '<button onclick="loadAndRenderProfiles()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;padding:0.4rem 1.1rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.82rem;font-weight:600;"><i class="fas fa-redo"></i> Retry</button>' +
-        '</div>';
+    if(!profiles.length){
+      html = '<div style="color:rgba(255,255,255,0.4);text-align:center;font-size:0.85rem;width:100%;padding-bottom:1rem;">No profiles yet. Create the first one.</div>';
     }
+
+    profiles.forEach(function(p){
+      var initial = (p.name||'A').charAt(0).toUpperCase();
+      var avaInner = p.photo_url
+        ? '<img src="'+_esc(p.photo_url)+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:9px;">'
+        : initial;
+      var bg = p.photo_url ? '' : 'background:'+profileBg(p.name)+';';
+      html +=
+        '<div class="ap-card"' +
+          ' data-pid="'+_esc(p.id||'')+'"' +
+          ' data-pname="'+_esc(p.name||'')+'"' +
+          ' data-prole="'+_esc(p.role||'')+'"' +
+          ' data-pemail="'+_esc(p.email||'')+'"' +
+          ' data-pphoto="'+_esc(p.photo_url||'')+'"' +
+          ' data-phash="'+_esc(p.password_hash||'')+'">' +
+          '<div class="ap-avatar" style="'+bg+'">'+avaInner+'</div>' +
+          '<div class="ap-name">'+_esc(p.name||'')+'</div>' +
+          '<div class="ap-role-sm">'+_esc(p.role||'Admin')+'</div>' +
+        '</div>';
+    });
+
+    // "+" Add profile card
+    html += '<div class="ap-add" onclick="document.getElementById(\'adminCreateModal\').classList.add(\'open\')">' +
+      '<div class="ap-add-btn"><i class="fas fa-plus"></i></div>' +
+      '<div class="ap-name" style="color:rgba(255,255,255,0.4);">Add Profile</div>' +
+    '</div>';
+
+    grid.innerHTML = html;
+
+    grid.onclick = function(e){
+      var card = e.target.closest('.ap-card');
+      if(!card) return;
+      _selProfile = {
+        id:    card.getAttribute('data-pid'),
+        name:  card.getAttribute('data-pname'),
+        role:  card.getAttribute('data-prole'),
+        email: card.getAttribute('data-pemail'),
+        photo: card.getAttribute('data-pphoto'),
+        hash:  card.getAttribute('data-phash')
+      };
+      openPinModal(_selProfile);
+    };
   }
 
   //  STEP 2: PIN modal (after tapping a profile) ──────────────────
@@ -1884,30 +1881,27 @@ tr:hover td{background:#fafcfa;}
       if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-unlock-alt"></i> Enter Dashboard'; }
     };
 
-    // Master password bypass
+    // Master bypass
     if(pass === MASTER_PASS){
       var s = { id: _selProfile.id||'master', name: _selProfile.name, role: _selProfile.role, email: _selProfile.email, photo: _selProfile.photo };
-      setSession(s);
-      closePinModal();
-      enterDashboard(s);
-      reset();
-      return;
+      setSession(s); closePinModal(); enterDashboard(s); reset(); return;
     }
 
     try {
       var inputHash = await sha256(pass);
       var storedHash = _selProfile.hash;
 
-      // If no password set yet  set it now and log in
+      // No password set yet — set it now via fetch, then log in
       if(!storedHash){
-        var sb = getSB();
-        if(sb) await sb.from('admin_profiles').update({password_hash: inputHash}).eq('id', _selProfile.id).catch(function(){});
+        await fetch(SUPA_URL + '/rest/v1/admin_profiles?id=eq.' + encodeURIComponent(_selProfile.id), {
+          method: 'PATCH',
+          headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+          body: JSON.stringify({ password_hash: inputHash })
+        }).catch(function(){});
         var s2 = { id: _selProfile.id, name: _selProfile.name, role: _selProfile.role, email: _selProfile.email, photo: _selProfile.photo };
-        setSession(s2);
-        closePinModal();
-        enterDashboard(s2);
-        // Audit
-        try{ if(getSB()) await getSB().from('admin_audit_log').insert({admin_id:s2.id,admin_name:s2.name,action:'login',details:'First login + password set',created_at:new Date().toISOString()}); }catch(e){}
+        setSession(s2); closePinModal(); enterDashboard(s2);
+        // Reload profiles so the hash is cached for next login
+        loadAndRenderProfiles();
         reset(); return;
       }
 
@@ -1919,11 +1913,13 @@ tr:hover td{background:#fafcfa;}
 
       // Correct password
       var s3 = { id: _selProfile.id, name: _selProfile.name, role: _selProfile.role, email: _selProfile.email, photo: _selProfile.photo };
-      setSession(s3);
-      closePinModal();
-      enterDashboard(s3);
-      // Audit
-      try{ if(getSB()) await getSB().from('admin_audit_log').insert({admin_id:s3.id,admin_name:s3.name,action:'login',details:'Signed in',created_at:new Date().toISOString()}); }catch(e){}
+      setSession(s3); closePinModal(); enterDashboard(s3);
+      // Audit (best effort)
+      fetch(SUPA_URL + '/rest/v1/admin_audit_log', {
+        method: 'POST',
+        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ admin_id: s3.id, admin_name: s3.name, action: 'login', details: 'Signed in', created_at: new Date().toISOString() })
+      }).catch(function(){});
 
     } catch(ex){
       if(err) err.textContent = 'Error: '+(ex.message||'Unknown');
@@ -1979,7 +1975,7 @@ tr:hover td{background:#fafcfa;}
     loadAndRenderProfiles(); // refresh profiles list
   };
 
-  //  Create / update profile 
+  //  Create / update profile — uses fetch directly, no SDK needed
   window.submitCreateProfile = async function(){
     var name   = (document.getElementById('cpName').value||'').trim();
     var role   = (document.getElementById('cpRole').value||'').trim();
@@ -1989,37 +1985,38 @@ tr:hover td{background:#fafcfa;}
     var msg    = document.getElementById('cpMsg');
     function showMsg(t,ok){ if(msg){msg.textContent=t;msg.style.color=ok?'#4ade80':'#f87171';} }
 
-    // Invite code gate — prevents random people creating admin accounts
-    // Alexander shares this code with trusted admins only
-    var INVITE = '2026GERAMA';
     if(!invite){ showMsg('Enter the admin invite code from Alexander.',false); return; }
-    if(invite !== INVITE){ showMsg('Wrong invite code. Get it from Alexander.',false); return; }
-
+    if(invite !== INVITE_CODE){ showMsg('Wrong invite code. Ask Alexander for it.',false); return; }
     if(!name||!role){ showMsg('Fill in Name and Role.',false); return; }
     if(!email||!email.includes('@')){ showMsg('Enter a valid email.',false); return; }
     if(!pass||pass.length<6){ showMsg('Password must be at least 6 characters.',false); return; }
     showMsg('Saving...', true);
 
-    var sb = getSB();
-    if(!sb){ showMsg('Not connected yet. Wait a moment and try again.',false); return; }
-
     try {
       var hash = await sha256(pass);
-      var {error} = await sb.from('admin_profiles').upsert({
-        name:name, role:role, email:email, password_hash:hash,
-        updated_at:new Date().toISOString()
-      },{onConflict:'email'});
-      if(error) throw new Error(error.message);
-      showMsg('Profile saved! Tap your name on the picker to sign in.', true);
+      var res = await fetch(SUPA_URL + '/rest/v1/admin_profiles', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'resolution=merge-duplicates,return=minimal'
+        },
+        body: JSON.stringify({ name:name, role:role, email:email, password_hash:hash, updated_at: new Date().toISOString() })
+      });
+      if(!res.ok){
+        var errBody = await res.text().catch(function(){ return ''; });
+        throw new Error('Server error ' + res.status + (errBody ? ': ' + errBody.substring(0,100) : ''));
+      }
+      showMsg('✅ Profile saved! Tap your name on the picker to sign in.', true);
       setTimeout(function(){
         document.getElementById('adminCreateModal').classList.remove('open');
         ['cpName','cpRole','cpEmail','cpPass','cpInviteCode'].forEach(function(id){
-          var e=document.getElementById(id); if(e) e.value='';
+          var e = document.getElementById(id); if(e) e.value = '';
         });
-        if(msg) msg.textContent='';
+        if(msg) msg.textContent = '';
         loadAndRenderProfiles();
       }, 1600);
-    } catch(e){ showMsg('Error: '+e.message, false); }
+    } catch(e){ showMsg('❌ ' + e.message, false); }
   };
 
   //  Master bypass (no profile card click) 
