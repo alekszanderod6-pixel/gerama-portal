@@ -14,136 +14,8 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 
-/* ── ADMIN PROFILE PICKER (Netflix style) ── */
-#adminPickerOverlay{
-  position:fixed;inset:0;background:linear-gradient(135deg,#061a0f 0%,#0a2f1f 40%,#071208 100%);
-  z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:2rem;overflow-y:auto;
-}
-.picker-logo{display:flex;align-items:center;gap:12px;margin-bottom:2.5rem;}
-.picker-logo img{height:48px;border-radius:10px;border:2px solid rgba(255,193,7,0.4);}
-.picker-logo span{color:#FFC107;font-size:1.3rem;font-weight:800;letter-spacing:1px;}
-.picker-title{color:white;font-size:1.5rem;font-weight:800;margin-bottom:0.4rem;text-align:center;}
-.picker-sub{color:rgba(255,255,255,0.5);font-size:0.88rem;margin-bottom:2.5rem;text-align:center;}
-.picker-grid{display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;max-width:700px;}
-.picker-card{
-  width:130px;display:flex;flex-direction:column;align-items:center;gap:0.7rem;
-  cursor:pointer;transition:transform 0.2s;
-}
-.picker-card:hover .picker-avatar{border-color:#FFC107;box-shadow:0 0 0 3px rgba(255,193,7,0.35);}
-.picker-card:hover{transform:translateY(-6px);}
-.picker-avatar{
-  width:90px;height:90px;border-radius:12px;object-fit:cover;
-  border:3px solid rgba(255,255,255,0.15);transition:all 0.2s;
-  background:linear-gradient(135deg,#1B5E20,#2E7D32);
-  display:flex;align-items:center;justify-content:center;
-  font-size:2rem;font-weight:800;color:white;
-}
-.picker-avatar img{width:100%;height:100%;border-radius:9px;object-fit:cover;}
-.picker-name{color:white;font-size:0.85rem;font-weight:700;text-align:center;}
-.picker-role-lbl{color:rgba(255,255,255,0.45);font-size:0.72rem;text-align:center;}
-.picker-add-card{
-  width:130px;display:flex;flex-direction:column;align-items:center;gap:0.7rem;cursor:pointer;
-}
-.picker-add-card:hover .picker-add-btn{border-color:#FFC107;color:#FFC107;}
-.picker-add-btn{
-  width:90px;height:90px;border-radius:12px;
-  border:3px dashed rgba(255,255,255,0.25);
-  display:flex;align-items:center;justify-content:center;
-  font-size:2rem;color:rgba(255,255,255,0.3);
-  transition:all 0.2s;
-}
-
-/* ── PIN / LOGIN MODAL ── */
-#adminPinModal{
-  position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10000;
-  display:none;align-items:center;justify-content:center;padding:1.5rem;
-  backdrop-filter:blur(8px);
-}
-#adminPinModal.open{display:flex;}
-.pin-box{
-  background:linear-gradient(135deg,#0f2a1a,#1a4429);
-  border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:380px;
-  box-shadow:0 30px 80px rgba(0,0,0,0.6);border:1px solid rgba(255,193,7,0.15);
-  text-align:center;
-}
-.pin-avatar{
-  width:80px;height:80px;border-radius:50%;margin:0 auto 1rem;
-  border:3px solid #FFC107;display:flex;align-items:center;justify-content:center;
-  font-size:2rem;font-weight:800;color:#0a2f1f;overflow:hidden;
-}
-.pin-name{color:white;font-size:1.1rem;font-weight:800;margin-bottom:0.2rem;}
-.pin-role{color:rgba(255,255,255,0.5);font-size:0.82rem;margin-bottom:1.8rem;}
-.pin-label{color:rgba(255,255,255,0.6);font-size:0.82rem;font-weight:600;margin-bottom:0.6rem;text-align:left;}
-.pin-input-wrap{position:relative;margin-bottom:1.2rem;}
-.pin-input{
-  width:100%;padding:0.85rem 3rem 0.85rem 1.2rem;
-  border:2px solid rgba(255,255,255,0.15);border-radius:12px;
-  background:rgba(255,255,255,0.07);color:white;font-size:1rem;
-  font-family:'Inter',sans-serif;outline:none;
-  transition:border-color 0.2s;box-sizing:border-box;
-}
-.pin-input:focus{border-color:#FFC107;}
-.pin-toggle{position:absolute;right:0.9rem;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:1rem;}
-.pin-enter-btn{
-  width:100%;padding:0.85rem;background:linear-gradient(135deg,#FFC107,#d97706);
-  color:#0a2f1f;border:none;border-radius:12px;font-size:0.95rem;font-weight:800;
-  cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;margin-bottom:0.8rem;
-}
-.pin-enter-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,193,7,0.35);}
-.pin-err{color:#f87171;font-size:0.82rem;min-height:1.2rem;margin-bottom:0.5rem;}
-.pin-back{background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;transition:color 0.2s;}
-.pin-back:hover{color:rgba(255,255,255,0.75);}
-
-/* ── CREATE PROFILE MODAL ── */
-#adminCreateModal{
-  position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10001;
-  display:none;align-items:center;justify-content:center;padding:1.5rem;
-  backdrop-filter:blur(8px);
-}
-#adminCreateModal.open{display:flex;}
-.create-box{
-  background:linear-gradient(135deg,#0f2a1a,#1a4429);
-  border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:440px;
-  max-height:90vh;overflow-y:auto;
-  box-shadow:0 30px 80px rgba(0,0,0,0.6);border:1px solid rgba(255,193,7,0.15);
-}
-.create-box h3{color:white;font-size:1.1rem;font-weight:800;margin-bottom:0.3rem;}
-.create-box p{color:rgba(255,255,255,0.5);font-size:0.82rem;margin-bottom:1.5rem;}
-.create-field{margin-bottom:1rem;}
-.create-field label{display:block;color:rgba(255,255,255,0.6);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;}
-.create-field input{
-  width:100%;padding:0.75rem 1rem;border:2px solid rgba(255,255,255,0.12);border-radius:10px;
-  background:rgba(255,255,255,0.07);color:white;font-size:0.9rem;
-  font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;box-sizing:border-box;
-}
-.create-field input:focus{border-color:#FFC107;}
-.create-field input::placeholder{color:rgba(255,255,255,0.3);}
-.create-save-btn{
-  width:100%;padding:0.8rem;background:linear-gradient(135deg,#FFC107,#d97706);
-  color:#0a2f1f;border:none;border-radius:12px;font-size:0.92rem;font-weight:800;
-  cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:0.8rem;transition:all 0.2s;
-}
-.create-save-btn:hover{transform:translateY(-1px);}
-.create-cancel{background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;display:block;text-align:center;width:100%;}
-
-/* Active admin indicator in sidebar */
-#activeAdminBar{
-  padding:0.8rem 1.2rem;background:rgba(255,193,7,0.1);
-  border-bottom:1px solid rgba(255,193,7,0.2);
-  display:flex;align-items:center;gap:0.7rem;
-}
-.active-admin-avatar{
-  width:32px;height:32px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.9rem;font-weight:800;color:#0a2f1f;
-  flex-shrink:0;overflow:hidden;
-}
-.active-admin-info{flex:1;min-width:0;}
-.active-admin-name{color:white;font-size:0.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.active-admin-role{color:rgba(255,255,255,0.5);font-size:0.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.switch-admin-btn{color:rgba(255,193,7,0.7);background:none;border:none;font-size:0.75rem;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;padding:0.2rem 0.4rem;}
-.switch-admin-btn:hover{color:#FFC107;}
+/* ── ADMIN LOGIN OVERLAY ── */
+#adminLoginOverlay{ font-family:'Inter',sans-serif; }
 
 /* ── MAIN DASHBOARD STYLES ── */
 .dash-sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:linear-gradient(180deg,#0a2f1f,#1B5E20);z-index:200;overflow-y:auto;display:flex;flex-direction:column;transition:transform 0.3s ease;}
@@ -249,60 +121,67 @@ tr:hover td{background:#fafcfa;}
 <body>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     NETFLIX-STYLE ADMIN PROFILE PICKER OVERLAY
+     SIMPLE ADMIN LOGIN OVERLAY — shows immediately, no Supabase needed to display
 ═══════════════════════════════════════════════════════════════ -->
-<div id="adminPickerOverlay">
-  <div class="picker-logo">
-    <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA">
-    <span>GERAMA Admin</span>
+<div id="adminLoginOverlay" style="position:fixed;inset:0;background:linear-gradient(135deg,#061a0f 0%,#0a2f1f 40%,#071208 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;">
+  <div style="text-align:center;margin-bottom:2rem;">
+    <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA" style="height:56px;border-radius:12px;border:2px solid rgba(255,193,7,0.4);margin-bottom:1rem;">
+    <div style="color:#FFC107;font-size:1.3rem;font-weight:800;letter-spacing:1px;">GERAMA Admin</div>
+    <div style="color:rgba(255,255,255,0.4);font-size:0.82rem;margin-top:0.3rem;">Enter your credentials to access the dashboard</div>
   </div>
-  <div class="picker-title">Who's accessing?</div>
-  <div class="picker-sub">Select your profile to sign in securely</div>
-  <div class="picker-grid" id="adminPickerGrid">
-    <div style="color:rgba(255,255,255,0.4);font-size:0.88rem;text-align:center;padding:2rem;">
-      <i class="fas fa-spinner fa-spin" style="font-size:2rem;display:block;margin-bottom:0.8rem;"></i>Loading profiles...
+  <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:2rem;width:100%;max-width:380px;">
+    <div style="margin-bottom:1rem;">
+      <label style="display:block;color:rgba(255,255,255,0.6);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Email / Username</label>
+      <input type="email" id="adminLoginEmail" placeholder="your@email.com" autocomplete="email"
+        style="width:100%;padding:0.85rem 1rem;border:2px solid rgba(255,255,255,0.15);border-radius:12px;background:rgba(255,255,255,0.07);color:white;font-size:0.95rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
+        onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'"
+        onkeydown="if(event.key==='Enter')document.getElementById('adminLoginPass').focus()">
+    </div>
+    <div style="margin-bottom:1.5rem;position:relative;">
+      <label style="display:block;color:rgba(255,255,255,0.6);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Password</label>
+      <input type="password" id="adminLoginPass" placeholder="Your password"
+        style="width:100%;padding:0.85rem 3rem 0.85rem 1rem;border:2px solid rgba(255,255,255,0.15);border-radius:12px;background:rgba(255,255,255,0.07);color:white;font-size:0.95rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
+        onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'"
+        onkeydown="if(event.key==='Enter')doAdminLogin()">
+      <button onclick="var i=document.getElementById('adminLoginPass');i.type=i.type==='password'?'text':'password';" style="position:absolute;right:0.9rem;bottom:0.85rem;background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:1rem;"><i class="fas fa-eye"></i></button>
+    </div>
+    <div id="adminLoginErr" style="color:#f87171;font-size:0.82rem;min-height:1rem;margin-bottom:0.8rem;text-align:center;"></div>
+    <button id="adminLoginBtn" onclick="doAdminLogin()" style="width:100%;padding:0.9rem;background:linear-gradient(135deg,#FFC107,#d97706);color:#0a2f1f;border:none;border-radius:12px;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;">
+      <i class="fas fa-unlock-alt"></i> Enter Dashboard
+    </button>
+    <div style="text-align:center;margin-top:1rem;">
+      <button onclick="showCreateProfileForm()" style="background:none;border:none;color:rgba(255,255,255,0.35);font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline;">First time? Create your profile</button>
     </div>
   </div>
-  <div style="margin-top:2.5rem;color:rgba(255,255,255,0.35);font-size:0.78rem;text-align:center;">
-    New admin? Contact the super admin to be added to the system.
-  </div>
+  <!-- Who's logged in indicator (shown after login) -->
+  <div id="adminWhoLoggedIn" style="display:none;margin-top:1.5rem;color:rgba(255,255,255,0.4);font-size:0.78rem;text-align:center;"></div>
 </div>
 
-<!-- PIN / PASSWORD MODAL -->
-<div id="adminPinModal">
-  <div class="pin-box">
-    <div class="pin-avatar" id="pinAvatar" style="background:linear-gradient(135deg,#FFC107,#e6a800);">A</div>
-    <div class="pin-name" id="pinName">Admin</div>
-    <div class="pin-role" id="pinRoleLbl">GERAMA Admin</div>
-    <div class="pin-label">Enter your password</div>
-    <div class="pin-input-wrap">
-      <input type="password" class="pin-input" id="pinInput" placeholder="Password" onkeydown="if(event.key==='Enter')submitAdminPin()">
-      <button class="pin-toggle" onclick="var i=document.getElementById('pinInput');i.type=i.type==='password'?'text':'password';"><i class="fas fa-eye"></i></button>
+<!-- CREATE / SET PASSWORD MODAL -->
+<div id="adminCreateModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:10001;display:none;align-items:center;justify-content:center;padding:1.5rem;backdrop-filter:blur(8px);">
+  <div style="background:linear-gradient(135deg,#0f2a1a,#1a4429);border-radius:20px;padding:2rem;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.6);border:1px solid rgba(255,193,7,0.15);">
+    <h3 style="color:white;font-size:1.1rem;font-weight:800;margin-bottom:0.3rem;"><i class="fas fa-user-plus" style="color:#FFC107;margin-right:0.5rem;"></i> Create / Update Profile</h3>
+    <p style="color:rgba(255,255,255,0.5);font-size:0.82rem;margin-bottom:1.5rem;">New admin or setting your password for the first time.</p>
+    <div style="margin-bottom:1rem;">
+      <label style="display:block;color:rgba(255,255,255,0.6);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Full Name *</label>
+      <input type="text" id="cpName" placeholder="e.g. Alexander Dwumaah" maxlength="60" style="width:100%;padding:0.75rem 1rem;border:2px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.07);color:white;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
     </div>
-    <div class="pin-err" id="pinErr"></div>
-    <button class="pin-enter-btn" onclick="submitAdminPin()"><i class="fas fa-unlock-alt"></i> Enter Dashboard</button><br>
-    <button class="pin-back" onclick="closePinModal()"><i class="fas fa-arrow-left"></i> Back to profiles</button>
-  </div>
-</div>
-
-<!-- CREATE ADMIN PROFILE MODAL -->
-<div id="adminCreateModal">
-  <div class="create-box">
-    <h3><i class="fas fa-user-plus" style="color:#FFC107;margin-right:0.5rem;"></i> Create / Set Up Profile</h3>
-    <p>New admin? Create your profile here. Already have a profile but no password yet? Enter your existing email to set one.</p>
-    <div class="create-field"><label>Full Name *</label><input type="text" id="cpName" placeholder="e.g. Alexander Dwumaah" maxlength="60"></div>
-    <div class="create-field"><label>Role / Title *</label><input type="text" id="cpRole" placeholder="e.g. Lead Admin · Developer" maxlength="60"></div>
-    <div class="create-field"><label>Email (used as your login ID) *</label><input type="email" id="cpEmail" placeholder="your@email.com"></div>
-    <div class="create-field"><label>Create Password *</label>
-      <div style="position:relative;">
-        <input type="password" id="cpPass" placeholder="Min 6 characters" style="width:100%;padding:0.75rem 3rem 0.75rem 1rem;border:2px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.07);color:white;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
-        <button style="position:absolute;right:0.8rem;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;" onclick="var i=document.getElementById('cpPass');i.type=i.type==='password'?'text':'password';"><i class="fas fa-eye"></i></button>
-      </div>
+    <div style="margin-bottom:1rem;">
+      <label style="display:block;color:rgba(255,255,255,0.6);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Role / Title *</label>
+      <input type="text" id="cpRole" placeholder="e.g. Lead Admin" maxlength="60" style="width:100%;padding:0.75rem 1rem;border:2px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.07);color:white;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
     </div>
-    <div style="color:rgba(255,193,7,0.7);font-size:0.78rem;background:rgba(255,193,7,0.08);border-radius:8px;padding:0.6rem 0.8rem;margin-bottom:1rem;"><i class="fas fa-info-circle" style="margin-right:0.4rem;"></i>Your username for the dashboard is always: <strong>admin2026</strong></div>
-    <div class="create-field" id="cpStatusMsg" style="display:none;"></div>
-    <button class="create-save-btn" onclick="submitCreateAdminProfile()"><i class="fas fa-save"></i> Create My Profile</button>
-    <button class="create-cancel" onclick="document.getElementById('adminCreateModal').classList.remove('open')">Cancel</button>
+    <div style="margin-bottom:1rem;">
+      <label style="display:block;color:rgba(255,255,255,0.6);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Email *</label>
+      <input type="email" id="cpEmail" placeholder="your@email.com" style="width:100%;padding:0.75rem 1rem;border:2px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.07);color:white;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+    </div>
+    <div style="margin-bottom:1.2rem;position:relative;">
+      <label style="display:block;color:rgba(255,255,255,0.6);font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Password (min 6 chars) *</label>
+      <input type="password" id="cpPass" placeholder="Choose a strong password" style="width:100%;padding:0.75rem 3rem 0.75rem 1rem;border:2px solid rgba(255,255,255,0.12);border-radius:10px;background:rgba(255,255,255,0.07);color:white;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'">
+      <button onclick="var i=document.getElementById('cpPass');i.type=i.type==='password'?'text':'password';" style="position:absolute;right:0.8rem;bottom:0.85rem;background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;"><i class="fas fa-eye"></i></button>
+    </div>
+    <div id="cpStatusMsg" style="font-size:0.85rem;margin-bottom:0.8rem;min-height:1rem;text-align:center;"></div>
+    <button onclick="submitCreateAdminProfile()" style="width:100%;padding:0.8rem;background:linear-gradient(135deg,#FFC107,#d97706);color:#0a2f1f;border:none;border-radius:12px;font-size:0.92rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:0.8rem;"><i class="fas fa-save"></i> Save Profile & Set Password</button>
+    <button onclick="document.getElementById('adminCreateModal').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;display:block;text-align:center;width:100%;">Cancel</button>
   </div>
 </div>
 
@@ -320,13 +199,13 @@ tr:hover td{background:#fafcfa;}
     <span>GERAMA<br>Admin Panel</span>
   </div>
   <!-- Active admin identity bar -->
-  <div id="activeAdminBar" style="display:none;">
-    <div class="active-admin-avatar" id="sidebarAdminAvatar" style="background:linear-gradient(135deg,#FFC107,#e6a800);">A</div>
-    <div class="active-admin-info">
-      <div class="active-admin-name" id="sidebarAdminName">Admin</div>
-      <div class="active-admin-role" id="sidebarAdminRole">Admin</div>
+  <div id="activeAdminBar" style="display:none;padding:0.8rem 1.2rem;background:rgba(255,193,7,0.1);border-bottom:1px solid rgba(255,193,7,0.2);display:flex;align-items:center;gap:0.7rem;">
+    <div id="sidebarAdminAvatar" style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#FFC107,#e6a800);display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:800;color:#0a2f1f;flex-shrink:0;overflow:hidden;">A</div>
+    <div style="flex:1;min-width:0;">
+      <div id="sidebarAdminName" style="color:white;font-size:0.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Admin</div>
+      <div id="sidebarAdminRole" style="color:rgba(255,255,255,0.5);font-size:0.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Admin</div>
     </div>
-    <button class="switch-admin-btn" onclick="switchAdminProfile()" title="Switch profile"><i class="fas fa-exchange-alt"></i></button>
+    <button onclick="adminLogout()" title="Log out" style="color:rgba(255,193,7,0.7);background:none;border:none;font-size:0.75rem;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;padding:0.2rem 0.4rem;"><i class="fas fa-sign-out-alt"></i></button>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-item active" data-panel="overview"><i class="fas fa-tachometer-alt"></i> Overview</div>
@@ -1748,14 +1627,296 @@ tr:hover td{background:#fafcfa;}
 <script src="js/admin-dashboard.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════
-// GERAMA Admin — Netflix Profile Picker + Per-Profile Auth + Audit
+// GERAMA Admin — Simple Login Auth (clean, no Supabase dependency on load)
 // ═══════════════════════════════════════════════════════════════
 (function(){
   'use strict';
 
-  var SUPER_SECRET  = '2026GERAMAadmin';
-  var GLOBAL_USER   = 'admin2026';    // shared username shown to all
-  var SESSION_KEY   = 'gerama_admin_session';
+  var SESSION_KEY  = 'gerama_admin_session';
+  var MASTER_CODE  = '2026GERAMA';
+  var SUPER_SECRET = '2026GERAMAadmin';
+
+  // ── Wait for Supabase ──────────────────────────────────────────
+  function getSB(){ return window.geramaSupabase || null; }
+
+  function waitForSB(cb){
+    if(getSB()){ cb(getSB()); return; }
+    var t = 0;
+    var iv = setInterval(function(){
+      t++;
+      if(getSB()){ clearInterval(iv); cb(getSB()); }
+      else if(t > 40){ clearInterval(iv); cb(null); } // 20s timeout
+    }, 500);
+  }
+
+  // ── Session helpers ────────────────────────────────────────────
+  function getSession(){
+    try{ return JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null'); }catch(e){ return null; }
+  }
+  function setSession(s){
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(s));
+  }
+
+  // ── On load: check existing session ───────────────────────────
+  window.addEventListener('load', function(){
+    var session = getSession();
+    if(session && session.id){
+      hideLoginOverlay(session);
+    }
+    // overlay stays visible until login succeeds
+  });
+
+  // ── Hide overlay & apply active admin ─────────────────────────
+  function hideLoginOverlay(session){
+    var overlay = document.getElementById('adminLoginOverlay');
+    if(overlay) overlay.style.display = 'none';
+
+    // Show who is logged in in sidebar
+    var bar  = document.getElementById('activeAdminBar');
+    var ava  = document.getElementById('sidebarAdminAvatar');
+    var nameEl = document.getElementById('sidebarAdminName');
+    var roleEl = document.getElementById('sidebarAdminRole');
+    if(bar)    bar.style.display = 'flex';
+    if(nameEl) nameEl.textContent = session.name || 'Admin';
+    if(roleEl) roleEl.textContent = session.role || 'Admin';
+    if(ava){
+      if(session.photo){
+        ava.innerHTML = '<img src="'+session.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="">';
+      } else {
+        ava.textContent = (session.name||'A').charAt(0).toUpperCase();
+        ava.style.background = 'linear-gradient(135deg,#FFC107,#e6a800)';
+      }
+    }
+
+    // Pre-fill admin profile form
+    var apNameEl  = document.getElementById('apName');
+    var apRoleEl  = document.getElementById('apRole');
+    var apEmailEl = document.getElementById('apEmail');
+    if(apNameEl  && !apNameEl.value)  apNameEl.value  = session.name  || '';
+    if(apRoleEl  && !apRoleEl.value)  apRoleEl.value  = session.role  || '';
+    if(apEmailEl) apEmailEl.value = session.email || '';
+
+    // Attach admin name to logActivity
+    window._activeAdminSession = session;
+    var origLog = window.logActivity;
+    window.logActivity = function(msg){
+      if(origLog) origLog('['+(session.name||'Admin')+'] '+msg);
+    };
+  }
+
+  // ── Main login function ────────────────────────────────────────
+  window.doAdminLogin = async function(){
+    var emailEl = document.getElementById('adminLoginEmail');
+    var passEl  = document.getElementById('adminLoginPass');
+    var errEl   = document.getElementById('adminLoginErr');
+    var btn     = document.getElementById('adminLoginBtn');
+    var email   = (emailEl&&emailEl.value||'').trim().toLowerCase();
+    var pass    = (passEl&&passEl.value||'').trim();
+
+    if(!email || !pass){
+      if(errEl) errEl.textContent = 'Please enter email and password.';
+      return;
+    }
+    if(errEl) errEl.textContent = '';
+    if(btn){ btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Checking...'; }
+
+    // Check master code first (works offline)
+    if(pass === MASTER_CODE){
+      var masterSession = { id:'master', name:'GERAMA Admin', role:'Super Admin', email: email, photo: null };
+      setSession(masterSession);
+      hideLoginOverlay(masterSession);
+      if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-unlock-alt"></i> Enter Dashboard'; }
+      return;
+    }
+
+    waitForSB(async function(sb){
+      if(!sb){
+        if(errEl) errEl.textContent = 'Could not connect. Enter master code (2026GERAMA) as password to bypass.';
+        if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-unlock-alt"></i> Enter Dashboard'; }
+        return;
+      }
+
+      try {
+        // Find profile by email
+        var {data, error} = await sb.from('admin_profiles')
+          .select('id,name,role,email,photo_url,password_hash')
+          .ilike('email', email)
+          .single();
+
+        if(error || !data){
+          throw new Error('No admin profile found for this email. Create one first.');
+        }
+
+        // Verify password
+        var inputHash = await sha256(pass);
+        if(data.password_hash && data.password_hash !== inputHash){
+          throw new Error('Incorrect password. Try again.');
+        }
+        // First-time login (no password set yet) — set it now
+        if(!data.password_hash){
+          await sb.from('admin_profiles').update({ password_hash: inputHash }).eq('id', data.id);
+        }
+
+        // Audit log (best effort)
+        try{
+          await sb.from('admin_audit_log').insert({
+            admin_id: data.id, admin_name: data.name,
+            action: 'login', details: 'Signed in',
+            created_at: new Date().toISOString()
+          });
+        }catch(e){}
+
+        var s = { id: data.id, name: data.name, role: data.role||'Admin', email: data.email||'', photo: data.photo_url||null };
+        setSession(s);
+        hideLoginOverlay(s);
+
+      } catch(err){
+        if(errEl) errEl.textContent = err.message || 'Login failed.';
+      }
+
+      if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-unlock-alt"></i> Enter Dashboard'; }
+    });
+  };
+
+  // ── Log out ────────────────────────────────────────────────────
+  window.adminLogout = function(){
+    sessionStorage.removeItem(SESSION_KEY);
+    var overlay = document.getElementById('adminLoginOverlay');
+    if(overlay){ overlay.style.display = 'flex'; }
+    var emailEl = document.getElementById('adminLoginEmail');
+    var passEl  = document.getElementById('adminLoginPass');
+    var errEl   = document.getElementById('adminLoginErr');
+    if(emailEl) emailEl.value = '';
+    if(passEl)  passEl.value  = '';
+    if(errEl)   errEl.textContent = '';
+    var bar = document.getElementById('activeAdminBar');
+    if(bar) bar.style.display = 'none';
+  };
+
+  // ── Show create-profile form ───────────────────────────────────
+  window.showCreateProfileForm = function(){
+    var m = document.getElementById('adminCreateModal');
+    if(m) m.style.display = 'flex';
+  };
+
+  // ── Create / update admin profile ─────────────────────────────
+  window.submitCreateAdminProfile = async function(){
+    var name  = (document.getElementById('cpName').value||'').trim();
+    var role  = (document.getElementById('cpRole').value||'').trim();
+    var email = (document.getElementById('cpEmail').value||'').trim().toLowerCase();
+    var pass  = (document.getElementById('cpPass').value||'').trim();
+    var msgEl = document.getElementById('cpStatusMsg');
+
+    function showMsg(txt, ok){
+      if(!msgEl) return;
+      msgEl.textContent = txt;
+      msgEl.style.color = ok ? '#059669' : '#dc2626';
+    }
+
+    if(!name||!role)            { showMsg('Please fill in Name and Role.', false); return; }
+    if(!email||!email.includes('@')){ showMsg('Please enter a valid email.', false); return; }
+    if(!pass||pass.length<6)    { showMsg('Password must be at least 6 characters.', false); return; }
+
+    showMsg('Saving...', true);
+
+    waitForSB(async function(sb){
+      if(!sb){ showMsg('Not connected to server.', false); return; }
+      try {
+        var hash = await sha256(pass);
+        var {error} = await sb.from('admin_profiles').upsert({
+          name: name, role: role, email: email,
+          password_hash: hash,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'email' });
+        if(error) throw new Error(error.message);
+        showMsg('✅ Profile saved! Enter your email and password to log in.', true);
+        setTimeout(function(){
+          var m = document.getElementById('adminCreateModal');
+          if(m) m.style.display = 'none';
+          // Auto-fill login form
+          var em = document.getElementById('adminLoginEmail');
+          if(em) em.value = email;
+          var pe = document.getElementById('adminLoginPass');
+          if(pe){ pe.value = pass; pe.focus(); }
+        }, 1500);
+      } catch(e){
+        showMsg('❌ '+e.message, false);
+      }
+    });
+  };
+
+  // ── SHA-256 ────────────────────────────────────────────────────
+  async function sha256(str){
+    var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+  }
+
+  // ── Planner suggestions ────────────────────────────────────────
+  window.pushPlannerSuggestion = async function(){
+    var text  = (document.getElementById('suggText')||{value:''}).value.trim();
+    var emoji = (document.getElementById('suggEmoji')||{value:'💡'}).value.trim() || '💡';
+    if(!text){ window.showStatus('suggStatus','Please type a suggestion.','err'); return; }
+    var sb = getSB(); if(!sb){ window.showStatus('suggStatus','Not connected.','err'); return; }
+    var session = getSession();
+    try {
+      var {error} = await sb.from('planner_suggestions').insert({
+        text: text, emoji: emoji, active: true,
+        created_by: session ? session.name : 'Admin',
+        created_at: new Date().toISOString()
+      });
+      if(error) throw new Error(error.message);
+      document.getElementById('suggText').value = '';
+      window.showStatus('suggStatus','✅ Suggestion pushed to students!','ok');
+      loadSuggList();
+    } catch(e){ window.showStatus('suggStatus','❌ '+e.message,'err'); }
+  };
+
+  async function loadSuggList(){
+    var el = document.getElementById('suggList'); if(!el) return;
+    var sb = getSB(); if(!sb) return;
+    var {data} = await sb.from('planner_suggestions').select('*').order('created_at',{ascending:false}).limit(10);
+    if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;font-size:0.85rem;">No active suggestions.</p>'; return; }
+    el.innerHTML = data.map(function(s){
+      return '<div style="background:#f8fafc;border-radius:10px;padding:0.7rem 1rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.8rem;border:1px solid #e5e7eb;">'+
+        '<span style="font-size:1.1rem;">'+(s.emoji||'💡')+'</span>'+
+        '<span style="flex:1;font-size:0.87rem;color:#374151;">'+window.escHtml(s.text||'')+'</span>'+
+        '<span style="font-size:0.72rem;color:#9ca3af;">'+window.escHtml(s.created_by||'Admin')+'</span>'+
+        '<button class="btn-danger" style="font-size:0.72rem;padding:0.2rem 0.5rem;" onclick="deleteSuggestion(\''+s.id+'\')"><i class="fas fa-trash"></i></button>'+
+      '</div>';
+    }).join('');
+  }
+
+  window.deleteSuggestion = async function(id){
+    if(!confirm('Remove this suggestion?')) return;
+    var sb = getSB(); if(!sb) return;
+    await sb.from('planner_suggestions').delete().eq('id', id);
+    loadSuggList();
+  };
+
+  // Load suggestions when adminprofiles panel opens
+  var _origSwitchAuth = window.switchPanel;
+  window.switchPanel = function(name){
+    if(_origSwitchAuth) _origSwitchAuth(name);
+    if(name==='adminprofiles') setTimeout(loadSuggList, 300);
+  };
+
+  // ── Super-admin: remove any admin account ─────────────────────
+  window.deleteAdminProfile = async function(id, name){
+    var code = prompt('Remove "'+name+'" from admin access? Enter super-admin code:');
+    if(!code) return;
+    if(code !== SUPER_SECRET){ alert('❌ Wrong code.'); return; }
+    var sb = getSB(); if(!sb) return;
+    var {error} = await sb.from('admin_profiles').delete().eq('id', id);
+    if(error){ alert('Error: '+error.message); return; }
+    alert('✅ '+name+' removed.');
+    if(window.logActivity) window.logActivity('Removed admin: '+name);
+    if(window.loadAdminProfiles) window.loadAdminProfiles();
+  };
+
+})();
+</script>
+</body>
+</html>
 
   var _pickerProfile = null; // profile being logged into
 
