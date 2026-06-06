@@ -225,6 +225,7 @@ tr:hover td{background:#fafcfa;}
       <input type="password" id="cpInviteCode" placeholder="Get this from Alexander"
         style="width:100%;padding:0.75rem 1rem;border:2px solid rgba(255,193,7,0.3);border-radius:10px;background:rgba(255,193,7,0.07);color:white;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
         onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,193,7,0.3)'">
+    </div>
     <div style="margin-bottom:0.9rem;">
       <label style="display:block;color:rgba(255,255,255,0.55);font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.35rem;">Full Name *</label>
       <input type="text" id="cpName" maxlength="60" placeholder="e.g. Alexander Dwumaah"
@@ -1891,8 +1892,8 @@ tr:hover td{background:#fafcfa;}
       var inputHash = await sha256(pass);
       var storedHash = _selProfile.hash;
 
-      // No password set yet — set it now via fetch, then log in
-      if(!storedHash){
+      // No password set yet (null, undefined, or empty string) — set it now and log in
+      if(!storedHash || storedHash.length < 10){
         await fetch(SUPA_URL + '/rest/v1/admin_profiles?id=eq.' + encodeURIComponent(_selProfile.id), {
           method: 'PATCH',
           headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
@@ -2005,7 +2006,11 @@ tr:hover td{background:#fafcfa;}
       });
       if(!res.ok){
         var errBody = await res.text().catch(function(){ return ''; });
-        throw new Error('Server error ' + res.status + (errBody ? ': ' + errBody.substring(0,100) : ''));
+        // Common issue: password_hash column doesn't exist yet
+        if(errBody.indexOf('password_hash') !== -1 || errBody.indexOf('column') !== -1){
+          throw new Error('Database missing password_hash column. Run: ALTER TABLE admin_profiles ADD COLUMN IF NOT EXISTS password_hash text;');
+        }
+        throw new Error('Server error ' + res.status + (errBody ? ': ' + errBody.substring(0,120) : ''));
       }
       showMsg('✅ Profile saved! Tap your name on the picker to sign in.', true);
       setTimeout(function(){
