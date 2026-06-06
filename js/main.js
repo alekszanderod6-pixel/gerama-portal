@@ -4,11 +4,45 @@
 // ═════════════════════════════════════════════════════════════════
 
 // Force fresh content check — unregister stale service workers
+// and add cache-busting reload for PWA/installed app users
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(regs) {
         regs.forEach(function(reg) { reg.unregister(); });
     });
 }
+
+// For PWA (standalone mode) — force a reload check on every launch
+// so students always see the latest content without manual refreshing
+(function() {
+    var CACHE_KEY = 'gerama_last_check';
+    var now = Date.now();
+    var last = parseInt(localStorage.getItem(CACHE_KEY) || '0');
+    // Check for updates every 10 minutes when app is open
+    var TEN_MIN = 10 * 60 * 1000;
+
+    // If running as installed PWA (standalone), add a version check
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                       window.navigator.standalone === true;
+
+    if (isStandalone && (now - last) > TEN_MIN) {
+        localStorage.setItem(CACHE_KEY, String(now));
+        // Fetch a small version file to check if site has updated
+        fetch('/index.html?' + now, { method: 'HEAD', cache: 'no-store' })
+            .then(function(res) {
+                var serverDate = res.headers.get('last-modified') || res.headers.get('date') || '';
+                var storedDate = localStorage.getItem('gerama_server_date') || '';
+                if (serverDate && serverDate !== storedDate) {
+                    localStorage.setItem('gerama_server_date', serverDate);
+                    // New content available — reload silently
+                    if (!window._geramaReloading) {
+                        window._geramaReloading = true;
+                        window.location.reload(true);
+                    }
+                }
+            })
+            .catch(function() {}); // Silent fail — offline is fine
+    }
+})();
 
 // Global XSS prevention helpers (used everywhere)
 window.escHtml = window.escHtml || function(s) {
@@ -94,6 +128,10 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     function showGuestUI() {
         if (document.getElementById('guestBar')) return;
 
+        // 0. Hide the site bottom nav (for logged-in users) — guests have their own
+        var siteNav = document.getElementById('siteBottomNav');
+        if (siteNav) siteNav.style.display = 'none';
+
         // 1. Hide the hamburger menu toggle (no sidebar for guests)
         var menuBtn = document.getElementById('menuToggle2') || document.getElementById('menuToggle');
         if (menuBtn) menuBtn.style.display = 'none';
@@ -135,7 +173,19 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         document.body.appendChild(bar);
         document.body.style.paddingBottom = '65px';
 
-        // 4. Intercept protected links — redirect to signup
+        // 4. Show guest welcome banner on index page
+        if (currentPage === 'index.html' || currentPage === '') {
+            var gws = document.getElementById('guestWelcomeSection');
+            if (gws) gws.style.display = 'block';
+            // Update hero CTA buttons for guests
+            var heroPrimary = document.getElementById('heroCtaPrimary');
+            if (heroPrimary) {
+                heroPrimary.innerHTML = '<i class="fas fa-user-plus"></i> Join Free — It\'s Free';
+                heroPrimary.setAttribute('href', 'signup.html');
+            }
+        }
+
+        // 5. Intercept protected links — redirect to signup
         setTimeout(function() {
             var protectedHrefs = ['resources.html','classroom.html','dashboard.html'];
             document.querySelectorAll('a[href]').forEach(function(link) {
@@ -149,7 +199,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
             });
         }, 400);
 
-        // 5. Add mobile guest nav (replaces bottom-nav for guests on mobile)
+        // 6. Add mobile guest nav (replaces bottom-nav for guests on mobile)
         var mobileNav = document.createElement('nav');
         mobileNav.id = 'guestMobileNav';
         mobileNav.style.cssText = [
