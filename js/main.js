@@ -245,7 +245,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                 </div>
                 <div class="drawer-nav">
                     <a href="index.html"><i class="fas fa-home"></i> Home</a>
-                    <a href="resources.html"><i class="fas fa-book-open"></i> Resources</a>
+                    <a href="resources.html"><i class="fas fa-book-open"></i> Resources <span id="navBadgeResources" style="display:none;background:#1B5E20;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
                     <a href="classroom.html"><i class="fas fa-chalkboard-teacher"></i> Classroom <span id="navBadgeClassroom" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
                     <a href="mall.html" style="background:rgba(255,193,7,0.12);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-store" style="color:#FFC107;"></i> 🛍️ Urban Mall <span style="background:#FFC107;color:#0a2f1f;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;">NEW</span></a>
                     <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
@@ -561,14 +561,17 @@ if(!document.getElementById('confettiStyle')) {
         var sb = window.geramaSupabase;
         var lastRead = localStorage.getItem('gerama_classroom_last_read');
         if(!lastRead) lastRead = new Date(Date.now() - 24*60*60*1000).toISOString();
+        var lastResRead = localStorage.getItem('gerama_resources_last_read');
+        if(!lastResRead) lastResRead = new Date(Date.now() - 24*60*60*1000).toISOString();
 
-        // Count new quizzes + assignments + announcements since last visit
+        // Classroom badge: new quizzes + assignments + classes + reels since last visit
         Promise.all([
             sb.from('quizzes').select('id',{count:'exact',head:true}).eq('status','active').gt('created_at', lastRead),
             sb.from('assignments').select('id',{count:'exact',head:true}).gt('created_at', lastRead),
-            sb.from('questions').select('id',{count:'exact',head:true}).gt('created_at', lastRead)
+            sb.from('classes').select('id',{count:'exact',head:true}).eq('status','upcoming').gt('created_at', lastRead),
+            sb.from('reels').select('id',{count:'exact',head:true}).eq('status','active').gt('created_at', lastRead)
         ]).then(function(results) {
-            var total = (results[0].count||0) + (results[1].count||0) + (results[2].count||0);
+            var total = (results[0].count||0) + (results[1].count||0) + (results[2].count||0) + (results[3].count||0);
             var badge = document.getElementById('navBadgeClassroom');
             if(badge) {
                 if(total > 0 && page !== 'classroom.html') {
@@ -578,9 +581,24 @@ if(!document.getElementById('confettiStyle')) {
                     badge.style.display = 'none';
                 }
             }
-            // Update bottom nav badge too
             updateBottomNavBadge('classroom.html', total > 0 && page !== 'classroom.html' ? total : 0);
         }).catch(function(){});
+
+        // Resources badge: new materials since last visit
+        sb.from('materials').select('id',{count:'exact',head:true}).eq('status','approved').gt('created_at', lastResRead)
+          .then(function(result) {
+            var resCount = result.count || 0;
+            var resBadge = document.getElementById('navBadgeResources');
+            if(resBadge) {
+                if(resCount > 0 && page !== 'resources.html') {
+                    resBadge.textContent = resCount > 9 ? '9+' : resCount;
+                    resBadge.style.display = 'inline-flex';
+                } else {
+                    resBadge.style.display = 'none';
+                }
+            }
+            updateBottomNavBadge('resources.html', resCount > 0 && page !== 'resources.html' ? resCount : 0);
+          }).catch(function(){});
     }
 
     function updateBottomNavBadge(href, count) {
@@ -607,13 +625,16 @@ if(!document.getElementById('confettiStyle')) {
         });
     }
 
-    // Clear classroom badge when visiting classroom
+    // Clear badges on arrival
     if(page === 'classroom.html') {
         localStorage.setItem('gerama_classroom_last_read', new Date().toISOString());
     }
+    if(page === 'resources.html') {
+        localStorage.setItem('gerama_resources_last_read', new Date().toISOString());
+    }
 
     setTimeout(updateNavBadges, 2000);
-    setInterval(updateNavBadges, 60000); // refresh every minute
+    setInterval(updateNavBadges, 60000);
 })();
 
 // ── SCROLL TO TOP BUTTON ─────────────────────────────────────────

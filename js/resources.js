@@ -669,13 +669,20 @@ function fetchSupabaseMaterials(level) {
           currentCourses[course][type] = [];
         }
 
-        // Add the material — use file_url directly (Supabase public URL)
+        // Add the material — use file_url or telegram_url directly
         // Mark it so renderCourses knows to use the URL as-is (not prepend GITHUB_BASE)
+        var matUrl = row.file_url || row.telegram_url || row.gdrive_url || '';
+        // If this is a telegram-type entry, prefer telegram_url
+        if (row.source_type === 'telegram' || row.type_source === 'telegram') {
+          matUrl = row.telegram_url || row.file_url || '';
+        } else if (row.source_type === 'gdrive') {
+          matUrl = row.file_url || row.gdrive_url || '';
+        }
         currentCourses[course][type].push({
           name:    row.name,
-          file:    null,          // no GitHub path
-          url:     row.file_url,  // direct Supabase URL
-          supabase: true          // flag: use url directly
+          file:    null,
+          url:     matUrl,
+          supabase: true
         });
       });
 

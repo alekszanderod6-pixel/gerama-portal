@@ -1568,6 +1568,8 @@ window.loadClsList = async function(){
     var goLiveBtn = (!isLive&&!isEnded)?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'live\')"><i class="fas fa-broadcast-tower"></i> Go Live</button>':'';
     var endBtn    = isLive?'<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:#dc2626;" onclick="setClassStatus(\''+c.id+'\',\'ended\')"><i class="fas fa-stop-circle"></i> End Class</button>':'';
     var reopenBtn = isEnded?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'upcoming\')"><i class="fas fa-redo"></i> Reopen</button>':'';
+    // Edit button — always available (does NOT change meeting link)
+    var editBtn   = '<button class="btn-success" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="openEditClass(\''+window.escAttr(JSON.stringify({id:c.id,course:c.course,topic:c.topic,tutor:c.tutor||'',scheduled_at:c.scheduled_at,description:c.description||'',venue:c.venue||'',map_link:c.map_link||'',class_type:c.class_type||'virtual'}).replace(/'/g,"\\\'"))+'\')" title="Edit details (meeting link stays the same)"><i class="fas fa-edit"></i> Edit</button>';
     var deleteBtn = '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')" style="font-size:0.78rem;padding:0.4rem 0.7rem;"><i class="fas fa-trash"></i></button>';
 
     var locationInfo = isInPerson
@@ -1580,7 +1582,7 @@ window.loadClsList = async function(){
         '<strong>'+window.escHtml(c.course)+' — '+window.escHtml(c.topic)+' '+badge+typeBadge+'</strong>'+
         '<div class="sub-meta"><b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+locationInfo+'</div>'+
       '</div>'+
-      '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+deleteBtn+'</div>'+
+      '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+editBtn+deleteBtn+'</div>'+
     '</div>';
   }
 
@@ -1604,9 +1606,105 @@ window.loadClsList = async function(){
   el.innerHTML = html || '<p style="color:#9ca3af;text-align:center;padding:1rem;">No classes yet.</p>';
 };
 
-window.setClassStatus = async function(id, status){
+// ─── EDIT CLASS MODAL ────────────────────────────────────────────
+window.openEditClass = function(jsonStr){
+  var cls;
+  try{ cls = JSON.parse(jsonStr); }catch(e){ alert('Could not parse class data.'); return; }
+
+  // Build or reuse modal
+  var existing = document.getElementById('editClassModal');
+  if(existing) existing.remove();
+
+  // Format datetime-local value
+  var dtLocal = cls.scheduled_at ? new Date(cls.scheduled_at).toLocaleString('sv-SE',{timeZoneName:'short'}).replace(' ','T').substring(0,16) : '';
+
+  var isInPerson = cls.class_type === 'inperson';
+
+  var modal = document.createElement('div');
+  modal.id = 'editClassModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px);';
+  modal.innerHTML =
+    '<div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">' +
+        '<div style="font-size:1.1rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-edit" style="color:#1B5E20;"></i> Edit Class</div>' +
+        '<button onclick="document.getElementById(\'editClassModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>' +
+      '</div>' +
+      '<div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:10px;padding:0.7rem 1rem;margin-bottom:1.2rem;font-size:0.82rem;color:#1e40af;">' +
+        '<i class="fas fa-info-circle" style="margin-right:0.4rem;"></i>' +
+        '<strong>Note:</strong> The meeting link / join URL will NOT be changed. Only the details below will be updated.' +
+      '</div>' +
+      '<div class="form-grid">' +
+        '<div class="form-field"><label>Course Name *</label><input type="text" id="ecCourse" value="'+window.escAttr(cls.course||'')+'" placeholder="e.g. Applied Electricity"></div>' +
+        '<div class="form-field"><label>Topic / Title *</label><input type="text" id="ecTopic" value="'+window.escAttr(cls.topic||'')+'" placeholder="e.g. Kirchhoff\'s Laws"></div>' +
+        '<div class="form-field"><label>Tutor / Host</label><input type="text" id="ecTutor" value="'+window.escAttr(cls.tutor||'')+'" placeholder="e.g. Edem H.K Prince"></div>' +
+        '<div class="form-field"><label>Date &amp; Time *</label><input type="datetime-local" id="ecDateTime" value="'+window.escAttr(dtLocal)+'"></div>' +
+        '<div class="form-field full"><label>Description</label><input type="text" id="ecDesc" value="'+window.escAttr(cls.description||'')+'" placeholder="Brief note about what will be covered"></div>' +
+        (isInPerson ?
+          '<div class="form-field full"><label>Venue / Location</label><input type="text" id="ecVenue" value="'+window.escAttr(cls.venue||'')+'" placeholder="e.g. Engineering Block, Room 204"></div>' +
+          '<div class="form-field full"><label>Google Maps Link</label><input type="url" id="ecMapLink" value="'+window.escAttr(cls.map_link||'')+'" placeholder="https://maps.google.com/..."></div>' : '') +
+      '</div>' +
+      '<div style="margin-top:1.2rem;display:flex;gap:0.8rem;flex-wrap:wrap;">' +
+        '<button class="btn-primary" onclick="saveEditClass(\''+window.escAttr(cls.id)+'\',\''+window.escAttr(cls.class_type||'virtual')+'\')" style="flex:1;justify-content:center;"><i class="fas fa-save"></i> Save Changes</button>' +
+        '<button onclick="document.getElementById(\'editClassModal\').remove()" style="background:#f1f5f9;color:#374151;border:none;padding:0.7rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>' +
+      '</div>' +
+      '<div id="ecStatus" style="margin-top:0.8rem;font-size:0.85rem;min-height:1.2rem;"></div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+
+  // Close on backdrop click
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
+};
+
+window.saveEditClass = async function(id, classType){
+  var course   = (document.getElementById('ecCourse')  &&document.getElementById('ecCourse').value||'').trim();
+  var topic    = (document.getElementById('ecTopic')   &&document.getElementById('ecTopic').value||'').trim();
+  var tutor    = (document.getElementById('ecTutor')   &&document.getElementById('ecTutor').value||'').trim();
+  var dt       = (document.getElementById('ecDateTime')&&document.getElementById('ecDateTime').value||'').trim();
+  var desc     = (document.getElementById('ecDesc')    &&document.getElementById('ecDesc').value||'').trim();
+  var venue    = (document.getElementById('ecVenue')   &&document.getElementById('ecVenue').value||'').trim();
+  var mapLink  = (document.getElementById('ecMapLink') &&document.getElementById('ecMapLink').value||'').trim();
+  var statusEl = document.getElementById('ecStatus');
+
+  if(!course||!topic||!dt){ if(statusEl){ statusEl.textContent='Please fill in Course, Topic and Date/Time.'; statusEl.style.color='#dc2626'; } return; }
+
+  var updates = {
+    course: course, topic: topic, tutor: tutor||null,
+    scheduled_at: new Date(dt).toISOString(),
+    description: desc||null
+    // NOTE: meet_link is intentionally excluded — never overwrite it
+  };
+  if(classType === 'inperson'){
+    updates.venue = venue||null;
+    updates.map_link = mapLink||null;
+  }
+
+  if(statusEl){ statusEl.textContent='Saving...'; statusEl.style.color='#6b7280'; }
+
+  var sb = window.geramaSupabase; if(!sb){ if(statusEl){ statusEl.textContent='Not connected.'; statusEl.style.color='#dc2626'; } return; }
+  var {error} = await sb.from('classes').update(updates).eq('id', id);
+  if(error){ if(statusEl){ statusEl.textContent='❌ '+error.message; statusEl.style.color='#dc2626'; } return; }
+
+  window.logActivity('Edited class: '+course+' — '+topic);
+  if(statusEl){ statusEl.textContent='✅ Class updated!'; statusEl.style.color='#059669'; }
+  setTimeout(function(){
+    var modal = document.getElementById('editClassModal');
+    if(modal) modal.remove();
+    window.loadClsList();
+  }, 1000);
+};
   var sb = window.geramaSupabase; if(!sb) return;
   // Map 'upcoming' back to the correct status
+  var dbStatus = status === 'upcoming' ? 'upcoming' : status;
+  var {error} = await sb.from('classes').update({status: dbStatus}).eq('id', id);
+  if(error){ alert('Error: '+error.message); return; }
+  var label = status==='live' ? '🔴 Class is now LIVE!' : status==='ended' ? '✅ Class ended — moved to history.' : '📅 Class reopened.';
+  window.logActivity(label+' ('+id+')');
+  window.loadClsList();
+};
+
+window.setClassStatus = async function(id, status){
+  var sb = window.geramaSupabase; if(!sb) return;
   var dbStatus = status === 'upcoming' ? 'upcoming' : status;
   var {error} = await sb.from('classes').update({status: dbStatus}).eq('id', id);
   if(error){ alert('Error: '+error.message); return; }
