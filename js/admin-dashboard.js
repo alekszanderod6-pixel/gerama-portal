@@ -846,17 +846,16 @@
     var uploadMatBtn = document.getElementById('uploadMatBtn');
     if(uploadMatBtn) uploadMatBtn.addEventListener('click', window.uploadMaterial);
 
-    // Load main content
-    window.loadData();
-    // Wait for Supabase then load live stats (retry up to 10s)
-    (function tryStats(attempts){
+    // Load main content — retry until Supabase is ready
+    (function tryBoot(attempts){
       if(typeof window.geramaSupabase !== 'undefined'){
-        loadOverviewStats();
-        setTimeout(window.loadVisitorStats, 200);
+        window.loadData(); // loads materials, announcements, history, submissions
+        setTimeout(function(){ loadOverviewStats(); }, 400);
+        setTimeout(function(){ if(window.loadVisitorStats) window.loadVisitorStats(); }, 600);
       } else if(attempts > 0){
-        setTimeout(function(){ tryStats(attempts-1); }, 500);
+        setTimeout(function(){ tryBoot(attempts-1); }, 500);
       }
-    })(20);
+    })(30); // retry for up to 15 seconds
   });
 
   // ─── UPLOAD MATERIAL ───────────────────────────────────────
