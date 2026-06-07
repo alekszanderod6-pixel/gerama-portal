@@ -219,7 +219,7 @@ tr:hover td{background:#fafcfa;}
     <span>GERAMA<br>Admin Panel</span>
   </div>
   <!-- Active admin identity bar (shown after login) -->
-  <div id="agActiveBar" style="display:none;padding:0.8rem 1.2rem;background:rgba(255,193,7,0.1);border-bottom:1px solid rgba(255,193,7,0.2);display:flex;align-items:center;gap:0.7rem;">
+  <div id="agActiveBar" style="display:none;padding:0.8rem 1.2rem;background:rgba(255,193,7,0.1);border-bottom:1px solid rgba(255,193,7,0.2);align-items:center;gap:0.7rem;">
     <div id="agActiveAva" style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#FFC107,#e6a800);display:flex;align-items:center;justify-content:center;font-size:0.9rem;font-weight:800;color:#0a2f1f;flex-shrink:0;overflow:hidden;">A</div>
     <div style="flex:1;min-width:0;">
       <div id="agActiveName" style="color:white;font-size:0.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Admin</div>
@@ -247,6 +247,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="potw"><i class="fas fa-star"></i> Personality of Week</div>
     <div class="nav-item" data-panel="reels"><i class="fas fa-film"></i> Manage Reels</div>
     <div class="nav-item" data-panel="adminprofiles"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> Admin Profiles</div>
+    <div class="nav-item" data-panel="team"><i class="fas fa-users-cog" style="color:#34d399;"></i> Manage Team</div>
     <div class="nav-item" data-panel="mall"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</div>
     <div class="nav-item" data-panel="settings"><i class="fas fa-cog"></i> Settings</div>
   </nav>
@@ -1552,39 +1553,6 @@ tr:hover td{background:#fafcfa;}
       <div class="card-title"><i class="fas fa-users"></i> Quiz Attempts & Scores</div>
       <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Students who have completed quizzes and their scores.</p>
       <div id="qzAttemptsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
-    </div>
-  </div>
-
-  <!-- ═══ ADMIN PROFILES PANEL ═══ -->
-  <div class="panel" id="panel-adminprofiles">
-    <div class="card">
-      <div class="card-title"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> My Admin Profile</div>
-      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Set your identity as an admin. All admins logged in can see each other's profiles.</p>
-      <div class="form-grid">
-        <div class="form-field"><label>Display Name *</label><input type="text" id="apName" placeholder="e.g. Alexander Dwumaah"></div>
-        <div class="form-field"><label>Role / Title *</label><input type="text" id="apRole" placeholder="e.g. Lead Coordinator"></div>
-        <div class="form-field"><label>Email</label><input type="email" id="apEmail" placeholder="gerama.uenr@gmail.com"></div>
-        <div class="form-field"><label>Phone</label><input type="tel" id="apPhone" placeholder="0555749497"></div>
-        <div class="form-field full"><label>Bio / Description</label><textarea id="apBio" rows="2" placeholder="Brief description of your role in GERAMA..."></textarea></div>
-        <div class="form-field full">
-          <label>Profile Photo</label>
-          <div class="drop-zone" style="padding:1rem;" onclick="document.getElementById('apPhotoFile').click()">
-            <i class="fas fa-camera"></i><p>Click to upload photo</p>
-            <p class="file-chosen" id="apPhotoChosen"></p>
-          </div>
-          <input type="file" id="apPhotoFile" accept="image/*" style="display:none;" onchange="previewAdminPhoto(this)">
-          <img id="apPhotoPreview" style="display:none;width:80px;height:80px;border-radius:50%;object-fit:cover;margin-top:0.5rem;border:3px solid #a78bfa;" alt="">
-        </div>
-      </div>
-      <div style="margin-top:1rem;display:flex;gap:0.8rem;flex-wrap:wrap;">
-        <button class="btn-primary" onclick="saveAdminProfile()"><i class="fas fa-save"></i> Save My Profile</button>
-        <button class="btn-gold" onclick="loadAdminProfiles()"><i class="fas fa-sync-alt"></i> Refresh All Profiles</button>
-      </div>
-      <div class="status-msg" id="apStatus"></div>
-    </div>
-    <div class="card">
-      <div class="card-title"><i class="fas fa-users-cog"></i> All Admin Profiles</div>
-      <div id="adminProfilesList"><p style="color:#9ca3af;text-align:center;padding:1.5rem;">Loading profiles...</p></div>
     </div>
   </div>
 
