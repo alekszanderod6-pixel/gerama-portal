@@ -30,8 +30,8 @@
     return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
   }
 
-  function getSession(){ try{ return JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null'); }catch(e){ return null; } }
-  function setSession(s){ sessionStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+  function getSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY)||'null'); }catch(e){ return null; } }
+  function setSession(s){ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
 
   document.addEventListener('DOMContentLoaded', function(){
     var session = getSession();
@@ -206,7 +206,7 @@
   }
 
   window.agLogout = function(){
-    sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SESSION_KEY);
     var gate = document.getElementById('geramaAdminGate');
     if(gate) gate.style.display = 'flex';
     var bar = document.getElementById('agActiveBar');
