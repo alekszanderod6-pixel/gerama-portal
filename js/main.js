@@ -11,36 +11,48 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// For PWA (standalone mode) — force a reload check on every launch
-// so students always see the latest content without manual refreshing
+// ── PWA SESSION GUARD ──────────────────────────────────────────────
+// When the app is opened as PWA (saved to home screen) or after a
+// long absence, check if the auth session is still valid.
+// If not, clear any stale login state and send user to public home page.
 (function() {
-    var CACHE_KEY = 'gerama_last_check';
-    var now = Date.now();
-    var last = parseInt(localStorage.getItem(CACHE_KEY) || '0');
-    // Check for updates every 10 minutes when app is open
-    var TEN_MIN = 10 * 60 * 1000;
-
-    // If running as installed PWA (standalone), add a version check
     var isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
                        window.navigator.standalone === true;
+    var currentPage  = window.location.pathname.split('/').pop() || 'index.html';
+    var protectedPages = ['resources.html','classroom.html','dashboard.html'];
+    var publicPages  = ['index.html','about.html','contact.html','mall.html','login.html','signup.html','reset-code.html','admin-dashboard.html',''];
 
+    // On PWA launch or returning visit to a protected page with no local session marker,
+    // force re-auth by clearing stale state and redirecting to home.
+    var isProtected = protectedPages.indexOf(currentPage) !== -1;
+    var hasSessionMarker = !!localStorage.getItem('gerama_profile') && !!localStorage.getItem('gerama_uid');
+
+    if(isStandalone && isProtected && !hasSessionMarker){
+        // Stale PWA session on protected page — go to public home
+        window.location.replace('index.html');
+        return;
+    }
+
+    // Version check for PWA — reload if site has updated
+    var CACHE_KEY = 'gerama_last_check';
+    var TEN_MIN = 10 * 60 * 1000;
+    var now = Date.now();
+    var last = parseInt(localStorage.getItem(CACHE_KEY) || '0');
     if (isStandalone && (now - last) > TEN_MIN) {
         localStorage.setItem(CACHE_KEY, String(now));
-        // Fetch a small version file to check if site has updated
         fetch('/index.html?' + now, { method: 'HEAD', cache: 'no-store' })
             .then(function(res) {
                 var serverDate = res.headers.get('last-modified') || res.headers.get('date') || '';
                 var storedDate = localStorage.getItem('gerama_server_date') || '';
                 if (serverDate && serverDate !== storedDate) {
                     localStorage.setItem('gerama_server_date', serverDate);
-                    // New content available — reload silently
                     if (!window._geramaReloading) {
                         window._geramaReloading = true;
                         window.location.reload(true);
                     }
                 }
             })
-            .catch(function() {}); // Silent fail — offline is fine
+            .catch(function() {});
     }
 })();
 

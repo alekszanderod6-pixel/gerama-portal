@@ -746,35 +746,39 @@ tr:hover td{background:#fafcfa;}
       <div class="form-grid">
         <div class="form-field"><label>Product Name *</label><input type="text" id="mallProdName" placeholder="e.g. GERAMA Round Neck T-Shirt"></div>
         <div class="form-field"><label>Category *</label>
-          <select id="mallProdCat">
-            <option value="">Select</option>
-            <option value="fashion">Fashion</option>
-            <option value="food">Food & Drinks</option>
-            <option value="electronics">Electronics</option>
-            <option value="books">Books</option>
-            <option value="other">Other</option>
+          <select id="mallProdCat" onchange="adminToggleMallColorFields()">
+            <option value="">Select category</option>
+            <option value="fashion">👕 Fashion & Clothing</option>
+            <option value="food">🍔 Food & Drinks</option>
+            <option value="electronics">📱 Electronics & Gadgets</option>
+            <option value="books">📚 Books & Stationery</option>
+            <option value="beauty">💄 Beauty & Skincare</option>
+            <option value="health">💊 Health & Wellness</option>
+            <option value="home">🏠 Home & Living</option>
+            <option value="accessories">👜 Bags & Accessories</option>
+            <option value="services">🛠️ Services & Skills</option>
+            <option value="other">📦 Others</option>
           </select>
         </div>
         <div class="form-field"><label>Price (GH₵) *</label><input type="number" id="mallProdPrice" placeholder="48" min="1"></div>
         <div class="form-field"><label>Original Price (GH₵) — if discounted</label><input type="number" id="mallProdOrigPrice" placeholder="60" min="1"></div>
         <div class="form-field"><label>Seller Name *</label><input type="text" id="mallProdSeller" placeholder="e.g. Aleks ZanderOD"></div>
-        <div class="form-field"><label>Seller WhatsApp *</label><input type="tel" id="mallProdWA" placeholder="0551234567"></div>
-        <div class="form-field"><label>Colours (comma-separated hex or names)</label><input type="text" id="mallProdColours" placeholder="white,#8B4513,#1B5E20"></div>
-        <div class="form-field"><label>Colour Names (comma-separated)</label><input type="text" id="mallProdColourNames" placeholder="White,Brown,Green"></div>
-        <div class="form-field"><label>Sizes (comma-separated)</label><input type="text" id="mallProdSizes" placeholder="S,M,L,XL,XXL,3XL"></div>
+        <div class="form-field"><label>Seller WhatsApp * <small style="font-weight:400;color:#6b7280;">default: 0555749497</small></label><input type="tel" id="mallProdWA" placeholder="0555749497" value="0555749497"></div>
+        <!-- Colour fields — shown only for fashion/accessories -->
+        <div class="form-field" id="mallColourField" style="display:none;"><label>Colours (comma-separated hex or names) <small style="font-weight:400;color:#6b7280;">optional</small></label><input type="text" id="mallProdColours" placeholder="white,#8B4513,#1B5E20"></div>
+        <div class="form-field" id="mallColourNameField" style="display:none;"><label>Colour Names <small style="font-weight:400;color:#6b7280;">optional</small></label><input type="text" id="mallProdColourNames" placeholder="White,Brown,Green"></div>
+        <div class="form-field" id="mallSizeField" style="display:none;"><label>Sizes <small style="font-weight:400;color:#6b7280;">optional, fashion only</small></label><input type="text" id="mallProdSizes" placeholder="S,M,L,XL,XXL,3XL"></div>
         <div class="form-field"><label>Stock Quantity</label><input type="number" id="mallProdStock" placeholder="50" min="0"></div>
-        <div class="form-field full"><label>Description *</label><textarea id="mallProdDesc" rows="3" placeholder="Describe the product..."></textarea></div>
+        <div class="form-field full"><label>Description *</label><textarea id="mallProdDesc" rows="3" placeholder="Describe the product — materials, usage, features..."></textarea></div>
         <div class="form-field full">
-          <label>Product Image or Video * <small style="color:#6b7280;font-weight:400;">(upload from device)</small></label>
+          <label>Product Images (up to 3) <small style="color:#6b7280;font-weight:400;">First = main display photo</small></label>
           <div class="drop-zone" id="mallImgZone" style="padding:1rem;cursor:pointer;" onclick="document.getElementById('mallProdFile').click()">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <p>Click to upload image or video (max 10MB)</p>
+            <i class="fas fa-camera"></i>
+            <p>Click to upload up to 3 product images (max 10MB each)</p>
             <p class="file-chosen" id="mallProdFileChosen"></p>
           </div>
-          <input type="file" id="mallProdFile" accept="image/*,video/*" style="display:none;" onchange="previewMallFile(this)">
-          <div id="mallProdPreview" style="margin-top:0.5rem;display:none;">
-            <img id="mallProdPreviewImg" style="max-width:120px;max-height:120px;border-radius:10px;object-fit:cover;border:2px solid #e5e7eb;" src="" alt="">
-          </div>
+          <input type="file" id="mallProdFile" accept="image/*" multiple style="display:none;" onchange="previewMallFile(this)">
+          <div id="mallProdPreview" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;"></div>
         </div>
         <div class="form-field"><label>Badge (optional)</label>
           <select id="mallProdBadge">
@@ -790,7 +794,6 @@ tr:hover td{background:#fafcfa;}
       <div class="status-msg" id="mallPostStatus"></div>
     </div>
     <!-- Live Products -->
-    <div class="card">
       <div class="card-title"><i class="fas fa-store"></i> Live Products</div>
       <div id="mallProductsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
@@ -911,39 +914,103 @@ tr:hover td{background:#fafcfa;}
     var el = document.getElementById('mallOrdersList');
     if (!el) return;
     try {
-      var r = await mallFetch('mall_orders?select=*&order=ordered_at.desc&limit=50');
+      var r = await mallFetch('mall_orders?select=*&order=ordered_at.desc&limit=100');
       if (!r.ok) throw new Error('HTTP '+r.status);
       var data = await r.json();
       if (!data||!data.length) { el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No orders yet.</p>'; return; }
-      el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Buyer</th><th>Phone</th><th>Qty</th><th>Total</th><th>Location</th><th>Date</th></tr></thead><tbody>'+
+
+      // Stats bar
+      var pending = data.filter(function(o){ return !o.payment_confirmed; }).length;
+      var paid = data.filter(function(o){ return o.payment_confirmed; }).length;
+      var delivered = data.filter(function(o){ return o.item_delivered; }).length;
+
+      el.innerHTML =
+        '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">' +
+          '<div style="background:#fef3c7;border-radius:10px;padding:0.6rem 1rem;font-size:0.82rem;font-weight:700;color:#92400e;">⏳ Pending: '+pending+'</div>' +
+          '<div style="background:#d1fae5;border-radius:10px;padding:0.6rem 1rem;font-size:0.82rem;font-weight:700;color:#065f46;">💰 Paid: '+paid+'</div>' +
+          '<div style="background:#dbeafe;border-radius:10px;padding:0.6rem 1rem;font-size:0.82rem;font-weight:700;color:#1e40af;">📦 Delivered: '+delivered+'</div>' +
+        '</div>' +
+        '<div class="tbl-wrap"><table><thead><tr>' +
+          '<th>Product</th><th>Buyer</th><th>Phone</th><th>Details</th><th>Total</th><th>Date</th>' +
+          '<th style="text-align:center;">💰 Paid</th><th style="text-align:center;">📦 Delivered</th>' +
+          '<th>Action</th>' +
+        '</tr></thead><tbody>' +
         data.map(function(o){
           var dt = o.ordered_at ? new Date(o.ordered_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-          return '<tr>'+
-            '<td>'+window.escHtml(o.product_name||'—')+'<br><small style="color:#9ca3af;">'+window.escHtml(o.seller_id||'')+'</small></td>'+
-            '<td>'+window.escHtml(o.buyer_name||'—')+'</td>'+
-            '<td>'+window.escHtml(o.buyer_phone||'—')+'</td>'+
-            '<td>'+o.quantity+'</td>'+
-            '<td>GH₵'+o.total_price+'</td>'+
-            '<td style="font-size:0.8rem;">'+window.escHtml(o.delivery_location||'—')+'</td>'+
-            '<td style="font-size:0.78rem;white-space:nowrap;">'+dt+'</td>'+
+          var oid = window.escAttr ? window.escAttr(String(o.id)) : String(o.id);
+          return '<tr style="'+(o.item_delivered?'opacity:0.6':'')+'">' +
+            '<td style="font-weight:600;">'+window.escHtml(o.product_name||'—')+'<br><small style="color:#9ca3af;font-size:0.7rem;">'+window.escHtml(o.colour||'')+(o.size?' · '+o.size:'')+'</small></td>' +
+            '<td>'+window.escHtml(o.buyer_name||'—')+'</td>' +
+            '<td><a href="tel:'+window.escAttr(o.buyer_phone||'')+'" style="color:#1B5E20;font-weight:600;text-decoration:none;">'+window.escHtml(o.buyer_phone||'—')+'</a>' +
+              (o.buyer_phone?'<br><a href="https://wa.me/'+(''+o.buyer_phone).replace(/\D/g,'').replace(/^0/,'233')+'" target="_blank" style="color:#25D366;font-size:0.72rem;font-weight:700;"><i class="fab fa-whatsapp"></i> WhatsApp</a>':'') +
+            '</td>' +
+            '<td style="font-size:0.78rem;">Qty: '+o.quantity+'<br>'+window.escHtml(o.delivery_location||'—')+'</td>' +
+            '<td style="font-weight:800;color:#dc2626;">GH₵'+(o.total_price||0).toFixed(2)+'</td>' +
+            '<td style="font-size:0.75rem;white-space:nowrap;">'+dt+'</td>' +
+            '<td style="text-align:center;">' +
+              '<input type="checkbox" '+(o.payment_confirmed?'checked':'')+' onchange="mallToggleOrderField(\''+oid+'\',\'payment_confirmed\',this.checked)" style="width:18px;height:18px;cursor:pointer;" title="Mark payment received">' +
+            '</td>' +
+            '<td style="text-align:center;">' +
+              '<input type="checkbox" '+(o.item_delivered?'checked':'')+' onchange="mallToggleOrderField(\''+oid+'\',\'item_delivered\',this.checked)" style="width:18px;height:18px;cursor:pointer;" title="Mark item delivered">' +
+            '</td>' +
+            '<td>' +
+              '<button class="btn-danger" onclick="mallDeleteOrder(\''+oid+'\')" style="font-size:0.72rem;padding:0.25rem 0.5rem;"><i class="fas fa-trash"></i></button>' +
+            '</td>' +
           '</tr>';
         }).join('')+
-      '</tbody></table></div>';
+        '</tbody></table></div>';
     } catch(e) { el.innerHTML='<p style="color:#dc2626;padding:1rem;">Error: '+e.message+'</p>'; }
   }
 
+  window.mallToggleOrderField = async function(orderId, field, value) {
+    var body = {}; body[field] = value;
+    try {
+      var r = await mallFetch('mall_orders?id=eq.' + encodeURIComponent(orderId), {
+        method: 'PATCH',
+        headers: {'Content-Type':'application/json','Prefer':'return=minimal'},
+        body: JSON.stringify(body)
+      });
+      if (!r.ok) throw new Error('HTTP '+r.status);
+      window.logActivity && window.logActivity('Order ' + orderId + ': ' + field + ' = ' + value);
+    } catch(e) { alert('Update failed: ' + e.message); }
+  };
+
+  window.mallDeleteOrder = async function(orderId) {
+    if (!confirm('Delete this order record?')) return;
+    try {
+      await mallFetch('mall_orders?id=eq.' + encodeURIComponent(orderId), { method: 'DELETE' });
+      loadMallOrders();
+    } catch(e) { alert('Delete failed: ' + e.message); }
+  };
+
   window.previewMallFile = function(input) {
-    var file = input.files && input.files[0];
-    if (!file) return;
+    var files = Array.from(input.files || []).slice(0, 3);
     var chosen = document.getElementById('mallProdFileChosen');
     var preview = document.getElementById('mallProdPreview');
-    var previewImg = document.getElementById('mallProdPreviewImg');
-    if (chosen) chosen.textContent = '✅ ' + file.name;
-    if (file.type.startsWith('image/') && preview && previewImg) {
+    if (chosen) chosen.textContent = '✅ ' + files.length + ' image' + (files.length !== 1 ? 's' : '') + ' selected';
+    if (!preview) return;
+    preview.innerHTML = '';
+    files.forEach(function(f) {
       var reader = new FileReader();
-      reader.onload = function(e) { previewImg.src = e.target.result; preview.style.display = 'block'; };
-      reader.readAsDataURL(file);
-    }
+      reader.onload = function(e) {
+        var img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.cssText = 'width:80px;height:80px;border-radius:10px;object-fit:cover;border:2px solid #e5e7eb;';
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(f);
+    });
+  };
+
+  window.adminToggleMallColorFields = function() {
+    var cat = document.getElementById('mallProdCat').value;
+    var needsColor = cat === 'fashion' || cat === 'accessories';
+    var cf = document.getElementById('mallColourField');
+    var cnf = document.getElementById('mallColourNameField');
+    var sf = document.getElementById('mallSizeField');
+    if (cf) cf.style.display = needsColor ? 'block' : 'none';
+    if (cnf) cnf.style.display = needsColor ? 'block' : 'none';
+    if (sf) sf.style.display = cat === 'fashion' ? 'block' : 'none';
   };
 
   window.adminPostProduct = async function() {
@@ -960,7 +1027,7 @@ tr:hover td{background:#fafcfa;}
     var stock = parseInt(document.getElementById('mallProdStock').value)||0;
     var badge = document.getElementById('mallProdBadge').value;
     var fileInput = document.getElementById('mallProdFile');
-    var file = fileInput && fileInput.files && fileInput.files[0];
+    var files = fileInput && fileInput.files ? Array.from(fileInput.files).slice(0, 3) : [];
 
     if (!name||!cat||isNaN(price)||!seller||!wa||!desc) {
       window.showStatus('mallPostStatus','Please fill in all required fields.','err'); return;
@@ -970,26 +1037,27 @@ tr:hover td{background:#fafcfa;}
     if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Posting...'; }
     window.showStatus('mallPostStatus','Uploading...','info');
 
-    var imgUrl = null;
+    var imgUrls = [];
 
-    // Upload file to Supabase storage if provided
-    if (file) {
+    // Upload up to 3 images
+    if (files.length) {
       try {
         var sb = window.geramaSupabase;
         if (sb) {
-          var ext = file.name.split('.').pop().toLowerCase();
-          var path = 'mall/' + Date.now() + '-' + name.toLowerCase().replace(/[^a-z0-9]/g,'-').substring(0,20) + '.' + ext;
-          var upRes = await sb.storage.from('gerama-materials').upload(path, file, {upsert:true, contentType:file.type});
-          if (!upRes.error) {
-            imgUrl = sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
-          } else {
-            window.showStatus('mallPostStatus','⚠️ Image upload failed: '+upRes.error.message+'. Posting without image.','info');
+          for (var fi = 0; fi < files.length; fi++) {
+            var f = files[fi];
+            var ext = f.name.split('.').pop().toLowerCase();
+            var path = 'mall/' + Date.now() + '-' + fi + '-' + name.toLowerCase().replace(/[^a-z0-9]/g,'-').substring(0,15) + '.' + ext;
+            var upRes = await sb.storage.from('gerama-materials').upload(path, f, {upsert:true, contentType:f.type});
+            if (!upRes.error) imgUrls.push(sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl);
           }
         }
       } catch(e) {
-        window.showStatus('mallPostStatus','⚠️ Image upload error. Posting without image.','info');
+        window.showStatus('mallPostStatus','⚠️ Image upload error. Posting without some images.','info');
       }
     }
+
+    var imgUrl = imgUrls[0] || null;
 
     var sellerId = 'GUM-' + String(Date.now()).slice(-4);
     var colours = coloursRaw ? JSON.stringify(coloursRaw.split(',').map(function(s){return s.trim();})) : '[]';
@@ -1002,8 +1070,10 @@ tr:hover td{background:#fafcfa;}
         headers:{'Content-Type':'application/json','Prefer':'return=minimal'},
         body:JSON.stringify({
           name:name, category:cat, price:price, original_price:origPrice,
-          description:desc, image_url:imgUrl||null, seller_name:seller,
-          seller_whatsapp:wa, seller_id:sellerId, status:'approved',
+          description:desc, image_url:imgUrl||null,
+          extra_images: imgUrls.length > 1 ? JSON.stringify(imgUrls.slice(1)) : null,
+          seller_name:seller,
+          seller_whatsapp: wa || '0555749497', seller_id:sellerId, status:'approved',
           colours:colours, colour_names:colourNames, sizes:sizes,
           stock:stock, verified:true, featured:true, badge:badge||null,
           created_at:new Date().toISOString()

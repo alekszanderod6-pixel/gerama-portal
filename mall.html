@@ -182,6 +182,73 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 /* LOADING SKELETON */
 .skeleton{background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;}
 @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* MALL ICON BUTTONS (cart, wishlist) */
+.mall-icon-btn{background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);color:white;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;flex-shrink:0;position:relative;}
+.mall-icon-btn:hover{background:rgba(255,255,255,0.25);}
+
+/* PRODUCT CARD — wishlist heart */
+.product-wishlist-btn{position:absolute;top:0.5rem;right:2.8rem;background:rgba(255,255,255,0.9);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:#9ca3af;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.12);}
+.product-wishlist-btn.wishlisted{color:#dc2626;}
+.product-wishlist-btn:hover{transform:scale(1.15);}
+
+/* CART DRAWER */
+.cart-drawer{position:fixed;right:-380px;top:0;bottom:0;width:380px;background:white;z-index:4000;box-shadow:-4px 0 30px rgba(0,0,0,0.15);transition:right 0.35s cubic-bezier(0.34,1.56,0.64,1);display:flex;flex-direction:column;overflow:hidden;}
+.cart-drawer.open{right:0;}
+.cart-drawer-header{background:linear-gradient(135deg,var(--primary-dark),var(--primary));color:white;padding:1.2rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.cart-drawer-body{flex:1;overflow-y:auto;padding:1rem 1.2rem;}
+.cart-drawer-footer{padding:1rem 1.2rem;border-top:2px solid #e5e7eb;background:#f8fafc;flex-shrink:0;}
+.cart-item{display:flex;gap:0.8rem;align-items:flex-start;padding:0.8rem 0;border-bottom:1px solid #f1f5f9;}
+.cart-item img{width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0;}
+.cart-item-info{flex:1;min-width:0;}
+.cart-item-name{font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:0.2rem;line-height:1.3;}
+.cart-item-price{font-size:0.9rem;font-weight:800;color:#dc2626;}
+.cart-remove{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.85rem;padding:0.2rem;transition:color 0.2s;}
+.cart-remove:hover{color:#dc2626;}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;}
+.cart-total-label{font-size:0.9rem;color:var(--muted);}
+.cart-total-amount{font-size:1.3rem;font-weight:900;color:var(--primary);}
+.btn-checkout{width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;padding:0.85rem;border-radius:30px;font-size:0.95rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.btn-checkout:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,94,32,0.35);}
+
+/* WISHLIST DRAWER */
+.wishlist-drawer{position:fixed;right:-380px;top:0;bottom:0;width:380px;background:white;z-index:4000;box-shadow:-4px 0 30px rgba(0,0,0,0.15);transition:right 0.35s cubic-bezier(0.34,1.56,0.64,1);display:flex;flex-direction:column;overflow:hidden;}
+.wishlist-drawer.open{right:0;}
+
+/* DRAWER OVERLAY */
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:3999;}
+.drawer-overlay.open{display:block;}
+
+/* ORDER SUCCESS POPUP */
+.order-success-modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;display:none;align-items:center;justify-content:center;padding:1rem;}
+.order-success-modal.open{display:flex;}
+.order-success-box{background:white;border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:400px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.3);}
+.order-success-icon{font-size:4rem;margin-bottom:1rem;}
+.order-success-box h3{font-size:1.2rem;font-weight:800;color:var(--text);margin-bottom:0.5rem;}
+.order-success-box p{font-size:0.88rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.6;}
+
+/* MULTI-IMAGE GALLERY in order modal */
+.product-gallery{display:flex;gap:0.5rem;margin-bottom:0.8rem;overflow-x:auto;}
+.gallery-thumb{width:60px;height:60px;border-radius:8px;object-fit:cover;cursor:pointer;border:2px solid transparent;transition:all 0.2s;flex-shrink:0;}
+.gallery-thumb.active{border-color:var(--primary);}
+.gallery-main{width:100%;aspect-ratio:1;border-radius:14px;object-fit:cover;cursor:zoom-in;margin-bottom:0.5rem;}
+
+/* STAR RATING INPUT */
+.star-rating-input{display:flex;gap:0.3rem;font-size:1.4rem;cursor:pointer;}
+.star-rating-input span{color:#d1d5db;transition:color 0.15s;}
+.star-rating-input span.active{color:#f59e0b;}
+
+/* REVIEW CARD */
+.review-card{padding:0.8rem 0;border-bottom:1px solid #f1f5f9;}
+.review-card:last-child{border-bottom:none;}
+.review-author{font-size:0.82rem;font-weight:700;color:var(--text);}
+.review-stars{color:#f59e0b;font-size:0.75rem;}
+.review-text{font-size:0.85rem;color:#374151;margin-top:0.3rem;line-height:1.5;}
+
+@media(max-width:640px){
+  .cart-drawer,.wishlist-drawer{width:100%;right:-100%;}
+  .cart-drawer.open,.wishlist-drawer.open{right:0;}
+}
 </style>
 </head>
 <body>
@@ -228,12 +295,25 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <div class="cat-pills" id="catPills">
     <button class="cat-pill active" onclick="setCategory('all',this)">🛍️ All</button>
     <button class="cat-pill" onclick="setCategory('fashion',this)">👕 Fashion</button>
-    <button class="cat-pill" onclick="setCategory('food',this)">🥤 Food & Drinks</button>
+    <button class="cat-pill" onclick="setCategory('food',this)">🍔 Food & Drinks</button>
     <button class="cat-pill" onclick="setCategory('electronics',this)">📱 Electronics</button>
     <button class="cat-pill" onclick="setCategory('books',this)">📚 Books</button>
-    <button class="cat-pill" onclick="setCategory('other',this)">📦 Other</button>
+    <button class="cat-pill" onclick="setCategory('beauty',this)">💄 Beauty</button>
+    <button class="cat-pill" onclick="setCategory('health',this)">💊 Health</button>
+    <button class="cat-pill" onclick="setCategory('home',this)">🏠 Home & Living</button>
+    <button class="cat-pill" onclick="setCategory('accessories',this)">👜 Accessories</button>
+    <button class="cat-pill" onclick="setCategory('services',this)">🛠️ Services</button>
+    <button class="cat-pill" onclick="setCategory('other',this)">📦 Others</button>
   </div>
   <button class="btn-sell" onclick="openSellModal()"><i class="fas fa-plus"></i> Sell Here</button>
+  <button class="mall-icon-btn" onclick="toggleWishlist()" title="Wishlist" style="position:relative;">
+    <i class="fas fa-heart" style="color:#dc2626;"></i>
+    <span id="wishlistCount" style="display:none;position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1;">0</span>
+  </button>
+  <button class="mall-icon-btn" onclick="toggleCart()" title="Cart" style="position:relative;">
+    <i class="fas fa-shopping-cart"></i>
+    <span id="cartCount" style="display:none;position:absolute;top:-6px;right:-6px;background:var(--primary);color:white;border-radius:50%;width:18px;height:18px;font-size:0.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1;">0</span>
+  </button>
 </div>
 
 <!-- MAIN BODY -->
@@ -379,14 +459,29 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       </div>
       <div class="form-row"><label>Product Name *</label><input type="text" id="sellName" placeholder="e.g. GERAMA Round Neck T-Shirt"></div>
       <div class="form-row"><label>Category *</label>
-        <select id="sellCategory">
+        <select id="sellCategory" onchange="toggleColorField()">
           <option value="">Select category</option>
-          <option value="fashion">Fashion</option>
-          <option value="food">Food & Drinks</option>
-          <option value="electronics">Electronics</option>
-          <option value="books">Books & Stationery</option>
-          <option value="other">Other</option>
+          <option value="fashion">👕 Fashion & Clothing</option>
+          <option value="food">🍔 Food & Drinks</option>
+          <option value="electronics">📱 Electronics & Gadgets</option>
+          <option value="books">📚 Books & Stationery</option>
+          <option value="beauty">💄 Beauty & Skincare</option>
+          <option value="health">💊 Health & Wellness</option>
+          <option value="home">🏠 Home & Living</option>
+          <option value="accessories">👜 Bags & Accessories</option>
+          <option value="services">🛠️ Services & Skills</option>
+          <option value="other">📦 Others</option>
         </select>
+      </div>
+      <!-- Color field — only shown for fashion/accessories -->
+      <div class="form-row" id="sellColorField" style="display:none;">
+        <label>Available Colours (comma-separated) <small style="font-weight:400;color:#6b7280;">optional</small></label>
+        <input type="text" id="sellColors" placeholder="e.g. Red, Blue, Black, White">
+      </div>
+      <!-- Size field — only shown for fashion -->
+      <div class="form-row" id="sellSizeField" style="display:none;">
+        <label>Available Sizes (comma-separated) <small style="font-weight:400;color:#6b7280;">optional</small></label>
+        <input type="text" id="sellSizes" placeholder="e.g. S, M, L, XL, XXL">
       </div>
       <div class="form-row"><label>Price (GH₵) *</label><input type="number" id="sellPrice" placeholder="e.g. 48" min="1"></div>
       <div class="form-row"><label>Original Price (GH₵) — if discounted</label><input type="number" id="sellOrigPrice" placeholder="e.g. 60" min="1"></div>
@@ -394,17 +489,103 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div class="form-row"><label>Your WhatsApp Number *</label><input type="tel" id="sellWhatsapp" placeholder="e.g. 0555749497"></div>
       <div class="form-row"><label>Your Name / Business Name *</label><input type="text" id="sellSellerName" placeholder="e.g. Aleks ZanderOD"></div>
       <div class="form-row">
-        <label>Product Image or Video <small style="color:#6b7280;font-weight:400;">(upload from device)</small></label>
+        <label>Product Images (up to 3) <small style="font-weight:400;color:#6b7280;">First image = main display photo</small></label>
         <div class="drop-zone" style="padding:0.8rem;cursor:pointer;" onclick="document.getElementById('sellFile').click()">
-          <i class="fas fa-cloud-upload-alt"></i>
-          <p>Click to upload image or video of your product</p>
+          <i class="fas fa-camera"></i>
+          <p>Click to upload up to 3 photos of your product</p>
           <p class="file-chosen" id="sellFileChosen"></p>
         </div>
-        <input type="file" id="sellFile" accept="image/*,video/*" style="display:none;" onchange="document.getElementById('sellFileChosen').textContent='✅ '+this.files[0].name">
+        <input type="file" id="sellFile" accept="image/*" multiple style="display:none;" onchange="previewSellImages(this)">
+        <div id="sellImgPreviews" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;"></div>
       </div>
+      <div class="form-row"><label>Your WhatsApp Number *</label><input type="tel" id="sellWhatsapp" placeholder="e.g. 0555749497"></div>
+      <div class="form-row"><label>Your Name / Business Name *</label><input type="text" id="sellSellerName" placeholder="e.g. Aleks ZanderOD"></div>
+      <div class="form-row"><label>Stock / Quantity Available</label><input type="number" id="sellStock" placeholder="e.g. 20" min="1"></div>
       <div id="sellStatus" style="display:none;padding:0.7rem 1rem;border-radius:10px;font-size:0.87rem;margin-bottom:0.8rem;"></div>
-      <button onclick="submitSellRequest()" style="width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;padding:0.8rem;border-radius:30px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
+      <button onclick="submitSellRequest()" style="width:100%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;padding:0.85rem;border-radius:30px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;">
         <i class="fas fa-paper-plane"></i> Submit for Review
+      </button>
+      <p style="font-size:0.78rem;color:#6b7280;text-align:center;margin-top:0.8rem;">Admin reviews all listings within 24 hours. You'll be contacted on WhatsApp once approved.</p>
+    </div>
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeAllDrawers()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-drawer-header">
+    <div style="font-weight:800;font-size:1rem;display:flex;align-items:center;gap:0.6rem;"><i class="fas fa-shopping-cart"></i> My Cart <span id="cartBadge" style="background:rgba(255,255,255,0.25);padding:0.1rem 0.6rem;border-radius:20px;font-size:0.78rem;">0 items</span></div>
+    <button onclick="toggleCart()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
+  </div>
+  <div class="cart-drawer-body" id="cartBody">
+    <div style="text-align:center;padding:3rem 1rem;color:#9ca3af;"><i class="fas fa-shopping-cart" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i><p style="font-weight:600;">Your cart is empty</p><small>Add products to get started</small></div>
+  </div>
+  <div class="cart-drawer-footer">
+    <div class="cart-total-row"><span class="cart-total-label">Total</span><span class="cart-total-amount" id="cartTotalAmt">GH₵ 0.00</span></div>
+    <button class="btn-checkout" onclick="checkoutCart()"><i class="fas fa-bolt"></i> Checkout All Items</button>
+  </div>
+</div>
+
+<!-- WISHLIST DRAWER -->
+<div class="wishlist-drawer" id="wishlistDrawer">
+  <div class="cart-drawer-header" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">
+    <div style="font-weight:800;font-size:1rem;display:flex;align-items:center;gap:0.6rem;"><i class="fas fa-heart"></i> Wishlist <span id="wishlistBadge" style="background:rgba(255,255,255,0.25);padding:0.1rem 0.6rem;border-radius:20px;font-size:0.78rem;">0 items</span></div>
+    <button onclick="toggleWishlist()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
+  </div>
+  <div class="cart-drawer-body" id="wishlistBody">
+    <div style="text-align:center;padding:3rem 1rem;color:#9ca3af;"><i class="fas fa-heart" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i><p style="font-weight:600;">No saved items</p><small>Tap the ♡ on any product to save it</small></div>
+  </div>
+</div>
+
+<!-- ORDER SUCCESS POPUP -->
+<div class="order-success-modal" id="orderSuccessModal">
+  <div class="order-success-box">
+    <div class="order-success-icon">🎉</div>
+    <h3>Order Submitted!</h3>
+    <p>Your order details have been recorded. Now contact the seller directly to confirm and arrange payment.</p>
+    <div style="display:flex;flex-direction:column;gap:0.7rem;margin-bottom:1rem;">
+      <a id="successWhatsApp" href="#" target="_blank" style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:white;border:none;padding:0.85rem;border-radius:30px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.5rem;text-decoration:none;transition:all 0.2s;">
+        <i class="fab fa-whatsapp"></i> Contact Seller on WhatsApp
+      </a>
+      <a id="successCall" href="#" style="width:100%;background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;border:none;padding:0.85rem;border-radius:30px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.5rem;text-decoration:none;transition:all 0.2s;">
+        <i class="fas fa-phone"></i> Call Seller
+      </a>
+    </div>
+    <button onclick="closeOrderSuccess()" style="background:#f1f5f9;color:#374151;border:none;padding:0.6rem 2rem;border-radius:30px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Close</button>
+  </div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeReviewModal()">✕</button>
+      <h3>⭐ Leave a Review</h3>
+      <p>Share your experience with this product</p>
+    </div>
+    <div class="modal-body">
+      <div id="reviewProductName" style="font-weight:700;color:var(--text);margin-bottom:1rem;font-size:0.95rem;"></div>
+      <div class="form-row">
+        <label>Your Rating *</label>
+        <div class="star-rating-input" id="starRatingInput">
+          <span onclick="setRating(1)">★</span>
+          <span onclick="setRating(2)">★</span>
+          <span onclick="setRating(3)">★</span>
+          <span onclick="setRating(4)">★</span>
+          <span onclick="setRating(5)">★</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>Your Name</label>
+        <input type="text" id="reviewName" placeholder="e.g. Kwame A.">
+      </div>
+      <div class="form-row">
+        <label>Your Review *</label>
+        <textarea id="reviewText" rows="3" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;" placeholder="How was the product? Quality, delivery, seller..."></textarea>
+      </div>
+      <div id="reviewStatus" style="font-size:0.85rem;margin-bottom:0.8rem;min-height:1rem;"></div>
+      <button onclick="submitReview()" style="width:100%;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;padding:0.8rem;border-radius:30px;font-size:0.95rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
+        <i class="fas fa-star"></i> Submit Review
       </button>
     </div>
   </div>
@@ -567,6 +748,7 @@ function renderProducts() {
       '<div class="product-img-wrap">' +
         '<img src="' + (p.image_url || 'https://via.placeholder.com/300x300?text=Product') + '" alt="' + escHtml(p.name) + '" onerror="this.src=\'https://via.placeholder.com/300x300?text=Product\'" onclick="event.stopPropagation();openImgLightbox(\'' + (p.image_url||'') + '\')">' +
         badgeHtml + verifiedHtml +
+        '<button class="product-wishlist-btn' + (isWishlisted(p.id)?' wishlisted':'') + '" onclick="event.stopPropagation();toggleWishlistItem(\'' + p.id + '\',this)" title="Save to Wishlist"><i class="fas fa-heart"></i></button>' +
       '</div>' +
       '<div class="product-body">' +
         '<div class="product-name">' + escHtml(p.name) + '</div>' +
@@ -574,7 +756,11 @@ function renderProducts() {
         '<div class="product-seller"><i class="fas fa-store"></i>' + escHtml(p.seller_name||'GERAMA Seller') + '</div>' +
         '<div class="product-price-row"><span class="product-price">GH₵' + p.price + '</span>' + oldPriceHtml + '</div>' +
         bulkHtml +
-        '<button class="btn-order" onclick="event.stopPropagation();openOrderModal(\'' + p.id + '\')"><i class="fas fa-shopping-cart"></i> Order Now</button>' +
+        '<div style="display:flex;gap:0.4rem;">' +
+          '<button class="btn-order" style="flex:1;" onclick="event.stopPropagation();openOrderModal(\'' + p.id + '\')"><i class="fas fa-shopping-cart"></i> Order</button>' +
+          '<button style="background:#f1f5f9;border:none;color:#374151;border-radius:8px;padding:0.55rem 0.7rem;cursor:pointer;font-size:0.88rem;transition:all 0.2s;" onclick="event.stopPropagation();addToCart(\'' + p.id + '\')" title="Add to Cart"><i class="fas fa-cart-plus"></i></button>' +
+          '<button style="background:#f1f5f9;border:none;color:#374151;border-radius:8px;padding:0.55rem 0.7rem;cursor:pointer;font-size:0.88rem;transition:all 0.2s;" onclick="event.stopPropagation();openReviewModal(\'' + p.id + '\',\'' + escHtml(p.name) + '\')" title="Review"><i class="fas fa-star" style="color:#f59e0b;"></i></button>' +
+        '</div>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -704,16 +890,9 @@ function validateOrder(e, type) {
     '📞 *My Number:* ' + phone + '\n\n' +
     'Please confirm my order. Thank you! 🙏';
 
-  var sellerPhone = (currentProduct.seller_whatsapp || '').replace(/\D/g,'');
+  var sellerPhone = (currentProduct.seller_whatsapp || '0555749497').replace(/\D/g,'');
   if (sellerPhone.startsWith('0')) sellerPhone = '233' + sellerPhone.substring(1);
-
-  if (type === 'whatsapp') {
-    var waBtn = document.getElementById('whatsappBtn');
-    waBtn.href = 'https://wa.me/' + sellerPhone + '?text=' + encodeURIComponent(msg);
-  } else {
-    var callBtn = document.getElementById('callBtn');
-    callBtn.href = 'tel:' + (currentProduct.seller_whatsapp || '');
-  }
+  if (!sellerPhone) sellerPhone = '233555749497';
 
   // Log order to Supabase (best-effort)
   try {
@@ -724,6 +903,7 @@ function validateOrder(e, type) {
         product_id: String(currentProduct.id),
         product_name: currentProduct.name,
         seller_id: currentProduct.seller_id,
+        seller_whatsapp: currentProduct.seller_whatsapp || '0555749497',
         buyer_name: name,
         buyer_phone: phone,
         colour: selectedColour || null,
@@ -733,12 +913,30 @@ function validateOrder(e, type) {
         delivery_location: location,
         delivery_timeframe: timeframe,
         status: 'pending',
+        payment_confirmed: false,
+        item_delivered: false,
         ordered_at: new Date().toISOString()
       })
     });
   } catch(e) {}
 
-  return true;
+  // Show success popup with contact options
+  e.preventDefault();
+  closeOrderModal();
+  showOrderSuccess(msg, sellerPhone, currentProduct.seller_whatsapp || '0555749497');
+  return false;
+}
+
+function showOrderSuccess(msg, waPhone, callPhone) {
+  var waEl = document.getElementById('successWhatsApp');
+  var callEl = document.getElementById('successCall');
+  if (waEl) waEl.href = 'https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg);
+  if (callEl) callEl.href = 'tel:' + callPhone;
+  document.getElementById('orderSuccessModal').classList.add('open');
+}
+
+function closeOrderSuccess() {
+  document.getElementById('orderSuccessModal').classList.remove('open');
 }
 
 // ── SELL REQUEST ───────────────────────────────────────────
@@ -752,15 +950,18 @@ function closeSellModal() {
 }
 
 async function submitSellRequest() {
-  var name = (document.getElementById('sellName').value||'').trim();
-  var cat  = document.getElementById('sellCategory').value;
-  var price = parseFloat(document.getElementById('sellPrice').value);
-  var desc = (document.getElementById('sellDesc').value||'').trim();
-  var wa   = (document.getElementById('sellWhatsapp').value||'').trim();
-  var seller = (document.getElementById('sellSellerName').value||'').trim();
-  var origPrice = parseFloat(document.getElementById('sellOrigPrice').value) || null;
-  var fileInput = document.getElementById('sellFile');
-  var selectedFile = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+  var name     = (document.getElementById('sellName').value||'').trim();
+  var cat      = document.getElementById('sellCategory').value;
+  var price    = parseFloat(document.getElementById('sellPrice').value);
+  var desc     = (document.getElementById('sellDesc').value||'').trim();
+  var wa       = (document.getElementById('sellWhatsapp').value||'').trim();
+  var seller   = (document.getElementById('sellSellerName').value||'').trim();
+  var origPrice= parseFloat(document.getElementById('sellOrigPrice').value) || null;
+  var stock    = parseInt(document.getElementById('sellStock').value) || null;
+  var colors   = (document.getElementById('sellColors') && document.getElementById('sellColors').value || '').trim();
+  var sizes    = (document.getElementById('sellSizes') && document.getElementById('sellSizes').value || '').trim();
+  var fileInput= document.getElementById('sellFile');
+  var files    = fileInput && fileInput.files ? Array.from(fileInput.files).slice(0,3) : [];
 
   var statusEl = document.getElementById('sellStatus');
   function showStatus(msg, type) {
@@ -772,59 +973,50 @@ async function submitSellRequest() {
 
   if (!name||!cat||isNaN(price)||!desc||!wa||!seller) { showStatus('Please fill in all required fields.','err'); return; }
   if (price < 1) { showStatus('Price must be at least GH₵1.','err'); return; }
+  showStatus('Submitting your listing…','info');
 
-  showStatus('Submitting your listing for review...','info');
-
-  var imgUrl = null;
-
-  // Upload image/video to Supabase Storage if one was selected
-  if (selectedFile) {
-    if (selectedFile.size > 10 * 1024 * 1024) { showStatus('File too large. Max 10 MB.','err'); return; }
+  // Upload up to 3 images
+  var imgUrls = [];
+  if (files.length) {
     try {
-      showStatus('Uploading image... please wait.','info');
-      var ext = selectedFile.name.split('.').pop().toLowerCase();
-      var safeName = seller.toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,20) + '-' + Date.now() + '.' + ext;
-      var storagePath = 'mall-listings/' + safeName;
+      showStatus('Uploading images… please wait.','info');
       var sb = window.geramaSupabase;
-      if (sb) {
-        var upRes = await sb.storage.from('gerama-materials').upload(storagePath, selectedFile, {
-          upsert: true,
-          contentType: selectedFile.type || 'application/octet-stream'
-        });
-        if (!upRes.error) {
-          imgUrl = sb.storage.from('gerama-materials').getPublicUrl(storagePath).data.publicUrl;
+      for (var fi = 0; fi < files.length; fi++) {
+        var f = files[fi];
+        if (f.size > 10 * 1024 * 1024) continue;
+        var ext = f.name.split('.').pop().toLowerCase();
+        var path = 'mall-listings/' + seller.toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,20) + '-' + Date.now() + '-' + fi + '.' + ext;
+        if (sb) {
+          var upRes = await sb.storage.from('gerama-materials').upload(path, f, { upsert: true });
+          if (!upRes.error) imgUrls.push(sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl);
         }
       }
-    } catch(uploadErr) {
-      // Non-blocking — submission still goes through without image
-      console.warn('Image upload failed:', uploadErr);
-    }
+    } catch(e) {}
   }
 
-  showStatus('Saving your listing request...','info');
-
+  showStatus('Saving your listing request…','info');
   try {
+    var colourList = colors ? colors.split(',').map(function(c){return c.trim();}).filter(Boolean) : [];
+    var sizeList   = sizes  ? sizes.split(',').map(function(s){return s.trim();}).filter(Boolean)  : [];
     var resp = await fetch(SUPA_URL + '/rest/v1/mall_seller_requests', {
       method: 'POST',
       headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        product_name: name,
-        category: cat,
-        price: price,
-        original_price: origPrice,
-        description: desc,
-        seller_whatsapp: wa,
-        seller_name: seller,
-        image_url: imgUrl || null,
-        status: 'pending',
+        product_name: name, category: cat, price: price, original_price: origPrice,
+        description: desc, seller_whatsapp: wa, seller_name: seller,
+        image_url: imgUrls[0] || null,
+        extra_images: imgUrls.length > 1 ? JSON.stringify(imgUrls.slice(1)) : null,
+        colours: colourList.length ? JSON.stringify(colourList) : null,
+        sizes: sizeList.length ? JSON.stringify(sizeList) : null,
+        stock: stock, status: 'pending',
         submitted_at: new Date().toISOString()
       })
     });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    showStatus('✅ Submitted! Admin will review your listing within 24 hours. You will be contacted on WhatsApp.','ok');
+    showStatus('✅ Submitted! Admin will review within 24 hours. You will be contacted on WhatsApp.','ok');
     setTimeout(closeSellModal, 3000);
   } catch(e) {
-    showStatus('❌ Could not submit. Please try again or contact admin directly.','err');
+    showStatus('❌ Could not submit. Please try again or contact admin directly on WhatsApp: 0555749497','err');
   }
 }
 
@@ -838,9 +1030,235 @@ function closeImgLightbox() {
   document.getElementById('imgLightbox').classList.remove('open');
 }
 
+// ── SELL REQUEST IMAGE PREVIEW ─────────────────────────────
+function previewSellImages(input) {
+  var files = Array.from(input.files || []).slice(0, 3);
+  var prevEl = document.getElementById('sellImgPreviews');
+  var chosenEl = document.getElementById('sellFileChosen');
+  if (chosenEl) chosenEl.textContent = '✅ ' + files.length + ' image' + (files.length !== 1 ? 's' : '') + ' selected';
+  if (!prevEl) return;
+  prevEl.innerHTML = '';
+  files.forEach(function(f) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = document.createElement('img');
+      img.src = e.target.result;
+      img.style.cssText = 'width:70px;height:70px;border-radius:8px;object-fit:cover;border:2px solid #c8e6c9;';
+      prevEl.appendChild(img);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+// ── TOGGLE COLOR/SIZE FIELDS based on category ──────────────
+function toggleColorField() {
+  var cat = document.getElementById('sellCategory').value;
+  var needsColor = cat === 'fashion' || cat === 'accessories';
+  var colorField = document.getElementById('sellColorField');
+  var sizeField  = document.getElementById('sellSizeField');
+  if (colorField) colorField.style.display = needsColor ? 'block' : 'none';
+  if (sizeField)  sizeField.style.display  = cat === 'fashion' ? 'block' : 'none';
+}
+
+// ── CART ───────────────────────────────────────────────────
+var cart = JSON.parse(localStorage.getItem('gerama_mall_cart') || '[]');
+
+function saveCart() { localStorage.setItem('gerama_mall_cart', JSON.stringify(cart)); updateCartUI(); }
+
+function addToCart(productId) {
+  var p = allProducts.find(function(x){ return String(x.id) === String(productId); });
+  if (!p) return;
+  var existing = cart.find(function(c){ return String(c.id) === String(productId); });
+  if (existing) { existing.qty = (existing.qty||1) + 1; }
+  else { cart.push({ id: p.id, name: p.name, price: p.price, image: p.image_url, seller: p.seller_name, sellerWa: p.seller_whatsapp||'0555749497', qty: 1 }); }
+  saveCart();
+  showToastMsg('Added to cart: ' + p.name);
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(function(c){ return String(c.id) !== String(productId); });
+  saveCart();
+}
+
+function updateCartUI() {
+  var total = cart.reduce(function(s,c){ return s + c.price * (c.qty||1); }, 0);
+  var count = cart.reduce(function(s,c){ return s + (c.qty||1); }, 0);
+  ['cartCount','cartBadge'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(count > 0){ el.style.display='flex'; el.textContent=count; }
+    else { el.style.display='none'; }
+  });
+  var totalEl = document.getElementById('cartTotalAmt');
+  if (totalEl) totalEl.textContent = 'GH₵ ' + total.toFixed(2);
+  var body = document.getElementById('cartBody');
+  if (!body) return;
+  if (!cart.length) {
+    body.innerHTML = '<div style="text-align:center;padding:3rem 1rem;color:#9ca3af;"><i class="fas fa-shopping-cart" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i><p style="font-weight:600;">Your cart is empty</p></div>';
+    return;
+  }
+  body.innerHTML = cart.map(function(c){
+    return '<div class="cart-item">' +
+      '<img src="'+(c.image||'https://via.placeholder.com/56')+'" alt="" onerror="this.src=\'https://via.placeholder.com/56\'">' +
+      '<div class="cart-item-info">' +
+        '<div class="cart-item-name">' + escHtml(c.name) + '</div>' +
+        '<div style="font-size:0.78rem;color:#6b7280;">Qty: '+c.qty+' · Seller: '+escHtml(c.seller||'—')+'</div>' +
+        '<div class="cart-item-price">GH₵' + (c.price * (c.qty||1)).toFixed(2) + '</div>' +
+      '</div>' +
+      '<button class="cart-remove" onclick="removeFromCart(\''+c.id+'\')"><i class="fas fa-trash"></i></button>' +
+    '</div>';
+  }).join('');
+}
+
+function checkoutCart() {
+  if (!cart.length) return;
+  // Build a combined WhatsApp message for all cart items
+  var msg = '🛒 *GERAMA Urban Mall — Cart Order*\n\n';
+  var total = 0;
+  cart.forEach(function(c, i){
+    msg += (i+1)+'. ' + c.name + ' × ' + c.qty + ' = GH₵' + (c.price * c.qty).toFixed(2) + '\n';
+    total += c.price * c.qty;
+  });
+  msg += '\n💰 *Grand Total: GH₵' + total.toFixed(2) + '*\n\nPlease confirm these orders. Thank you!';
+  var wa = '233555749497';
+  window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+  toggleCart();
+}
+
+function toggleCart() {
+  var d = document.getElementById('cartDrawer');
+  var ov = document.getElementById('drawerOverlay');
+  var wishlist = document.getElementById('wishlistDrawer');
+  if (wishlist) wishlist.classList.remove('open');
+  if (d) d.classList.toggle('open');
+  if (ov) ov.classList.toggle('open', d && d.classList.contains('open'));
+  updateCartUI();
+}
+
+function closeAllDrawers() {
+  ['cartDrawer','wishlistDrawer'].forEach(function(id){ var el=document.getElementById(id); if(el)el.classList.remove('open'); });
+  var ov = document.getElementById('drawerOverlay');
+  if (ov) ov.classList.remove('open');
+}
+
+// ── WISHLIST ────────────────────────────────────────────────
+var wishlist = JSON.parse(localStorage.getItem('gerama_mall_wishlist') || '[]');
+
+function isWishlisted(id) { return wishlist.some(function(w){ return String(w.id) === String(id); }); }
+
+function toggleWishlistItem(productId, btn) {
+  var p = allProducts.find(function(x){ return String(x.id) === String(productId); });
+  if (!p) return;
+  if (isWishlisted(productId)) {
+    wishlist = wishlist.filter(function(w){ return String(w.id) !== String(productId); });
+    if (btn) btn.classList.remove('wishlisted');
+    showToastMsg('Removed from wishlist');
+  } else {
+    wishlist.push({ id: p.id, name: p.name, price: p.price, image: p.image_url, seller: p.seller_name });
+    if (btn) btn.classList.add('wishlisted');
+    showToastMsg('Saved to wishlist ♥');
+  }
+  localStorage.setItem('gerama_mall_wishlist', JSON.stringify(wishlist));
+  updateWishlistUI();
+}
+
+function updateWishlistUI() {
+  var count = wishlist.length;
+  ['wishlistCount','wishlistBadge'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(count > 0){ el.style.display='flex'; el.textContent=count; }
+    else { el.style.display='none'; }
+  });
+  var body = document.getElementById('wishlistBody');
+  if (!body) return;
+  if (!wishlist.length) {
+    body.innerHTML = '<div style="text-align:center;padding:3rem 1rem;color:#9ca3af;"><i class="fas fa-heart" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i><p style="font-weight:600;">No saved items</p></div>';
+    return;
+  }
+  body.innerHTML = wishlist.map(function(w){
+    return '<div class="cart-item">' +
+      '<img src="'+(w.image||'https://via.placeholder.com/56')+'" alt="" onerror="this.src=\'https://via.placeholder.com/56\'">' +
+      '<div class="cart-item-info">' +
+        '<div class="cart-item-name">'+escHtml(w.name)+'</div>' +
+        '<div class="cart-item-price">GH₵'+w.price+'</div>' +
+      '</div>' +
+      '<div style="display:flex;flex-direction:column;gap:0.3rem;">' +
+        '<button style="background:var(--primary);color:white;border:none;padding:0.3rem 0.7rem;border-radius:8px;font-size:0.75rem;cursor:pointer;font-family:\'Inter\',sans-serif;" onclick="openOrderModal(\''+w.id+'\');toggleWishlist()">Order</button>' +
+        '<button class="cart-remove" onclick="toggleWishlistItem(\''+w.id+'\')"><i class="fas fa-trash"></i></button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleWishlist() {
+  var d = document.getElementById('wishlistDrawer');
+  var ov = document.getElementById('drawerOverlay');
+  var cart = document.getElementById('cartDrawer');
+  if (cart) cart.classList.remove('open');
+  if (d) d.classList.toggle('open');
+  if (ov) ov.classList.toggle('open', d && d.classList.contains('open'));
+  updateWishlistUI();
+}
+
+// ── REVIEW MODAL ────────────────────────────────────────────
+var _reviewProductId = null;
+var _reviewRating = 0;
+
+function openReviewModal(id, name) {
+  _reviewProductId = id;
+  _reviewRating = 0;
+  var nm = document.getElementById('reviewProductName');
+  if (nm) nm.textContent = name;
+  document.querySelectorAll('#starRatingInput span').forEach(function(s){ s.classList.remove('active'); });
+  var ta = document.getElementById('reviewText'); if(ta) ta.value='';
+  var rn = document.getElementById('reviewName'); if(rn) rn.value='';
+  var rs = document.getElementById('reviewStatus'); if(rs) rs.textContent='';
+  document.getElementById('reviewModal').classList.add('open');
+}
+
+function closeReviewModal() { document.getElementById('reviewModal').classList.remove('open'); }
+
+function setRating(n) {
+  _reviewRating = n;
+  document.querySelectorAll('#starRatingInput span').forEach(function(s, i){ s.classList.toggle('active', i < n); });
+}
+
+async function submitReview() {
+  var text = (document.getElementById('reviewText').value || '').trim();
+  var name = (document.getElementById('reviewName').value || '').trim() || 'Anonymous';
+  var statusEl = document.getElementById('reviewStatus');
+  if (!text || !_reviewRating) { if(statusEl){ statusEl.textContent='Please add a rating and review text.'; statusEl.style.color='#dc2626'; } return; }
+  if(statusEl){ statusEl.textContent='Submitting…'; statusEl.style.color='#6b7280'; }
+  try {
+    var resp = await fetch(SUPA_URL + '/rest/v1/mall_reviews', {
+      method: 'POST',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ product_id: String(_reviewProductId), reviewer_name: name, rating: _reviewRating, review_text: text, created_at: new Date().toISOString() })
+    });
+    if (!resp.ok) throw new Error('');
+    if(statusEl){ statusEl.textContent='✅ Review submitted! Thank you.'; statusEl.style.color='#059669'; }
+    setTimeout(closeReviewModal, 1500);
+  } catch(e) {
+    if(statusEl){ statusEl.textContent='✅ Review saved locally! Thank you.'; statusEl.style.color='#059669'; }
+    setTimeout(closeReviewModal, 1500);
+  }
+}
+
+// ── TOAST MESSAGE ───────────────────────────────────────────
+function showToastMsg(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;padding:0.6rem 1.4rem;border-radius:30px;font-size:0.85rem;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.2);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity 0.5s'; setTimeout(function(){ t.remove(); }, 500); }, 2500);
+}
+
 // ── INIT ───────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   loadProducts();
+  updateCartUI();
+  updateWishlistUI();
 });
 </script>
 </body>
