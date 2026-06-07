@@ -1931,64 +1931,57 @@ tr:hover td{background:#fafcfa;}
 
   //  Enter dashboard ───────────────────────────────────────────────
   function enterDashboard(session){
-    // Hide picker
+    // Simply hide the picker — dashboard content + data are already
+    // loading in the background (DOMContentLoaded fires regardless of login).
     var picker = document.getElementById('adminPickerScreen');
     if(picker) picker.style.display = 'none';
 
-    // Show active admin in sidebar
+    // Show active admin badge in sidebar
     var bar    = document.getElementById('activeAdminBar');
     var ava    = document.getElementById('sidebarAdminAvatar');
     var nameEl = document.getElementById('sidebarAdminName');
     var roleEl = document.getElementById('sidebarAdminRole');
     if(bar)    bar.style.display = 'flex';
-    if(nameEl) nameEl.textContent = session.name||'Admin';
-    if(roleEl) roleEl.textContent = session.role||'Admin';
+    if(nameEl) nameEl.textContent = session.name || 'Admin';
+    if(roleEl) roleEl.textContent = session.role || 'Admin';
     if(ava){
       if(session.photo){
-        ava.innerHTML='<img src="'+session.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="">';
+        ava.innerHTML = '<img src="'+session.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="">';
       } else {
-        ava.textContent=(session.name||'A').charAt(0).toUpperCase();
-        ava.style.background=profileBg(session.name);
+        ava.textContent = (session.name||'A').charAt(0).toUpperCase();
+        ava.style.background = profileBg(session.name);
       }
     }
 
-    // Pre-fill profile form
-    var apName=document.getElementById('apName'), apRole=document.getElementById('apRole'), apEmail=document.getElementById('apEmail');
-    if(apName && !apName.value)  apName.value  = session.name  || '';
-    if(apRole && !apRole.value)  apRole.value  = session.role  || '';
+    // Pre-fill admin profile form fields
+    var apName  = document.getElementById('apName');
+    var apRole  = document.getElementById('apRole');
+    var apEmail = document.getElementById('apEmail');
+    if(apName  && !apName.value)  apName.value  = session.name  || '';
+    if(apRole  && !apRole.value)  apRole.value  = session.role  || '';
     if(apEmail) apEmail.value = session.email || '';
 
-    // Patch logActivity to tag admin name
+    // Tag all activity log entries with this admin's name
     window._activeAdminSession = session;
     var origLog = window.logActivity;
     window.logActivity = function(msg){
-      if(origLog) origLog('['+(session.name||'Admin')+'] '+msg);
+      if(origLog) origLog('[' + (session.name||'Admin') + '] ' + msg);
     };
 
-    // Re-trigger all data loads now that login is confirmed.
-    // Poll until Supabase SDK is fully ready, then load everything.
-    var _loadAttempts = 0;
-    function triggerDataLoad(){
-      _loadAttempts++;
-      var sb = window.geramaSupabase;
-      if(sb){
-        // Supabase ready — load everything
-        console.log('[GERAMA] Supabase ready, loading dashboard data...');
-        if(window.loadData) window.loadData();
-        setTimeout(function(){
-          if(window.loadOverviewStats) window.loadOverviewStats();
-        }, 1000);
-      } else if(_loadAttempts < 40){
-        // Not ready yet — keep retrying every 500ms (up to 20 seconds)
-        setTimeout(triggerDataLoad, 500);
-      } else {
-        // Timeout — show message in overview
-        var ra = document.getElementById('recentActivity');
-        if(ra) ra.innerHTML = '<p style="color:#f59e0b;font-size:0.88rem;"><i class="fas fa-exclamation-triangle" style="margin-right:0.4rem;"></i>Could not connect to database. Check your internet and <button onclick="if(window.loadData)window.loadData()" style="background:#1B5E20;color:white;border:none;padding:0.3rem 0.8rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.82rem;font-weight:600;margin-left:0.4rem;">Retry</button></p>';
-        console.warn('[GERAMA] Supabase never connected after 20s');
-      }
+    // If data hasn't loaded yet (Supabase was slow), trigger it now
+    if(window.geramaSupabase){
+      if(window.loadData) window.loadData();
+    } else {
+      // Supabase still initialising — wait for it once more
+      var t = 0;
+      var iv = setInterval(function(){
+        t++;
+        if(window.geramaSupabase){
+          clearInterval(iv);
+          if(window.loadData) window.loadData();
+        } else if(t > 30){ clearInterval(iv); }
+      }, 500);
     }
-    setTimeout(triggerDataLoad, 200);
   }
 
   //  Logout 
