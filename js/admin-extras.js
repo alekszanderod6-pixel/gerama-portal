@@ -203,7 +203,10 @@
               '<div style="font-size:0.75rem;color:'+col+';font-weight:700;margin-bottom:0.2rem;">'+window.escHtml(m.role||'')+'</div>'+
               '<span style="background:'+col+'22;color:'+col+';font-size:0.68rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:20px;">'+window.escHtml(groupLabels[m.group]||m.group)+'</span>'+
             '</div>'+
-            '<button onclick="removeTeamMember(\''+window.escAttr(m.id)+'\',\''+window.escAttr(m.name)+'\');event.stopPropagation();" class="btn-danger" style="padding:0.25rem 0.5rem;font-size:0.75rem;flex-shrink:0;"><i class="fas fa-trash"></i></button>'+
+            '<div style="display:flex;flex-direction:column;gap:0.3rem;flex-shrink:0;">'+
+              '<button onclick="openEditTeamMember(\''+window.escAttr(JSON.stringify(m).replace(/'/g,'\\\''))+'\')" class="btn-success" style="padding:0.25rem 0.5rem;font-size:0.75rem;" title="Edit"><i class="fas fa-edit"></i></button>'+
+              '<button onclick="removeTeamMember(\''+window.escAttr(m.id)+'\',\''+window.escAttr(m.name)+'\');" class="btn-danger" style="padding:0.25rem 0.5rem;font-size:0.75rem;" title="Remove"><i class="fas fa-trash"></i></button>'+
+            '</div>'+
           '</div>';
         }).join('') +
       '</div>';
@@ -220,6 +223,135 @@
       if(window.logActivity) window.logActivity('Removed team member: ' + name);
       loadTeamList('all');
     });
+  };
+
+  // ── Edit team member ──────────────────────────────────────────
+  window.openEditTeamMember = function(jsonStr){
+    var m;
+    try { m = JSON.parse(jsonStr); } catch(e){ alert('Could not load member data.'); return; }
+
+    // Build or reuse modal
+    var existing = document.getElementById('editTeamModal');
+    if(existing) existing.remove();
+
+    var modal = document.createElement('div');
+    modal.id = 'editTeamModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px);overflow-y:auto;';
+
+    var groupOptions = [
+      {v:'founding', l:'Founding Team &amp; Core Leads'},
+      {v:'gerama25', l:'GERAMA/25 Tutors'},
+      {v:'gerama26', l:'GERAMA/26 Tutors &amp; Leadership'},
+      {v:'media', l:'Media Team'}
+    ].map(function(o){ return '<option value="'+o.v+'"'+(m.group===o.v?' selected':'')+'>'+o.l+'</option>'; }).join('');
+
+    var currentPhotoHtml = m.photo_url
+      ? '<img src="'+window.escAttr(m.photo_url)+'" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:3px solid #34d399;display:block;margin-bottom:0.5rem;" alt="Current photo">'
+      : '<div style="width:70px;height:70px;border-radius:50%;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-size:2rem;margin-bottom:0.5rem;">'+(m.emoji||'👤')+'</div>';
+
+    modal.innerHTML =
+      '<div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">' +
+          '<div style="font-size:1.1rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-edit" style="color:#34d399;"></i> Edit Team Member</div>' +
+          '<button onclick="document.getElementById(\'editTeamModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>' +
+        '</div>' +
+        '<div style="text-align:center;margin-bottom:1rem;">'+currentPhotoHtml+'<div style="font-size:0.75rem;color:#6b7280;">Current photo/emoji</div></div>' +
+        '<div class="form-grid">' +
+          '<div class="form-field"><label>Full Name *</label><input type="text" id="etmName" value="'+window.escAttr(m.name||'')+'" placeholder="Full name"></div>' +
+          '<div class="form-field"><label>Role / Position *</label><input type="text" id="etmRole" value="'+window.escAttr(m.role||'')+'" placeholder="Role"></div>' +
+          '<div class="form-field full"><label>Team Group *</label><select id="etmGroup">'+groupOptions+'</select></div>' +
+          '<div class="form-field"><label>Badge Label</label><input type="text" id="etmBadge" value="'+window.escAttr(m.badge_label||'')+'" placeholder="e.g. GERAMA/26 President"></div>' +
+          '<div class="form-field"><label>Emoji (if no photo)</label><input type="text" id="etmEmoji" value="'+window.escAttr(m.emoji||'👤')+'" placeholder="👤" maxlength="4" style="font-size:1.2rem;"></div>' +
+          '<div class="form-field"><label>Sort Order</label><input type="number" id="etmOrder" value="'+( m.sort_order||99)+'" min="1" max="999"></div>' +
+          '<div class="form-field full">' +
+            '<label>Replace Photo <small style="font-weight:400;color:#6b7280;">(upload new photo to replace current)</small></label>' +
+            '<div style="border:2.5px dashed #c8e6c9;border-radius:12px;padding:1rem;text-align:center;cursor:pointer;background:#f9fdf9;" onclick="document.getElementById(\'etmPhotoFile\').click()">' +
+              '<i class="fas fa-camera" style="color:#34d399;font-size:1.5rem;display:block;margin-bottom:0.4rem;"></i>' +
+              '<p style="font-size:0.85rem;color:#555;margin:0;">Click to upload new photo (JPG/PNG)</p>' +
+              '<p class="file-chosen" id="etmPhotoChosen" style="font-weight:600;color:#1B5E20;margin-top:0.3rem;font-size:0.82rem;"></p>' +
+            '</div>' +
+            '<input type="file" id="etmPhotoFile" accept="image/*" style="display:none;" onchange="previewEtmPhoto(this)">' +
+            '<img id="etmPhotoPreview" style="display:none;width:80px;height:80px;border-radius:50%;object-fit:cover;margin-top:0.5rem;border:3px solid #34d399;" alt="">' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-top:1.2rem;display:flex;gap:0.8rem;flex-wrap:wrap;">' +
+          '<button class="btn-primary" onclick="saveEditTeamMember(\''+window.escAttr(m.id)+'\',\''+window.escAttr(m.photo_url||'')+'\');event.stopPropagation();" style="flex:1;justify-content:center;background:linear-gradient(135deg,#059669,#10b981);"><i class="fas fa-save"></i> Save Changes</button>' +
+          '<button onclick="document.getElementById(\'editTeamModal\').remove()" style="background:#f1f5f9;color:#374151;border:none;padding:0.7rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>' +
+        '</div>' +
+        '<div id="etmStatus" style="margin-top:0.8rem;font-size:0.85rem;min-height:1.2rem;"></div>' +
+      '</div>';
+
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
+  };
+
+  window.previewEtmPhoto = function(input){
+    var f = input.files && input.files[0]; if(!f) return;
+    window._etmPhotoFile = f;
+    var chosen = document.getElementById('etmPhotoChosen');
+    if(chosen) chosen.textContent = '✅ ' + f.name;
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var prev = document.getElementById('etmPhotoPreview');
+      if(prev){ prev.src = e.target.result; prev.style.display='block'; }
+    };
+    reader.readAsDataURL(f);
+  };
+
+  window.saveEditTeamMember = async function(id, oldPhotoUrl){
+    var name  = (document.getElementById('etmName').value||'').trim();
+    var role  = (document.getElementById('etmRole').value||'').trim();
+    var group = (document.getElementById('etmGroup').value||'founding');
+    var badge = (document.getElementById('etmBadge').value||'').trim();
+    var emoji = (document.getElementById('etmEmoji').value||'👤').trim();
+    var order = parseInt(document.getElementById('etmOrder').value||'99');
+    var statusEl = document.getElementById('etmStatus');
+
+    function showStatus(t, ok){
+      if(statusEl){ statusEl.textContent=t; statusEl.style.color=ok?'#059669':'#dc2626'; }
+    }
+
+    if(!name||!role){ showStatus('Please fill in Name and Role.',false); return; }
+    showStatus('Saving…',true);
+
+    try {
+      var photoUrl = oldPhotoUrl || null;
+      var newPhotoFile = window._etmPhotoFile;
+
+      if(newPhotoFile){
+        if(newPhotoFile.size > 5*1024*1024){ showStatus('Photo too large. Max 5MB.',false); return; }
+        var sb = getSB();
+        if(sb){
+          var ext = newPhotoFile.name.split('.').pop().toLowerCase();
+          var path = 'team-members/' + name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Date.now() + '.' + ext;
+          var up = await sb.storage.from(BUCKET).upload(path, newPhotoFile, {upsert:true});
+          if(!up.error) photoUrl = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        }
+      }
+
+      var resp = await supa('team_members?id=eq.' + encodeURIComponent(id), {
+        method: 'PATCH',
+        headers: {'Content-Type':'application/json','Prefer':'return=minimal'},
+        body: JSON.stringify({
+          name:name, role:role, group:group,
+          badge_label:badge||null, emoji:emoji||'👤',
+          photo_url: photoUrl, sort_order:order
+        })
+      });
+
+      if(!resp.ok){ var t=await resp.text(); throw new Error(t.substring(0,100)); }
+
+      if(window.logActivity) window.logActivity('Updated team member: ' + name);
+      showStatus('✅ Saved! About page updated.',true);
+      window._etmPhotoFile = null;
+
+      setTimeout(function(){
+        var modal = document.getElementById('editTeamModal');
+        if(modal) modal.remove();
+        loadTeamList('all');
+      }, 1000);
+
+    } catch(e){ showStatus('❌ ' + e.message, false); }
   };
 
   // ═══════════════════════════════════════════════════════════════
