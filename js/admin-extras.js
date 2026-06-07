@@ -559,3 +559,157 @@
   window.requireAdminCode = requireCode;
 
 })();
+
+// ═══════════════════════════════════════════════════════════════
+// QUOTE OF THE DAY — Admin Panel
+// ═══════════════════════════════════════════════════════════════
+
+(function(){
+  var SUPA_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  var BUCKET = 'gerama-materials';
+
+  function getSB(){ return window.geramaSupabase || null; }
+
+  // Wire switchPanel for quotes panel
+  document.addEventListener('DOMContentLoaded', function(){
+    var origSw = window.switchPanel;
+    window.switchPanel = function(name){
+      if(origSw) origSw(name);
+      if(name === 'quotes') setTimeout(loadQotdList, 150);
+    };
+
+    // Quote image preview
+    var qotdFile = document.getElementById('qotdImgFile');
+    if(qotdFile){
+      qotdFile.addEventListener('change', function(){
+        var f = this.files && this.files[0]; if(!f) return;
+        window._qotdImageFile = f;
+        var chosen = document.getElementById('qotdImgChosen');
+        if(chosen) chosen.textContent = '✅ ' + f.name;
+        var reader = new FileReader();
+        reader.onload = function(e){
+          var prev = document.getElementById('qotdImgPreview');
+          if(prev){ prev.src = e.target.result; prev.style.display='block'; }
+        };
+        reader.readAsDataURL(f);
+      });
+    }
+  });
+
+  window.previewQotdImage = function(input){
+    // handled by event listener above
+  };
+
+  window.postQuoteOfDay = async function(){
+    var text = (document.getElementById('qotdText').value||'').trim();
+    var author = (document.getElementById('qotdAuthor').value||'').trim();
+    var category = (document.getElementById('qotdCategory').value||'motivation');
+    var statusEl = document.getElementById('qotdStatus');
+
+    if(!text){ window.showStatus('qotdStatus','Please enter the quote text.','err'); return; }
+
+    var btn = document.getElementById('qotdPostBtn');
+    if(btn){ btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Posting...'; }
+    window.showStatus('qotdStatus','Saving...','info');
+
+    try {
+      var imgUrl = null;
+      var imgFile = window._qotdImageFile;
+
+      if(imgFile){
+        var sb0 = getSB();
+        if(sb0 && imgFile.size <= 5*1024*1024){
+          var ext = imgFile.name.split('.').pop().toLowerCase();
+          var path = 'quotes/' + Date.now() + '.' + ext;
+          var up = await sb0.storage.from(BUCKET).upload(path, imgFile, {upsert:true, contentType:imgFile.type});
+          if(!up.error) imgUrl = sb0.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+        }
+      }
+
+      var resp = await fetch(SUPA_URL + '/rest/v1/daily_quotes', {
+        method: 'POST',
+        headers: { 'apikey':SUPA_KEY, 'Authorization':'Bearer '+SUPA_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+        body: JSON.stringify({
+          quote_text: text, author: author||null, category: category,
+          image_url: imgUrl, created_at: new Date().toISOString()
+        })
+      });
+
+      if(!resp.ok){ var t=await resp.text(); throw new Error(t.substring(0,120)); }
+
+      if(window.logActivity) window.logActivity('Posted Quote of the Day: "' + text.substring(0,50) + '"');
+
+      // Also post as an announcement so students get notified
+      var sb = getSB();
+      if(sb){
+        await sb.from('announcements').insert({
+          title: '✨ Quote of the Day',
+          message: '"' + text + '"' + (author ? ' — ' + author : ''),
+          priority: 'normal',
+          created_at: new Date().toISOString()
+        }).catch(function(){});
+      }
+
+      window.showStatus('qotdStatus', '✅ Quote posted! Students will see it in the Study Planner tab.', 'ok');
+
+      // Reset form
+      var tEl = document.getElementById('qotdText');
+      var aEl = document.getElementById('qotdAuthor');
+      var pEl = document.getElementById('qotdImgPreview');
+      var cEl = document.getElementById('qotdImgChosen');
+      var fEl = document.getElementById('qotdImgFile');
+      if(tEl) tEl.value='';
+      if(aEl) aEl.value='';
+      if(pEl){ pEl.src=''; pEl.style.display='none'; }
+      if(cEl) cEl.textContent='';
+      if(fEl) fEl.value='';
+      window._qotdImageFile = null;
+
+      loadQotdList();
+
+    } catch(e){
+      window.showStatus('qotdStatus', '❌ ' + e.message, 'err');
+    }
+
+    if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Post Quote Now'; }
+  };
+
+  async function loadQotdList(){
+    var el = document.getElementById('qotdList'); if(!el) return;
+    el.innerHTML = '<p style="color:#9ca3af;font-size:0.88rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p>';
+    try {
+      var resp = await fetch(SUPA_URL + '/rest/v1/daily_quotes?select=*&order=created_at.desc&limit=15', {
+        headers:{ 'apikey':SUPA_KEY, 'Authorization':'Bearer '+SUPA_KEY }
+      });
+      var data = await resp.json();
+      if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-quote-right" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No quotes posted yet. Post the first one above!</p>'; return; }
+      el.innerHTML = data.map(function(q){
+        var dt = q.created_at ? new Date(q.created_at).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+        var catColors = {motivation:'#f59e0b',academic:'#1B5E20',life:'#6366f1',success:'#dc2626',faith:'#0ea5e9'};
+        var col = catColors[q.category]||'#f59e0b';
+        return '<div style="background:#f8fafc;border-radius:14px;padding:1rem 1.2rem;margin-bottom:0.8rem;border-left:4px solid '+col+';position:relative;">'+
+          (q.image_url?'<img src="'+window.escAttr(q.image_url)+'" style="width:60px;height:40px;border-radius:8px;object-fit:cover;float:right;margin-left:0.8rem;" alt="">':'')+
+          '<div style="font-size:0.88rem;font-weight:700;color:#1e2a3e;margin-bottom:0.3rem;font-style:italic;">"'+window.escHtml(q.quote_text||'')+(q.quote_text&&q.quote_text.length>80?'…':'').replace(/…+/g,'…')+'"</div>'+
+          (q.author?'<div style="font-size:0.75rem;color:'+col+';font-weight:700;margin-bottom:0.3rem;">— '+window.escHtml(q.author)+'</div>':'')+
+          '<div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;">'+
+            '<span style="font-size:0.7rem;color:#9ca3af;">'+dt+'</span>'+
+            '<button class="btn-danger" onclick="deleteQuote(\''+window.escAttr(q.id)+'\')" style="font-size:0.72rem;padding:0.2rem 0.5rem;margin-left:auto;"><i class="fas fa-trash"></i></button>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+    } catch(e){ el.innerHTML='<p style="color:#dc2626;padding:1rem;">Error: '+window.escHtml(e.message)+'</p>'; }
+  }
+
+  window.deleteQuote = function(id){
+    window.requireAdminCode && window.requireAdminCode('Delete this quote?', async function(){
+      await fetch(SUPA_URL+'/rest/v1/daily_quotes?id=eq.'+encodeURIComponent(id), {
+        method:'DELETE', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      });
+      if(window.logActivity) window.logActivity('Deleted quote: '+id);
+      loadQotdList();
+    });
+  };
+
+  window.loadQotdList = loadQotdList;
+})();

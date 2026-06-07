@@ -957,6 +957,46 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <button onclick="clearNotes()" style="background:none;border:none;color:#9ca3af;font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;">Clear notes</button>
     </div>
   </div>
+
+  <!-- ══ QUOTE OF THE DAY ══ -->
+  <div id="quoteDaySection" style="margin-top:1.5rem;display:none;">
+    <div style="background:linear-gradient(135deg,#0a2f1f 0%,#1B5E20 60%,#2E7D32 100%);border-radius:22px;padding:2rem;position:relative;overflow:hidden;box-shadow:0 8px 30px rgba(27,94,32,0.25);">
+      <div style="position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:rgba(255,193,7,0.08);border-radius:50%;pointer-events:none;"></div>
+      <div style="position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;background:rgba(255,255,255,0.04);border-radius:50%;pointer-events:none;"></div>
+      <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,193,7,0.8);margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;position:relative;">
+        <i class="fas fa-star" style="color:#FFC107;"></i> Quote of the Day
+        <span id="quoteDateLabel" style="margin-left:auto;font-size:0.7rem;color:rgba(255,255,255,0.4);letter-spacing:0;text-transform:none;"></span>
+      </div>
+      <div id="quoteImage" style="display:none;margin-bottom:1rem;border-radius:14px;overflow:hidden;">
+        <img id="quoteImg" src="" alt="Quote" style="width:100%;max-height:220px;object-fit:cover;border-radius:14px;">
+      </div>
+      <div id="quoteText" style="font-size:1.15rem;font-weight:700;color:white;line-height:1.6;margin-bottom:1rem;font-style:italic;position:relative;">"Loading today's quote..."</div>
+      <div id="quoteAuthor" style="font-size:0.82rem;color:rgba(255,193,7,0.85);font-weight:600;margin-bottom:1.2rem;"></div>
+      <!-- Like & Comment -->
+      <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;position:relative;">
+        <button id="quoteLikeBtn" onclick="likeQuote()" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.2);color:white;padding:0.45rem 1rem;border-radius:30px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.4rem;transition:all 0.2s;">
+          <i class="fas fa-heart" style="color:#f87171;"></i> <span id="quoteLikeCount">0</span> Likes
+        </button>
+        <button onclick="toggleQuoteComments()" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.2);color:white;padding:0.45rem 1rem;border-radius:30px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.4rem;transition:all 0.2s;">
+          <i class="fas fa-comment-dots" style="color:#60a5fa;"></i> <span id="quoteCommentCount">0</span> Comments
+        </button>
+        <button onclick="shareQuote()" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.2);color:white;padding:0.45rem 1rem;border-radius:30px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.4rem;transition:all 0.2s;margin-left:auto;">
+          <i class="fas fa-share-alt"></i> Share
+        </button>
+      </div>
+      <!-- Comments section -->
+      <div id="quoteCommentsSection" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.15);">
+        <div id="quoteCommentsList" style="max-height:200px;overflow-y:auto;margin-bottom:0.8rem;display:flex;flex-direction:column;gap:0.5rem;"></div>
+        <div style="display:flex;gap:0.5rem;">
+          <input type="text" id="quoteCommentInput" placeholder="Write a comment..." maxlength="200"
+            style="flex:1;padding:0.6rem 0.9rem;border:2px solid rgba(255,255,255,0.2);border-radius:10px;background:rgba(255,255,255,0.08);color:white;font-size:0.85rem;font-family:'Inter',sans-serif;outline:none;"
+            onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'"
+            onkeydown="if(event.key==='Enter')submitQuoteComment()">
+          <button onclick="submitQuoteComment()" style="background:#FFC107;color:#0a2f1f;border:none;padding:0.6rem 1rem;border-radius:10px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.85rem;flex-shrink:0;transition:all 0.2s;">Post</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ QUIZ ATTEMPT MODAL ═══ -->
@@ -1132,6 +1172,11 @@ async function checkQaUnread() {
 document.addEventListener('DOMContentLoaded', function(){
   setTimeout(checkQaUnread, 2000);
   setInterval(checkQaUnread, 30000);
+  // Check for new quote of day and show badge
+  setTimeout(function(){
+    if(window.geramaSupabase) checkNewQuote();
+    else setTimeout(checkNewQuote, 3000);
+  }, 2500);
   // Check planner reminder badge on load and every minute
   setTimeout(function(){
     var h = new Date().getHours();
@@ -3132,6 +3177,9 @@ async function loadPlanner() {
 
   // ── Load admin suggestions from Supabase ──
   loadAdminPlannerSuggestions();
+
+  // ── Load Quote of the Day ──
+  loadQuoteOfDay();
 }
 
 // ── PLANNER REMINDER (8–12pm evening / 5–8am morning) ───────────
@@ -3237,6 +3285,181 @@ async function loadAdminPlannerSuggestions() {
       '</div>';
     }).join('');
   } catch(e) { banner.style.display = 'none'; }
+}
+
+// ══════════════════════════════════════════════════════════════
+// QUOTE OF THE DAY
+// ══════════════════════════════════════════════════════════════
+var _currentQuote = null;
+
+async function loadQuoteOfDay() {
+  var section = document.getElementById('quoteDaySection');
+  if(!section) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+
+  try {
+    // Get today's quote — most recent one from daily_quotes table
+    var today = new Date().toISOString().split('T')[0];
+    var {data} = await sb.from('daily_quotes')
+      .select('*')
+      .order('created_at', {ascending: false})
+      .limit(1);
+
+    if(!data || !data.length) { section.style.display = 'none'; return; }
+
+    var q = data[0];
+    _currentQuote = q;
+    section.style.display = 'block';
+
+    // Update content
+    var txtEl = document.getElementById('quoteText');
+    var authEl = document.getElementById('quoteAuthor');
+    var dateEl = document.getElementById('quoteDateLabel');
+    var imgWrap = document.getElementById('quoteImage');
+    var imgEl = document.getElementById('quoteImg');
+
+    if(txtEl) txtEl.textContent = '"' + (q.quote_text || '') + '"';
+    if(authEl) authEl.textContent = q.author ? '— ' + q.author : '';
+    if(dateEl){
+      var d = q.created_at ? new Date(q.created_at).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}) : '';
+      dateEl.textContent = d;
+    }
+    if(imgWrap && imgEl){
+      if(q.image_url){ imgEl.src = q.image_url; imgWrap.style.display = 'block'; }
+      else { imgWrap.style.display = 'none'; }
+    }
+
+    // Load like count
+    var likeKey = 'quote-' + q.id;
+    var {count: likeCount} = await sb.from('question_likes')
+      .select('id', {count:'exact', head:true})
+      .eq('question_id', likeKey);
+    var likeEl = document.getElementById('quoteLikeCount');
+    if(likeEl) likeEl.textContent = likeCount || 0;
+
+    // Check if user already liked
+    var uid = localStorage.getItem('gerama_uid') || '';
+    var {data: myLike} = await sb.from('question_likes')
+      .select('id').eq('question_id', likeKey).eq('user_identifier', uid).limit(1);
+    var btn = document.getElementById('quoteLikeBtn');
+    if(btn && myLike && myLike.length){ btn.style.background='rgba(239,68,68,0.25)'; }
+
+    // Load comment count
+    var {count: cmtCount} = await sb.from('quote_comments')
+      .select('id', {count:'exact', head:true})
+      .eq('quote_id', q.id);
+    var cmtCountEl = document.getElementById('quoteCommentCount');
+    if(cmtCountEl) cmtCountEl.textContent = cmtCount || 0;
+
+    // Mark as read — clear notification after 2s of viewing
+    setTimeout(function(){
+      localStorage.setItem('gerama_quote_last_read', q.id);
+      var nb = document.getElementById('quoteBadgeNotif');
+      if(nb) nb.style.display = 'none';
+    }, 2000);
+
+  } catch(e) { console.warn('Quote load error:', e); section.style.display = 'none'; }
+}
+
+window.likeQuote = async function(){
+  if(!_currentQuote) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  var uid = localStorage.getItem('gerama_uid');
+  if(!uid){ uid='u-'+Date.now()+'-'+Math.random().toString(36).substr(2,6); localStorage.setItem('gerama_uid',uid); }
+  var likeKey = 'quote-' + _currentQuote.id;
+  var btn = document.getElementById('quoteLikeBtn');
+  var countEl = document.getElementById('quoteLikeCount');
+  var current = parseInt((countEl && countEl.textContent)||'0');
+
+  // Check if already liked
+  var {data:existing} = await sb.from('question_likes').select('id').eq('question_id',likeKey).eq('user_identifier',uid).limit(1);
+  if(existing && existing.length){
+    // Unlike
+    await sb.from('question_likes').delete().eq('question_id',likeKey).eq('user_identifier',uid);
+    if(countEl) countEl.textContent = Math.max(0, current - 1);
+    if(btn) btn.style.background = 'rgba(255,255,255,0.12)';
+  } else {
+    // Like
+    await sb.from('question_likes').insert({question_id:likeKey, user_identifier:uid});
+    if(countEl) countEl.textContent = current + 1;
+    if(btn){ btn.style.background='rgba(239,68,68,0.25)'; }
+    // Tiny heart burst animation
+    if(btn){ btn.style.transform='scale(1.15)'; setTimeout(function(){ btn.style.transform='scale(1)'; btn.style.transition='transform 0.2s'; },200); }
+  }
+};
+
+window.toggleQuoteComments = async function(){
+  var section = document.getElementById('quoteCommentsSection');
+  if(!section) return;
+  var isOpen = section.style.display !== 'none';
+  section.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen && _currentQuote) loadQuoteComments();
+};
+
+async function loadQuoteComments(){
+  var listEl = document.getElementById('quoteCommentsList');
+  if(!listEl || !_currentQuote) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  try {
+    var {data} = await sb.from('quote_comments').select('*').eq('quote_id', _currentQuote.id).order('created_at',{ascending:true}).limit(30);
+    if(!data || !data.length){
+      listEl.innerHTML = '<div style="color:rgba(255,255,255,0.4);font-size:0.82rem;text-align:center;padding:0.5rem;">No comments yet. Be the first!</div>';
+      return;
+    }
+    listEl.innerHTML = data.map(function(c){
+      var dt = c.created_at ? new Date(c.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+      return '<div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:0.6rem 0.8rem;">'+
+        '<div style="font-size:0.75rem;font-weight:700;color:#FFC107;margin-bottom:0.2rem;">'+escHtml(c.author_name||'Student')+'<span style="color:rgba(255,255,255,0.35);font-weight:400;margin-left:0.5rem;">'+dt+'</span></div>'+
+        '<div style="font-size:0.85rem;color:rgba(255,255,255,0.9);">'+escHtml(c.comment_text||'')+'</div>'+
+      '</div>';
+    }).join('');
+    var countEl = document.getElementById('quoteCommentCount');
+    if(countEl) countEl.textContent = data.length;
+  } catch(e){}
+}
+
+window.submitQuoteComment = async function(){
+  if(!_currentQuote) return;
+  var inp = document.getElementById('quoteCommentInput');
+  var text = (inp && inp.value || '').trim();
+  if(!text) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var name = profile.name || 'Student';
+  try {
+    var {error} = await sb.from('quote_comments').insert({
+      quote_id: _currentQuote.id,
+      author_name: name,
+      comment_text: text,
+      created_at: new Date().toISOString()
+    });
+    if(error) throw new Error(error.message);
+    if(inp) inp.value = '';
+    loadQuoteComments();
+  } catch(e){ alert('Could not post comment: ' + e.message); }
+};
+
+window.shareQuote = function(){
+  if(!_currentQuote) return;
+  var text = '"' + (_currentQuote.quote_text||'') + '"' + (_currentQuote.author ? ' — '+_currentQuote.author : '') + '\n\nvia GERAMA Portal';
+  if(navigator.share){ navigator.share({title:'Quote of the Day — GERAMA', text:text}); }
+  else { navigator.clipboard.writeText(text).then(function(){ alert('Quote copied to clipboard!'); }); }
+};
+
+// Check for new unread quote and show badge on Planner tab
+async function checkNewQuote(){
+  var sb = window.geramaSupabase; if(!sb) return;
+  try {
+    var {data} = await sb.from('daily_quotes').select('id').order('created_at',{ascending:false}).limit(1);
+    if(!data || !data.length) return;
+    var latestId = String(data[0].id);
+    var lastRead = localStorage.getItem('gerama_quote_last_read') || '';
+    if(latestId !== lastRead){
+      // Show badge on Planner tab
+      var badge = document.getElementById('plannerBadge');
+      if(badge){ badge.style.display='flex'; badge.textContent='✨'; }
+    }
+  } catch(e){}
 }
 
 // ── GOALS ──────────────────────────────────────────────────────

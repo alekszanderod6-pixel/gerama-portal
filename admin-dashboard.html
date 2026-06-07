@@ -248,6 +248,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="reels"><i class="fas fa-film"></i> Manage Reels</div>
     <div class="nav-item" data-panel="adminprofiles"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> Admin Profiles</div>
     <div class="nav-item" data-panel="team"><i class="fas fa-users-cog" style="color:#34d399;"></i> Manage Team</div>
+    <div class="nav-item" data-panel="quotes"><i class="fas fa-quote-right" style="color:#f59e0b;"></i> Quote of the Day</div>
     <div class="nav-item" data-panel="mall"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</div>
     <div class="nav-item" data-panel="settings"><i class="fas fa-cog"></i> Settings</div>
   </nav>
@@ -1231,6 +1232,45 @@ tr:hover td{background:#fafcfa;}
         <button onclick="loadTeamList('all')" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.35rem 0.9rem;border-radius:20px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-left:auto;"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
       <div id="tmList"><p style="color:#9ca3af;font-size:0.88rem;">Loading…</p></div>
+    </div>
+  </div>
+
+  <!-- ═══ QUOTE OF THE DAY PANEL ═══ -->
+  <div class="panel" id="panel-quotes">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-quote-right" style="color:#f59e0b;"></i> Post Quote of the Day</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Post a motivational quote — text, image, or both. It appears on the Study Planner tab for all students with likes &amp; comments.</p>
+      <div class="form-grid">
+        <div class="form-field full"><label>Quote Text *</label><textarea id="qotdText" rows="3" placeholder="e.g. The secret of getting ahead is getting started. — Mark Twain"></textarea></div>
+        <div class="form-field"><label>Author / Source <small style="font-weight:400;color:#6b7280;">(optional)</small></label><input type="text" id="qotdAuthor" placeholder="e.g. Mark Twain"></div>
+        <div class="form-field"><label>Category</label>
+          <select id="qotdCategory">
+            <option value="motivation">💪 Motivation</option>
+            <option value="academic">📚 Academic</option>
+            <option value="life">🌟 Life Wisdom</option>
+            <option value="success">🏆 Success</option>
+            <option value="faith">🙏 Faith & Strength</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label>Quote Image <small style="font-weight:400;color:#6b7280;">(optional — shown behind quote)</small></label>
+          <div class="drop-zone" id="qotdImgZone" style="padding:1rem;cursor:pointer;" onclick="document.getElementById('qotdImgFile').click()">
+            <i class="fas fa-image" style="color:#f59e0b;"></i>
+            <p>Click to upload a background image (JPG/PNG)</p>
+            <p class="file-chosen" id="qotdImgChosen"></p>
+            <input type="file" id="qotdImgFile" accept="image/*" style="display:none;" onchange="previewQotdImage(this)">
+          </div>
+          <img id="qotdImgPreview" style="display:none;max-width:200px;max-height:120px;border-radius:10px;object-fit:cover;margin-top:0.5rem;border:2px solid #e5e7eb;" alt="">
+        </div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:0.8rem;flex-wrap:wrap;">
+        <button class="btn-primary" id="qotdPostBtn" onclick="postQuoteOfDay()" style="background:linear-gradient(135deg,#f59e0b,#d97706);"><i class="fas fa-paper-plane"></i> Post Quote Now</button>
+      </div>
+      <div class="status-msg" id="qotdStatus"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-history"></i> Past Quotes</div>
+      <div id="qotdList"><p style="color:#9ca3af;font-size:0.88rem;">Loading…</p></div>
     </div>
   </div>
 
