@@ -319,6 +319,11 @@ tr:hover td{background:#fafcfa;}
         <button class="btn-primary" onclick="switchPanel('classes')"><i class="fas fa-video"></i> Schedule Class</button>
         <button class="btn-gold" onclick="switchPanel('review')"><i class="fas fa-inbox"></i> Review Submissions</button>
         <button class="btn-primary" onclick="switchPanel('quizrequests')"><i class="fas fa-question-circle"></i> Quiz Requests</button>
+        <button class="btn-primary" onclick="quickRefreshStats&&quickRefreshStats()" style="background:linear-gradient(135deg,#059669,#10b981);"><i class="fas fa-sync-alt"></i> Refresh Stats</button>
+        <button class="btn-gold" onclick="generateAttReport&&generateAttReport()" style="background:linear-gradient(135deg,#0ea5e9,#0369a1);color:white;"><i class="fas fa-file-csv"></i> Attendance Report</button>
+        <button class="btn-gold" onclick="exportActivityLog&&exportActivityLog()" style="background:linear-gradient(135deg,#6366f1,#4338ca);color:white;"><i class="fas fa-download"></i> Export Activity Log</button>
+        <button class="btn-primary" onclick="switchPanel('team')" style="background:linear-gradient(135deg,#059669,#10b981);"><i class="fas fa-users-cog"></i> Manage Team</button>
+        <button class="btn-primary" onclick="switchPanel('mall')" style="background:linear-gradient(135deg,#FFC107,#e6a800);color:#0a2f1f;"><i class="fas fa-store"></i> Urban Mall</button>
       </div>
     </div>
 
@@ -1179,6 +1184,56 @@ tr:hover td{background:#fafcfa;}
     </div>
   </div>
 
+  <!-- ═══ MANAGE TEAM PANEL ═══ -->
+  <div class="panel" id="panel-team">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-user-plus" style="color:#34d399;"></i> Add New Team Member</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Members you add here appear on the <strong>About page</strong> automatically under the correct section.</p>
+      <div class="form-grid">
+        <div class="form-field"><label>Full Name *</label><input type="text" id="tmName" placeholder="e.g. John Mensah"></div>
+        <div class="form-field"><label>Role / Position *</label><input type="text" id="tmRole" placeholder="e.g. GERAMA/26 · Tutor"></div>
+        <div class="form-field full"><label>Team Group *</label>
+          <select id="tmGroup">
+            <option value="founding">Founding Team &amp; Core Leads</option>
+            <option value="gerama25">GERAMA/25 Tutors</option>
+            <option value="gerama26">GERAMA/26 Tutors &amp; Leadership</option>
+            <option value="media">Media Team</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Badge Label <small style="font-weight:400;color:#6b7280;">(optional, e.g. GERAMA/26 President)</small></label><input type="text" id="tmBadge" placeholder="e.g. GERAMA/26 President"></div>
+        <div class="form-field"><label>Emoji (if no photo)</label><input type="text" id="tmEmoji" placeholder="👤" maxlength="4" style="font-size:1.2rem;"></div>
+        <div class="form-field"><label>Sort Order <small style="font-weight:400;color:#6b7280;">(lower = appears first)</small></label><input type="number" id="tmOrder" value="99" min="1" max="999"></div>
+        <div class="form-field full">
+          <label>Profile Photo <small style="font-weight:400;color:#6b7280;">(upload — JPG/PNG)</small></label>
+          <div class="drop-zone" id="tmPhotoZone" style="padding:1.2rem;cursor:pointer;" onclick="document.getElementById('tmPhotoFile').click()">
+            <i class="fas fa-camera" style="color:#34d399;"></i>
+            <p>Click to upload photo</p>
+            <p class="file-chosen" id="tmPhotoChosen"></p>
+            <input type="file" id="tmPhotoFile" accept="image/*" style="display:none;">
+          </div>
+          <img id="tmPhotoPreview" style="display:none;width:80px;height:80px;border-radius:50%;object-fit:cover;margin-top:0.6rem;border:3px solid #34d399;" alt="">
+        </div>
+      </div>
+      <div style="margin-top:1rem;">
+        <button class="btn-primary" id="tmSaveBtn" onclick="saveTeamMember()" style="background:linear-gradient(135deg,#059669,#10b981);"><i class="fas fa-save"></i> Add to About Page</button>
+      </div>
+      <div class="status-msg" id="tmStatus"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-list" style="color:#34d399;"></i> Current Team Members (Admin-Added)</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Members added via this panel. Static hardcoded members are not shown here.</p>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <button onclick="loadTeamList('all')" class="btn-primary" style="font-size:0.8rem;padding:0.35rem 0.9rem;">All</button>
+        <button onclick="loadTeamList('founding')" class="btn-gold" style="font-size:0.8rem;padding:0.35rem 0.9rem;">Founding</button>
+        <button onclick="loadTeamList('gerama25')" class="btn-gold" style="font-size:0.8rem;padding:0.35rem 0.9rem;">G/25</button>
+        <button onclick="loadTeamList('gerama26')" class="btn-gold" style="font-size:0.8rem;padding:0.35rem 0.9rem;">G/26</button>
+        <button onclick="loadTeamList('media')" class="btn-gold" style="font-size:0.8rem;padding:0.35rem 0.9rem;">Media</button>
+        <button onclick="loadTeamList('all')" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.35rem 0.9rem;border-radius:20px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-left:auto;"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+      <div id="tmList"><p style="color:#9ca3af;font-size:0.88rem;">Loading…</p></div>
+    </div>
+  </div>
+
   <div class="panel" id="panel-settings">
     <div class="card">
       <div class="card-title"><i class="fas fa-cog"></i> Settings</div>
@@ -1572,5 +1627,6 @@ tr:hover td{background:#fafcfa;}
 
 <script src="js/admin-dashboard.js"></script>
 <script src="js/admin-gate.js"></script>
+<script src="js/admin-extras.js"></script>
 </body>
 </html>
