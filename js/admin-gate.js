@@ -183,6 +183,26 @@
     window._activeAdminSession = session;
     var origLog = window.logActivity;
     if(origLog) window.logActivity = function(msg){ origLog('['+(session.name||'Admin')+'] '+msg); };
+
+    // ── Reload all dashboard data now that the gate is removed ──
+    // DOMContentLoaded fired before login, so Supabase may not have
+    // been ready. Force a fresh load with a reliable retry.
+    var _reloadAttempts = 0;
+    function _reloadData(){
+      _reloadAttempts++;
+      if(window.geramaSupabase){
+        // loadData handles materials + announcements + stats
+        if(typeof window.loadData === 'function') window.loadData();
+        // loadOverviewStats exposes itself on window on first call inside loadData
+        // so give it 1 second then call it again for the stat boxes
+        setTimeout(function(){
+          if(typeof window.loadOverviewStats === 'function') window.loadOverviewStats();
+        }, 1000);
+      } else if(_reloadAttempts < 30){
+        setTimeout(_reloadData, 400); // retry every 400ms up to 12 seconds
+      }
+    }
+    setTimeout(_reloadData, 200);
   }
 
   window.agLogout = function(){
