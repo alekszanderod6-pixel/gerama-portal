@@ -651,9 +651,8 @@
     try{
       var sb = window.geramaSupabase;
       if(sb){
-        var { data, error } = await sb.from('materials').select('*').order('created_at',{ascending:false}).limit(200);
-        if(error){ console.warn('[GERAMA] Materials load error:', error.message); }
-        else if(data && data.length){
+        var { data } = await sb.from('materials').select('*').order('created_at',{ascending:false}).limit(200);
+        if(data && data.length){
           materialsHistory = data.map(function(r){
             return { level:r.level, sem:r.semester, course:r.course, type:r.type, name:r.name,
               desc:r.description||'', url:r.file_url, path:r.storage_path||'',
@@ -661,7 +660,7 @@
           });
         }
       }
-    }catch(e){ console.warn('[GERAMA] loadData materials error:', e); }
+    }catch(e){}
 
     try{
       var sb2 = window.geramaSupabase;
@@ -688,9 +687,7 @@
   };
 
   async function loadOverviewStats(){
-    window.loadOverviewStats = loadOverviewStats; // expose for inline script
-    var sb = window.geramaSupabase;
-    if(!sb){ console.warn('[GERAMA] loadOverviewStats: Supabase not ready'); return; }
+    var sb = window.geramaSupabase; if(!sb) return;
     var now = new Date();
     var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     var weekStart  = new Date(now.getTime() - 7*24*60*60*1000).toISOString();
@@ -846,16 +843,17 @@
     var uploadMatBtn = document.getElementById('uploadMatBtn');
     if(uploadMatBtn) uploadMatBtn.addEventListener('click', window.uploadMaterial);
 
-    // Load main content — retry until Supabase is ready
-    (function tryBoot(attempts){
+    // Load main content
+    window.loadData();
+    // Wait for Supabase then load live stats (retry up to 10s)
+    (function tryStats(attempts){
       if(typeof window.geramaSupabase !== 'undefined'){
-        window.loadData(); // loads materials, announcements, history, submissions
-        setTimeout(function(){ loadOverviewStats(); }, 400);
-        setTimeout(function(){ if(window.loadVisitorStats) window.loadVisitorStats(); }, 600);
+        loadOverviewStats();
+        setTimeout(window.loadVisitorStats, 200);
       } else if(attempts > 0){
-        setTimeout(function(){ tryBoot(attempts-1); }, 500);
+        setTimeout(function(){ tryStats(attempts-1); }, 500);
       }
-    })(30); // retry for up to 15 seconds
+    })(20);
   });
 
   // ─── UPLOAD MATERIAL ───────────────────────────────────────
@@ -1570,8 +1568,6 @@ window.loadClsList = async function(){
     var goLiveBtn = (!isLive&&!isEnded)?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'live\')"><i class="fas fa-broadcast-tower"></i> Go Live</button>':'';
     var endBtn    = isLive?'<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:#dc2626;" onclick="setClassStatus(\''+c.id+'\',\'ended\')"><i class="fas fa-stop-circle"></i> End Class</button>':'';
     var reopenBtn = isEnded?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'upcoming\')"><i class="fas fa-redo"></i> Reopen</button>':'';
-    // Edit button — always available (does NOT change meeting link)
-    var editBtn   = '<button class="btn-success" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="openEditClass(\''+window.escAttr(JSON.stringify({id:c.id,course:c.course,topic:c.topic,tutor:c.tutor||'',scheduled_at:c.scheduled_at,description:c.description||'',venue:c.venue||'',map_link:c.map_link||'',class_type:c.class_type||'virtual'}).replace(/'/g,"\\\'"))+'\')" title="Edit details (meeting link stays the same)"><i class="fas fa-edit"></i> Edit</button>';
     var deleteBtn = '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')" style="font-size:0.78rem;padding:0.4rem 0.7rem;"><i class="fas fa-trash"></i></button>';
 
     var locationInfo = isInPerson
@@ -1584,7 +1580,7 @@ window.loadClsList = async function(){
         '<strong>'+window.escHtml(c.course)+' — '+window.escHtml(c.topic)+' '+badge+typeBadge+'</strong>'+
         '<div class="sub-meta"><b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+locationInfo+'</div>'+
       '</div>'+
-      '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+editBtn+deleteBtn+'</div>'+
+      '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+deleteBtn+'</div>'+
     '</div>';
   }
 
@@ -1608,105 +1604,9 @@ window.loadClsList = async function(){
   el.innerHTML = html || '<p style="color:#9ca3af;text-align:center;padding:1rem;">No classes yet.</p>';
 };
 
-// ─── EDIT CLASS MODAL ────────────────────────────────────────────
-window.openEditClass = function(jsonStr){
-  var cls;
-  try{ cls = JSON.parse(jsonStr); }catch(e){ alert('Could not parse class data.'); return; }
-
-  // Build or reuse modal
-  var existing = document.getElementById('editClassModal');
-  if(existing) existing.remove();
-
-  // Format datetime-local value
-  var dtLocal = cls.scheduled_at ? new Date(cls.scheduled_at).toLocaleString('sv-SE',{timeZoneName:'short'}).replace(' ','T').substring(0,16) : '';
-
-  var isInPerson = cls.class_type === 'inperson';
-
-  var modal = document.createElement('div');
-  modal.id = 'editClassModal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px);';
-  modal.innerHTML =
-    '<div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">' +
-        '<div style="font-size:1.1rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-edit" style="color:#1B5E20;"></i> Edit Class</div>' +
-        '<button onclick="document.getElementById(\'editClassModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>' +
-      '</div>' +
-      '<div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:10px;padding:0.7rem 1rem;margin-bottom:1.2rem;font-size:0.82rem;color:#1e40af;">' +
-        '<i class="fas fa-info-circle" style="margin-right:0.4rem;"></i>' +
-        '<strong>Note:</strong> The meeting link / join URL will NOT be changed. Only the details below will be updated.' +
-      '</div>' +
-      '<div class="form-grid">' +
-        '<div class="form-field"><label>Course Name *</label><input type="text" id="ecCourse" value="'+window.escAttr(cls.course||'')+'" placeholder="e.g. Applied Electricity"></div>' +
-        '<div class="form-field"><label>Topic / Title *</label><input type="text" id="ecTopic" value="'+window.escAttr(cls.topic||'')+'" placeholder="e.g. Kirchhoff\'s Laws"></div>' +
-        '<div class="form-field"><label>Tutor / Host</label><input type="text" id="ecTutor" value="'+window.escAttr(cls.tutor||'')+'" placeholder="e.g. Edem H.K Prince"></div>' +
-        '<div class="form-field"><label>Date &amp; Time *</label><input type="datetime-local" id="ecDateTime" value="'+window.escAttr(dtLocal)+'"></div>' +
-        '<div class="form-field full"><label>Description</label><input type="text" id="ecDesc" value="'+window.escAttr(cls.description||'')+'" placeholder="Brief note about what will be covered"></div>' +
-        (isInPerson ?
-          '<div class="form-field full"><label>Venue / Location</label><input type="text" id="ecVenue" value="'+window.escAttr(cls.venue||'')+'" placeholder="e.g. Engineering Block, Room 204"></div>' +
-          '<div class="form-field full"><label>Google Maps Link</label><input type="url" id="ecMapLink" value="'+window.escAttr(cls.map_link||'')+'" placeholder="https://maps.google.com/..."></div>' : '') +
-      '</div>' +
-      '<div style="margin-top:1.2rem;display:flex;gap:0.8rem;flex-wrap:wrap;">' +
-        '<button class="btn-primary" onclick="saveEditClass(\''+window.escAttr(cls.id)+'\',\''+window.escAttr(cls.class_type||'virtual')+'\')" style="flex:1;justify-content:center;"><i class="fas fa-save"></i> Save Changes</button>' +
-        '<button onclick="document.getElementById(\'editClassModal\').remove()" style="background:#f1f5f9;color:#374151;border:none;padding:0.7rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.9rem;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>' +
-      '</div>' +
-      '<div id="ecStatus" style="margin-top:0.8rem;font-size:0.85rem;min-height:1.2rem;"></div>' +
-    '</div>';
-
-  document.body.appendChild(modal);
-
-  // Close on backdrop click
-  modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
-};
-
-window.saveEditClass = async function(id, classType){
-  var course   = (document.getElementById('ecCourse')  &&document.getElementById('ecCourse').value||'').trim();
-  var topic    = (document.getElementById('ecTopic')   &&document.getElementById('ecTopic').value||'').trim();
-  var tutor    = (document.getElementById('ecTutor')   &&document.getElementById('ecTutor').value||'').trim();
-  var dt       = (document.getElementById('ecDateTime')&&document.getElementById('ecDateTime').value||'').trim();
-  var desc     = (document.getElementById('ecDesc')    &&document.getElementById('ecDesc').value||'').trim();
-  var venue    = (document.getElementById('ecVenue')   &&document.getElementById('ecVenue').value||'').trim();
-  var mapLink  = (document.getElementById('ecMapLink') &&document.getElementById('ecMapLink').value||'').trim();
-  var statusEl = document.getElementById('ecStatus');
-
-  if(!course||!topic||!dt){ if(statusEl){ statusEl.textContent='Please fill in Course, Topic and Date/Time.'; statusEl.style.color='#dc2626'; } return; }
-
-  var updates = {
-    course: course, topic: topic, tutor: tutor||null,
-    scheduled_at: new Date(dt).toISOString(),
-    description: desc||null
-    // NOTE: meet_link is intentionally excluded — never overwrite it
-  };
-  if(classType === 'inperson'){
-    updates.venue = venue||null;
-    updates.map_link = mapLink||null;
-  }
-
-  if(statusEl){ statusEl.textContent='Saving...'; statusEl.style.color='#6b7280'; }
-
-  var sb = window.geramaSupabase; if(!sb){ if(statusEl){ statusEl.textContent='Not connected.'; statusEl.style.color='#dc2626'; } return; }
-  var {error} = await sb.from('classes').update(updates).eq('id', id);
-  if(error){ if(statusEl){ statusEl.textContent='❌ '+error.message; statusEl.style.color='#dc2626'; } return; }
-
-  window.logActivity('Edited class: '+course+' — '+topic);
-  if(statusEl){ statusEl.textContent='✅ Class updated!'; statusEl.style.color='#059669'; }
-  setTimeout(function(){
-    var modal = document.getElementById('editClassModal');
-    if(modal) modal.remove();
-    window.loadClsList();
-  }, 1000);
-};
-  var sb = window.geramaSupabase; if(!sb) return;
-  // Map 'upcoming' back to the correct status
-  var dbStatus = status === 'upcoming' ? 'upcoming' : status;
-  var {error} = await sb.from('classes').update({status: dbStatus}).eq('id', id);
-  if(error){ alert('Error: '+error.message); return; }
-  var label = status==='live' ? '🔴 Class is now LIVE!' : status==='ended' ? '✅ Class ended — moved to history.' : '📅 Class reopened.';
-  window.logActivity(label+' ('+id+')');
-  window.loadClsList();
-};
-
 window.setClassStatus = async function(id, status){
   var sb = window.geramaSupabase; if(!sb) return;
+  // Map 'upcoming' back to the correct status
   var dbStatus = status === 'upcoming' ? 'upcoming' : status;
   var {error} = await sb.from('classes').update({status: dbStatus}).eq('id', id);
   if(error){ alert('Error: '+error.message); return; }
@@ -2803,7 +2703,6 @@ window.switchPanel_old = window.switchPanel;
   window.switchPanel = function(name){
     if(_orig) _orig(name);
     if(name==='adminprofiles') setTimeout(loadAdminProfiles, 150);
-    if(name==='team') setTimeout(function(){ if(window.loadTeamList) window.loadTeamList('all'); }, 150);
     if(name==='quizzes') setTimeout(function(){
       // Pre-fill import quiz select
       loadImportQzSelect();
@@ -2868,16 +2767,14 @@ window.loadAdminProfiles = async function() {
   if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;">No admin profiles yet. Add yours above!</p>'; return; }
   el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;">'+
     data.map(function(p){
-      var initial = (p.name||'A').charAt(0).toUpperCase();
-      return '<div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:16px;padding:1.2rem;border:1px solid #c4b5fd;position:relative;">'+
+      return '<div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:16px;padding:1.2rem;border:1px solid #c4b5fd;">'+
         (p.photo_url?'<img src="'+p.photo_url+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid #a78bfa;margin-bottom:0.8rem;display:block;">':
-          '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;font-weight:800;margin-bottom:0.8rem;">'+initial+'</div>')+
+          '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;font-weight:800;margin-bottom:0.8rem;">'+p.name.charAt(0)+'</div>')+
         '<div style="font-weight:800;color:#1e2a3e;margin-bottom:0.2rem;">'+window.escHtml(p.name)+'</div>'+
-        '<div style="font-size:0.78rem;color:#7c3aed;font-weight:700;margin-bottom:0.4rem;">'+window.escHtml(p.role||'Admin')+'</div>'+
+        '<div style="font-size:0.78rem;color:#7c3aed;font-weight:700;margin-bottom:0.4rem;">'+window.escHtml(p.role)+'</div>'+
         (p.bio?'<div style="font-size:0.8rem;color:#6b7280;margin-bottom:0.4rem;">'+window.escHtml(p.bio)+'</div>':'')+
         (p.phone?'<div style="font-size:0.78rem;color:#374151;"><i class="fas fa-phone" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.phone)+'</div>':'')+
-        (p.email?'<div style="font-size:0.78rem;color:#374151;margin-bottom:0.6rem;"><i class="fas fa-envelope" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.email)+'</div>':'')+
-        '<button onclick="deleteAdminProfile(\''+window.escAttr(p.id)+'\',\''+window.escAttr(p.name)+'\')" style="background:#fee2e2;color:#dc2626;border:none;padding:0.25rem 0.7rem;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;margin-top:0.3rem;"><i class="fas fa-user-minus"></i> Remove Admin</button>'+
+        (p.email?'<div style="font-size:0.78rem;color:#374151;"><i class="fas fa-envelope" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.email)+'</div>':'')+
       '</div>';
     }).join('')+
   '</div>';
@@ -3041,378 +2938,3 @@ window.importScoresFromCSV = async function() {
   window.showStatus('importStatus',msg,'ok');
   if(errors.length) console.warn('Import errors:', errors);
 };
-
-// ═══════════════════════════════════════════════════════════════
-// TEAM MEMBER MANAGEMENT — About Page
-// ═══════════════════════════════════════════════════════════════
-
-var _selectedTeamPhotoFile = null;
-
-// Wire up drop zone when DOM is ready
-document.addEventListener('DOMContentLoaded', function(){
-  var zone = document.getElementById('tmPhotoZone');
-  var inp  = document.getElementById('tmPhotoFile');
-  if(!zone || !inp) return;
-
-  zone.addEventListener('click', function(){ inp.click(); });
-  inp.addEventListener('change', function(){
-    if(this.files && this.files[0]) _handleTeamPhoto(this.files[0]);
-  });
-  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag-over'); });
-  zone.addEventListener('dragleave', function(){ zone.classList.remove('drag-over'); });
-  zone.addEventListener('drop', function(e){
-    e.preventDefault(); zone.classList.remove('drag-over');
-    if(e.dataTransfer && e.dataTransfer.files[0]) _handleTeamPhoto(e.dataTransfer.files[0]);
-  });
-
-  // Wire panel switch
-  var origSwitch = window.switchPanel;
-  window.switchPanel = function(name){
-    if(origSwitch) origSwitch(name);
-    if(name === 'team') setTimeout(function(){ window.loadTeamList('all'); }, 150);
-  };
-});
-
-function _handleTeamPhoto(file) {
-  if(file.size > 5*1024*1024){ alert('Photo too large — max 5MB.'); return; }
-  _selectedTeamPhotoFile = file;
-  var chosen = document.getElementById('tmPhotoChosen');
-  if(chosen) chosen.textContent = '✅ ' + file.name;
-  var preview = document.getElementById('tmPhotoPreview');
-  if(preview){
-    var reader = new FileReader();
-    reader.onload = function(e){ preview.src = e.target.result; preview.style.display = 'block'; };
-    reader.readAsDataURL(file);
-  }
-}
-
-window.saveTeamMember = async function(){
-  var name   = (document.getElementById('tmName').value||'').trim();
-  var role   = (document.getElementById('tmRole').value||'').trim();
-  var group  = document.getElementById('tmGroup').value;
-  var badge  = (document.getElementById('tmBadge').value||'').trim();
-  var emoji  = (document.getElementById('tmEmoji').value||'👤').trim();
-  var order  = parseInt(document.getElementById('tmOrder').value||'99');
-  var sb     = window.geramaSupabase;
-
-  if(!name || !role){ window.showStatus('tmStatus','Please fill in Name and Role.','err'); return; }
-  if(!sb){ window.showStatus('tmStatus','Not connected to Supabase.','err'); return; }
-
-  var btn = document.getElementById('tmSaveBtn');
-  if(btn){ btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; }
-  window.showStatus('tmStatus','Saving...','info');
-
-  try {
-    var photoUrl = null;
-
-    // Upload photo if selected
-    if(_selectedTeamPhotoFile){
-      var ext  = _selectedTeamPhotoFile.name.split('.').pop().toLowerCase();
-      var path = 'team-members/' + Date.now() + '-' + name.toLowerCase().replace(/[^a-z0-9]/g,'-') + '.' + ext;
-      var up   = await sb.storage.from(window.BUCKET||'gerama-materials').upload(path, _selectedTeamPhotoFile, {upsert:true});
-      if(up.error) throw new Error('Photo upload failed: ' + up.error.message);
-      photoUrl = sb.storage.from(window.BUCKET||'gerama-materials').getPublicUrl(path).data.publicUrl;
-    }
-
-    var record = {
-      name:       name,
-      role:       role,
-      group:      group,
-      badge_label: badge || null,
-      emoji:      emoji || '👤',
-      photo_url:  photoUrl,
-      sort_order: order,
-      active:     true,
-      created_at: new Date().toISOString()
-    };
-
-    var {error} = await sb.from('team_members').insert(record);
-    if(error) throw new Error(error.message);
-
-    window.logActivity('Added team member: ' + name + ' (' + group + ')');
-    window.showStatus('tmStatus', '✅ ' + name + ' added! They will now appear on the About page.', 'ok');
-
-    // Reset form
-    ['tmName','tmRole','tmBadge','tmEmoji'].forEach(function(id){
-      var el = document.getElementById(id); if(el) el.value = '';
-    });
-    var orderEl = document.getElementById('tmOrder'); if(orderEl) orderEl.value = '99';
-    var chosenEl = document.getElementById('tmPhotoChosen'); if(chosenEl) chosenEl.textContent = '';
-    var prevEl = document.getElementById('tmPhotoPreview'); if(prevEl){ prevEl.src=''; prevEl.style.display='none'; }
-    _selectedTeamPhotoFile = null;
-
-    window.loadTeamList('all');
-  } catch(e){
-    window.showStatus('tmStatus', '❌ ' + e.message, 'err');
-  }
-
-  if(btn){ btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Add to About Page'; }
-};
-
-window.loadTeamList = async function(filter){
-  var el = document.getElementById('tmList'); if(!el) return;
-  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
-  el.innerHTML = '<p style="color:#9ca3af;font-size:0.88rem;text-align:center;padding:1rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p>';
-
-  try {
-    var query = sb.from('team_members').select('*').order('sort_order',{ascending:true}).order('created_at',{ascending:true});
-    if(filter && filter !== 'all') query = query.eq('group', filter);
-    var {data, error} = await query;
-    if(error) throw new Error(error.message);
-    if(!data || !data.length){
-      el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:1.5rem;">No team members added via this panel yet.</p>';
-      return;
-    }
-
-    var groupLabels = {
-      'founding': 'Founding Team',
-      'gerama25': 'GERAMA/25',
-      'gerama26': 'GERAMA/26',
-      'media':    'Media Team'
-    };
-    var groupColors = {
-      'founding': '#1B5E20',
-      'gerama25': '#2E7D32',
-      'gerama26': '#6366f1',
-      'media':    '#0ea5e9'
-    };
-
-    el.innerHTML = data.map(function(m){
-      var gc = groupColors[m.group] || '#1B5E20';
-      var gl = groupLabels[m.group] || m.group;
-      var photoHtml = m.photo_url
-        ? '<img src="'+window.escAttr(m.photo_url)+'" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid '+gc+';flex-shrink:0;" alt="">'
-        : '<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,'+gc+',#aaa);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">'+(m.emoji||'👤')+'</div>';
-
-      return '<div class="sub-card" style="gap:0.8rem;align-items:center;">'+
-        photoHtml+
-        '<div class="sub-info" style="min-width:0;">'+
-          '<strong>'+window.escHtml(m.name)+'</strong>'+
-          '<div class="sub-meta">'+window.escHtml(m.role)+'<br>'+
-            '<span style="background:'+gc+'22;color:'+gc+';font-size:0.7rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:10px;">'+gl+'</span>'+
-            (m.badge_label ? ' &nbsp;<span style="background:#f3f4f6;color:#374151;font-size:0.7rem;font-weight:600;padding:0.1rem 0.5rem;border-radius:10px;">'+window.escHtml(m.badge_label)+'</span>' : '')+
-          '</div>'+
-        '</div>'+
-        '<div class="sub-actions">'+
-          '<button class="btn-'+(m.active?'success':'danger')+'" onclick="toggleTeamMember(\''+window.escAttr(m.id)+'\','+m.active+')" style="font-size:0.75rem;padding:0.3rem 0.7rem;" title="'+(m.active?'Hide from page':'Show on page')+'">'+
-            (m.active ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>')+
-          '</button>'+
-          '<button class="btn-danger" onclick="deleteTeamMember(\''+window.escAttr(m.id)+'\',\''+window.escAttr(m.name)+'\')" style="font-size:0.75rem;padding:0.3rem 0.7rem;"><i class="fas fa-trash"></i></button>'+
-        '</div>'+
-      '</div>';
-    }).join('');
-  } catch(e){
-    el.innerHTML = '<p style="color:#dc2626;padding:1rem;">Error: '+window.escHtml(e.message)+'</p>';
-  }
-};
-
-window.toggleTeamMember = async function(id, currentlyActive){
-  var sb = window.geramaSupabase; if(!sb) return;
-  await sb.from('team_members').update({active: !currentlyActive}).eq('id', id);
-  window.logActivity((currentlyActive ? 'Hidden' : 'Shown') + ' team member from About page');
-  window.loadTeamList('all');
-};
-
-window.deleteTeamMember = async function(id, name){
-  if(!confirm('Remove "'+name+'" from the About page? This cannot be undone.')) return;
-  var sb = window.geramaSupabase; if(!sb) return;
-  await sb.from('team_members').delete().eq('id', id);
-  window.logActivity('Deleted team member: '+name);
-  window.loadTeamList('all');
-};
-
-// ═══════════════════════════════════════════════════════════════
-// TEAM MEMBERS MANAGEMENT (About Page)
-// ═══════════════════════════════════════════════════════════════
-
-var _tmPhotoFile = null;
-
-// Drop zone setup — runs after DOM ready
-document.addEventListener('DOMContentLoaded', function(){
-  var zone  = document.getElementById('tmPhotoZone');
-  var input = document.getElementById('tmPhotoFile');
-  var preview = document.getElementById('tmPhotoPreview');
-  if(!zone || !input) return;
-
-  zone.addEventListener('click', function(){ input.click(); });
-  input.addEventListener('change', function(){
-    var f = this.files && this.files[0];
-    if(!f) return;
-    _tmPhotoFile = f;
-    document.getElementById('tmPhotoChosen').textContent = '✅ ' + f.name;
-    var reader = new FileReader();
-    reader.onload = function(e){
-      preview.src = e.target.result;
-      preview.style.display = 'block';
-    };
-    reader.readAsDataURL(f);
-  });
-  zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.classList.add('drag-over'); });
-  zone.addEventListener('dragleave', function(){ zone.classList.remove('drag-over'); });
-  zone.addEventListener('drop', function(e){
-    e.preventDefault(); zone.classList.remove('drag-over');
-    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if(!f) return;
-    _tmPhotoFile = f;
-    document.getElementById('tmPhotoChosen').textContent = '✅ ' + f.name;
-    var reader = new FileReader();
-    reader.onload = function(ev){
-      preview.src = ev.target.result;
-      preview.style.display = 'block';
-    };
-    reader.readAsDataURL(f);
-  });
-});
-
-window.saveTeamMember = async function(){
-  var name  = (document.getElementById('tmName').value||'').trim();
-  var role  = (document.getElementById('tmRole').value||'').trim();
-  var group = (document.getElementById('tmGroup').value||'founding');
-  var badge = (document.getElementById('tmBadge').value||'').trim();
-  var emoji = (document.getElementById('tmEmoji').value||'👤').trim();
-  var order = parseInt(document.getElementById('tmOrder').value||'99');
-
-  if(!name || !role){
-    window.showStatus('tmStatus','Please fill in Name and Role.','err');
-    return;
-  }
-
-  var sb = window.geramaSupabase;
-  if(!sb){ window.showStatus('tmStatus','Not connected.','err'); return; }
-
-  var btn = document.getElementById('tmSaveBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-  window.showStatus('tmStatus','Saving...','info');
-
-  try {
-    var photoUrl = null;
-
-    // Upload photo if selected
-    if(_tmPhotoFile){
-      if(_tmPhotoFile.size > 5 * 1024 * 1024){
-        throw new Error('Photo too large. Max 5 MB.');
-      }
-      var ext = _tmPhotoFile.name.split('.').pop().toLowerCase();
-      var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Date.now() + '.' + ext;
-      var storagePath = 'team-members/' + safeName;
-      var upRes = await sb.storage.from(window.BUCKET).upload(storagePath, _tmPhotoFile, { upsert: true });
-      if(upRes.error) throw new Error('Photo upload failed: ' + upRes.error.message);
-      photoUrl = sb.storage.from(window.BUCKET).getPublicUrl(storagePath).data.publicUrl;
-    }
-
-    var record = {
-      name:        name,
-      role:        role,
-      group:       group,
-      badge_label: badge || null,
-      emoji:       emoji || '👤',
-      photo_url:   photoUrl,
-      sort_order:  order,
-      active:      true,
-      created_at:  new Date().toISOString()
-    };
-
-    var {error} = await sb.from('team_members').insert(record);
-    if(error) throw new Error(error.message);
-
-    window.logActivity('Added team member: ' + name + ' (' + group + ')');
-    window.showStatus('tmStatus', '✅ ' + name + ' added! They will now appear on the About page.', 'ok');
-
-    // Reset form
-    ['tmName','tmRole','tmBadge','tmEmoji'].forEach(function(id){
-      var el = document.getElementById(id); if(el) el.value = '';
-    });
-    document.getElementById('tmOrder').value = '99';
-    document.getElementById('tmPhotoChosen').textContent = '';
-    var prev = document.getElementById('tmPhotoPreview');
-    if(prev){ prev.src=''; prev.style.display='none'; }
-    _tmPhotoFile = null;
-
-    // Reload list
-    loadTeamList('all');
-
-  } catch(e){
-    window.showStatus('tmStatus', '❌ ' + e.message, 'err');
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = '<i class="fas fa-save"></i> Add to About Page';
-};
-
-window.loadTeamList = async function(filter){
-  var el = document.getElementById('tmList');
-  if(!el) return;
-  var sb = window.geramaSupabase;
-  if(!sb){ el.innerHTML = '<p style="color:#9ca3af;">Not connected.</p>'; return; }
-
-  el.innerHTML = '<p style="color:#9ca3af;font-size:0.88rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p>';
-
-  try {
-    var query = sb.from('team_members').select('*').order('group').order('sort_order').order('created_at');
-    if(filter && filter !== 'all') query = query.eq('group', filter);
-    var {data, error} = await query;
-    if(error) throw new Error(error.message);
-
-    if(!data || !data.length){
-      el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-users" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No members added yet.</p>';
-      return;
-    }
-
-    var groupLabels = {
-      founding:  'Founding Team & Core Leads',
-      gerama25:  'GERAMA/25 Tutors',
-      gerama26:  'GERAMA/26 Tutors & Leadership',
-      media:     'Media Team'
-    };
-
-    var groupColors = {
-      founding: '#1B5E20',
-      gerama25: '#2E7D32',
-      gerama26: '#6366f1',
-      media:    '#0ea5e9'
-    };
-
-    el.innerHTML = data.map(function(m){
-      var col = groupColors[m.group] || '#1B5E20';
-      var avatarHtml = m.photo_url
-        ? '<img src="'+window.escAttr(m.photo_url)+'" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid '+col+';flex-shrink:0;" alt="">'
-        : '<div style="width:48px;height:48px;border-radius:50%;background:'+col+';display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">'+(m.emoji||'👤')+'</div>';
-
-      return '<div class="sub-card" style="border-left:4px solid '+col+';">'+
-        avatarHtml+
-        '<div class="sub-info">'+
-          '<strong>'+window.escHtml(m.name)+'</strong>'+
-          '<div class="sub-meta">'+
-            '<span style="background:'+col+'22;color:'+col+';font-size:0.7rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:20px;margin-right:0.4rem;">'+window.escHtml(groupLabels[m.group]||m.group)+'</span>'+
-            window.escHtml(m.role||'')+(m.badge_label ? ' · <em>'+window.escHtml(m.badge_label)+'</em>' : '')+
-          '</div>'+
-        '</div>'+
-        '<div class="sub-actions">'+
-          '<button class="btn-danger" onclick="removeTeamMember(\''+window.escAttr(m.id)+'\',\''+window.escAttr(m.name)+'\')"><i class="fas fa-trash"></i> Remove</button>'+
-        '</div>'+
-      '</div>';
-    }).join('');
-
-  } catch(e){
-    el.innerHTML = '<p style="color:#dc2626;">Error: '+window.escHtml(e.message)+'</p>';
-  }
-};
-
-window.removeTeamMember = async function(id, name){
-  if(!confirm('Remove "'+name+'" from the About page?')) return;
-  var sb = window.geramaSupabase; if(!sb) return;
-  var {error} = await sb.from('team_members').delete().eq('id', id);
-  if(error){ alert('Error: '+error.message); return; }
-  window.logActivity('Removed team member: '+name);
-  window.loadTeamList('all');
-};
-
-// Auto-load when panel opens
-(function(){
-  var _origSwitchTm = window.switchPanel;
-  window.switchPanel = function(name){
-    if(_origSwitchTm) _origSwitchTm(name);
-    if(name === 'team') setTimeout(function(){ window.loadTeamList('all'); }, 150);
-  };
-})();
