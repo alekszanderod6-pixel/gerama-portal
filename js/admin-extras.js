@@ -772,19 +772,6 @@
 
       if(window.logActivity) window.logActivity('Posted Quote of the Day: "' + text.substring(0,50) + '"');
 
-      // Also post as an announcement so students get notified
-      var sb = getSB();
-      if(sb){
-        try {
-          await sb.from('announcements').insert({
-            title: '✨ Quote of the Day',
-            message: '"' + text + '"' + (author ? ' — ' + author : ''),
-            priority: 'normal',
-            created_at: new Date().toISOString()
-          });
-        } catch(annErr){ console.warn('Announcement post failed:', annErr); }
-      }
-
       window.showStatus('qotdStatus', '✅ Quote posted! Students will see it in the Study Planner tab.', 'ok');
 
       // Reset form

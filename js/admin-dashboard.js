@@ -68,6 +68,7 @@
     if(name === 'assignments') setTimeout(function(){
       if(window.loadAsgList) window.loadAsgList();
     }, 150);
+    if(name === 'grades') setTimeout(function(){ if(window.loadSubmissionsTable) window.loadSubmissionsTable(); }, 150);
     if(name === 'quizzes' && window.loadQzList) setTimeout(function(){ window.loadQzList(); window.loadQzAttempts && window.loadQzAttempts(); }, 150);
     if(name === 'quizrequests' && window.loadQuizRequests) setTimeout(window.loadQuizRequests, 150);
     if(name === 'classes' && window.loadClsList) setTimeout(window.loadClsList, 150);
@@ -76,6 +77,7 @@
     if(name === 'visitors' && window.loadVisitorStats) setTimeout(window.loadVisitorStats, 150);
     if(name === 'messages' && window.loadContactMessages) setTimeout(function(){ window.loadContactMessages('all'); }, 150);
     if(name === 'users') setTimeout(function(){ if(window.loadUsers) window.loadUsers(); }, 150);
+    if(name === 'groups') setTimeout(function(){ if(window.loadGroups) window.loadGroups(); }, 150);
     if(name === 'potw' && window.loadPotwList) setTimeout(window.loadPotwList, 150);
     if(name === 'reels' && window.loadAdminReels) setTimeout(window.loadAdminReels, 150);
   };
@@ -1378,9 +1380,15 @@ window.gradeSubmission = async function(btn){
 
   // Also save to student_grades table for portal display
   try{
+    // Fetch course for this submission so the student dashboard can group by course
+    var courseVal = 'General';
+    var asgRes = await sb.from('assignments').select('course').eq('title', title).maybeSingle();
+    if(asgRes && asgRes.data && asgRes.data.course) courseVal = asgRes.data.course;
+
     await sb.from('student_grades').upsert({
       student_email: email,
       assignment_title: title,
+      course: courseVal,
       score: score,
       submission_id: subId,
       graded_at: new Date().toISOString()
@@ -1396,6 +1404,9 @@ window.gradeSubmission = async function(btn){
     if(window.loadGradesPanel) window.loadGradesPanel();
   }, 2000);
 };
+
+// Alias so the grades panel auto-refreshes after grading
+window.loadGradesPanel = window.loadSubmissionsTable;
 
 window.postAssignment = async function(){
   var title   = document.getElementById('asgTitle').value.trim();
@@ -2937,4 +2948,425 @@ window.importScoresFromCSV = async function() {
   if(fail) msg += ' ('+fail+' failed)';
   window.showStatus('importStatus',msg,'ok');
   if(errors.length) console.warn('Import errors:', errors);
+};
+
+// ============================================================
+//  GERAMA TEAM GROUPS MANAGEMENT
+//  Tables required in Supabase:
+//    gerama_groups  (id, name, color, created_at)
+//    gerama_group_members (id, group_id, user_email, user_name, role, assigned_at)
+// ============================================================
+
+var GROUP_NAMES = ['Gerama A', 'Gerama B', 'Gerama C', 'Gerama D', 'Gerama E'];
+var GROUP_COLORS = ['#1B5E20','#1565C0','#6A1B9A','#E65100','#AD1457'];
+
+window.loadGroups = async function(){
+  var container = document.getElementById('groupsContainer');
+  if(!container) return;
+  var sb = window.geramaSupabase;
+  if(!sb){ container.innerHTML='<p style="color:#9ca3af;text-align:center;padding:2rem;">Not connected to database.</p>'; return; }
+
+  container.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading groups...</p>';
+
+  try{
+    // Ensure all 5 groups exist
+    var {data: existingGroups} = await sb.from('gerama_groups').select('*').order('name');
+    if(!existingGroups || existingGroups.length < GROUP_NAMES.length){
+      for(var i=0;i<GROUP_NAMES.length;i++){
+        var gName = 'Team '+GROUP_NAMES[i];
+        var already = (existingGroups||[]).find(function(g){ return g.name === gName; });
+        if(!already){
+          await sb.from('gerama_groups').insert({ name: gName, color: GROUP_COLORS[i], created_at: new Date().toISOString() });
+        }
+      }
+      var refreshed = await sb.from('gerama_groups').select('*').order('name');
+      existingGroups = refreshed.data || [];
+    }
+
+    // Fetch all group members
+    var {data: allMembers} = await sb.from('gerama_group_members').select('*');
+    allMembers = allMembers || [];
+
+    // Fetch all registered users for "Add member" dropdowns
+    var {data: allUsers} = await sb.from('user_profiles').select('email, full_name, level, program').order('full_name');
+    allUsers = allUsers || [];
+
+    // Store globally for use in modal functions
+    window._geramaGroups = existingGroups;
+    window._allGroupMembers = allMembers;
+    window._allUsers = allUsers;
+
+    renderGroupsUI(existingGroups, allMembers, allUsers, container);
+  } catch(e){
+    container.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.2rem;border-radius:12px;"><strong>Error:</strong> '+window.escHtml(e.message)+'<br><br>Make sure the <code>gerama_groups</code> and <code>gerama_group_members</code> tables exist in your Supabase database. <a href="#" onclick="window.showGroupsSetupSQL();return false;" style="color:#dc2626;font-weight:700;text-decoration:underline;">View Setup SQL</a></div>';
+  }
+};
+
+window.showGroupsSetupSQL = function(){
+  alert(
+    'Run this SQL in your Supabase SQL editor:\n\n' +
+    'CREATE TABLE IF NOT EXISTS gerama_groups (\n' +
+    '  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,\n' +
+    '  name text NOT NULL,\n' +
+    '  color text DEFAULT \'#1B5E20\',\n' +
+    '  created_at timestamptz DEFAULT now()\n' +
+    ');\n\n' +
+    'CREATE TABLE IF NOT EXISTS gerama_group_members (\n' +
+    '  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,\n' +
+    '  group_id uuid REFERENCES gerama_groups(id) ON DELETE CASCADE,\n' +
+    '  user_email text NOT NULL,\n' +
+    '  user_name text,\n' +
+    '  role text DEFAULT \'member\',\n' +
+    '  assigned_at timestamptz DEFAULT now()\n' +
+    ');\n\n' +
+    'ALTER TABLE gerama_groups ENABLE ROW LEVEL SECURITY;\n' +
+    'ALTER TABLE gerama_group_members ENABLE ROW LEVEL SECURITY;\n' +
+    'CREATE POLICY "Public read gerama_groups" ON gerama_groups FOR SELECT USING (true);\n' +
+    'CREATE POLICY "Public read gerama_group_members" ON gerama_group_members FOR SELECT USING (true);\n' +
+    'CREATE POLICY "Anon insert gerama_groups" ON gerama_groups FOR ALL USING (true) WITH CHECK (true);\n' +
+    'CREATE POLICY "Anon insert gerama_group_members" ON gerama_group_members FOR ALL USING (true) WITH CHECK (true);'
+  );
+};
+
+function renderGroupsUI(groups, allMembers, allUsers, container){
+  var totalMembers = allMembers.length;
+  var assignedEmails = allMembers.map(function(m){ return m.user_email; });
+  var unassignedUsers = allUsers.filter(function(u){ return assignedEmails.indexOf(u.email) === -1; });
+
+  var headerHtml =
+    '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;padding:1rem 1.2rem;background:linear-gradient(135deg,#e8f5e9,#f0fdf4);border-radius:14px;border:1px solid #c8e6c9;">'+
+      '<div>'+
+        '<div style="font-size:1.05rem;font-weight:800;color:#1B5E20;"><i class="fas fa-users-cog"></i> Gerama Study Groups</div>'+
+        '<div style="font-size:0.82rem;color:#6b7280;margin-top:0.3rem;">'+
+          '<span style="background:#e8f5e9;color:#1B5E20;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+totalMembers+' assigned</span>'+
+          '<span style="background:#fef3c7;color:#92400e;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+unassignedUsers.length+' unassigned</span>'+
+          '<span style="background:#dbeafe;color:#1d4ed8;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;">'+groups.length+' groups</span>'+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">'+
+        '<button onclick="window.randomlyAssignAll()" class="btn-gold" style="font-size:0.82rem;padding:0.45rem 1rem;"><i class="fas fa-random"></i> Auto-Assign Unassigned</button>'+
+        '<button onclick="window.loadGroups()" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.45rem 0.9rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-sync-alt"></i> Refresh</button>'+
+        '<button onclick="window.downloadGroupsCSV()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> Export CSV</button>'+
+      '</div>'+
+    '</div>';
+
+  var groupsHtml = groups.map(function(group){
+    var members = allMembers.filter(function(m){ return m.group_id === group.id; });
+    var tutors = members.filter(function(m){ return m.role === 'tutor'; });
+    var regularMembers = members.filter(function(m){ return m.role !== 'tutor'; });
+    var color = group.color || '#1B5E20';
+    var lighterBg = hexToRgba(color, 0.07);
+    var borderColor = hexToRgba(color, 0.3);
+
+    // Member rows
+    var memberRows = members.map(function(m){
+      var isTutor = m.role === 'tutor';
+      var roleBadge = isTutor
+        ? '<span style="background:'+hexToRgba(color,0.15)+';color:'+color+';font-size:0.7rem;font-weight:800;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.3rem;"><i class="fas fa-chalkboard-teacher"></i> Tutor</span>'
+        : '';
+      var safeId = m.id.replace(/-/g,'');
+      return '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.6rem;background:white;border-radius:8px;border:1px solid #f1f5f9;margin-bottom:0.3rem;" id="gmrow-'+safeId+'">'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:'+color+';color:white;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">'+
+          window.escHtml((m.user_name||'?').charAt(0).toUpperCase())+
+        '</div>'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div style="font-size:0.85rem;font-weight:600;color:#1e2a3e;">'+window.escHtml(m.user_name||m.user_email||'—')+roleBadge+'</div>'+
+          '<div style="font-size:0.72rem;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+window.escHtml(m.user_email||'')+'</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:0.3rem;flex-shrink:0;">'+
+          (isTutor
+            ? '<button onclick="window.setMemberRole(\''+m.id+'\',\'member\')" style="background:#fef3c7;color:#92400e;border:none;padding:0.25rem 0.5rem;border-radius:6px;font-size:0.7rem;cursor:pointer;" title="Remove tutor role"><i class="fas fa-user"></i></button>'
+            : '<button onclick="window.setMemberRole(\''+m.id+'\',\'tutor\')" style="background:'+hexToRgba(color,0.12)+';color:'+color+';border:none;padding:0.25rem 0.5rem;border-radius:6px;font-size:0.7rem;cursor:pointer;" title="Make tutor"><i class="fas fa-chalkboard-teacher"></i></button>')+
+          '<button onclick="window.openMoveModal(\''+m.id+'\',\''+window.escAttr(m.user_name||'')+'\',\''+window.escAttr(group.id)+'\')" style="background:#dbeafe;color:#1d4ed8;border:none;padding:0.25rem 0.5rem;border-radius:6px;font-size:0.7rem;cursor:pointer;" title="Move to another group"><i class="fas fa-exchange-alt"></i></button>'+
+          '<button onclick="window.removeMember(\''+m.id+'\')" style="background:#fee2e2;color:#dc2626;border:none;padding:0.25rem 0.5rem;border-radius:6px;font-size:0.7rem;cursor:pointer;" title="Remove from group"><i class="fas fa-times"></i></button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+
+    // Build available users for "add" dropdown (not already in this group)
+    var membersEmails = members.map(function(m){ return m.user_email; });
+    var addOptions = allUsers
+      .filter(function(u){ return membersEmails.indexOf(u.email) === -1; })
+      .map(function(u){
+        return '<option value="'+window.escAttr(u.email)+'">'+window.escHtml((u.full_name||u.email)+(u.level?' ['+u.level+']':''))+'</option>';
+      }).join('');
+
+    var accordionId = 'group-accordion-'+group.id.replace(/-/g,'');
+    return '<div style="margin-bottom:1.2rem;border:1px solid '+borderColor+';border-radius:14px;overflow:hidden;">'+
+      // Header (clickable to open/close)
+      '<div onclick="toggleGroupAccordion(\''+accordionId+'\')" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;background:'+lighterBg+';cursor:pointer;user-select:none;">'+
+        '<div style="display:flex;align-items:center;gap:0.8rem;">'+
+          '<div style="width:10px;height:10px;border-radius:50%;background:'+color+';flex-shrink:0;"></div>'+
+          '<div>'+
+            '<div style="font-size:0.95rem;font-weight:800;color:'+color+';">'+window.escHtml(group.name)+'</div>'+
+            '<div style="font-size:0.78rem;color:#6b7280;margin-top:0.1rem;">'+
+              '<span style="font-weight:600;">'+members.length+'</span> member'+(members.length!==1?'s':'')+
+              (tutors.length?' &nbsp;·&nbsp; <span style="color:'+color+';font-weight:600;">'+tutors.length+' tutor'+(tutors.length!==1?'s':'')+'</span>':'')+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="display:flex;align-items:center;gap:0.5rem;">'+
+          '<span style="background:'+color+';color:white;border-radius:20px;padding:0.15rem 0.7rem;font-size:0.8rem;font-weight:700;">'+members.length+'/30</span>'+
+          '<i id="acc-icon-'+accordionId+'" class="fas fa-chevron-down" style="color:'+color+';font-size:0.85rem;transition:transform 0.2s;"></i>'+
+        '</div>'+
+      '</div>'+
+      // Body (hidden by default, toggleable)
+      '<div id="'+accordionId+'" style="display:none;padding:1rem 1.2rem;background:white;">'+
+        // Tutors highlighted section
+        (tutors.length ? '<div style="background:'+hexToRgba(color,0.06)+';border-radius:10px;padding:0.7rem 0.8rem;margin-bottom:0.8rem;border-left:3px solid '+color+';">'+
+          '<div style="font-size:0.78rem;font-weight:700;color:'+color+';margin-bottom:0.4rem;"><i class="fas fa-chalkboard-teacher"></i> Assigned Tutors</div>'+
+          tutors.map(function(t){
+            return '<div style="font-size:0.85rem;color:#374151;font-weight:600;">👨‍🏫 '+window.escHtml(t.user_name||t.user_email)+'</div>';
+          }).join('')+
+        '</div>' : '')+
+        // Members list
+        (members.length ? memberRows : '<p style="color:#9ca3af;font-size:0.85rem;text-align:center;padding:1rem;">No members yet.</p>')+
+        // Add member form
+        (members.length < 30 && addOptions
+          ? '<div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid #f1f5f9;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">'+
+              '<select id="addMember-'+group.id+'" style="flex:1;min-width:160px;padding:0.4rem 0.6rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;">'+
+                '<option value="">— Select member to add —</option>'+addOptions+
+              '</select>'+
+              '<button onclick="window.addMemberToGroup(\''+group.id+'\')" style="background:'+color+';color:white;border:none;padding:0.4rem 0.9rem;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-plus"></i> Add</button>'+
+            '</div>'
+          : (members.length >= 30
+              ? '<div style="text-align:center;font-size:0.78rem;color:#92400e;background:#fef3c7;padding:0.4rem;border-radius:8px;margin-top:0.5rem;">Group is full (30 max)</div>'
+              : '<div style="text-align:center;font-size:0.78rem;color:#9ca3af;padding:0.5rem;margin-top:0.5rem;">All registered users are already assigned.</div>'))+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  // Move modal
+  var moveModal =
+    '<div id="moveGroupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9000;align-items:center;justify-content:center;">'+
+      '<div style="background:white;border-radius:16px;padding:1.8rem;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">'+
+        '<div style="font-size:1rem;font-weight:800;color:#1e2a3e;margin-bottom:0.4rem;"><i class="fas fa-exchange-alt" style="color:#1B5E20;margin-right:0.4rem;"></i> Move Member</div>'+
+        '<div id="moveMemberName" style="font-size:0.88rem;color:#6b7280;margin-bottom:1rem;"></div>'+
+        '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Move to group:</label>'+
+        '<select id="moveTargetGroup" style="width:100%;padding:0.55rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;font-family:\'Inter\',sans-serif;outline:none;margin-bottom:1rem;"></select>'+
+        '<div style="display:flex;gap:0.6rem;">'+
+          '<button onclick="window.confirmMove()" class="btn-primary" style="flex:1;">Confirm Move</button>'+
+          '<button onclick="document.getElementById(\'moveGroupModal\').style.display=\'none\'" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer;color:#374151;">Cancel</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+  container.innerHTML = headerHtml + '<div id="groupsAccordion">' + groupsHtml + '</div>' + moveModal;
+
+  // Auto-open first group
+  if(groups.length){
+    var firstId = 'group-accordion-'+groups[0].id.replace(/-/g,'');
+    toggleGroupAccordion(firstId);
+  }
+}
+
+function hexToRgba(hex, alpha){
+  try{
+    hex = hex.replace('#','');
+    if(hex.length === 3) hex = hex.split('').map(function(c){ return c+c; }).join('');
+    var r = parseInt(hex.substring(0,2),16);
+    var g = parseInt(hex.substring(2,4),16);
+    var b = parseInt(hex.substring(4,6),16);
+    return 'rgba('+r+','+g+','+b+','+alpha+')';
+  }catch(e){ return 'rgba(27,94,32,'+alpha+')'; }
+}
+
+window.toggleGroupAccordion = function(id){
+  var el = document.getElementById(id);
+  var icon = document.getElementById('acc-icon-'+id);
+  if(!el) return;
+  var isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'block';
+  if(icon) icon.style.transform = isOpen ? '' : 'rotate(180deg)';
+};
+
+window.addMemberToGroup = async function(groupId){
+  var selectEl = document.getElementById('addMember-'+groupId);
+  if(!selectEl || !selectEl.value){ alert('Please select a member to add.'); return; }
+  var email = selectEl.value;
+  var sb = window.geramaSupabase; if(!sb) return;
+
+  // Check member count
+  var {data: existing} = await sb.from('gerama_group_members').select('id').eq('group_id', groupId);
+  if(existing && existing.length >= 30){ alert('This group is full (30 members maximum).'); return; }
+
+  // Get user name
+  var user = (window._allUsers||[]).find(function(u){ return u.email === email; });
+  var userName = user ? (user.full_name || email) : email;
+
+  // Check not already in another group
+  var {data: inGroup} = await sb.from('gerama_group_members').select('id, group_id').eq('user_email', email).maybeSingle();
+  if(inGroup){ alert(userName+' is already in a group. Use the Move (⇄) button to change their group.'); return; }
+
+  var {error} = await sb.from('gerama_group_members').insert({
+    group_id: groupId,
+    user_email: email,
+    user_name: userName,
+    role: 'member',
+    assigned_at: new Date().toISOString()
+  });
+
+  if(error){ alert('Error: '+error.message); return; }
+
+  // Also update user_profiles with group info
+  try{
+    var group = (window._geramaGroups||[]).find(function(g){ return g.id === groupId; });
+    if(group){
+      await sb.from('user_profiles').update({ group_name: group.name }).eq('email', email);
+    }
+  }catch(e){}
+
+  window.logActivity('Added '+userName+' to group');
+  window.loadGroups();
+};
+
+window.removeMember = async function(memberId){
+  if(!confirm('Remove this member from their group?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+
+  // Find member email to clear group from user_profiles
+  var mem = (window._allGroupMembers||[]).find(function(m){ return m.id === memberId; });
+
+  var {error} = await sb.from('gerama_group_members').delete().eq('id', memberId);
+  if(error){ alert('Error: '+error.message); return; }
+
+  // Clear group_name from user_profiles
+  if(mem && mem.user_email){
+    try{ await sb.from('user_profiles').update({ group_name: null }).eq('email', mem.user_email); }catch(e){}
+  }
+
+  window.logActivity('Removed member from group');
+  window.loadGroups();
+};
+
+window.setMemberRole = async function(memberId, role){
+  var sb = window.geramaSupabase; if(!sb) return;
+  var {error} = await sb.from('gerama_group_members').update({ role: role }).eq('id', memberId);
+  if(error){ alert('Error: '+error.message); return; }
+  window.logActivity('Updated member role to: '+role);
+  window.loadGroups();
+};
+
+window.openMoveModal = function(memberId, memberName, currentGroupId){
+  var modal = document.getElementById('moveGroupModal');
+  var targetSelect = document.getElementById('moveTargetGroup');
+  var nameEl = document.getElementById('moveMemberName');
+  if(!modal || !targetSelect) return;
+
+  window._movingMemberId = memberId;
+  window._movingCurrentGroup = currentGroupId;
+
+  if(nameEl) nameEl.textContent = 'Moving: ' + memberName;
+
+  // Populate group options (exclude current)
+  targetSelect.innerHTML = (window._geramaGroups||[])
+    .filter(function(g){ return g.id !== currentGroupId; })
+    .map(function(g){ return '<option value="'+window.escAttr(g.id)+'">'+window.escHtml(g.name)+'</option>'; })
+    .join('');
+
+  modal.style.display = 'flex';
+};
+
+window.confirmMove = async function(){
+  var targetGroupId = document.getElementById('moveTargetGroup').value;
+  if(!targetGroupId || !window._movingMemberId) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+
+  var {error} = await sb.from('gerama_group_members').update({ group_id: targetGroupId, assigned_at: new Date().toISOString() }).eq('id', window._movingMemberId);
+  if(error){ alert('Error: '+error.message); return; }
+
+  // Update user_profiles.group_name
+  try{
+    var mem = (window._allGroupMembers||[]).find(function(m){ return m.id === window._movingMemberId; });
+    var group = (window._geramaGroups||[]).find(function(g){ return g.id === targetGroupId; });
+    if(mem && group){
+      await sb.from('user_profiles').update({ group_name: group.name }).eq('email', mem.user_email);
+    }
+  }catch(e){}
+
+  document.getElementById('moveGroupModal').style.display = 'none';
+  window.logActivity('Moved member to '+((window._geramaGroups||[]).find(function(g){return g.id===targetGroupId;})||{}).name);
+  window.loadGroups();
+};
+
+window.randomlyAssignAll = async function(){
+  var sb = window.geramaSupabase; if(!sb) return;
+  var allUsers = window._allUsers || [];
+  var allMembers = window._allGroupMembers || [];
+  var groups = window._geramaGroups || [];
+  if(!groups.length){ alert('No groups found. Please refresh.'); return; }
+
+  // Find unassigned users
+  var assignedEmails = allMembers.map(function(m){ return m.user_email; });
+  var unassigned = allUsers.filter(function(u){ return assignedEmails.indexOf(u.email) === -1; });
+
+  if(!unassigned.length){ alert('All registered users are already assigned to groups.'); return; }
+
+  if(!confirm('Randomly assign '+unassigned.length+' unassigned member'+(unassigned.length!==1?'s':'')+' to groups (max 30 per group)?')) return;
+
+  // Shuffle unassigned
+  var shuffled = unassigned.slice().sort(function(){ return Math.random() - 0.5; });
+
+  // Calculate current counts per group
+  var groupCounts = {};
+  groups.forEach(function(g){ groupCounts[g.id] = allMembers.filter(function(m){ return m.group_id===g.id; }).length; });
+
+  var assigned = 0, errors = 0;
+  for(var i=0;i<shuffled.length;i++){
+    var user = shuffled[i];
+    // Find group with least members and < 30
+    var targetGroup = groups.reduce(function(best, g){
+      if(groupCounts[g.id] >= 30) return best;
+      if(!best) return g;
+      return groupCounts[g.id] < groupCounts[best.id] ? g : best;
+    }, null);
+
+    if(!targetGroup){ alert('All groups are full (30 members each). Could not assign all members.'); break; }
+
+    try{
+      await sb.from('gerama_group_members').insert({
+        group_id: targetGroup.id,
+        user_email: user.email,
+        user_name: user.full_name || user.email,
+        role: 'member',
+        assigned_at: new Date().toISOString()
+      });
+      // Update user_profiles
+      try{ await sb.from('user_profiles').update({ group_name: targetGroup.name }).eq('email', user.email); }catch(e){}
+      groupCounts[targetGroup.id]++;
+      assigned++;
+    }catch(e){ errors++; }
+  }
+
+  window.logActivity('Auto-assigned '+assigned+' members to groups');
+  alert('✅ Done! '+assigned+' member'+(assigned!==1?'s':'')+' assigned.'+(errors?' ('+errors+' failed)':''));
+  window.loadGroups();
+};
+
+window.downloadGroupsCSV = function(){
+  var groups = window._geramaGroups || [];
+  var members = window._allGroupMembers || [];
+  if(!members.length){ alert('No members assigned yet.'); return; }
+
+  var groupMap = {};
+  groups.forEach(function(g){ groupMap[g.id] = g.name; });
+
+  var headers = ['Group','Member Name','Email','Role','Assigned At'];
+  var rows = members.map(function(m){
+    return [
+      groupMap[m.group_id]||'—',
+      m.user_name||'', m.user_email||'',
+      m.role||'member',
+      m.assigned_at ? new Date(m.assigned_at).toLocaleDateString('en-GB') : ''
+    ].map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
+  });
+
+  var csv = [headers.join(',')].concat(rows).join('\n');
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url; a.download='GERAMA_Groups_'+new Date().toISOString().split('T')[0]+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  window.logActivity('Downloaded groups CSV');
 };

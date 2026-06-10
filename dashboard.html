@@ -67,6 +67,7 @@
                 <img id="profileImg" src="https://via.placeholder.com/120?text=Avatar" alt="Profile">
                 <h3 id="displayName">Not set</h3>
                 <p id="displayProgram">Program: --</p>
+                <p id="displayGroup" style="display:none;font-size:0.88rem;font-weight:700;margin-top:0.3rem;"></p>
                 <button id="editBtn" class="btn btn-outline">Edit Profile</button>
                 <div id="editForm" class="edit-form" style="display: none;">
                     <input type="file" id="profileUpload" accept="image/*">
@@ -91,6 +92,11 @@
                     <div class="stat-number" id="uploadCount">0</div>
                     <p>Contributions Pending</p>
                 </div>
+                <!-- Group badge card -->
+                <div class="stat-card" id="groupStatCard" style="display:none;text-align:left;padding:1.2rem 1.5rem;">
+                    <div style="font-size:0.82rem;font-weight:700;color:#1B5E20;margin-bottom:0.4rem;"><i class="fas fa-users"></i> My Study Group</div>
+                    <div id="groupStatName" style="font-size:1.2rem;font-weight:800;color:#1e2a3e;"></div>
+                </div>
                 <div class="stat-card" id="quizStatCard" style="display:none;">
                     <div class="stat-number" id="quizCount" style="color:#6366f1;">0</div>
                     <p>Quizzes Completed</p>
@@ -98,6 +104,17 @@
                 <div class="stat-card" id="quizHistoryCard" style="display:none;text-align:left;">
                     <h4 style="font-size:0.9rem;font-weight:700;color:#1e2a3e;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;"><span style="background:#ede9fe;color:#5b21b6;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;">🧠</span> Quizzes Taken</h4>
                     <div id="quizHistoryList" style="display:flex;flex-direction:column;gap:0.5rem;"></div>
+                </div>
+                <!-- Grades card -->
+                <div class="stat-card" style="text-align:left;padding:1.2rem 1.5rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;">
+                        <h4 style="font-size:0.9rem;font-weight:700;color:#1e2a3e;margin:0;display:flex;align-items:center;gap:0.5rem;">
+                            <span style="background:#d1fae5;color:#065f46;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;">📝</span>
+                            My Grades
+                            <span id="gradeCount" style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:800;padding:0.1rem 0.5rem;border-radius:10px;"></span>
+                        </h4>
+                    </div>
+                    <div id="gradesSection"><p style="color:#9ca3af;font-size:0.82rem;text-align:center;padding:0.8rem 0;"><i class="fas fa-spinner fa-spin"></i> Loading grades...</p></div>
                 </div>
                 <div class="stat-card">
                     <a href="resources.html" class="btn" style="width:100%;">Browse Resource Library →</a>
@@ -146,7 +163,7 @@
 
     <script src="js/main.js"></script>
     <script>
-        // Profile management
+        // ── Profile management ──
         let userProfile = JSON.parse(localStorage.getItem('gerama_profile')) || { name: '', program: '', img: '' };
         function updateUI() {
             document.getElementById('displayName').innerText = userProfile.name || 'Not set';
@@ -154,6 +171,13 @@
             if (userProfile.img) document.getElementById('profileImg').src = userProfile.img;
             document.getElementById('fullName').value = userProfile.name;
             document.getElementById('programStudy').value = userProfile.program;
+
+            // Show group badge if available
+            var groupEl = document.getElementById('displayGroup');
+            if(userProfile.group_name && groupEl){
+                groupEl.style.display = 'block';
+                groupEl.innerHTML = '<span style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;padding:0.3rem 0.9rem;border-radius:20px;font-size:0.82rem;font-weight:700;"><i class="fas fa-users" style="margin-right:0.35rem;"></i>' + escDash(userProfile.group_name) + '</span>';
+            }
         }
         updateUI();
 
@@ -184,13 +208,13 @@
             }
         });
 
-        // Stats
+        // ── Stats from localStorage ──
         let downloads = localStorage.getItem('gerama_downloads') || 0;
         let uploads = JSON.parse(localStorage.getItem('gerama_uploads'))?.length || 0;
         document.getElementById('downloadCount').innerText = downloads;
         document.getElementById('uploadCount').innerText = uploads;
 
-        // Quiz history from localStorage
+        // ── Quiz history from localStorage ──
         var quizDone = JSON.parse(localStorage.getItem('gerama_quizzes_done') || '{}');
         var quizKeys = Object.keys(quizDone);
         if(quizKeys.length > 0){
@@ -209,7 +233,157 @@
             }).join('');
         }
 
+        // ── Load grades and group from Supabase ──
+        async function loadStudentData(){
+            var sb = window.geramaSupabase;
+            if(!sb){ setTimeout(loadStudentData, 500); return; }
+
+            // Get student email from Supabase session (most reliable)
+            var studentEmail = null;
+            try{
+                var sessionRes = await sb.auth.getSession();
+                var session = sessionRes && sessionRes.data && sessionRes.data.session;
+                if(session && session.user) studentEmail = session.user.email;
+            }catch(e){}
+
+            // Fallback to localStorage profile
+            if(!studentEmail){
+                var prof = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+                studentEmail = prof.email || null;
+            }
+
+            if(!studentEmail) return; // Not logged in — nothing to load
+
+            // ── Load grades from Supabase ──
+            try{
+                var {data: grades, error: gErr} = await sb
+                    .from('student_grades')
+                    .select('*')
+                    .eq('student_email', studentEmail)
+                    .order('graded_at', {ascending: false});
+
+                if(!gErr && grades && grades.length){
+                    renderGrades(grades);
+                } else {
+                    // Fallback: look in assignment_submissions directly
+                    var {data: subs} = await sb
+                        .from('assignment_submissions')
+                        .select('assignment_title, score, graded_at, assignment_id')
+                        .eq('student_email', studentEmail)
+                        .not('score', 'is', null)
+                        .order('graded_at', {ascending: false});
+                    if(subs && subs.length) renderGrades(subs);
+                    else {
+                        var gradeSec = document.getElementById('gradesSection');
+                        if(gradeSec) gradeSec.innerHTML = '<p style="color:#9ca3af;text-align:center;font-size:0.88rem;padding:1rem 0;">No graded assignments yet.</p>';
+                    }
+                }
+            }catch(e){ console.warn('Grades load error:', e); }
+
+            // ── Load group from Supabase ──
+            try{
+                // First try: check gerama_group_members with join
+                var groupMem = null;
+                try{
+                    var joinRes = await sb
+                        .from('gerama_group_members')
+                        .select('group_id, role, gerama_groups(name, color)')
+                        .eq('user_email', studentEmail)
+                        .maybeSingle();
+                    if(joinRes && joinRes.data) groupMem = joinRes.data;
+                }catch(e){}
+
+                // Fallback: two-step query (no join)
+                if(!groupMem || !groupMem.gerama_groups){
+                    var memRes = await sb.from('gerama_group_members').select('group_id, role').eq('user_email', studentEmail).maybeSingle();
+                    if(memRes && memRes.data && memRes.data.group_id){
+                        var grpRes = await sb.from('gerama_groups').select('name, color').eq('id', memRes.data.group_id).maybeSingle();
+                        if(grpRes && grpRes.data){
+                            groupMem = { group_id: memRes.data.group_id, role: memRes.data.role, gerama_groups: grpRes.data };
+                        }
+                    }
+                }
+
+                // Also try from user_profiles.group_name as last fallback
+                if(!groupMem){
+                    var profRes = await sb.from('user_profiles').select('group_name').eq('email', studentEmail).maybeSingle();
+                    if(profRes && profRes.data && profRes.data.group_name){
+                        groupMem = { role: 'member', gerama_groups: { name: profRes.data.group_name, color: '#1B5E20' } };
+                    }
+                }
+
+                if(groupMem && groupMem.gerama_groups){
+                    var gName = groupMem.gerama_groups.name;
+                    var gColor = groupMem.gerama_groups.color || '#1B5E20';
+                    var isTutor = groupMem.role === 'tutor';
+                    userProfile.group_name = gName;
+                    localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
+
+                    var groupEl = document.getElementById('displayGroup');
+                    if(groupEl){
+                        groupEl.style.display = 'block';
+                        groupEl.innerHTML =
+                            '<span style="background:'+gColor+';color:white;padding:0.3rem 0.9rem;border-radius:20px;font-size:0.82rem;font-weight:700;">'+
+                                '<i class="fas fa-users" style="margin-right:0.35rem;"></i>'+ escDash(gName)+
+                                (isTutor ? ' &nbsp;·&nbsp; <i class="fas fa-chalkboard-teacher"></i> Tutor' : '')+
+                            '</span>';
+                    }
+
+                    // Also show in profile card under stats
+                    var groupStatEl = document.getElementById('groupStatCard');
+                    if(groupStatEl){
+                        groupStatEl.style.display = 'block';
+                        groupStatEl.querySelector('#groupStatName').textContent = gName;
+                    }
+                }
+            }catch(e){ console.warn('Group load error:', e); }
+        }
+
+        function renderGrades(grades){
+            var sec = document.getElementById('gradesSection');
+            if(!sec) return;
+
+            // Group by course if available
+            var byCourse = {};
+            grades.forEach(function(g){
+                var c = g.course || 'Assignments';
+                if(!byCourse[c]) byCourse[c] = [];
+                byCourse[c].push(g);
+            });
+
+            var html = '';
+            Object.keys(byCourse).forEach(function(course){
+                var courseGrades = byCourse[course];
+                html += '<div style="margin-bottom:0.8rem;">'+
+                    '<div style="font-size:0.78rem;font-weight:700;color:#1B5E20;background:#e8f5e9;padding:0.25rem 0.7rem;border-radius:10px;display:inline-block;margin-bottom:0.5rem;">'+escDash(course)+'</div>';
+                courseGrades.forEach(function(g){
+                    var score = g.score !== null && g.score !== undefined ? g.score : '—';
+                    var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+                    var scoreColor = (score !== '—') ? '#059669' : '#9ca3af';
+                    html += '<div style="display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.7rem;background:#f8fafc;border-radius:10px;border-left:3px solid #c8e6c9;margin-bottom:0.3rem;">'+
+                        '<i class="fas fa-file-alt" style="color:#1B5E20;font-size:0.85rem;flex-shrink:0;"></i>'+
+                        '<div style="flex:1;min-width:0;">'+
+                            '<div style="font-size:0.85rem;font-weight:600;color:#1e2a3e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+escDash(g.assignment_title||'Assignment')+'</div>'+
+                            (dt?'<div style="font-size:0.7rem;color:#9ca3af;">Graded '+dt+'</div>':'')+
+                        '</div>'+
+                        '<div style="font-size:1.05rem;font-weight:800;color:'+scoreColor+';flex-shrink:0;">'+escDash(String(score))+'</div>'+
+                    '</div>';
+                });
+                html += '</div>';
+            });
+
+            sec.innerHTML = html;
+            var countEl = document.getElementById('gradeCount');
+            if(countEl) countEl.textContent = grades.length;
+        }
+
         function escDash(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        // Kick off Supabase data load
+        (function waitAndLoad(){
+            if(typeof window.geramaSupabase !== 'undefined') loadStudentData();
+            else setTimeout(waitAndLoad, 200);
+        })();
     </script>
 </body>
 </html>
