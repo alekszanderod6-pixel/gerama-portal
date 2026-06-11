@@ -19,14 +19,17 @@
 <script src="js/supabase-config.js"></script>
 <style>
 :root{
-  --primary:#1B5E20;--sky:#0ea5e9;--sky-dark:#0369a1;
+  --primary:#1B5E20;
+  --sky:#0ea5e9;--sky-dark:#0369a1;--sky-light:#e0f2fe;
   --gold:#FFC107;--text:#1e2a3e;--muted:#6b7280;
-  --light:#f0f9ff;--white:#fff;
-  --card-shadow:0 2px 12px rgba(0,0,0,0.08);
+  --bg:#f0f9ff;--white:#fff;
+  --radius:18px;--radius-sm:12px;
+  --shadow:0 2px 14px rgba(3,105,161,0.09);
+  --shadow-md:0 6px 24px rgba(3,105,161,0.14);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{overflow-x:hidden;scroll-behavior:smooth;}
-body{font-family:'Inter',sans-serif;background:#f0f9ff;color:var(--text);overflow-x:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
 
 /* ══ HEADER ══ */
 .site-header{position:sticky;top:0;z-index:1000;background:linear-gradient(135deg,#0a2f3f,#0369a1);backdrop-filter:blur(12px);padding:0 4%;display:flex;align-items:center;justify-content:space-between;height:60px;box-shadow:0 2px 20px rgba(3,105,161,0.3);}
@@ -231,6 +234,56 @@ body{font-family:'Inter',sans-serif;background:#f0f9ff;color:var(--text);overflo
 .site-bnav-item.active{color:var(--sky-dark);}
 @media(max-width:640px){.site-bottom-nav{display:flex;}body{padding-bottom:60px;}}
 
+/* ══ STUDY GROUP CARDS ══ */
+.study-group-card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(3,105,161,0.08);border:1px solid #e0f2fe;margin-bottom:1rem;}
+.sgc-header{padding:0.9rem 1.1rem;display:flex;align-items:center;gap:0.7rem;cursor:pointer;user-select:none;transition:background 0.15s;}
+.sgc-header:hover{background:#f0f9ff;}
+.sgc-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.sgc-title{font-size:0.95rem;font-weight:800;flex:1;}
+.sgc-count{font-size:0.72rem;font-weight:700;padding:0.15rem 0.55rem;border-radius:12px;white-space:nowrap;}
+.sgc-body{padding:0.8rem 1rem;border-top:1px solid #f1f5f9;display:none;}
+.sgc-body.open{display:block;}
+.sgc-member-row{display:flex;align-items:center;gap:0.6rem;padding:0.4rem 0.3rem;border-radius:8px;transition:background 0.1s;}
+.sgc-member-row:hover{background:#f0f9ff;}
+.sgc-member-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:800;color:white;flex-shrink:0;overflow:hidden;}
+.sgc-member-av img{width:100%;height:100%;object-fit:cover;}
+.sgc-member-name{font-size:0.85rem;font-weight:600;color:var(--text);flex:1;}
+.sgc-member-role{font-size:0.65rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:8px;}
+.sgc-member-dm{background:none;border:1.5px solid #bae6fd;color:#0369a1;padding:0.2rem 0.6rem;border-radius:12px;font-size:0.68rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.sgc-member-dm:hover{background:#e0f2fe;}
+.my-group-banner{background:linear-gradient(135deg,#0a2f3f,#0369a1);border-radius:16px;padding:1rem 1.2rem;margin:0 4% 1rem;color:white;display:flex;align-items:center;gap:0.8rem;}
+.my-group-banner i{font-size:1.5rem;flex-shrink:0;}
+.my-group-banner .mgb-title{font-size:0.9rem;font-weight:800;}
+.my-group-banner .mgb-sub{font-size:0.75rem;opacity:0.8;margin-top:0.15rem;}
+
+/* ══ MOBILE RESPONSIVE FIXES ══ */
+@media(max-width:640px){
+  .people-grid{grid-template-columns:repeat(2,1fr);gap:0.6rem;padding:0.6rem 3%;}
+  .people-card{padding:0.9rem 0.6rem;}
+  .people-card .pc-avatar{width:52px;height:52px;}
+  .people-header{padding:0.7rem 3% 0.3rem;flex-direction:column;align-items:flex-start;}
+  .people-search{max-width:100%;width:100%;}
+  #memberFilters{padding:0 3% 0.5rem;}
+  .chat-layout{flex-direction:column;height:auto;}
+  .chat-sidebar{width:100%;height:auto;max-height:260px;border-right:none;border-bottom:1px solid #e0f2fe;}
+  .chat-main{height:calc(100vh - 380px);min-height:280px;}
+  .groups-list{padding:0.6rem 3%;}
+  .study-group-card{margin-bottom:0.8rem;}
+  .my-group-banner{margin:0 3% 0.8rem;}
+  .call-btns{grid-template-columns:repeat(2,1fr);gap:0.6rem;}
+  .call-hero{padding:1.5rem 1.2rem;}
+  .call-hero h2{font-size:1.1rem;}
+  .call-launch-area{padding:1rem 3%;}
+  .reels-feed-grid{grid-template-columns:1fr;padding:0.6rem 3%;}
+  .sec-title{padding:0.7rem 3% 0.3rem;}
+  .stories-bar{padding:0.6rem 3%;}
+}
+@media(max-width:380px){
+  .people-grid{grid-template-columns:repeat(2,1fr);gap:0.4rem;padding:0.5rem 2%;}
+  .ctab span{font-size:0.6rem;}
+  .ctab{min-width:54px;padding:0.55rem 0.25rem 0.45rem;}
+}
+
 /* ══ MISC ══ */
 .empty-state{text-align:center;padding:3rem 1rem;color:var(--muted);}
 .empty-state i{font-size:3rem;margin-bottom:1rem;display:block;opacity:0.3;}
@@ -265,32 +318,7 @@ body{font-family:'Inter',sans-serif;background:#f0f9ff;color:var(--text);overflo
 </header>
 
 <!-- ══ STATUS STORIES BAR ══ -->
-<div id="setupBanner" style="background:linear-gradient(135deg,#0a2f3f,#0369a1);padding:0.7rem 4%;display:flex;align-items:center;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;">
-  <div style="display:flex;align-items:center;gap:0.6rem;flex:1;min-width:0;">
-    <i class="fas fa-database" style="color:#7dd3fc;flex-shrink:0;"></i>
-    <span style="color:white;font-size:0.78rem;font-weight:600;">First-time setup: Run the Connect SQL in your Supabase editor to enable chats, statuses &amp; groups.</span>
-  </div>
-  <div style="display:flex;gap:0.5rem;flex-shrink:0;">
-    <button onclick="showSetupSQL()" style="background:#0ea5e9;color:white;border:none;padding:0.35rem 0.9rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-code"></i> View SQL</button>
-    <button onclick="document.getElementById('setupBanner').style.display='none'" style="background:rgba(255,255,255,0.15);color:white;border:none;padding:0.35rem 0.7rem;border-radius:20px;font-size:0.75rem;cursor:pointer;">✕</button>
-  </div>
-</div>
-
-<!-- SQL Modal -->
-<div id="setupSQLModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9000;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto;">
-  <div style="background:#0f172a;border-radius:20px;padding:1.8rem;width:100%;max-width:640px;margin:1rem auto;box-shadow:0 30px 80px rgba(0,0,0,0.6);border:1px solid rgba(14,165,233,0.2);">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
-      <div style="color:white;font-size:0.95rem;font-weight:800;"><i class="fas fa-database" style="color:#0ea5e9;margin-right:0.5rem;"></i>GERAMA Connect — Supabase Setup SQL</div>
-      <button onclick="document.getElementById('setupSQLModal').style.display='none'" style="background:rgba(255,255,255,0.1);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:1rem;">✕</button>
-    </div>
-    <p style="color:rgba(255,255,255,0.5);font-size:0.78rem;margin-bottom:1rem;line-height:1.6;">Run this once in your <strong style="color:#7dd3fc;">Supabase → SQL Editor</strong>. It creates the 3 tables needed for GERAMA Connect.</p>
-    <pre id="setupSQLText" style="background:#020f1a;color:#7dd3fc;padding:1.2rem;border-radius:12px;font-size:0.72rem;line-height:1.7;overflow-x:auto;white-space:pre-wrap;border:1px solid rgba(14,165,233,0.15);max-height:50vh;overflow-y:auto;"></pre>
-    <button onclick="copySetupSQL()" style="margin-top:0.8rem;background:linear-gradient(135deg,#0ea5e9,#0369a1);color:white;border:none;padding:0.55rem 1.2rem;border-radius:12px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-copy"></i> Copy SQL</button>
-  </div>
-</div>
-
 <div class="stories-bar" id="storiesBar">
-  <!-- Add your status -->
   <div class="story-item" onclick="openPostStatus()">
     <div class="story-ring add-new" style="position:relative;">
       <div class="story-avatar" id="myStoryAvatar">+</div>
@@ -298,7 +326,6 @@ body{font-family:'Inter',sans-serif;background:#f0f9ff;color:var(--text);overflo
     </div>
     <span class="story-name">My Status</span>
   </div>
-  <!-- Dynamic stories loaded by JS -->
 </div>
 
 <!-- ══ TABS ══ -->
@@ -379,12 +406,28 @@ body{font-family:'Inter',sans-serif;background:#f0f9ff;color:var(--text);overflo
 </div>
 
 <!-- ══════════════════════════════════════ -->
-<!-- TAB: GROUP CHATS                      -->
+<!-- TAB: STUDY GROUPS                     -->
 <!-- ══════════════════════════════════════ -->
 <div class="connect-section" id="sec-groups">
-  <div class="sec-title">
-    <span>💬 Group Chats</span>
-    <a href="#" onclick="openCreateGroupChat();return false;"><i class="fas fa-plus"></i> New Group</a>
+  <div class="sec-title" style="padding:0.8rem 4% 0.5rem;">
+    <span>� L100 Study Groups</span>
+    <span id="groupsTotalBadge" style="font-size:0.72rem;color:var(--muted);font-weight:600;"></span>
+  </div>
+  <!-- My group banner (shown when user is in a group) -->
+  <div id="myGroupBanner" style="display:none;" class="my-group-banner">
+    <i class="fas fa-users"></i>
+    <div>
+      <div class="mgb-title" id="myGroupName">Your Group</div>
+      <div class="mgb-sub" id="myGroupRole">Member</div>
+    </div>
+    <button onclick="scrollToMyGroup()" style="margin-left:auto;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;">
+      <i class="fas fa-arrow-down"></i> Show
+    </button>
+  </div>
+  <!-- Not L100 notice (shown for non-L100 users) -->
+  <div id="notL100Notice" style="display:none;margin:0 4% 1rem;background:#fef3c7;border:1px solid #fde68a;border-radius:14px;padding:1rem 1.2rem;font-size:0.85rem;color:#92400e;">
+    <i class="fas fa-info-circle" style="margin-right:0.4rem;"></i>
+    <strong>Study Groups are currently only available for L100 students.</strong> Groups for higher levels will be set up soon!
   </div>
   <div class="groups-list" id="groupChatsList">
     <div style="text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem;">
@@ -462,7 +505,7 @@ body{font-family:'Inter',sans-serif;background:#f0f9ff;color:var(--text);overflo
 <nav class="site-bottom-nav">
   <button class="site-bnav-item" onclick="showConnectTab('people');setActiveBnav(this)"><i class="fas fa-users"></i><span>Members</span></button>
   <button class="site-bnav-item active" onclick="showConnectTab('dms');setActiveBnav(this)"><i class="fas fa-comment-dots"></i><span>Chats</span></button>
-  <button class="site-bnav-item" onclick="showConnectTab('groups');setActiveBnav(this)"><i class="fas fa-users-cog"></i><span>Groups</span></button>
+  <button class="site-bnav-item" onclick="showConnectTab('groups');setActiveBnav(this)"><i class="fas fa-users-cog"></i><span>Study Groups</span></button>
   <button class="site-bnav-item" onclick="showConnectTab('reels');setActiveBnav(this)"><i class="fas fa-film"></i><span>Reels</span></button>
   <button class="site-bnav-item" onclick="showConnectTab('calls');setActiveBnav(this)"><i class="fas fa-video"></i><span>Calls</span></button>
 </nav>
@@ -561,22 +604,6 @@ body{font-family:'Inter',sans-serif;background:#f0f9ff;color:var(--text);overflo
     <div id="reelUploadMsg" style="font-size:0.82rem;min-height:1rem;margin-bottom:0.5rem;color:#0369a1;"></div>
     <button id="reelSubmitBtn" onclick="submitReel()" style="width:100%;background:linear-gradient(135deg,#0ea5e9,#0369a1);color:white;border:none;padding:0.75rem;border-radius:16px;font-size:0.92rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;">
       <i class="fas fa-upload"></i> Post Reel
-    </button>
-  </div>
-</div>
-
-<!-- ══ CREATE GROUP CHAT MODAL ══ -->
-<div id="createGroupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:5004;align-items:center;justify-content:center;padding:1rem;">
-  <div style="background:white;border-radius:24px;padding:1.8rem;width:100%;max-width:400px;box-shadow:0 25px 60px rgba(0,0,0,0.3);">
-    <div style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;">
-      <span>👥 Create Group Chat</span>
-      <button onclick="closeCreateGroupChat()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;">✕</button>
-    </div>
-    <input type="text" id="newGroupName" placeholder="Group name (e.g. Maths Study Crew)" style="width:100%;border:2px solid #e0f2fe;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;margin-bottom:0.8rem;">
-    <input type="text" id="newGroupEmoji" placeholder="Emoji icon (e.g. 📚)" style="width:100%;border:2px solid #e0f2fe;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;margin-bottom:0.8rem;">
-    <div id="createGroupMsg" style="font-size:0.82rem;min-height:1rem;margin-bottom:0.5rem;color:#0369a1;"></div>
-    <button onclick="createGroupChat()" style="width:100%;background:linear-gradient(135deg,#0ea5e9,#0369a1);color:white;border:none;padding:0.75rem;border-radius:16px;font-size:0.92rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;">
-      <i class="fas fa-plus"></i> Create Group
     </button>
   </div>
 </div>
@@ -974,77 +1001,162 @@ function filterDMs(q){
 }
 
 // ══════════════════════════════════════════════════════
-// GROUP CHATS
+// STUDY GROUPS (L100 only, from gerama_groups/gerama_group_members)
 // ══════════════════════════════════════════════════════
 async function loadGroupChats(){
   if(!_sb) return;
   var list=document.getElementById('groupChatsList'); if(!list) return;
-  list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-spinner fa-spin"></i></div>';
-  var {data}=await _sb.from('connect_groups').select('*').order('created_at',{ascending:false});
-  data=data||[];
-  if(!data.length){list.innerHTML='<div class="empty-state"><i class="fas fa-users-cog"></i><p>No group chats yet.<br>Create the first one!</p></div>';return;}
-  var colors=['#0ea5e9','#1B5E20','#7c3aed','#f59e0b','#dc2626'];
-  list.innerHTML=data.map(function(g,i){
-    var color=g.color||colors[i%colors.length];
-    return '<div class="group-chat-card" onclick="openGroupChat(\''+esc(g.id)+'\',\''+esc(g.name)+'\')">'+
-      '<div class="gcc-icon" style="background:'+color+'22;color:'+color+';">'+esc(g.emoji||'💬')+'</div>'+
-      '<div class="gcc-info"><div class="gcc-name">'+esc(g.name)+'</div><div class="gcc-preview">'+esc(g.last_message||'Tap to join the conversation')+'</div></div>'+
-      '<div class="gcc-badge" style="background:'+color+'22;color:'+color+';">'+esc(g.member_count||0)+' members</div>'+
-    '</div>';
-  }).join('');
+  var banner=document.getElementById('myGroupBanner');
+  var noticeEl=document.getElementById('notL100Notice');
+  var totalBadge=document.getElementById('groupsTotalBadge');
+  list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading groups…</div>';
+
+  try {
+    // Load groups
+    var {data:groups}=await _sb.from('gerama_groups').select('*').order('name');
+    groups=groups||[];
+
+    if(!groups.length){
+      list.innerHTML='<div class="empty-state"><i class="fas fa-users-cog"></i><p>No study groups set up yet.<br>Check back soon!</p></div>';
+      return;
+    }
+
+    // Load ALL group members
+    var {data:allMems}=await _sb.from('gerama_group_members').select('*');
+    allMems=allMems||[];
+
+    // ── DEDUPLICATE: if a user_email appears more than once, keep only the first (oldest assigned_at) ──
+    var seenEmails={};
+    var dedupedMems=[];
+    allMems.forEach(function(m){
+      if(!m.user_email) return;
+      var emailKey=m.user_email.toLowerCase().trim();
+      if(seenEmails[emailKey]) return; // skip duplicates
+      seenEmails[emailKey]=true;
+      dedupedMems.push(m);
+    });
+
+    // Load user profiles to get level info (and images)
+    var {data:profiles}=await _sb.from('user_profiles').select('email,full_name,level,program,img_url');
+    profiles=profiles||[];
+    var profMap={};
+    profiles.forEach(function(p){ profMap[(p.email||'').toLowerCase().trim()]=p; });
+
+    // Filter members to only L100 users
+    var l100Mems=dedupedMems.filter(function(m){
+      var key=(m.user_email||'').toLowerCase().trim();
+      var prof=profMap[key];
+      var level=prof?prof.level:'';
+      return level==='L100';
+    });
+
+    // Find current user's group
+    var myEmail=(_me.email||'').toLowerCase().trim();
+    var myMem=l100Mems.find(function(m){ return (m.user_email||'').toLowerCase().trim()===myEmail; });
+    var myGroupId=myMem?myMem.group_id:null;
+
+    // Show/hide L100 notice
+    var myProf=profMap[myEmail];
+    var myLevel=myProf?myProf.level:_me.level;
+    if(noticeEl){
+      noticeEl.style.display=(myLevel&&myLevel!=='L100')?'block':'none';
+    }
+
+    // Show my group banner
+    if(banner){
+      if(myMem&&myGroupId){
+        var myGroup=groups.find(function(g){return g.id===myGroupId;});
+        if(myGroup){
+          var nameEl=document.getElementById('myGroupName');
+          var roleEl=document.getElementById('myGroupRole');
+          if(nameEl) nameEl.textContent=myGroup.name;
+          if(roleEl) roleEl.textContent=myMem.role==='tutor'?'🎓 Tutor':'👤 Member';
+          banner.style.display='flex';
+          // Apply group color to banner
+          if(myGroup.color) banner.style.background='linear-gradient(135deg,'+myGroup.color+'dd,'+myGroup.color+')';
+        }
+      } else {
+        banner.style.display='none';
+      }
+    }
+
+    // Total stats
+    var totalAssigned=l100Mems.length;
+    if(totalBadge) totalBadge.textContent=totalAssigned+' L100 member'+(totalAssigned!==1?'s':'')+' assigned';
+
+    // Render group cards
+    var colors=['#1B5E20','#1565C0','#6A1B9A','#E65100','#AD1457','#00695C'];
+    list.innerHTML=groups.map(function(g,i){
+      var color=g.color||colors[i%colors.length];
+      var mems=l100Mems.filter(function(m){return m.group_id===g.id;});
+      // Sort: tutors first, then alphabetical
+      var tutors=mems.filter(function(m){return m.role==='tutor';});
+      var regulars=mems.filter(function(m){return m.role!=='tutor';});
+      tutors.sort(function(a,b){return(a.user_name||'').localeCompare(b.user_name||'');});
+      regulars.sort(function(a,b){return(a.user_name||'').localeCompare(b.user_name||'');});
+      var sorted=tutors.concat(regulars);
+
+      var isMyGroup=g.id===myGroupId;
+      var accordionId='sgc-'+g.id.replace(/-/g,'');
+
+      var memberRows=sorted.map(function(m){
+        var key=(m.user_email||'').toLowerCase().trim();
+        var prof=profMap[key]||{};
+        var av=prof.img_url
+          ?'<img src="'+esc(prof.img_url)+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+          :'<span style="font-size:0.78rem;font-weight:800;">'+esc((m.user_name||'?').charAt(0).toUpperCase())+'</span>';
+        var isTutor=m.role==='tutor';
+        var isMe=(key===myEmail);
+        return '<div class="sgc-member-row" style="'+(isMe?'background:#e0f2fe;border-radius:8px;':'')+'">'+
+          '<div class="sgc-member-av" style="background:'+color+';">'+av+'</div>'+
+          '<div class="sgc-member-name">'+esc(m.user_name||prof.full_name||m.user_email||'?')+(isMe?' <span style="font-size:0.62rem;color:#0369a1;font-weight:700;">(you)</span>':'')+'</div>'+
+          (isTutor?'<span class="sgc-member-role" style="background:'+color+'22;color:'+color+';">Tutor</span>':'')+
+          (!isMe&&_me.email?'<button class="sgc-member-dm" onclick="openDMWith(\''+esc(m.user_email)+'\',\''+esc(m.user_name||m.user_email)+'\');showConnectTab(\'dms\')">Message</button>':'')+
+        '</div>';
+      }).join('');
+
+      return '<div class="study-group-card" id="sgcard-'+esc(g.id)+'" style="'+(isMyGroup?'border-color:'+color+';border-width:2px;':'')+'">'+
+        '<div class="sgc-header" onclick="toggleStudyGroup(\''+accordionId+'\')" style="'+(isMyGroup?'background:'+color+'11;':'')+'">'+
+          '<div class="sgc-dot" style="background:'+color+';"></div>'+
+          '<div style="flex:1;">'+
+            '<div class="sgc-title" style="color:'+color+';">'+esc(g.name)+(isMyGroup?' <span style="font-size:0.65rem;background:'+color+';color:white;padding:0.1rem 0.4rem;border-radius:8px;margin-left:0.3rem;">My Group</span>':'')+'</div>'+
+            (tutors.length?'<div style="font-size:0.7rem;color:#6b7280;margin-top:0.1rem;"><i class="fas fa-chalkboard-teacher" style="color:'+color+';margin-right:0.25rem;"></i>Tutor: '+esc(tutors[0].user_name||tutors[0].user_email)+'</div>':'')+
+          '</div>'+
+          '<span class="sgc-count" style="background:'+color+'22;color:'+color+';">'+mems.length+' members</span>'+
+          '<i id="sgc-icon-'+accordionId+'" class="fas fa-chevron-down" style="color:'+color+';font-size:0.82rem;margin-left:0.5rem;transition:transform 0.2s;'+(isMyGroup?'transform:rotate(180deg);':'')+'"></i>'+
+        '</div>'+
+        '<div class="sgc-body" id="'+accordionId+'" '+(isMyGroup?'style="display:block;"':'')+'>'+
+          (mems.length?memberRows:'<p style="color:var(--muted);font-size:0.85rem;text-align:center;padding:0.8rem;">No L100 members assigned yet.</p>')+
+        '</div>'+
+      '</div>';
+    }).join('');
+
+    // Auto-scroll to my group
+    if(myGroupId){
+      setTimeout(function(){
+        var myCard=document.getElementById('sgcard-'+myGroupId);
+        if(myCard) myCard.scrollIntoView({behavior:'smooth',block:'center'});
+      },300);
+    }
+
+  } catch(e) {
+    list.innerHTML='<div style="text-align:center;padding:2rem;color:#dc2626;font-size:0.85rem;"><i class="fas fa-exclamation-circle" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Could not load groups: '+esc(e.message)+'</div>';
+  }
 }
 
-async function openGroupChat(groupId,groupName){
-  _activeGroupId=groupId;
-  showConnectTab('dms');
-  var main=document.getElementById('chatMain'); if(!main) return;
-  main.innerHTML=
-    '<div class="chat-topbar">'+
-      '<div class="ct-avatar" style="border-radius:14px;font-size:1.1rem;">'+esc(groupName.charAt(0))+'</div>'+
-      '<div class="chat-topbar-info"><div class="chat-topbar-name">'+esc(groupName)+'</div><div class="chat-topbar-status">Group Chat</div></div>'+
-      '<div class="chat-topbar-actions"><button class="chat-action-btn" onclick="launchJitsiCall(\'gerama-grp-'+esc(groupId.substring(0,8))+'\')" title="Group call"><i class="fas fa-video"></i></button></div>'+
-    '</div>'+
-    '<div class="chat-messages" id="chatMsgList"><div style="text-align:center;padding:1rem;color:var(--muted);font-size:0.8rem;"><i class="fas fa-spinner fa-spin"></i></div></div>'+
-    '<div class="chat-input-bar">'+
-      '<textarea id="chatInput" placeholder="Message '+esc(groupName)+'…" rows="1" onkeydown="grpChatKeydown(event,\''+esc(groupId)+'\',\''+esc(groupName)+'\')"></textarea>'+
-      '<button class="chat-send-btn" onclick="sendGroupMsg(\''+esc(groupId)+'\',\''+esc(groupName)+'\')"><i class="fas fa-paper-plane"></i></button>'+
-    '</div>';
-  var {data}=await _sb.from('connect_messages').select('*').eq('group_id',groupId).eq('is_group',true).order('created_at',{ascending:true}).limit(100);
-  renderMessages(data||[],document.getElementById('chatMsgList'));
-  if(_groupRealtimeSub) _sb.removeChannel(_groupRealtimeSub);
-  _groupRealtimeSub=_sb.channel('grp-'+groupId)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'connect_messages'},function(p){
-      var m=p.new; if(m&&m.group_id===groupId&&m.is_group)appendMessage(m);
-    }).subscribe();
+function toggleStudyGroup(id){
+  var body=document.getElementById(id);
+  var icon=document.getElementById('sgc-icon-'+id);
+  if(!body) return;
+  var open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  if(icon) icon.style.transform=open?'':'rotate(180deg)';
 }
 
-async function sendGroupMsg(groupId,groupName){
-  var inp=document.getElementById('chatInput'); if(!inp||!inp.value.trim()) return;
-  var text=inp.value.trim(); inp.value='';
-  if(!_sb||!_me.email){toast('Please log in');return;}
-  var msg={sender_email:_me.email,sender_name:_me.name,group_id:groupId,text:text,is_group:true,created_at:new Date().toISOString()};
-  appendMessage(msg);
-  await _sb.from('connect_messages').insert(msg);
-  _sb.from('connect_groups').update({last_message:text.substring(0,60)}).eq('id',groupId);
-}
-function grpChatKeydown(e,id,name){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendGroupMsg(id,name);}}
-
-function openCreateGroupChat(){document.getElementById('createGroupModal').style.display='flex';}
-function closeCreateGroupChat(){document.getElementById('createGroupModal').style.display='none';}
-async function createGroupChat(){
-  var name=document.getElementById('newGroupName').value.trim();
-  var emoji=document.getElementById('newGroupEmoji').value.trim()||'💬';
-  var msgEl=document.getElementById('createGroupMsg');
-  if(!name){msgEl.textContent='Enter a group name.';return;}
-  if(!_sb||!_me.email){msgEl.textContent='Not connected.';return;}
-  msgEl.textContent='Creating…';
-  var {error}=await _sb.from('connect_groups').insert({name:name,emoji:emoji,created_by:_me.email,member_count:1,created_at:new Date().toISOString()});
-  if(error){msgEl.textContent='Error: '+error.message;return;}
-  msgEl.textContent='✅ Group created!';
-  document.getElementById('newGroupName').value='';
-  document.getElementById('newGroupEmoji').value='';
-  setTimeout(closeCreateGroupChat,800);
-  loadGroupChats();
+function scrollToMyGroup(){
+  var banner=document.getElementById('myGroupBanner');
+  var list=document.getElementById('groupChatsList');
+  if(list) list.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ══════════════════════════════════════════════════════

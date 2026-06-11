@@ -3117,8 +3117,17 @@ window.showGroupsSetupSQL = function(){
 
 function renderGroupsUI(groups, allMembers, allUsers, container){
   var totalMembers = allMembers.length;
-  var assignedEmails = allMembers.map(function(m){ return m.user_email; });
-  var unassignedUsers = allUsers.filter(function(u){ return assignedEmails.indexOf(u.email) === -1; });
+
+  // Deduplicate member count (unique emails only)
+  var uniqueEmails = {};
+  allMembers.forEach(function(m){ if(m.user_email) uniqueEmails[m.user_email.toLowerCase().trim()] = true; });
+  var uniqueMemberCount = Object.keys(uniqueEmails).length;
+  var dupCount = totalMembers - uniqueMemberCount;
+
+  var assignedEmails = allMembers.map(function(m){ return (m.user_email||'').toLowerCase().trim(); });
+  // Unassigned = L100 users not yet assigned
+  var l100Users = allUsers.filter(function(u){ return u.level === 'L100'; });
+  var unassignedL100 = l100Users.filter(function(u){ return assignedEmails.indexOf((u.email||'').toLowerCase().trim()) === -1; });
 
   // ── Build the merge-users map: enrich member rows with index_number/gender from user_profiles ──
   var userMap = {};
@@ -3127,16 +3136,18 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
   var headerHtml =
     '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;padding:1rem 1.2rem;background:linear-gradient(135deg,#e8f5e9,#f0fdf4);border-radius:14px;border:1px solid #c8e6c9;">'+
       '<div>'+
-        '<div style="font-size:1.05rem;font-weight:800;color:#1B5E20;"><i class="fas fa-users-cog"></i> Gerama Study Groups</div>'+
+        '<div style="font-size:1.05rem;font-weight:800;color:#1B5E20;"><i class="fas fa-users-cog"></i> Gerama Study Groups <span style="font-size:0.75rem;font-weight:600;background:#dcfce7;color:#166534;padding:0.15rem 0.5rem;border-radius:8px;margin-left:0.3rem;">L100 Only</span></div>'+
         '<div style="font-size:0.82rem;color:#6b7280;margin-top:0.3rem;">'+
-          '<span style="background:#e8f5e9;color:#1B5E20;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+totalMembers+' assigned</span>'+
-          '<span style="background:#fef3c7;color:#92400e;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+unassignedUsers.length+' unassigned</span>'+
+          '<span style="background:#e8f5e9;color:#1B5E20;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+uniqueMemberCount+' assigned (unique)</span>'+
+          (dupCount>0?'<span style="background:#fee2e2;color:#dc2626;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;" title="Same email assigned more than once — click Clean Duplicates to fix">⚠️ '+dupCount+' duplicate'+(dupCount!==1?'s':'')+' found</span>':'')+
+          '<span style="background:#fef3c7;color:#92400e;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+unassignedL100.length+' L100 unassigned</span>'+
           '<span style="background:#dbeafe;color:#1d4ed8;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;">'+groups.length+' groups</span>'+
         '</div>'+
       '</div>'+
       '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">'+
         '<button onclick="window.showAddGroupModal()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-plus"></i> New Group</button>'+
-        '<button onclick="window.randomlyAssignAll()" class="btn-gold" style="font-size:0.82rem;padding:0.45rem 1rem;"><i class="fas fa-random"></i> Auto-Assign</button>'+
+        '<button onclick="window.randomlyAssignAll()" class="btn-gold" style="font-size:0.82rem;padding:0.45rem 1rem;"><i class="fas fa-random"></i> Auto-Assign L100</button>'+
+        '<button onclick="window.cleanDuplicateMembers()" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Remove duplicate member entries — keeps one per email"'+(dupCount>0?' ':' disabled style="opacity:0.4;cursor:not-allowed;"')+'><i class="fas fa-broom"></i> Clean Duplicates'+(dupCount>0?' ('+dupCount+')':'')+'</button>'+
         '<button onclick="window.rebalanceGroups()" style="background:linear-gradient(135deg,#059669,#10b981);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Move excess members (>25) to Group F, gender-balanced"><i class="fas fa-balance-scale"></i> Rebalance</button>'+
         '<button onclick="window.pushGroupsToAllProfiles()" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Force-sync group names into all user_profiles — so all students see their group immediately"><i class="fas fa-broadcast-tower"></i> Push Groups</button>'+
         '<button onclick="window.loadGroups()" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.45rem 0.9rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-sync-alt"></i> Refresh</button>'+
@@ -3199,14 +3210,22 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
       '</div>';
     }).join('');
 
-    // Build available users for "add" dropdown (not already in this group)
-    var membersEmails = members.map(function(m){ return m.user_email; });
-    var addOptions = allUsers
-      .filter(function(u){ return membersEmails.indexOf(u.email) === -1; })
+    // Build available users for "add" dropdown (not already in this group, L100 users first)
+    var membersEmails = members.map(function(m){ return (m.user_email||'').toLowerCase().trim(); });
+    // Show L100 users at top, other levels below with a label
+    var l100Opts = allUsers
+      .filter(function(u){ return u.level === 'L100' && membersEmails.indexOf((u.email||'').toLowerCase().trim()) === -1; })
+      .map(function(u){
+        var idx = u.index_number ? ' ['+u.index_number+']' : '';
+        return '<option value="'+window.escAttr(u.email)+'">'+window.escHtml((u.full_name||u.email)+idx+' L100')+'</option>';
+      }).join('');
+    var otherOpts = allUsers
+      .filter(function(u){ return u.level !== 'L100' && membersEmails.indexOf((u.email||'').toLowerCase().trim()) === -1; })
       .map(function(u){
         var idx = u.index_number ? ' ['+u.index_number+']' : '';
         return '<option value="'+window.escAttr(u.email)+'">'+window.escHtml((u.full_name||u.email)+idx+(u.level?' '+u.level:''))+'</option>';
       }).join('');
+    var addOptions = l100Opts + (otherOpts ? '<optgroup label="Other Levels">'+otherOpts+'</optgroup>' : '');
 
     var accordionId = 'group-accordion-'+group.id.replace(/-/g,'');
     var genderInfo = (femaleCount || maleCount)
@@ -3337,7 +3356,12 @@ window.addMemberToGroup = async function(groupId){
   var user = (window._allUsers||[]).find(function(u){ return u.email === email; });
   var userName = user ? (user.full_name || email) : email;
 
-  // Check not already in another group
+  // Warn if not L100
+  if(user && user.level && user.level !== 'L100'){
+    if(!confirm(userName+' is '+user.level+', not L100. Study groups are currently for L100 only. Add anyway?')) return;
+  }
+
+  // Check not already in another group (also check for duplicate email in any group)
   var {data: inGroup} = await sb.from('gerama_group_members').select('id, group_id').eq('user_email', email).maybeSingle();
   if(inGroup){ alert(userName+' is already in a group. Use the Move (⇄) button to change their group.'); return; }
 
@@ -3447,6 +3471,51 @@ window.confirmMove = async function(){
   window.loadGroups();
 };
 
+// ─── CLEAN DUPLICATE MEMBER ENTRIES ──────────────────────────────────────────
+// Removes rows where the same user_email appears more than once in gerama_group_members.
+// Keeps the earliest assigned_at row, deletes the rest.
+window.cleanDuplicateMembers = async function(){
+  var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
+  var allMembers = window._allGroupMembers || [];
+  if(!allMembers.length){ alert('No group members loaded. Load groups first.'); return; }
+
+  // Find duplicates
+  var emailMap = {};
+  var toDelete = [];
+  // Sort by assigned_at ascending so we keep the earliest
+  var sorted = allMembers.slice().sort(function(a,b){
+    return new Date(a.assigned_at||0) - new Date(b.assigned_at||0);
+  });
+  sorted.forEach(function(m){
+    var key = (m.user_email||'').toLowerCase().trim();
+    if(!key) return;
+    if(!emailMap[key]){
+      emailMap[key] = m.id;
+    } else {
+      toDelete.push(m.id);
+    }
+  });
+
+  if(!toDelete.length){
+    alert('✅ No duplicates found. All member entries are unique.');
+    return;
+  }
+
+  if(!confirm('Found '+toDelete.length+' duplicate member entry'+(toDelete.length!==1?'ies':'y')+'. Remove them? (keeps oldest assignment per person)')) return;
+
+  var removed = 0, failed = 0;
+  for(var i=0;i<toDelete.length;i++){
+    try{
+      var {error} = await sb.from('gerama_group_members').delete().eq('id', toDelete[i]);
+      if(!error) removed++; else failed++;
+    }catch(e){ failed++; }
+  }
+
+  window.logActivity('Cleaned '+removed+' duplicate group member entries'+(failed>0?' ('+failed+' failed)':''));
+  alert('✅ Done! Removed '+removed+' duplicate'+( removed!==1?'s':'')+' from group members.'+(failed>0?'\n⚠️ '+failed+' failed.':''));
+  window.loadGroups();
+};
+
 // ─── PUSH ALL GROUP NAMES TO USER_PROFILES ────────────────────────────────────
 // Forces every group member's user_profiles.group_name to match their assigned group.
 // Run this after any bulk changes so all students see their group immediately.
@@ -3518,13 +3587,55 @@ window.randomlyAssignAll = async function(){
   var groups = window._geramaGroups || [];
   if(!groups.length){ alert('No groups found. Please refresh.'); return; }
 
-  // Find unassigned users
-  var assignedEmails = allMembers.map(function(m){ return m.user_email; });
-  var unassigned = allUsers.filter(function(u){ return assignedEmails.indexOf(u.email) === -1; });
+  // ── Only assign L100 students ──
+  var l100Users = allUsers.filter(function(u){ return u.level === 'L100'; });
 
-  if(!unassigned.length){ alert('All registered users are already assigned to groups.'); return; }
+  // Find already-assigned emails (deduplicated: treat any duplicate as assigned)
+  var assignedEmailSet = {};
+  allMembers.forEach(function(m){ if(m.user_email) assignedEmailSet[m.user_email.toLowerCase().trim()] = true; });
 
-  if(!confirm('Auto-assign '+unassigned.length+' unassigned member'+(unassigned.length!==1?'s':'')+' to groups (max '+GROUP_MAX+' per group, gender-balanced)?')) return;
+  // ── Remove duplicate entries from gerama_group_members ──
+  // (same email assigned multiple times — keep first by assigned_at, delete rest)
+  var emailFirstSeen = {};
+  var duplicateIds = [];
+  allMembers.forEach(function(m){
+    var key = (m.user_email||'').toLowerCase().trim();
+    if(!key) return;
+    if(!emailFirstSeen[key]){
+      emailFirstSeen[key] = m.id;
+    } else {
+      duplicateIds.push(m.id);
+    }
+  });
+
+  if(duplicateIds.length){
+    var removedDups = 0;
+    for(var d=0;d<duplicateIds.length;d++){
+      try{
+        await sb.from('gerama_group_members').delete().eq('id', duplicateIds[d]);
+        removedDups++;
+      }catch(e){}
+    }
+    if(removedDups) window.logActivity('Removed '+removedDups+' duplicate group member entries');
+    // Refresh assignedEmailSet after dedup
+    var {data: freshMembers} = await sb.from('gerama_group_members').select('user_email');
+    assignedEmailSet = {};
+    (freshMembers||[]).forEach(function(m){ if(m.user_email) assignedEmailSet[m.user_email.toLowerCase().trim()] = true; });
+  }
+
+  // Unassigned L100 users only
+  var unassigned = l100Users.filter(function(u){ return !assignedEmailSet[(u.email||'').toLowerCase().trim()]; });
+
+  if(!unassigned.length){
+    var msg = 'All L100 students are already assigned to groups.';
+    if(l100Users.length < allUsers.length) msg += '\n\nNote: '+(allUsers.length - l100Users.length)+' non-L100 students were skipped (groups are L100 only for now).';
+    alert(msg);
+    window.loadGroups();
+    return;
+  }
+
+  var skipMsg = l100Users.length < allUsers.length ? '\n\n(Non-L100 students are skipped — groups are L100 only for now)' : '';
+  if(!confirm('Auto-assign '+unassigned.length+' unassigned L100 member'+(unassigned.length!==1?'s':'')+' to groups (max '+GROUP_MAX+' per group, gender-balanced)?'+skipMsg)) return;
 
   // Separate by gender for balanced distribution
   var females = unassigned.filter(function(u){ return (u.gender||'').toLowerCase()==='female'; });
