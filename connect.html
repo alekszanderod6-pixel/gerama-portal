@@ -69,8 +69,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 @media(max-width:480px){.ctab{min-width:58px;font-size:0.65rem;padding:0.6rem 0.3rem 0.5rem;}}
 
 /* ══ TAB SECTIONS ══ */
-.connect-section{display:none;min-height:calc(100vh - 200px);padding-bottom:80px;}
+.connect-section{display:none;padding-bottom:80px;}
 .connect-section.active{display:block;}
+/* DMs section needs full-height flex, not block */
+#sec-dms{padding-bottom:0;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 .connect-section.active{animation:fadeUp 0.25s ease;}
 
@@ -79,8 +81,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .people-search{display:flex;align-items:center;gap:0.5rem;background:white;border:2px solid #e0f2fe;border-radius:30px;padding:0.5rem 1rem;flex:1;max-width:400px;}
 .people-search input{border:none;outline:none;font-family:'Inter',sans-serif;font-size:0.88rem;flex:1;background:transparent;}
 .people-search i{color:var(--sky);font-size:0.88rem;}
-.people-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:0.8rem;padding:0.8rem 4%;}
-@media(max-width:400px){.people-grid{grid-template-columns:repeat(2,1fr);}}
+.people-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.8rem;padding:0.8rem 4%;}
+@media(max-width:480px){.people-grid{grid-template-columns:repeat(2,1fr);gap:0.5rem;}}
 .people-card{background:white;border-radius:18px;padding:1.2rem 0.8rem;text-align:center;box-shadow:var(--card-shadow);border:1px solid #e0f2fe;transition:all 0.25s;cursor:pointer;position:relative;}
 .people-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(3,105,161,0.15);}
 .people-card .pc-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#0369a1);margin:0 auto 0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:white;border:2.5px solid #e0f2fe;overflow:hidden;flex-shrink:0;}
@@ -93,8 +95,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .online-dot{position:absolute;top:0.7rem;right:0.7rem;width:9px;height:9px;background:#22c55e;border-radius:50%;border:2px solid white;}
 
 /* ══ DM / CHAT ══ */
-.chat-layout{display:flex;height:calc(100vh - 180px);background:white;}
-.chat-sidebar{width:280px;border-right:1px solid #e0f2fe;overflow-y:auto;flex-shrink:0;}
+.chat-layout{display:flex;height:calc(100vh - 182px);background:white;}
+.chat-sidebar{width:280px;border-right:1px solid #e0f2fe;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;}
 @media(max-width:640px){
   .chat-layout{flex-direction:column;height:auto;}
   .chat-sidebar{width:100%;height:220px;border-right:none;border-bottom:1px solid #e0f2fe;}
@@ -258,30 +260,73 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 
 /* ══ MOBILE RESPONSIVE FIXES ══ */
 @media(max-width:640px){
-  .people-grid{grid-template-columns:repeat(2,1fr);gap:0.6rem;padding:0.6rem 3%;}
-  .people-card{padding:0.9rem 0.6rem;}
-  .people-card .pc-avatar{width:52px;height:52px;}
-  .people-header{padding:0.7rem 3% 0.3rem;flex-direction:column;align-items:flex-start;}
+  /* People / Members */
+  .people-header{padding:0.7rem 3% 0.3rem;flex-direction:column;align-items:stretch;gap:0.4rem;}
   .people-search{max-width:100%;width:100%;}
-  #memberFilters{padding:0 3% 0.5rem;}
-  .chat-layout{flex-direction:column;height:auto;}
-  .chat-sidebar{width:100%;height:auto;max-height:260px;border-right:none;border-bottom:1px solid #e0f2fe;}
-  .chat-main{height:calc(100vh - 380px);min-height:280px;}
-  .groups-list{padding:0.6rem 3%;}
-  .study-group-card{margin-bottom:0.8rem;}
-  .my-group-banner{margin:0 3% 0.8rem;}
-  .call-btns{grid-template-columns:repeat(2,1fr);gap:0.6rem;}
-  .call-hero{padding:1.5rem 1.2rem;}
-  .call-hero h2{font-size:1.1rem;}
-  .call-launch-area{padding:1rem 3%;}
-  .reels-feed-grid{grid-template-columns:1fr;padding:0.6rem 3%;}
+  #memberFilters{padding:0 3% 0.5rem;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  #memberFilters::-webkit-scrollbar{display:none;}
+  .people-grid{grid-template-columns:repeat(2,1fr);gap:0.5rem;padding:0.5rem 3%;}
+  .people-card{padding:0.85rem 0.55rem;}
+  .people-card .pc-avatar{width:50px;height:50px;font-size:1.2rem;}
+  .people-card .pc-name{font-size:0.8rem;}
+  .people-card .pc-prog{font-size:0.65rem;}
+  .people-card .pc-dm-btn{font-size:0.68rem;padding:0.3rem 0.5rem;}
+
+  /* Chat — stack sidebar on top of chat window */
+  .chat-layout{flex-direction:column;height:auto;min-height:0;}
+  .chat-sidebar{
+    width:100%;
+    height:auto;
+    max-height:45vh;
+    border-right:none;
+    border-bottom:2px solid #e0f2fe;
+    overflow-y:auto;
+    flex-shrink:0;
+  }
+  /* When a chat is open, collapse the sidebar so the conversation is visible */
+  .chat-sidebar.collapsed{max-height:56px;overflow:hidden;}
+  .chat-main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-height:50vh;
+    height:auto;
+  }
+  .chat-messages{
+    flex:1;
+    min-height:0;
+    max-height:calc(100vh - 340px);
+  }
+  .chat-input-bar{position:sticky;bottom:60px;}
+
+  /* Study Groups */
+  .groups-list{padding:0.5rem 3%;}
+  .study-group-card{margin-bottom:0.7rem;}
+  .my-group-banner{margin:0.5rem 3% 0.7rem;}
+  .sgc-member-row{flex-wrap:wrap;gap:0.4rem;}
+  .sgc-member-dm{margin-left:auto;}
+
+  /* Calls */
+  .call-btns{grid-template-columns:repeat(2,1fr);gap:0.5rem;}
+  .call-hero{padding:1.2rem 1rem;}
+  .call-hero h2{font-size:1rem;}
+  .call-hero p{font-size:0.8rem;}
+  .call-launch-area{padding:0.8rem 3%;}
+
+  /* Reels */
+  .reels-feed-grid{grid-template-columns:1fr;padding:0.5rem 3%;}
+
+  /* General */
   .sec-title{padding:0.7rem 3% 0.3rem;}
   .stories-bar{padding:0.6rem 3%;}
+  .connect-section{padding-bottom:70px;}
 }
+
 @media(max-width:380px){
-  .people-grid{grid-template-columns:repeat(2,1fr);gap:0.4rem;padding:0.5rem 2%;}
-  .ctab span{font-size:0.6rem;}
-  .ctab{min-width:54px;padding:0.55rem 0.25rem 0.45rem;}
+  .people-grid{gap:0.35rem;padding:0.4rem 2%;}
+  .ctab span{font-size:0.58rem;}
+  .ctab{min-width:52px;padding:0.5rem 0.2rem 0.4rem;}
+  .people-card .pc-avatar{width:44px;height:44px;}
 }
 
 /* ══ MISC ══ */
@@ -379,7 +424,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 <div class="connect-section" id="sec-dms">
   <div class="chat-layout">
     <!-- Left: thread list -->
-    <div class="chat-sidebar">
+    <div class="chat-sidebar" id="chatSidebar">
       <div class="chat-list-header">
         <h3>💬 Messages</h3>
         <button onclick="openNewDM()" style="background:#0ea5e9;color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;justify-content:center;" title="New Message"><i class="fas fa-plus"></i></button>
@@ -643,6 +688,7 @@ var _dmRealtimeSub = null;
 var _groupRealtimeSub = null;
 var _allMembers = [];
 var _statusInterval = null;
+var _sentMsgIds = {}; // tracks message IDs we already appended optimistically
 
 // ── Helpers ──────────────────────────────────────────
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -910,8 +956,12 @@ function openDMWith(email,name){
 
 async function renderChatWindow(email,name){
   var main=document.getElementById('chatMain'); if(!main) return;
+  // On mobile: collapse the sidebar so the chat window is visible
+  var sidebar=document.getElementById('chatSidebar');
+  if(sidebar&&window.innerWidth<=640) sidebar.classList.add('collapsed');
   main.innerHTML=
     '<div class="chat-topbar">'+
+      '<button id="chatBackBtn" onclick="mobileBackToThreads()" style="display:none;" class="chat-action-btn" title="Back"><i class="fas fa-arrow-left"></i></button>'+
       '<div class="ct-avatar">'+esc((name||email).charAt(0).toUpperCase())+'</div>'+
       '<div class="chat-topbar-info"><div class="chat-topbar-name">'+esc(name||email)+'</div><div class="chat-topbar-status">GERAMA Member</div></div>'+
       '<div class="chat-topbar-actions"><button class="chat-action-btn" onclick="launchJitsiCall(\'gerama-dm-call\')" title="Video call"><i class="fas fa-video"></i></button></div>'+
@@ -921,14 +971,30 @@ async function renderChatWindow(email,name){
       '<textarea id="chatInput" placeholder="Message '+esc(name||email)+'…" rows="1" onkeydown="chatKeydown(event,\''+esc(email)+'\',\''+esc(name||email)+'\')"></textarea>'+
       '<button class="chat-send-btn" onclick="sendDM(\''+esc(email)+'\',\''+esc(name||email)+'\')"><i class="fas fa-paper-plane"></i></button>'+
     '</div>';
+  // Show back button on mobile
+  if(window.innerWidth<=640){var b=document.getElementById('chatBackBtn');if(b)b.style.display='flex';}
   await refreshDMMessages(email);
   if(_dmRealtimeSub) _sb.removeChannel(_dmRealtimeSub);
   _dmRealtimeSub=_sb.channel('dm-'+dmThreadKey(_me.email,email))
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'connect_messages'},function(p){
       var m=p.new; if(!m) return;
       var ok=(m.sender_email===_me.email&&m.recipient_email===email)||(m.sender_email===email&&m.recipient_email===_me.email);
-      if(ok&&!m.is_group)appendMessage(m);
+      if(!ok||m.is_group) return;
+      // Skip if we already optimistically appended this message
+      if(m.id&&_sentMsgIds[m.id]){ delete _sentMsgIds[m.id]; return; }
+      // Also skip if a DOM node with this id already exists
+      if(m.id&&document.querySelector('[data-msgid="'+m.id+'"]')) return;
+      appendMessage(m);
     }).subscribe();
+}
+
+function mobileBackToThreads(){
+  var sidebar=document.getElementById('chatSidebar');
+  if(sidebar) sidebar.classList.remove('collapsed');
+  var main=document.getElementById('chatMain');
+  if(main) main.innerHTML='<div class="chat-placeholder"><i class="fas fa-comment-dots"></i><p>Select a conversation</p></div>';
+  if(_dmRealtimeSub&&_sb){ _sb.removeChannel(_dmRealtimeSub); _dmRealtimeSub=null; }
+  _activeDMEmail=null;
 }
 
 async function refreshDMMessages(email){
@@ -957,11 +1023,12 @@ function renderMessages(data,container){
   container.scrollTop=container.scrollHeight;
 }
 
-function appendMessage(m){
+function appendMessage(m,tempId){
   var container=document.getElementById('chatMsgList'); if(!container) return;
   var mine=m.sender_email===_me.email;
   var div=document.createElement('div');
   div.className='msg-row '+(mine?'mine':'theirs');
+  div.setAttribute('data-msgid', tempId||m.id||('msg-'+Date.now()));
   div.innerHTML=(!mine?'<div class="msg-avatar-sm">'+esc((m.sender_name||'?').charAt(0))+'</div>':'')+
     '<div><div class="msg-bubble">'+esc(m.text||'')+'</div><div class="msg-time">'+timeAgo(m.created_at)+(mine?' ✓✓':'')+'</div></div>';
   container.appendChild(div);
@@ -975,8 +1042,17 @@ async function sendDM(email,name){
   var text=inp.value.trim(); inp.value='';
   if(!_sb||!_me.email){toast('Please log in');return;}
   var msg={sender_email:_me.email,sender_name:_me.name,recipient_email:email,recipient_name:name,text:text,is_group:false,is_read:false,created_at:new Date().toISOString()};
-  appendMessage(msg);
-  await _sb.from('connect_messages').insert(msg);
+  // Append optimistically, mark with a temp id to avoid realtime duplicate
+  var tempId='tmp-'+Date.now();
+  msg._tempId=tempId;
+  appendMessage(msg,tempId);
+  var {data:inserted}=await _sb.from('connect_messages').insert(msg).select('id').single();
+  // Tag the optimistic bubble with the real DB id so the realtime handler can skip it
+  if(inserted&&inserted.id){
+    var el=document.querySelector('[data-msgid="'+tempId+'"]');
+    if(el) el.setAttribute('data-msgid',inserted.id);
+    _sentMsgIds[inserted.id]=true;
+  }
   loadDMThreads();
 }
 
