@@ -280,21 +280,22 @@
                 }
             }catch(e){ console.warn('Grades load error:', e); }
 
-            // ── Load group from Supabase ──
+            // ── Load group from Supabase ── (always fresh — ignore stale localStorage)
             try{
-                // First try: check gerama_group_members with join
                 var groupMem = null;
+
+                // Try 1: join query (fastest)
                 try{
                     var joinRes = await sb
                         .from('gerama_group_members')
                         .select('group_id, role, gerama_groups(name, color)')
                         .eq('user_email', studentEmail)
                         .maybeSingle();
-                    if(joinRes && joinRes.data) groupMem = joinRes.data;
+                    if(joinRes && joinRes.data && joinRes.data.gerama_groups) groupMem = joinRes.data;
                 }catch(e){}
 
-                // Fallback: two-step query (no join)
-                if(!groupMem || !groupMem.gerama_groups){
+                // Try 2: two-step (no join)
+                if(!groupMem){
                     var memRes = await sb.from('gerama_group_members').select('group_id, role').eq('user_email', studentEmail).maybeSingle();
                     if(memRes && memRes.data && memRes.data.group_id){
                         var grpRes = await sb.from('gerama_groups').select('name, color').eq('id', memRes.data.group_id).maybeSingle();
@@ -304,7 +305,7 @@
                     }
                 }
 
-                // Also try from user_profiles.group_name as last fallback
+                // Try 3: user_profiles.group_name fallback
                 if(!groupMem){
                     var profRes = await sb.from('user_profiles').select('group_name').eq('email', studentEmail).maybeSingle();
                     if(profRes && profRes.data && profRes.data.group_name){
@@ -320,7 +321,6 @@
                     userProfile.group_color = gColor;
                     userProfile.group_role = groupMem.role;
                     localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
-
                     // Check if group was newly assigned (notification)
                     var prevGroup = localStorage.getItem('gerama_last_known_group');
                     var isNewGroup = prevGroup !== gName;
@@ -357,6 +357,15 @@
                                     ? '<div style="margin-top:0.5rem;background:#fef3c7;border-radius:8px;padding:0.5rem 0.7rem;font-size:0.78rem;color:#92400e;font-weight:600;" id="groupNotifBanner"><i class="fas fa-bell" style="margin-right:0.3rem;"></i> You have been added to a study group! <button onclick="dismissGroupNotif()" style="background:none;border:none;color:#92400e;font-size:0.78rem;cursor:pointer;text-decoration:underline;margin-left:0.4rem;">Dismiss</button></div>'
                                     : '');
                         }
+                    }
+                } else {
+                    // No group assigned yet — show a pending message
+                    var groupStatEl2 = document.getElementById('groupStatCard');
+                    if(groupStatEl2){
+                        groupStatEl2.style.display = 'block';
+                        groupStatEl2.style.borderLeft = '4px solid #d1d5db';
+                        var nameEl2 = groupStatEl2.querySelector('#groupStatName');
+                        if(nameEl2) nameEl2.innerHTML = '<span style="color:#9ca3af;font-size:0.95rem;font-weight:600;"><i class="fas fa-clock" style="margin-right:0.3rem;"></i>Not assigned yet</span><span style="display:block;margin-top:0.3rem;font-size:0.75rem;color:#9ca3af;line-height:1.5;">Your study group will appear here once the admin assigns you. Check back soon!</span>';
                     }
                 }
             }catch(e){ console.warn('Group load error:', e); }

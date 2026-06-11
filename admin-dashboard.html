@@ -247,6 +247,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="groups"><i class="fas fa-layer-group" style="color:#FFC107;"></i> Study Groups</div>
     <div class="nav-item" data-panel="potw"><i class="fas fa-star"></i> Personality of Week</div>
     <div class="nav-item" data-panel="reels"><i class="fas fa-film"></i> Manage Reels</div>
+    <div class="nav-item" data-panel="connect"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> Manage Connect</div>
     <div class="nav-item" data-panel="adminprofiles"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> Admin Profiles</div>
     <div class="nav-item" data-panel="team"><i class="fas fa-users-cog" style="color:#34d399;"></i> Manage Team</div>
     <div class="nav-item" data-panel="quotes"><i class="fas fa-quote-right" style="color:#f59e0b;"></i> Quote of the Day</div>
@@ -746,6 +747,45 @@ tr:hover td{background:#fafcfa;}
       <div class="card-title"><i class="fas fa-film"></i> Manage Student Reels</div>
       <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Review, block, or delete reels posted by students. Blocked reels are hidden from everyone.</p>
       <div id="adminReelsList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       GERAMA CONNECT ADMIN PANEL
+  ═══════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-connect">
+    <!-- Connect overview -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> GERAMA Connect — Admin Controls</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Monitor chats, statuses, group chats and user activity on GERAMA Connect. Block or flag suspicious users.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.8rem;margin-bottom:1.5rem;" id="connectStats">
+        <div class="stat-box" style="border-top:3px solid #0ea5e9;"><div class="num" id="cStatMsg" style="color:#0ea5e9;">—</div><div class="lbl">Messages Sent</div></div>
+        <div class="stat-box" style="border-top:3px solid #7c3aed;"><div class="num" id="cStatStatus" style="color:#7c3aed;">—</div><div class="lbl">Active Statuses</div></div>
+        <div class="stat-box" style="border-top:3px solid #1B5E20;"><div class="num" id="cStatGroups" style="color:#1B5E20;">—</div><div class="lbl">Group Chats</div></div>
+        <div class="stat-box" style="border-top:3px solid #dc2626;"><div class="num" id="cStatBlocked" style="color:#dc2626;">—</div><div class="lbl">Blocked Users</div></div>
+      </div>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <button class="btn-primary" onclick="loadConnectStats()" style="font-size:0.82rem;padding:0.5rem 1rem;"><i class="fas fa-sync-alt"></i> Refresh Stats</button>
+        <button onclick="window.open('connect.html','_blank')" style="background:#e0f2fe;color:#0369a1;border:none;padding:0.5rem 1rem;border-radius:10px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-external-link-alt"></i> Open Connect</button>
+      </div>
+    </div>
+
+    <!-- Recent Messages -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-comments" style="color:#0ea5e9;"></i> Recent Messages <small style="font-weight:400;color:#9ca3af;font-size:0.75rem;">(last 50)</small></div>
+      <div id="adminConnectMessages"><p style="color:#9ca3af;font-size:0.88rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p></div>
+    </div>
+
+    <!-- Active Statuses -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-circle" style="color:#22c55e;font-size:0.7rem;"></i> Active Statuses (24h)</div>
+      <div id="adminConnectStatuses"><p style="color:#9ca3af;font-size:0.88rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p></div>
+    </div>
+
+    <!-- Group Chats -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-users-cog" style="color:#7c3aed;"></i> Group Chats</div>
+      <div id="adminConnectGroups"><p style="color:#9ca3af;font-size:0.88rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p></div>
     </div>
   </div>
 

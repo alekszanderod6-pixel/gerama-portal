@@ -425,6 +425,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <a href="index.html">Home</a>
     <a href="resources.html">Resources</a>
     <a href="classroom.html" class="active">Classroom</a>
+    <a href="connect.html" style="color:#0ea5e9;">📡 Connect</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
   </nav>
@@ -461,7 +462,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <button class="tab-btn" id="plannerTabBtn" onclick="showTab('planner')"><i class="fas fa-calendar-alt"></i><span class="tab-label">Planner</span><span id="plannerBadge" class="tab-badge" style="background:#f59e0b;display:none;">!</span></button>
   <button class="tab-btn" onclick="showTab('assistance')"><i class="fas fa-graduation-cap" style="color:#059669;"></i><span class="tab-label">Get Help</span></button>
   <button class="tab-btn" id="qaTabBtn" onclick="showTab('qa')"><i class="fas fa-comments"></i><span class="tab-label">Q&amp;A</span><span id="qaBadge" class="tab-badge" style="background:#dc2626;"></span></button>
-  <button class="tab-btn" onclick="showTab('reels')"><i class="fas fa-film"></i><span class="tab-label">Reels</span></button>
+  <!-- Reels moved to GERAMA Connect — use the Connect tab for video reels -->
 </div>
 
 <!-- ═══ ONLINE CLASSES TAB ═══ -->
@@ -607,45 +608,16 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 </div>
 
 <!-- ═══ REELS TAB ═══ -->
+<!-- NOTE: Reels have moved to GERAMA Connect. This section remains for backward
+     compat (deep links) but shows a redirect notice. All reel data is intact. -->
 <div class="tab-section" id="tab-reels">
-  <div class="sec-head">
-    <div class="sec-title">📱 <span>GERAMA Reels</span></div>
-  </div>
-
-  <!-- Upload box -->
-  <div class="reel-upload-box">
-    <h3><i class="fas fa-film" style="color:var(--primary);"></i> Share a Short Video</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
-      <div style="grid-column:1/-1;">
-        <input type="text" id="reelCaption" placeholder="Caption (what's this about?)" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;">
-      </div>
-      <select id="reelCourse" style="padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;">
-        <option value="">Course tag (optional)</option>
-        <option>Engineering Mathematics 1</option><option>Engineering Mathematics 2</option>
-        <option>Applied Electricity</option><option>Basic Electronics</option>
-        <option>Basic Mechanics</option><option>Digital Logic Design</option>
-        <option>Electrical Machines &amp; Transformers</option><option>Solid State Electronics</option>
-        <option>General / Fun</option>
-      </select>
-      <div style="grid-column:1/-1;">
-        <div class="drop-zone" id="reelDropZone" style="padding:1.2rem;">
-          <i class="fas fa-video"></i>
-          <p>Tap to select a short video (MP4, max 50MB)</p>
-          <p class="file-chosen" id="reelFileChosen"></p>
-          <input type="file" id="reelFile" accept="video/mp4,video/webm,video/quicktime" style="display:none;">
-        </div>
-        <video id="reelVideoPreview" class="reel-video-preview" controls></video>
-      </div>
-    </div>
-    <div style="margin-top:0.8rem;display:flex;gap:0.8rem;flex-wrap:wrap;">
-      <button class="btn-join" id="uploadReelBtn" style="padding:0.6rem 1.4rem;font-size:0.88rem;" onclick="uploadReel()"><i class="fas fa-upload"></i> Post Reel</button>
-    </div>
-    <div class="status-msg" id="reelStatus"></div>
-  </div>
-
-  <!-- Reels feed -->
-  <div class="reels-feed" id="reelsFeed">
-    <div class="empty-state"><i class="fas fa-film"></i><p>No reels yet. Be the first to post!</p></div>
+  <div style="text-align:center;padding:3rem 1rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">📡</div>
+    <h2 style="font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:0.6rem;">Reels have moved to <span style="color:#0ea5e9;">GERAMA Connect</span></h2>
+    <p style="color:var(--muted);font-size:0.92rem;max-width:400px;margin:0 auto 1.5rem;line-height:1.6;">All your GERAMA Reels now live under the new <strong>Connect</strong> tab — along with DMs, group chats, status stories, and more. All previous reels are still there!</p>
+    <a href="connect.html?tab=reels" style="background:linear-gradient(135deg,#0ea5e9,#0369a1);color:white;padding:0.75rem 2rem;border-radius:30px;font-weight:700;font-size:0.92rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.6rem;box-shadow:0 4px 15px rgba(14,165,233,0.35);">
+      <i class="fas fa-satellite-dish"></i> Go to GERAMA Connect
+    </a>
   </div>
 </div>
 

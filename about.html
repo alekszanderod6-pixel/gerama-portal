@@ -147,7 +147,11 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .team-badge-tag{display:inline-block;font-size:0.68rem;font-weight:700;padding:0.15rem 0.65rem;border-radius:20px;margin-top:0.25rem;}
 .team-email{font-size:0.75rem;color:var(--muted);margin-top:0.3rem;}
 
-/* G26 accent */
+/* History expand button (shown only on mobile) */
+.who-history-expand{display:none;align-items:center;gap:0.4rem;margin-top:0.5rem;background:rgba(27,94,32,0.07);border:1px solid rgba(27,94,32,0.2);color:var(--primary);font-size:0.78rem;font-weight:700;padding:0.35rem 1rem;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.who-history-expand:hover{background:rgba(27,94,32,0.13);}
+.who-col-right.expanded .who-p:nth-child(n+4){display:block;}
+.who-col-right.expanded .who-history-expand{display:none;}
 .team-card.g26{border-top-color:#6366f1;background:linear-gradient(160deg,#fff 0%,#fdfcff 100%);}
 .team-card.g26 .team-photo{border-color:#6366f1;box-shadow:0 6px 20px rgba(99,102,241,0.25);}
 .team-card.g26:hover .team-photo{border-color:#4338ca;box-shadow:0 8px 28px rgba(99,102,241,0.35);}
@@ -230,6 +234,19 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   .about-hero{padding:5rem 4% 3.5rem;}
   .hero-chips{gap:0.5rem;}.hero-chip{font-size:0.78rem;padding:0.4rem 0.9rem;}
   .who-section,.team-section,.mission-section,.values-section{padding:3rem 4%;}
+  /* Compact history column on mobile — tight, minimal spacing */
+  .who-col-right{font-size:0.8rem;background:#f9fdf9;border-radius:14px;padding:0.9rem 1rem;border:1px solid #e0ede0;}
+  .who-col-right .who-p{margin-bottom:0.3rem;line-height:1.45;font-size:0.78rem;color:#4b5563;}
+  .who-col-right .who-p strong{font-weight:700;color:#1e2a3e;}
+  .who-col-right .section-label{margin-bottom:0.25rem;font-size:0.7rem;padding:0.2rem 0.7rem;}
+  .who-col-right h2{font-size:1rem;margin-bottom:0.45rem;}
+  /* Show only first 2 paragraphs on mobile to save space */
+  .who-col-right .who-p:nth-child(n+3){display:none;}
+  .who-history-expand{display:flex !important;margin-top:0.3rem;}
+  /* Collapsed — extra tight on mobile */
+  .who-col-right{max-height:210px;overflow:hidden;transition:max-height 0.4s ease;}
+  .who-col-right.expanded{max-height:9999px;padding:0.9rem 1rem;}
+  .who-col-right.expanded .who-p:nth-child(n+3){display:block;}
   .values-grid{grid-template-columns:1fr;}
   .footer-inner{grid-template-columns:1fr;gap:1.8rem;}
   .footer-bottom-bar{flex-direction:column;text-align:center;}
@@ -254,6 +271,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <a href="index.html">Home</a>
     <a href="resources.html">Resources</a>
     <a href="classroom.html">Classroom</a>
+    <a href="connect.html" style="color:#0ea5e9;">📡 Connect</a>
     <a href="about.html" class="active">About</a>
     <a href="contact.html">Contact</a>
   </nav>
@@ -322,6 +340,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <p class="who-p">From 2022 through to 2025, the team grew steadily in both membership and impact. Weekly sessions became a cornerstone of academic life for EEE students, so much so that by the time the founding batch approached graduation, not a single member or non-member from EEE Level 400 had missed a meeting.</p>
       <p class="who-p">In those sessions, complex courses were broken down, questions were welcomed, and no one was left behind. GERAMA was never just a study group, it became a family.</p>
       <p class="who-p">Today, GERAMA has evolved into a full digital platform, curating and sharing lecture slides, textbooks, past questions, and video tutorials : all organised by level and course — so every student can study effectively, anytime, anywhere.</p>
+      <button class="who-history-expand" onclick="this.closest('.who-col-right').classList.add('expanded')"><i class="fas fa-chevron-down"></i> Read full story</button>
     </div>
 
   </div>
@@ -694,7 +713,23 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 })();
 
 // ── DYNAMIC TEAM MEMBERS (admin-added via dashboard) ─────────────
-(function(){
+// Single-execution guard — prevents double-render on any double-init edge case
+if(!window._geramaTeamLoaded)(function(){
+  window._geramaTeamLoaded = true;
+
+  var allGroups = ['founding','gerama25','gerama26','media'];
+
+  // *** IMMEDIATELY clear ALL static placeholder cards ***
+  // This is the definitive fix for doubling — static + dynamic cards never co-exist.
+  // We replace static HTML with a spinner right now, before ANY async work.
+  allGroups.forEach(function(g){
+    var el = document.getElementById('teamGrid-'+g);
+    if(el){
+      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;"></i></div>';
+      el.setAttribute('data-pending','1');
+    }
+  });
+
   function waitForSB(cb, tries){
     tries = tries || 0;
     if(window.geramaSupabase){ cb(window.geramaSupabase); return; }
@@ -713,49 +748,70 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   function buildCard(m){
     var styles = groupStyles[m.group] || groupStyles['founding'];
     var photoHtml = m.photo_url
-      ? '<img class="team-photo" src="'+m.photo_url+'" alt="'+escHtml(m.name)+'" style="border-color:'+styles.border+';box-shadow:0 6px 20px '+styles.photoShadow+';">'
-      : '<div class="team-photo" style="background:linear-gradient(135deg,'+styles.border+',#aaa);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white;border-radius:50%;width:95px;height:95px;margin:0 auto 1.1rem;border:3.5px solid #FFC107;">'+(m.emoji||'👤')+'</div>';
+      ? '<img class="team-photo" src="'+escHtml(m.photo_url)+'" alt="'+escHtml(m.name)+'" style="border-color:'+styles.border+';box-shadow:0 6px 20px '+styles.photoShadow+';">'
+      : '<div class="team-photo team-photo-emoji" style="background:linear-gradient(135deg,'+styles.border+',#aaa);">'+(m.emoji||'👤')+'</div>';
 
     var badgeHtml = m.badge_label
-      ? '<div style="font-size:0.72rem;background:#ede9fe;color:'+styles.roleColor+';padding:0.15rem 0.6rem;border-radius:20px;display:inline-block;margin-top:0.3rem;font-weight:700;">'+escHtml(m.badge_label)+'</div>'
+      ? '<div class="team-badge-tag" style="background:#ede9fe;color:'+styles.roleColor+';">'+escHtml(m.badge_label)+'</div>'
       : '';
 
-    return '<div class="team-card" style="border-top-color:'+styles.border+';">'+
-      photoHtml+
+    return photoHtml+
       '<div class="team-name">'+escHtml(m.name)+'</div>'+
       '<div class="team-role" style="color:'+styles.roleColor+';">'+escHtml(m.role)+'</div>'+
-      badgeHtml+
-    '</div>';
+      badgeHtml;
   }
 
   function escHtml(s){
     return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  // Scroll-reveal observer for dynamically-injected cards
+  window._teamRevealObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add('visible');
+        window._teamRevealObserver.unobserve(entry.target);
+      }
+    });
+  }, {threshold:0.1, rootMargin:'0px 0px -40px 0px'});
+
   waitForSB(async function(sb){
+    // Hard single-execution guard — this function must run exactly once
+    if(window._geramaTeamRendered) return;
+    window._geramaTeamRendered = true;
+
     try{
-      var {data} = await sb.from('team_members').select('*').eq('active',true).order('sort_order',{ascending:true}).order('created_at',{ascending:true});
-      if(!data||!data.length) return;
+      var {data, error} = await sb
+        .from('team_members')
+        .select('*')
+        .eq('active', true)
+        .order('sort_order', {ascending:true})
+        .order('created_at',  {ascending:true});
+
+      // Always clear static placeholders now that we have a definitive response
+      allGroups.forEach(function(g){
+        var el = document.getElementById('teamGrid-'+g);
+        if(el){ el.innerHTML = ''; el.removeAttribute('data-pending'); }
+      });
+
+      if(error || !data || !data.length) return;
+
       data.forEach(function(m){
         var grid = document.getElementById('teamGrid-'+m.group);
         if(!grid) return;
+
         var card = document.createElement('div');
         card.className = 'team-card reveal';
         card.style.borderTopColor = (groupStyles[m.group]||groupStyles['founding']).border;
-        card.innerHTML = buildCard(m).replace(/^<div[^>]*>/,'').replace(/<\/div>$/,'');
+        card.innerHTML = buildCard(m);
         grid.appendChild(card);
-        // Wire up scroll reveal observer
-        if(window._teamRevealObserver) window._teamRevealObserver.observe(card);
-      });
-    }catch(e){}
-  });
 
-  // Store observer reference for dynamically added cards
-  window._teamRevealObserver = new IntersectionObserver(function(entries){
-    entries.forEach(function(entry){
-      if(entry.isIntersecting){ entry.target.classList.add('visible'); window._teamRevealObserver.unobserve(entry.target); }
-    });
-  }, {threshold:0.1, rootMargin:'0px 0px -40px 0px'});
+        // Wire the new card into the scroll-reveal observer
+        window._teamRevealObserver.observe(card);
+      });
+
+    }catch(e){ console.warn('[GERAMA] team load error:', e); }
+  });
 })();
 </script>
 </body>

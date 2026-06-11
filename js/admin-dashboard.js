@@ -80,6 +80,7 @@
     if(name === 'groups') setTimeout(function(){ if(window.loadGroups) window.loadGroups(); }, 150);
     if(name === 'potw' && window.loadPotwList) setTimeout(window.loadPotwList, 150);
     if(name === 'reels' && window.loadAdminReels) setTimeout(window.loadAdminReels, 150);
+    if(name === 'connect') setTimeout(function(){ if(window.loadConnectStats) window.loadConnectStats(); }, 150);
   };
 
   window.showStatus = function(id, msg, type){
@@ -2121,11 +2122,19 @@ window.loadUsers = async function(){
           '<div id="idx-status-'+safeId+'" style="font-size:0.75rem;margin-top:0.2rem;min-height:1rem;"></div>'+
         '</td>'+
         '<td>'+groupBadge+'</td>'+
-        '<td>'+statusBadge+'</td>'+
         '<td>'+
+          statusBadge+
+          (u.block_reason ? '<br><small style="color:#dc2626;font-size:0.68rem;" title="'+window.escAttr(u.block_reason||'')+'"><i class="fas fa-flag"></i> '+window.escHtml((u.block_reason||'').substring(0,30))+'</small>' : '')+
+        '</td>'+
+        '<td style="white-space:nowrap;">'+
           (isActive
-            ? '<button class="btn-danger" style="font-size:0.75rem;padding:0.3rem 0.6rem;white-space:nowrap;" onclick="deactivateUser(\''+safeEmail+'\',\''+safeId+'\')"><i class="fas fa-user-slash"></i> Deactivate</button>'
-            : '<button class="btn-success" style="font-size:0.75rem;padding:0.3rem 0.6rem;white-space:nowrap;" onclick="reactivateUser(\''+safeEmail+'\',\''+safeId+'\')"><i class="fas fa-user-check"></i> Reactivate</button>')+
+            ? '<div style="display:flex;flex-direction:column;gap:0.3rem;">'+
+                '<button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="blockUser(\''+safeEmail+'\',\''+safeId+'\',\''+window.escAttr(u.full_name||u.email||'User')+'\')"><i class="fas fa-ban"></i> Block</button>'+
+                '<button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;background:#fef3c7;color:#92400e;" onclick="deactivateUser(\''+safeEmail+'\',\''+safeId+'\')"><i class="fas fa-user-slash"></i> Deactivate</button>'+
+              '</div>'
+            : '<div style="display:flex;flex-direction:column;gap:0.3rem;">'+
+                '<button class="btn-success" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="reactivateUser(\''+safeEmail+'\',\''+safeId+'\')"><i class="fas fa-user-check"></i> Reactivate</button>'+
+              '</div>')+
         '</td>'+
       '</tr>';
     }).join('')+
@@ -2205,9 +2214,46 @@ window.deactivateUser = async function(email, safeId){
 
 window.reactivateUser = async function(email, safeId){
   var sb = window.geramaSupabase; if(!sb) return;
-  var {error} = await sb.from('user_profiles').update({is_active:true}).eq('email',email);
+  var {error} = await sb.from('user_profiles').update({is_active:true, block_reason: null}).eq('email',email);
   if(error){ alert('Error: '+error.message); return; }
   window.logActivity('Reactivated user: '+email);
+  window.loadUsers();
+};
+
+// ─── BLOCK USER (with reason — fraud/fake ID/suspicious activity) ─────────────
+window.blockUser = async function(email, safeId, displayName){
+  var reason = window.prompt(
+    'Block "'+displayName+'" ('+email+')?\n\n'+
+    'Enter reason for blocking (will be logged):\n'+
+    'e.g. "Fake ID", "Fraudulent activity", "Suspicious posts", "Multiple accounts"\n\n'+
+    'Leave empty to cancel.',
+    ''
+  );
+  if(reason === null || reason.trim() === '') return; // cancelled
+  var sb = window.geramaSupabase; if(!sb) return;
+
+  var {error} = await sb.from('user_profiles').update({
+    is_active: false,
+    block_reason: reason.trim(),
+    blocked_at: new Date().toISOString(),
+    blocked_by: (window._activeAdminSession && window._activeAdminSession.name) || 'Admin'
+  }).eq('email', email);
+
+  if(error){ alert('Error blocking user: '+error.message); return; }
+
+  // Notify the user if possible
+  try{
+    await sb.from('user_notifications').insert({
+      user_email: email,
+      type: 'account_blocked',
+      message: '🚫 Your account has been suspended. Reason: '+reason+'. Contact GERAMA admin to appeal.',
+      is_read: false,
+      created_at: new Date().toISOString()
+    });
+  }catch(e){}
+
+  window.logActivity('🚫 BLOCKED user: '+email+' | Reason: '+reason);
+  alert('✅ User "'+displayName+'" has been blocked.\nReason: '+reason);
   window.loadUsers();
 };
 
@@ -3092,6 +3138,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
         '<button onclick="window.showAddGroupModal()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-plus"></i> New Group</button>'+
         '<button onclick="window.randomlyAssignAll()" class="btn-gold" style="font-size:0.82rem;padding:0.45rem 1rem;"><i class="fas fa-random"></i> Auto-Assign</button>'+
         '<button onclick="window.rebalanceGroups()" style="background:linear-gradient(135deg,#059669,#10b981);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Move excess members (>25) to Group F, gender-balanced"><i class="fas fa-balance-scale"></i> Rebalance</button>'+
+        '<button onclick="window.pushGroupsToAllProfiles()" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Force-sync group names into all user_profiles — so all students see their group immediately"><i class="fas fa-broadcast-tower"></i> Push Groups</button>'+
         '<button onclick="window.loadGroups()" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.45rem 0.9rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-sync-alt"></i> Refresh</button>'+
         '<button onclick="window.downloadGroupsCSV()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> Export All</button>'+
       '</div>'+
@@ -3182,6 +3229,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
         '</div>'+
         '<div style="display:flex;align-items:center;gap:0.5rem;">'+
           '<button onclick="event.stopPropagation();window.downloadSingleGroupCSV(\''+window.escAttr(group.id)+'\',\''+window.escAttr(group.name)+'\')" style="background:white;color:'+color+';border:1px solid '+color+';padding:0.2rem 0.6rem;border-radius:12px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Export this group"><i class="fas fa-download"></i> Export</button>'+
+          '<button onclick="event.stopPropagation();window.deleteGroup(\''+window.escAttr(group.id)+'\',\''+window.escAttr(group.name)+'\')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:0.2rem 0.6rem;border-radius:12px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Delete this group"><i class="fas fa-trash"></i> Delete</button>'+
           '<span style="background:'+color+';color:white;border-radius:20px;padding:0.15rem 0.7rem;font-size:0.8rem;font-weight:700;">'+members.length+'/'+GROUP_MAX+'</span>'+
           '<i id="acc-icon-'+accordionId+'" class="fas fa-chevron-down" style="color:'+color+';font-size:0.85rem;transition:transform 0.2s;"></i>'+
         '</div>'+
@@ -3396,6 +3444,70 @@ window.confirmMove = async function(){
 
   document.getElementById('moveGroupModal').style.display = 'none';
   window.logActivity('Moved member to '+((window._geramaGroups||[]).find(function(g){return g.id===targetGroupId;})||{}).name);
+  window.loadGroups();
+};
+
+// ─── PUSH ALL GROUP NAMES TO USER_PROFILES ────────────────────────────────────
+// Forces every group member's user_profiles.group_name to match their assigned group.
+// Run this after any bulk changes so all students see their group immediately.
+window.pushGroupsToAllProfiles = async function(){
+  var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
+  var allMembers = window._allGroupMembers || [];
+  var allGroups  = window._geramaGroups   || [];
+  if(!allMembers.length){ alert('No group members found. Load groups first.'); return; }
+
+  if(!confirm('Push group assignments to all '+allMembers.length+' member profile(s)? Students will see their group immediately after this.')) return;
+
+  var groupMap = {};
+  allGroups.forEach(function(g){ groupMap[g.id] = g.name; });
+
+  var ok = 0, fail = 0;
+  for(var i = 0; i < allMembers.length; i++){
+    var m = allMembers[i];
+    var gName = groupMap[m.group_id];
+    if(!gName || !m.user_email) continue;
+    try{
+      var {error} = await sb.from('user_profiles').update({ group_name: gName }).eq('email', m.user_email);
+      if(!error) ok++; else fail++;
+    }catch(e){ fail++; }
+  }
+
+  window.logActivity('Pushed group names to '+ok+' user profiles'+(fail>0?' ('+fail+' failed)':''));
+  alert('✅ Done! Group names pushed to '+ok+' student profile'+(ok!==1?'s':'')+'. Students will see their group on next login or page refresh.'+(fail>0?'\n⚠️ '+fail+' failed — check console.':''));
+  window.loadGroups();
+};
+
+// ─── DELETE GROUP ─────────────────────────────────────────────────────────────
+window.deleteGroup = async function(groupId, groupName){
+  var members = (window._allGroupMembers||[]).filter(function(m){ return m.group_id === groupId; });
+  var memberCount = members.length;
+  var msg = 'Delete group "'+groupName+'"?';
+  if(memberCount > 0){
+    msg += '\n\n⚠️ This group has '+memberCount+' member'+(memberCount!==1?'s':'')+'. They will be UNASSIGNED — their group_name will be cleared from their profiles.';
+  }
+  msg += '\n\nThis action cannot be undone. Type DELETE to confirm.';
+  var input = window.prompt(msg);
+  if(!input || input.trim().toUpperCase() !== 'DELETE'){
+    alert('Deletion cancelled — you must type DELETE to confirm.');
+    return;
+  }
+  var sb = window.geramaSupabase; if(!sb) return;
+
+  // Clear group_name from all affected user_profiles first
+  if(memberCount > 0){
+    for(var i=0;i<members.length;i++){
+      try{ await sb.from('user_profiles').update({ group_name: null }).eq('email', members[i].user_email); }catch(e){}
+    }
+    // Delete all members from this group
+    await sb.from('gerama_group_members').delete().eq('group_id', groupId);
+  }
+
+  // Delete the group itself
+  var {error} = await sb.from('gerama_groups').delete().eq('id', groupId);
+  if(error){ alert('Error deleting group: '+error.message); return; }
+
+  window.logActivity('Deleted group: '+groupName+(memberCount>0?' ('+memberCount+' members unassigned)':''));
+  alert('✅ Group "'+groupName+'" deleted.'+(memberCount>0?' '+memberCount+' member'+(memberCount!==1?'s':'')+' have been unassigned.':''));
   window.loadGroups();
 };
 
@@ -3720,3 +3832,151 @@ window.quickMemberLookup = async function(q) {
     }
   };
 })();
+
+// ═══════════════════════════════════════════════════════════════
+// GERAMA CONNECT — Admin Panel Functions
+// ═══════════════════════════════════════════════════════════════
+
+window.loadConnectStats = async function(){
+  var sb = window.geramaSupabase; if(!sb) return;
+
+  // Stats
+  try{
+    var res = await Promise.allSettled([
+      sb.from('connect_messages').select('id', {count:'exact',head:true}),
+      sb.from('connect_statuses').select('id',{count:'exact',head:true}).gte('expires_at',new Date().toISOString()),
+      sb.from('connect_groups').select('id',{count:'exact',head:true}),
+      sb.from('user_profiles').select('id',{count:'exact',head:true}).eq('is_active',false)
+    ]);
+    var counts = res.map(function(r){ return (r.status==='fulfilled' && r.value && r.value.count != null) ? r.value.count : '—'; });
+    ['cStatMsg','cStatStatus','cStatGroups','cStatBlocked'].forEach(function(id,i){
+      var el = document.getElementById(id); if(el) el.textContent = counts[i];
+    });
+  }catch(e){}
+
+  // Load recent messages
+  window.loadAdminConnectMessages();
+  window.loadAdminConnectStatuses();
+  window.loadAdminConnectGroups();
+};
+
+window.loadAdminConnectMessages = async function(){
+  var el = document.getElementById('adminConnectMessages'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+  el.innerHTML='<p style="color:#9ca3af;"><i class="fas fa-spinner fa-spin"></i> Loading…</p>';
+
+  var {data,error} = await sb.from('connect_messages').select('*').order('created_at',{ascending:false}).limit(50);
+  if(error||!data||!data.length){
+    el.innerHTML='<p style="color:#9ca3af;font-size:0.85rem;text-align:center;padding:1.5rem;">No messages yet — or table not set up. <a href="connect.html" target="_blank" style="color:#0ea5e9;">Open Connect to run setup SQL →</a></p>';
+    return;
+  }
+
+  var html = '<div style="display:flex;flex-direction:column;gap:0.5rem;">';
+  data.forEach(function(m){
+    var dt = new Date(m.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    var isGroup = m.is_group;
+    var tag = isGroup
+      ? '<span style="background:#ede9fe;color:#7c3aed;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:8px;">Group</span>'
+      : '<span style="background:#e0f2fe;color:#0369a1;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:8px;">DM</span>';
+    html += '<div style="background:#f8fafc;border-radius:10px;padding:0.6rem 0.9rem;border:1px solid #e5e7eb;display:flex;align-items:flex-start;gap:0.8rem;">'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-size:0.82rem;font-weight:700;color:#1e2a3e;">'+tag+' <span style="color:#0369a1;">'+window.escHtml(m.sender_name||m.sender_email||'Unknown')+'</span>'+(isGroup?'':' → <span style="color:#6b7280;">'+window.escHtml(m.recipient_name||m.recipient_email||'')+'</span>')+'</div>'+
+        '<div style="font-size:0.82rem;color:#374151;margin-top:0.2rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+window.escHtml((m.text||'').substring(0,120))+'</div>'+
+        '<div style="font-size:0.7rem;color:#9ca3af;margin-top:0.15rem;">'+dt+'</div>'+
+      '</div>'+
+      '<button class="btn-danger" style="font-size:0.7rem;padding:0.2rem 0.5rem;flex-shrink:0;" onclick="adminDeleteConnectMsg(\''+window.escAttr(m.id)+'\')"><i class="fas fa-trash"></i></button>'+
+    '</div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+};
+
+window.adminDeleteConnectMsg = async function(id){
+  if(!confirm('Delete this message permanently?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('connect_messages').delete().eq('id',id);
+  window.logActivity('Deleted Connect message: '+id);
+  window.loadAdminConnectMessages();
+};
+
+window.loadAdminConnectStatuses = async function(){
+  var el = document.getElementById('adminConnectStatuses'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  el.innerHTML='<p style="color:#9ca3af;"><i class="fas fa-spinner fa-spin"></i> Loading…</p>';
+
+  var {data,error} = await sb.from('connect_statuses').select('*').gte('expires_at',new Date().toISOString()).order('created_at',{ascending:false});
+  if(error||!data||!data.length){
+    el.innerHTML='<p style="color:#9ca3af;font-size:0.85rem;text-align:center;padding:1rem;">No active statuses.</p>';
+    return;
+  }
+
+  var html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0.7rem;">';
+  data.forEach(function(s){
+    var dt = new Date(s.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    var expires = new Date(s.expires_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    var preview = s.type==='photo'
+      ? '<img src="'+window.escAttr(s.photo_url||'')+'" style="width:100%;height:80px;object-fit:cover;border-radius:8px;margin-top:0.4rem;">'
+      : '<div style="background:'+(s.bg||'#0369a1')+';border-radius:8px;padding:0.5rem 0.7rem;margin-top:0.4rem;font-size:0.78rem;font-weight:700;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+window.escHtml(s.text||'')+'</div>';
+    html += '<div style="background:#f8fafc;border-radius:12px;padding:0.8rem;border:1px solid #e5e7eb;">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">'+
+        '<div style="font-size:0.82rem;font-weight:700;color:#1e2a3e;">'+window.escHtml(s.author_name||s.author_email||'Unknown')+'</div>'+
+        '<button class="btn-danger" style="font-size:0.68rem;padding:0.15rem 0.4rem;" onclick="adminDeleteConnectStatus(\''+window.escAttr(s.id)+'\')"><i class="fas fa-ban"></i> Remove</button>'+
+      '</div>'+
+      '<div style="font-size:0.7rem;color:#9ca3af;">Posted: '+dt+' &nbsp;·&nbsp; Expires: '+expires+'</div>'+
+      preview+
+    '</div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+};
+
+window.adminDeleteConnectStatus = async function(id){
+  if(!confirm('Remove this status?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('connect_statuses').delete().eq('id',id);
+  window.logActivity('Removed Connect status: '+id);
+  window.loadAdminConnectStatuses();
+};
+
+window.loadAdminConnectGroups = async function(){
+  var el = document.getElementById('adminConnectGroups'); if(!el) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  el.innerHTML='<p style="color:#9ca3af;"><i class="fas fa-spinner fa-spin"></i> Loading…</p>';
+
+  var {data,error} = await sb.from('connect_groups').select('*').order('created_at',{ascending:false});
+  if(error||!data||!data.length){
+    el.innerHTML='<p style="color:#9ca3af;font-size:0.85rem;text-align:center;padding:1rem;">No group chats yet.</p>';
+    return;
+  }
+
+  var html='<div style="display:flex;flex-direction:column;gap:0.5rem;">';
+  data.forEach(function(g){
+    var dt = new Date(g.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    html += '<div class="sub-card">'+
+      '<div class="sub-info">'+
+        '<strong>'+window.escHtml(g.emoji||'💬')+' '+window.escHtml(g.name)+'</strong>'+
+        '<div class="sub-meta">'+
+          '<b>Created by:</b> '+window.escHtml(g.created_by||'—')+' &nbsp;·&nbsp; '+
+          '<b>Members:</b> '+window.escHtml(g.member_count||0)+' &nbsp;·&nbsp; '+
+          '<b>Last msg:</b> '+window.escHtml((g.last_message||'—').substring(0,40))+'<br>'+
+          '<b>Created:</b> '+dt+
+        '</div>'+
+      '</div>'+
+      '<div class="sub-actions">'+
+        '<button class="btn-danger" onclick="adminDeleteConnectGroup(\''+window.escAttr(g.id)+'\',\''+window.escAttr(g.name)+'\')"><i class="fas fa-trash"></i> Delete</button>'+
+      '</div>'+
+    '</div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+};
+
+window.adminDeleteConnectGroup = async function(id,name){
+  if(!confirm('Delete group "'+name+'" and ALL its messages?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('connect_messages').delete().eq('group_id',id);
+  await sb.from('connect_groups').delete().eq('id',id);
+  window.logActivity('Deleted Connect group: '+name);
+  window.loadAdminConnectGroups();
+  window.loadAdminConnectMessages();
+};

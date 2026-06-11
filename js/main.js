@@ -259,6 +259,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     <a href="index.html"><i class="fas fa-home"></i> Home</a>
                     <a href="resources.html"><i class="fas fa-book-open"></i> Resources <span id="navBadgeResources" style="display:none;background:#1B5E20;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
                     <a href="classroom.html"><i class="fas fa-chalkboard-teacher"></i> Classroom <span id="navBadgeClassroom" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
+                    <a href="connect.html" style="background:rgba(14,165,233,0.1);border-left:3px solid #0ea5e9;color:#0ea5e9;"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> 📡 GERAMA Connect <span style="background:#0ea5e9;color:white;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;" id="navBadgeConnect">NEW</span></a>
                     <a href="mall.html" style="background:rgba(255,193,7,0.12);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-store" style="color:#FFC107;"></i> 🛍️ Urban Mall <span style="background:#FFC107;color:#0a2f1f;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;">NEW</span></a>
                     <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
                     <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
@@ -705,18 +706,19 @@ if(!document.getElementById('confettiStyle')) {
         if(!email) return;
 
         window.geramaSupabase.from('user_profiles')
-            .select('index_number, is_active, full_name, program, level, phone')
+            .select('index_number, is_active, block_reason, full_name, program, level, phone')
             .eq('email', email)
             .single()
             .then(function(res) {
                 if(!res || !res.data) return;
 
-                // Check if deactivated
+                // Check if deactivated/blocked
                 if(res.data.is_active === false) {
                     window.geramaSupabase.auth.signOut();
                     sessionStorage.clear();
                     localStorage.removeItem('gerama_profile');
-                    alert('Your account has been deactivated by the admin. Please contact GERAMA.');
+                    var reason = res.data.block_reason ? '\nReason: '+res.data.block_reason : '';
+                    alert('Your account has been suspended by the admin.'+reason+'\n\nContact GERAMA if you believe this is an error.');
                     window.location.href = 'login.html';
                     return;
                 }
@@ -770,8 +772,8 @@ if(!document.getElementById('confettiStyle')) {
         { href:'index.html',     icon:'fas fa-home',               label:'Home' },
         { href:'resources.html', icon:'fas fa-book-open',          label:'Resources' },
         { href:'classroom.html', icon:'fas fa-chalkboard-teacher', label:'Classroom' },
-        { href:'mall.html',      icon:'fas fa-store',              label:'Mall' },
-        { href:'contact.html',   icon:'fas fa-envelope',           label:'Contact' }
+        { href:'connect.html',   icon:'fas fa-satellite-dish',     label:'Connect' },
+        { href:'mall.html',      icon:'fas fa-store',              label:'Mall' }
     ];
 
     nav.innerHTML = links.map(function(l) {
