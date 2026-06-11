@@ -2050,15 +2050,30 @@ window.loadUsers = async function(){
     return;
   }
 
+  // Also fetch group membership to show group in user list
+  var groupMembersMap = {};
+  try{
+    var {data: gmData} = await sb.from('gerama_group_members').select('user_email, group_id, role, gerama_groups(name)');
+    (gmData||[]).forEach(function(gm){
+      groupMembersMap[gm.user_email] = { groupName: (gm.gerama_groups && gm.gerama_groups.name) || gm.group_id, role: gm.role };
+    });
+  }catch(e){}
+
   // Count stats
   var active = data.filter(function(u){ return u.is_active !== false; }).length;
   var withIndex = data.filter(function(u){ return u.index_number; }).length;
+  var withGroup = Object.keys(groupMembersMap).length;
+
+  // Store data for filtering
+  window._allUsersData = data;
+  window._groupMembersMap = groupMembersMap;
 
   el.innerHTML =
     '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;">'+
       '<div style="background:#e8f5e9;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1B5E20;">'+data.length+'</strong> <span style="color:#6b7280;">Total</span></div>'+
       '<div style="background:#dbeafe;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1d4ed8;">'+active+'</strong> <span style="color:#6b7280;">Active</span></div>'+
       '<div style="background:#fef3c7;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#92400e;">'+withIndex+'</strong> <span style="color:#6b7280;">With Index No.</span></div>'+
+      '<div style="background:#f5f3ff;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#6366f1;">'+withGroup+'</strong> <span style="color:#6b7280;">In a Group</span></div>'+
       '<div style="margin-left:auto;display:flex;gap:0.5rem;flex-wrap:wrap;">'+
         '<button class="btn-gold" onclick="downloadUsersCSV()" style="padding:0.5rem 1rem;font-size:0.82rem;"><i class="fas fa-download"></i> Download CSV</button>'+
         '<button class="btn-primary" onclick="printUsersTable()" style="padding:0.5rem 1rem;font-size:0.82rem;background:#6366f1;"><i class="fas fa-print"></i> Print</button>'+
@@ -2067,6 +2082,7 @@ window.loadUsers = async function(){
     '<div class="tbl-wrap"><table><thead><tr>'+
       '<th>Name</th><th>Email</th><th>Phone</th><th>Program</th><th>Level</th>'+
       '<th>Index Number <small style="font-weight:400;color:#9ca3af;">(UETG/ENG/26/001)</small></th>'+
+      '<th>Group</th>'+
       '<th>Status</th><th>Actions</th>'+
     '</tr></thead><tbody>'+
     data.map(function(u){
@@ -2077,6 +2093,16 @@ window.loadUsers = async function(){
         : '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Inactive</span>';
       var safeEmail = window.escAttr(u.email||'');
       var safeId = (u.id||'').replace(/[^a-z0-9]/gi,'');
+
+      // Group info
+      var gmInfo = groupMembersMap[u.email] || {};
+      var groupBadge = gmInfo.groupName
+        ? '<div style="display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;">'+
+            '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">'+window.escHtml(gmInfo.groupName)+'</span>'+
+            (gmInfo.role==='tutor'?'<span style="background:#fef3c7;color:#92400e;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:10px;">Tutor</span>':'')+
+          '</div>'
+        : '<span style="color:#9ca3af;font-size:0.78rem;">Not assigned</span>';
+
       return '<tr id="urow-'+safeId+'">'+
         '<td><strong>'+window.escHtml(u.full_name||'—')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
         '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'—')+'</td>'+
@@ -2094,6 +2120,7 @@ window.loadUsers = async function(){
           '</div>'+
           '<div id="idx-status-'+safeId+'" style="font-size:0.75rem;margin-top:0.2rem;min-height:1rem;"></div>'+
         '</td>'+
+        '<td>'+groupBadge+'</td>'+
         '<td>'+statusBadge+'</td>'+
         '<td>'+
           (isActive
@@ -2190,13 +2217,23 @@ window.downloadUsersCSV = async function(){
   var {data} = await sb.from('user_profiles').select('*').order('created_at',{ascending:false});
   if(!data||!data.length){ alert('No users to download.'); return; }
 
-  var headers = ['Full Name','Email','Phone','Program','Level','Index Number','Status','Joined'];
+  // Fetch group memberships
+  var groupMap = {};
+  try{
+    var {data: gmData} = await sb.from('gerama_group_members').select('user_email, role, gerama_groups(name)');
+    (gmData||[]).forEach(function(gm){
+      groupMap[gm.user_email] = { name: (gm.gerama_groups && gm.gerama_groups.name)||'', role: gm.role||'member' };
+    });
+  }catch(e){}
+
+  var headers = ['Full Name','Email','Phone','Program','Level','Index Number','Group','Group Role','Status','Joined'];
   var rows = data.map(function(u){
     var dt = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB') : '';
     var status = u.is_active === false ? 'Inactive' : 'Active';
+    var gm = groupMap[u.email] || {};
     return [
       u.full_name||'', u.email||'', u.phone||'', u.program||'', u.level||'',
-      u.index_number||'', status, dt
+      u.index_number||'', gm.name||'', gm.role||'', status, dt
     ].map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
   });
 
@@ -2253,26 +2290,22 @@ window.printUsersTable = function(){
 // ─── USERS SEARCH & FILTER ───────────────────────────────────────
 var _allUsersData = [];
 
-// Override loadUsers to store data for filtering
-var _origLoadUsers = window.loadUsers;
-window.loadUsers = async function(){
-  var sb = window.geramaSupabase; if(!sb) return;
-  var {data, error} = await sb.from('user_profiles').select('*').order('created_at',{ascending:false});
-  if(error || !data) { if(_origLoadUsers) _origLoadUsers(); return; }
-  _allUsersData = data;
-  renderUsersTable(data);
-};
+// Note: loadUsers is defined above and now stores window._allUsersData and window._groupMembersMap
 
 window.filterUsers = function(){
   var q = (document.getElementById('userSearch')||{}).value||'';
   var prog = (document.getElementById('userFilterProgram')||{}).value||'';
   var level = (document.getElementById('userFilterLevel')||{}).value||'';
   q = q.toLowerCase();
-  var filtered = _allUsersData.filter(function(u){
+  var allData = window._allUsersData || _allUsersData || [];
+  var gMap = window._groupMembersMap || {};
+  var filtered = allData.filter(function(u){
+    var gm = gMap[u.email] || {};
     var matchQ = !q || (u.full_name||'').toLowerCase().includes(q) ||
                        (u.email||'').toLowerCase().includes(q) ||
                        (u.index_number||'').toLowerCase().includes(q) ||
-                       (u.phone||'').includes(q);
+                       (u.phone||'').includes(q) ||
+                       (gm.groupName||'').toLowerCase().includes(q);
     var matchP = !prog || u.program === prog;
     var matchL = !level || u.level === level;
     return matchQ && matchP && matchL;
@@ -2288,6 +2321,7 @@ function renderUsersTable(data){
   }
   var active = data.filter(function(u){ return u.is_active !== false; }).length;
   var withIndex = data.filter(function(u){ return u.index_number; }).length;
+  var gMap = window._groupMembersMap || {};
 
   el.innerHTML =
     '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;">'+
@@ -2301,7 +2335,7 @@ function renderUsersTable(data){
     '</div>'+
     '<div class="tbl-wrap"><table><thead><tr>'+
       '<th>Name</th><th>Email</th><th>Phone</th><th>Program</th><th>Level</th>'+
-      '<th>Index Number</th><th>Status</th><th>Actions</th>'+
+      '<th>Index Number</th><th>Group</th><th>Status</th><th>Actions</th>'+
     '</tr></thead><tbody>'+
     data.map(function(u){
       var dt = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
@@ -2311,6 +2345,11 @@ function renderUsersTable(data){
         : '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Inactive</span>';
       var safeEmail = window.escAttr(u.email||'');
       var safeId = (u.id||'').replace(/[^a-z0-9]/gi,'');
+      var gmInfo = gMap[u.email] || {};
+      var groupBadge = gmInfo.groupName
+        ? '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;white-space:nowrap;">'+window.escHtml(gmInfo.groupName)+'</span>'+
+          (gmInfo.role==='tutor'?' <span style="background:#fef3c7;color:#92400e;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:10px;">Tutor</span>':'')
+        : '<span style="color:#9ca3af;font-size:0.78rem;">—</span>';
       return '<tr id="urow-'+safeId+'">'+
         '<td><strong>'+window.escHtml(u.full_name||'—')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
         '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'—')+'</td>'+
@@ -2328,6 +2367,7 @@ function renderUsersTable(data){
           '</div>'+
           '<div id="idx-status-'+safeId+'" style="font-size:0.75rem;margin-top:0.2rem;min-height:1rem;"></div>'+
         '</td>'+
+        '<td>'+groupBadge+'</td>'+
         '<td>'+statusBadge+'</td>'+
         '<td>'+
           (isActive
@@ -2951,14 +2991,15 @@ window.importScoresFromCSV = async function() {
 };
 
 // ============================================================
-//  GERAMA TEAM GROUPS MANAGEMENT
+//  GERAMA TEAM GROUPS MANAGEMENT (v2 — Group F, index numbers, balance, per-group export, tutor-on-top)
 //  Tables required in Supabase:
 //    gerama_groups  (id, name, color, created_at)
-//    gerama_group_members (id, group_id, user_email, user_name, role, assigned_at)
+//    gerama_group_members (id, group_id, user_email, user_name, role, index_number, gender, assigned_at)
 // ============================================================
 
-var GROUP_NAMES = ['Gerama A', 'Gerama B', 'Gerama C', 'Gerama D', 'Gerama E'];
-var GROUP_COLORS = ['#1B5E20','#1565C0','#6A1B9A','#E65100','#AD1457'];
+var GROUP_NAMES = ['Gerama A', 'Gerama B', 'Gerama C', 'Gerama D', 'Gerama E', 'Gerama F'];
+var GROUP_COLORS = ['#1B5E20','#1565C0','#6A1B9A','#E65100','#AD1457','#00695C'];
+var GROUP_MAX = 25; // max per group after rebalance
 
 window.loadGroups = async function(){
   var container = document.getElementById('groupsContainer');
@@ -2969,7 +3010,7 @@ window.loadGroups = async function(){
   container.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading groups...</p>';
 
   try{
-    // Ensure all 5 groups exist
+    // Ensure all 6 default groups exist
     var {data: existingGroups} = await sb.from('gerama_groups').select('*').order('name');
     if(!existingGroups || existingGroups.length < GROUP_NAMES.length){
       for(var i=0;i<GROUP_NAMES.length;i++){
@@ -2988,7 +3029,7 @@ window.loadGroups = async function(){
     allMembers = allMembers || [];
 
     // Fetch all registered users for "Add member" dropdowns
-    var {data: allUsers} = await sb.from('user_profiles').select('email, full_name, level, program').order('full_name');
+    var {data: allUsers} = await sb.from('user_profiles').select('email, full_name, level, program, index_number, gender').order('full_name');
     allUsers = allUsers || [];
 
     // Store globally for use in modal functions
@@ -2998,7 +3039,7 @@ window.loadGroups = async function(){
 
     renderGroupsUI(existingGroups, allMembers, allUsers, container);
   } catch(e){
-    container.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.2rem;border-radius:12px;"><strong>Error:</strong> '+window.escHtml(e.message)+'<br><br>Make sure the <code>gerama_groups</code> and <code>gerama_group_members</code> tables exist in your Supabase database. <a href="#" onclick="window.showGroupsSetupSQL();return false;" style="color:#dc2626;font-weight:700;text-decoration:underline;">View Setup SQL</a></div>';
+    container.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.2rem;border-radius:12px;"><strong>Error:</strong> '+window.escHtml(e.message)+'<br><br>Make sure the <code>gerama_groups</code> and <code>gerama_group_members</code> tables exist. <a href="#" onclick="window.showGroupsSetupSQL();return false;" style="color:#dc2626;font-weight:700;text-decoration:underline;">View Setup SQL</a></div>';
   }
 };
 
@@ -3033,6 +3074,10 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
   var assignedEmails = allMembers.map(function(m){ return m.user_email; });
   var unassignedUsers = allUsers.filter(function(u){ return assignedEmails.indexOf(u.email) === -1; });
 
+  // ── Build the merge-users map: enrich member rows with index_number/gender from user_profiles ──
+  var userMap = {};
+  allUsers.forEach(function(u){ userMap[u.email] = u; });
+
   var headerHtml =
     '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;padding:1rem 1.2rem;background:linear-gradient(135deg,#e8f5e9,#f0fdf4);border-radius:14px;border:1px solid #c8e6c9;">'+
       '<div>'+
@@ -3044,33 +3089,57 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
         '</div>'+
       '</div>'+
       '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">'+
-        '<button onclick="window.randomlyAssignAll()" class="btn-gold" style="font-size:0.82rem;padding:0.45rem 1rem;"><i class="fas fa-random"></i> Auto-Assign Unassigned</button>'+
+        '<button onclick="window.showAddGroupModal()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-plus"></i> New Group</button>'+
+        '<button onclick="window.randomlyAssignAll()" class="btn-gold" style="font-size:0.82rem;padding:0.45rem 1rem;"><i class="fas fa-random"></i> Auto-Assign</button>'+
+        '<button onclick="window.rebalanceGroups()" style="background:linear-gradient(135deg,#059669,#10b981);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Move excess members (>25) to Group F, gender-balanced"><i class="fas fa-balance-scale"></i> Rebalance</button>'+
         '<button onclick="window.loadGroups()" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.45rem 0.9rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-sync-alt"></i> Refresh</button>'+
-        '<button onclick="window.downloadGroupsCSV()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> Export CSV</button>'+
+        '<button onclick="window.downloadGroupsCSV()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> Export All</button>'+
       '</div>'+
     '</div>';
 
   var groupsHtml = groups.map(function(group){
     var members = allMembers.filter(function(m){ return m.group_id === group.id; });
+    // Tutors on top, then regular members — each sorted by name
     var tutors = members.filter(function(m){ return m.role === 'tutor'; });
-    var regularMembers = members.filter(function(m){ return m.role !== 'tutor'; });
+    var regulars = members.filter(function(m){ return m.role !== 'tutor'; });
+    tutors.sort(function(a,b){ return (a.user_name||'').localeCompare(b.user_name||''); });
+    regulars.sort(function(a,b){ return (a.user_name||'').localeCompare(b.user_name||''); });
+    var sortedMembers = tutors.concat(regulars);
+
     var color = group.color || '#1B5E20';
     var lighterBg = hexToRgba(color, 0.07);
     var borderColor = hexToRgba(color, 0.3);
+    var isFull = members.length >= GROUP_MAX;
 
-    // Member rows
-    var memberRows = members.map(function(m){
+    // Count gender for display
+    var femaleCount = members.filter(function(m){ var u=userMap[m.user_email]; return u && (u.gender||'').toLowerCase()==='female'; }).length;
+    var maleCount = members.filter(function(m){ var u=userMap[m.user_email]; return u && (u.gender||'').toLowerCase()==='male'; }).length;
+
+    // Member rows — tutors rendered first
+    var memberRows = sortedMembers.map(function(m, rowIdx){
       var isTutor = m.role === 'tutor';
       var roleBadge = isTutor
         ? '<span style="background:'+hexToRgba(color,0.15)+';color:'+color+';font-size:0.7rem;font-weight:800;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.3rem;"><i class="fas fa-chalkboard-teacher"></i> Tutor</span>'
         : '';
       var safeId = m.id.replace(/-/g,'');
-      return '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.6rem;background:white;border-radius:8px;border:1px solid #f1f5f9;margin-bottom:0.3rem;" id="gmrow-'+safeId+'">'+
+      // Get index number — from member record or from user_profiles
+      var userInfo = userMap[m.user_email] || {};
+      var indexNum = m.index_number || userInfo.index_number || '';
+      var indexBadge = indexNum
+        ? '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:8px;margin-left:0.3rem;font-family:monospace;">'+window.escHtml(indexNum)+'</span>'
+        : '<span style="background:#f1f5f9;color:#9ca3af;font-size:0.68rem;padding:0.1rem 0.4rem;border-radius:8px;margin-left:0.3rem;" title="No index number yet">—</span>';
+
+      // Row background: tutors get a subtle highlight
+      var rowBg = isTutor ? hexToRgba(color, 0.04) : 'white';
+      var rowBorder = isTutor ? '1px solid '+hexToRgba(color, 0.2) : '1px solid #f1f5f9';
+
+      return '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.6rem;background:'+rowBg+';border-radius:8px;border:'+rowBorder+';margin-bottom:0.3rem;" id="gmrow-'+safeId+'">'+
+        '<div style="width:22px;text-align:center;font-size:0.72rem;color:#9ca3af;font-weight:600;flex-shrink:0;">'+(rowIdx+1)+'</div>'+
         '<div style="width:28px;height:28px;border-radius:50%;background:'+color+';color:white;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">'+
           window.escHtml((m.user_name||'?').charAt(0).toUpperCase())+
         '</div>'+
         '<div style="flex:1;min-width:0;">'+
-          '<div style="font-size:0.85rem;font-weight:600;color:#1e2a3e;">'+window.escHtml(m.user_name||m.user_email||'—')+roleBadge+'</div>'+
+          '<div style="font-size:0.85rem;font-weight:600;color:#1e2a3e;">'+window.escHtml(m.user_name||m.user_email||'—')+roleBadge+indexBadge+'</div>'+
           '<div style="font-size:0.72rem;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+window.escHtml(m.user_email||'')+'</div>'+
         '</div>'+
         '<div style="display:flex;gap:0.3rem;flex-shrink:0;">'+
@@ -3088,12 +3157,17 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
     var addOptions = allUsers
       .filter(function(u){ return membersEmails.indexOf(u.email) === -1; })
       .map(function(u){
-        return '<option value="'+window.escAttr(u.email)+'">'+window.escHtml((u.full_name||u.email)+(u.level?' ['+u.level+']':''))+'</option>';
+        var idx = u.index_number ? ' ['+u.index_number+']' : '';
+        return '<option value="'+window.escAttr(u.email)+'">'+window.escHtml((u.full_name||u.email)+idx+(u.level?' '+u.level:''))+'</option>';
       }).join('');
 
     var accordionId = 'group-accordion-'+group.id.replace(/-/g,'');
+    var genderInfo = (femaleCount || maleCount)
+      ? '<span style="font-size:0.72rem;color:#6b7280;margin-left:0.4rem;">♀ '+femaleCount+' ♂ '+maleCount+'</span>'
+      : '';
+
     return '<div style="margin-bottom:1.2rem;border:1px solid '+borderColor+';border-radius:14px;overflow:hidden;">'+
-      // Header (clickable to open/close)
+      // Header
       '<div onclick="toggleGroupAccordion(\''+accordionId+'\')" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;background:'+lighterBg+';cursor:pointer;user-select:none;">'+
         '<div style="display:flex;align-items:center;gap:0.8rem;">'+
           '<div style="width:10px;height:10px;border-radius:50%;background:'+color+';flex-shrink:0;"></div>'+
@@ -3102,35 +3176,39 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
             '<div style="font-size:0.78rem;color:#6b7280;margin-top:0.1rem;">'+
               '<span style="font-weight:600;">'+members.length+'</span> member'+(members.length!==1?'s':'')+
               (tutors.length?' &nbsp;·&nbsp; <span style="color:'+color+';font-weight:600;">'+tutors.length+' tutor'+(tutors.length!==1?'s':'')+'</span>':'')+
+              genderInfo+
             '</div>'+
           '</div>'+
         '</div>'+
         '<div style="display:flex;align-items:center;gap:0.5rem;">'+
-          '<span style="background:'+color+';color:white;border-radius:20px;padding:0.15rem 0.7rem;font-size:0.8rem;font-weight:700;">'+members.length+'/30</span>'+
+          '<button onclick="event.stopPropagation();window.downloadSingleGroupCSV(\''+window.escAttr(group.id)+'\',\''+window.escAttr(group.name)+'\')" style="background:white;color:'+color+';border:1px solid '+color+';padding:0.2rem 0.6rem;border-radius:12px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Export this group"><i class="fas fa-download"></i> Export</button>'+
+          '<span style="background:'+color+';color:white;border-radius:20px;padding:0.15rem 0.7rem;font-size:0.8rem;font-weight:700;">'+members.length+'/'+GROUP_MAX+'</span>'+
           '<i id="acc-icon-'+accordionId+'" class="fas fa-chevron-down" style="color:'+color+';font-size:0.85rem;transition:transform 0.2s;"></i>'+
         '</div>'+
       '</div>'+
-      // Body (hidden by default, toggleable)
+      // Body
       '<div id="'+accordionId+'" style="display:none;padding:1rem 1.2rem;background:white;">'+
         // Tutors highlighted section
         (tutors.length ? '<div style="background:'+hexToRgba(color,0.06)+';border-radius:10px;padding:0.7rem 0.8rem;margin-bottom:0.8rem;border-left:3px solid '+color+';">'+
           '<div style="font-size:0.78rem;font-weight:700;color:'+color+';margin-bottom:0.4rem;"><i class="fas fa-chalkboard-teacher"></i> Assigned Tutors</div>'+
           tutors.map(function(t){
-            return '<div style="font-size:0.85rem;color:#374151;font-weight:600;">👨‍🏫 '+window.escHtml(t.user_name||t.user_email)+'</div>';
+            var userInfo = userMap[t.user_email] || {};
+            var idxNum = t.index_number || userInfo.index_number || '';
+            return '<div style="font-size:0.85rem;color:#374151;font-weight:600;">👨‍🏫 '+window.escHtml(t.user_name||t.user_email)+(idxNum?' <span style="font-size:0.72rem;color:#1B5E20;font-family:monospace;">['+window.escHtml(idxNum)+']</span>':'')+'</div>';
           }).join('')+
         '</div>' : '')+
         // Members list
         (members.length ? memberRows : '<p style="color:#9ca3af;font-size:0.85rem;text-align:center;padding:1rem;">No members yet.</p>')+
         // Add member form
-        (members.length < 30 && addOptions
+        (!isFull && addOptions
           ? '<div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid #f1f5f9;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">'+
               '<select id="addMember-'+group.id+'" style="flex:1;min-width:160px;padding:0.4rem 0.6rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;">'+
                 '<option value="">— Select member to add —</option>'+addOptions+
               '</select>'+
               '<button onclick="window.addMemberToGroup(\''+group.id+'\')" style="background:'+color+';color:white;border:none;padding:0.4rem 0.9rem;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-plus"></i> Add</button>'+
             '</div>'
-          : (members.length >= 30
-              ? '<div style="text-align:center;font-size:0.78rem;color:#92400e;background:#fef3c7;padding:0.4rem;border-radius:8px;margin-top:0.5rem;">Group is full (30 max)</div>'
+          : (isFull
+              ? '<div style="text-align:center;font-size:0.78rem;color:#92400e;background:#fef3c7;padding:0.4rem;border-radius:8px;margin-top:0.5rem;">Group is full (max '+GROUP_MAX+')</div>'
               : '<div style="text-align:center;font-size:0.78rem;color:#9ca3af;padding:0.5rem;margin-top:0.5rem;">All registered users are already assigned.</div>'))+
       '</div>'+
     '</div>';
@@ -3151,7 +3229,24 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
       '</div>'+
     '</div>';
 
-  container.innerHTML = headerHtml + '<div id="groupsAccordion">' + groupsHtml + '</div>' + moveModal;
+  // Add New Group modal
+  var addGroupModal =
+    '<div id="addGroupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9100;align-items:center;justify-content:center;">'+
+      '<div style="background:white;border-radius:20px;padding:2rem;width:90%;max-width:420px;box-shadow:0 25px 70px rgba(0,0,0,0.25);">'+
+        '<div style="font-size:1.05rem;font-weight:800;color:#1e2a3e;margin-bottom:1.2rem;"><i class="fas fa-plus-circle" style="color:#6366f1;margin-right:0.5rem;"></i> Create New Group</div>'+
+        '<div class="form-field" style="margin-bottom:0.8rem;"><label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Group Name *</label>'+
+          '<input type="text" id="newGroupName" placeholder="e.g. Team Gerama G" style="width:100%;padding:0.6rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;"></div>'+
+        '<div class="form-field" style="margin-bottom:1.2rem;"><label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Group Colour</label>'+
+          '<input type="color" id="newGroupColor" value="#0f766e" style="width:60px;height:40px;border:2px solid #e5e7eb;border-radius:10px;cursor:pointer;"></div>'+
+        '<div id="addGroupStatus" style="font-size:0.82rem;min-height:1rem;margin-bottom:0.8rem;"></div>'+
+        '<div style="display:flex;gap:0.6rem;">'+
+          '<button onclick="window.createNewGroup()" class="btn-primary" style="flex:1;justify-content:center;"><i class="fas fa-plus"></i> Create Group</button>'+
+          '<button onclick="document.getElementById(\'addGroupModal\').style.display=\'none\'" style="flex:1;background:#f1f5f9;border:none;border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer;color:#374151;font-family:\'Inter\',sans-serif;">Cancel</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+
+  container.innerHTML = headerHtml + '<div id="groupsAccordion">' + groupsHtml + '</div>' + moveModal + addGroupModal;
 
   // Auto-open first group
   if(groups.length){
@@ -3188,9 +3283,9 @@ window.addMemberToGroup = async function(groupId){
 
   // Check member count
   var {data: existing} = await sb.from('gerama_group_members').select('id').eq('group_id', groupId);
-  if(existing && existing.length >= 30){ alert('This group is full (30 members maximum).'); return; }
+  if(existing && existing.length >= GROUP_MAX){ alert('This group is full ('+GROUP_MAX+' members maximum).'); return; }
 
-  // Get user name
+  // Get user name + index number
   var user = (window._allUsers||[]).find(function(u){ return u.email === email; });
   var userName = user ? (user.full_name || email) : email;
 
@@ -3243,6 +3338,21 @@ window.setMemberRole = async function(memberId, role){
   var sb = window.geramaSupabase; if(!sb) return;
   var {error} = await sb.from('gerama_group_members').update({ role: role }).eq('id', memberId);
   if(error){ alert('Error: '+error.message); return; }
+  // If promoted to tutor, store notification for user
+  if(role === 'tutor'){
+    var mem = (window._allGroupMembers||[]).find(function(m){ return m.id === memberId; });
+    if(mem){
+      try{
+        await sb.from('user_notifications').insert({
+          user_email: mem.user_email,
+          type: 'tutor_assigned',
+          message: '🎉 Congratulations! You have been assigned as a Tutor for your study group.',
+          is_read: false,
+          created_at: new Date().toISOString()
+        });
+      }catch(e){}
+    }
+  }
   window.logActivity('Updated member role to: '+role);
   window.loadGroups();
 };
@@ -3302,26 +3412,41 @@ window.randomlyAssignAll = async function(){
 
   if(!unassigned.length){ alert('All registered users are already assigned to groups.'); return; }
 
-  if(!confirm('Randomly assign '+unassigned.length+' unassigned member'+(unassigned.length!==1?'s':'')+' to groups (max 30 per group)?')) return;
+  if(!confirm('Auto-assign '+unassigned.length+' unassigned member'+(unassigned.length!==1?'s':'')+' to groups (max '+GROUP_MAX+' per group, gender-balanced)?')) return;
 
-  // Shuffle unassigned
-  var shuffled = unassigned.slice().sort(function(){ return Math.random() - 0.5; });
+  // Separate by gender for balanced distribution
+  var females = unassigned.filter(function(u){ return (u.gender||'').toLowerCase()==='female'; });
+  var males = unassigned.filter(function(u){ return (u.gender||'').toLowerCase()==='male'; });
+  var others = unassigned.filter(function(u){ var g=(u.gender||'').toLowerCase(); return g!=='female'&&g!=='male'; });
+
+  // Shuffle each sub-list
+  function shuffle(arr){ return arr.slice().sort(function(){ return Math.random()-0.5; }); }
+  females = shuffle(females); males = shuffle(males); others = shuffle(others);
+
+  // Interleave: female, male, female, male, … then others
+  var ordered = [];
+  var fi=0, mi=0;
+  while(fi<females.length || mi<males.length){
+    if(fi<females.length) ordered.push(females[fi++]);
+    if(mi<males.length) ordered.push(males[mi++]);
+  }
+  ordered = ordered.concat(others);
 
   // Calculate current counts per group
   var groupCounts = {};
   groups.forEach(function(g){ groupCounts[g.id] = allMembers.filter(function(m){ return m.group_id===g.id; }).length; });
 
   var assigned = 0, errors = 0;
-  for(var i=0;i<shuffled.length;i++){
-    var user = shuffled[i];
-    // Find group with least members and < 30
+  for(var i=0;i<ordered.length;i++){
+    var user = ordered[i];
+    // Find group with least members and < GROUP_MAX
     var targetGroup = groups.reduce(function(best, g){
-      if(groupCounts[g.id] >= 30) return best;
+      if(groupCounts[g.id] >= GROUP_MAX) return best;
       if(!best) return g;
       return groupCounts[g.id] < groupCounts[best.id] ? g : best;
     }, null);
 
-    if(!targetGroup){ alert('All groups are full (30 members each). Could not assign all members.'); break; }
+    if(!targetGroup){ alert('All groups are full ('+GROUP_MAX+' members each). Could not assign all members.'); break; }
 
     try{
       await sb.from('gerama_group_members').insert({
@@ -3331,32 +3456,37 @@ window.randomlyAssignAll = async function(){
         role: 'member',
         assigned_at: new Date().toISOString()
       });
-      // Update user_profiles
       try{ await sb.from('user_profiles').update({ group_name: targetGroup.name }).eq('email', user.email); }catch(e){}
       groupCounts[targetGroup.id]++;
       assigned++;
     }catch(e){ errors++; }
   }
 
-  window.logActivity('Auto-assigned '+assigned+' members to groups');
-  alert('✅ Done! '+assigned+' member'+(assigned!==1?'s':'')+' assigned.'+(errors?' ('+errors+' failed)':''));
+  window.logActivity('Auto-assigned '+assigned+' members to groups (gender-balanced)');
+  alert('✅ Done! '+assigned+' member'+(assigned!==1?'s':'')+' assigned with gender balance.'+(errors?' ('+errors+' failed)':''));
   window.loadGroups();
 };
 
 window.downloadGroupsCSV = function(){
   var groups = window._geramaGroups || [];
   var members = window._allGroupMembers || [];
+  var users = window._allUsers || [];
   if(!members.length){ alert('No members assigned yet.'); return; }
 
   var groupMap = {};
   groups.forEach(function(g){ groupMap[g.id] = g.name; });
+  var userMap = {};
+  users.forEach(function(u){ userMap[u.email] = u; });
 
-  var headers = ['Group','Member Name','Email','Role','Assigned At'];
+  var headers = ['Group','Member Name','Index Number','Email','Role','Gender','Assigned At'];
   var rows = members.map(function(m){
+    var uInfo = userMap[m.user_email] || {};
+    var idx = m.index_number || uInfo.index_number || '';
+    var gender = uInfo.gender || '';
     return [
       groupMap[m.group_id]||'—',
-      m.user_name||'', m.user_email||'',
-      m.role||'member',
+      m.user_name||'', idx, m.user_email||'',
+      m.role||'member', gender,
       m.assigned_at ? new Date(m.assigned_at).toLocaleDateString('en-GB') : ''
     ].map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
   });
@@ -3365,8 +3495,228 @@ window.downloadGroupsCSV = function(){
   var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
-  a.href=url; a.download='GERAMA_Groups_'+new Date().toISOString().split('T')[0]+'.csv';
+  a.href=url; a.download='GERAMA_AllGroups_'+new Date().toISOString().split('T')[0]+'.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  window.logActivity('Downloaded groups CSV');
+  window.logActivity('Downloaded all groups CSV');
 };
+
+// ── Export a single group ──────────────────────────────────────
+window.downloadSingleGroupCSV = function(groupId, groupName){
+  var members = (window._allGroupMembers || []).filter(function(m){ return m.group_id === groupId; });
+  var users = window._allUsers || [];
+  if(!members.length){ alert('No members in this group yet.'); return; }
+
+  var userMap = {};
+  users.forEach(function(u){ userMap[u.email] = u; });
+
+  // Sort: tutors first, then alphabetically
+  var tutors = members.filter(function(m){ return m.role==='tutor'; });
+  var regulars = members.filter(function(m){ return m.role!=='tutor'; });
+  tutors.sort(function(a,b){ return (a.user_name||'').localeCompare(b.user_name||''); });
+  regulars.sort(function(a,b){ return (a.user_name||'').localeCompare(b.user_name||''); });
+  var sorted = tutors.concat(regulars);
+
+  var headers = ['#','Member Name','Index Number','Email','Role','Gender','Assigned At'];
+  var rows = sorted.map(function(m, i){
+    var uInfo = userMap[m.user_email] || {};
+    var idx = m.index_number || uInfo.index_number || '';
+    var gender = uInfo.gender || '';
+    return [
+      i+1, m.user_name||'', idx, m.user_email||'',
+      m.role||'member', gender,
+      m.assigned_at ? new Date(m.assigned_at).toLocaleDateString('en-GB') : ''
+    ].map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
+  });
+
+  var csv = [headers.join(',')].concat(rows).join('\n');
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url; a.download='GERAMA_'+groupName.replace(/\s+/g,'_')+'_'+new Date().toISOString().split('T')[0]+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  window.logActivity('Exported group: '+groupName);
+};
+
+// ── Show Add New Group modal ───────────────────────────────────
+window.showAddGroupModal = function(){
+  var modal = document.getElementById('addGroupModal');
+  if(modal) modal.style.display = 'flex';
+};
+
+// ── Create a new group ────────────────────────────────────────
+window.createNewGroup = async function(){
+  var nameEl = document.getElementById('newGroupName');
+  var colorEl = document.getElementById('newGroupColor');
+  var statusEl = document.getElementById('addGroupStatus');
+  var name = (nameEl && nameEl.value || '').trim();
+  var color = (colorEl && colorEl.value) || '#0f766e';
+  if(!name){ if(statusEl){ statusEl.textContent='Please enter a group name.'; statusEl.style.color='#dc2626'; } return; }
+  var sb = window.geramaSupabase; if(!sb) return;
+  if(statusEl){ statusEl.textContent='Creating...'; statusEl.style.color='#6b7280'; }
+  var {error} = await sb.from('gerama_groups').insert({ name: name, color: color, created_at: new Date().toISOString() });
+  if(error){ if(statusEl){ statusEl.textContent='❌ '+error.message; statusEl.style.color='#dc2626'; } return; }
+  if(statusEl){ statusEl.textContent='✅ Group created!'; statusEl.style.color='#059669'; }
+  window.logActivity('Created new group: '+name);
+  setTimeout(function(){
+    var modal = document.getElementById('addGroupModal');
+    if(modal) modal.style.display='none';
+    if(nameEl) nameEl.value='';
+    window.loadGroups();
+  }, 800);
+};
+
+// ── Rebalance: move excess members (> GROUP_MAX) to a target group, gender-balanced ──
+window.rebalanceGroups = async function(){
+  var sb = window.geramaSupabase; if(!sb) return;
+  var groups = window._geramaGroups || [];
+  var allMembers = window._allGroupMembers || [];
+  var allUsers = window._allUsers || [];
+  var userMap = {};
+  allUsers.forEach(function(u){ userMap[u.email]=u; });
+
+  if(!groups.length){ alert('Load groups first.'); return; }
+
+  // Find Group F (the target for excess members)
+  var groupF = groups.find(function(g){ return /team\s+gerama\s+f/i.test(g.name) || /gerama\s+f/i.test(g.name) || /team\s+f/i.test(g.name); });
+  if(!groupF){ alert('Group F not found. Make sure it exists.'); return; }
+
+  // Find groups over GROUP_MAX
+  var overflows = [];
+  groups.forEach(function(g){
+    if(g.id === groupF.id) return;
+    var members = allMembers.filter(function(m){ return m.group_id === g.id && m.role !== 'tutor'; });
+    var excess = members.length - GROUP_MAX;
+    if(excess > 0){
+      // Sort: pick members without index numbers first (less established), then alphabetically
+      members.sort(function(a,b){
+        var aIdx = (userMap[a.user_email]||{}).index_number || '';
+        var bIdx = (userMap[b.user_email]||{}).index_number || '';
+        if(!aIdx && bIdx) return -1;
+        if(aIdx && !bIdx) return 1;
+        return (a.user_name||'').localeCompare(b.user_name||'');
+      });
+      // Pick `excess` members to move — gender-balanced: pick roughly equal males/females
+      var females = members.filter(function(m){ return ((userMap[m.user_email]||{}).gender||'').toLowerCase()==='female'; });
+      var males = members.filter(function(m){ return ((userMap[m.user_email]||{}).gender||'').toLowerCase()==='male'; });
+      var others2 = members.filter(function(m){ var g=((userMap[m.user_email]||{}).gender||'').toLowerCase(); return g!=='female'&&g!=='male'; });
+      var toMove = [];
+      var fi2=0, mi2=0, oi=0;
+      while(toMove.length < excess){
+        var added = false;
+        if(fi2 < females.length && toMove.length < excess){ toMove.push(females[fi2++]); added=true; }
+        if(mi2 < males.length && toMove.length < excess){ toMove.push(males[mi2++]); added=true; }
+        if(!added){
+          if(oi<others2.length && toMove.length < excess) toMove.push(others2[oi++]);
+          else break;
+        }
+      }
+      overflows = overflows.concat(toMove);
+    }
+  });
+
+  if(!overflows.length){ alert('All groups are already at or below '+GROUP_MAX+' members. No rebalancing needed.'); return; }
+
+  var curF = allMembers.filter(function(m){ return m.group_id === groupF.id; }).length;
+  if(curF + overflows.length > 30){ alert('Group F would exceed 30 members. Please create another group first.'); return; }
+
+  if(!confirm('Move '+overflows.length+' member(s) to '+groupF.name+' to rebalance? This will be gender-balanced.')) return;
+
+  var ok=0;
+  for(var i=0;i<overflows.length;i++){
+    var m = overflows[i];
+    var {error} = await sb.from('gerama_group_members')
+      .update({ group_id: groupF.id, assigned_at: new Date().toISOString() })
+      .eq('id', m.id);
+    if(!error){
+      try{ await sb.from('user_profiles').update({ group_name: groupF.name }).eq('email', m.user_email); }catch(e){}
+      ok++;
+    }
+  }
+  window.logActivity('Rebalanced groups: moved '+ok+' members to '+groupF.name);
+  alert('✅ Done! '+ok+' member(s) moved to '+groupF.name+'. Groups are now balanced.');
+  window.loadGroups();
+};
+
+// ─── QUICK MEMBER LOOKUP (Overview panel) ────────────────────────
+window.quickMemberLookup = async function(q) {
+  var el = document.getElementById('quickMemberResults');
+  if (!el) return;
+  q = (q || '').trim();
+  if (q.length < 2) { el.innerHTML = ''; return; }
+
+  var sb = window.geramaSupabase;
+  if (!sb) return;
+
+  try {
+    var { data } = await sb.from('user_profiles')
+      .select('full_name, email, index_number, level, program')
+      .or('full_name.ilike.%' + q + '%,email.ilike.%' + q + '%,index_number.ilike.%' + q + '%')
+      .eq('is_active', true)
+      .limit(6);
+
+    if (!data || !data.length) {
+      el.innerHTML = '<p style="font-size:0.82rem;color:#9ca3af;padding:0.5rem 0;">No members found.</p>';
+      return;
+    }
+
+    // Also fetch group info for the matched users
+    var emails = data.map(function(u) { return u.email; });
+    var gmMap = {};
+    try {
+      var { data: gmData } = await sb.from('gerama_group_members')
+        .select('user_email, role, gerama_groups(name, color)')
+        .in('user_email', emails);
+      (gmData || []).forEach(function(gm) {
+        gmMap[gm.user_email] = {
+          name: (gm.gerama_groups && gm.gerama_groups.name) || '',
+          color: (gm.gerama_groups && gm.gerama_groups.color) || '#1B5E20',
+          role: gm.role || 'member'
+        };
+      });
+    } catch (e) {}
+
+    el.innerHTML = '<div style="display:grid;gap:0.5rem;margin-top:0.2rem;">' +
+      data.map(function(u) {
+        var gm = gmMap[u.email] || {};
+        var groupBadge = gm.name
+          ? '<span style="background:' + (gm.color || '#1B5E20') + '22;color:' + (gm.color || '#1B5E20') + ';font-size:0.7rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:10px;margin-left:0.4rem;">' +
+            window.escHtml(gm.name) + (gm.role === 'tutor' ? ' · Tutor' : '') + '</span>'
+          : '<span style="background:#f1f5f9;color:#9ca3af;font-size:0.7rem;padding:0.1rem 0.5rem;border-radius:10px;margin-left:0.4rem;">Unassigned</span>';
+        return '<div style="background:#f8fafc;border-radius:10px;padding:0.6rem 0.9rem;display:flex;align-items:center;gap:0.8rem;border:1px solid #e5e7eb;">' +
+          '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0;">' +
+            window.escHtml((u.full_name || u.email || '?').charAt(0).toUpperCase()) +
+          '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="font-size:0.88rem;font-weight:700;color:#1e2a3e;">' +
+              window.escHtml(u.full_name || '—') + groupBadge +
+            '</div>' +
+            '<div style="font-size:0.75rem;color:#6b7280;">' +
+              window.escHtml(u.email) +
+              (u.index_number ? ' &nbsp;·&nbsp; <span style="font-family:monospace;color:#1B5E20;font-weight:600;">' + window.escHtml(u.index_number) + '</span>' : '') +
+              (u.level ? ' &nbsp;·&nbsp; ' + window.escHtml(u.level) : '') +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  } catch (e) {
+    el.innerHTML = '<p style="font-size:0.82rem;color:#dc2626;padding:0.5rem 0;">Error: ' + window.escHtml(e.message) + '</p>';
+  }
+};
+
+// ─── ADMIN OVERVIEW: load overview stats on panel switch ─────────
+(function() {
+  var _origSw = window.switchPanel;
+  window.switchPanel = function(name) {
+    if (_origSw) _origSw(name);
+    if (name === 'overview') {
+      // Clear quick search results when returning to overview
+      var el = document.getElementById('quickMemberResults');
+      if (el) el.innerHTML = '';
+      var inp = document.getElementById('quickMemberSearch');
+      if (inp) inp.value = '';
+    }
+  };
+})();

@@ -201,7 +201,8 @@
             '<div style="flex:1;min-width:0;">'+
               '<div style="font-weight:700;color:#1e2a3e;font-size:0.9rem;margin-bottom:0.15rem;">'+window.escHtml(m.name)+'</div>'+
               '<div style="font-size:0.75rem;color:'+col+';font-weight:700;margin-bottom:0.2rem;">'+window.escHtml(m.role||'')+'</div>'+
-              '<span style="background:'+col+'22;color:'+col+';font-size:0.68rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:20px;">'+window.escHtml(groupLabels[m.group]||m.group)+'</span>'+
+              (m.badge_label?'<div style="font-size:0.7rem;background:'+col+'22;color:'+col+';padding:0.15rem 0.6rem;border-radius:20px;display:inline-block;font-weight:700;margin-bottom:0.2rem;">🏷 '+window.escHtml(m.badge_label)+'</div>':'')+
+              '<span style="background:'+col+'22;color:'+col+';font-size:0.68rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:20px;display:block;margin-top:0.2rem;">'+window.escHtml(groupLabels[m.group]||m.group)+'</span>'+
             '</div>'+
             '<div style="display:flex;flex-direction:column;gap:0.3rem;flex-shrink:0;">'+
               '<button onclick="openEditTeamMember(\''+window.escAttr(JSON.stringify(m).replace(/'/g,'\\\''))+'\')" class="btn-success" style="padding:0.25rem 0.5rem;font-size:0.75rem;" title="Edit"><i class="fas fa-edit"></i></button>'+
@@ -260,7 +261,7 @@
           '<div class="form-field"><label>Full Name *</label><input type="text" id="etmName" value="'+window.escAttr(m.name||'')+'" placeholder="Full name"></div>' +
           '<div class="form-field"><label>Role / Position *</label><input type="text" id="etmRole" value="'+window.escAttr(m.role||'')+'" placeholder="Role"></div>' +
           '<div class="form-field full"><label>Team Group *</label><select id="etmGroup">'+groupOptions+'</select></div>' +
-          '<div class="form-field"><label>Badge Label</label><input type="text" id="etmBadge" value="'+window.escAttr(m.badge_label||'')+'" placeholder="e.g. GERAMA/26 President"></div>' +
+          '<div class="form-field full"><label>Batch / Team Label <small style="font-weight:400;color:#6b7280;">(e.g. GERAMA TEAM A Tutor)</small></label><input type="text" id="etmBadge" value="'+window.escAttr(m.badge_label||'')+'" placeholder="e.g. GERAMA TEAM A Tutor"></div>' +
           '<div class="form-field"><label>Emoji (if no photo)</label><input type="text" id="etmEmoji" value="'+window.escAttr(m.emoji||'👤')+'" placeholder="👤" maxlength="4" style="font-size:1.2rem;"></div>' +
           '<div class="form-field"><label>Sort Order</label><input type="number" id="etmOrder" value="'+( m.sort_order||99)+'" min="1" max="999"></div>' +
           '<div class="form-field full">' +

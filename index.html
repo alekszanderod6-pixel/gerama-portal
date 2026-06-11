@@ -913,8 +913,10 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
 
   function render(anns){
     if (!anns || !anns.length) { render(demo); return; }
-    var shown = anns.slice(0, 6);
-    var hasMore = anns.length > 6;
+    // Determine how many to show
+    var showAll = !!window._annShowAll;
+    var shown = showAll ? anns : anns.slice(0, 6);
+    var hasMore = !showAll && anns.length > 6;
     container.innerHTML = shown.map(function(a, idx){
       var imgSrc = a.image || a.image_url || null;
       // Parse multiple images
@@ -978,7 +980,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
     }).join('');
     // Show more button
     if(hasMore){
-      container.innerHTML += '<div class="ann-show-more" style="grid-column:1/-1;"><button onclick="showAllAnn()">Show all '+anns.length+' announcements</button></div>';
+      container.innerHTML += '<div class="ann-show-more" style="grid-column:1/-1;"><button onclick="showAllAnn()">View all '+anns.length+' announcements <i class="fas fa-chevron-down"></i></button></div>';
       window._allAnns = anns;
     }
     // Load like counts from Supabase
@@ -987,9 +989,18 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
 
   function showAllAnn() {
     var all = window._allAnns;
-    window._allAnns = null; // prevent re-slicing
-    if(all) render(all);
+    if(!all) return;
+    window._annShowAll = true;
+    window._allAnns = null;
+    render(all);
+    setTimeout(function(){
+      var cards = container.querySelectorAll('.ann-card');
+      if(cards[6]) cards[6].scrollIntoView({behavior:'smooth', block:'start'});
+    }, 80);
   }
+  // Expose so the onclick can reach it from outside the IIFE
+  window.showAllAnn = showAllAnn;
+
   // Try localStorage announcements first (set by admin), then demo
   // Try Supabase DB first (cross-device), then localStorage, then demo
   async function trySupabase() {

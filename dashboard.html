@@ -317,23 +317,46 @@
                     var gColor = groupMem.gerama_groups.color || '#1B5E20';
                     var isTutor = groupMem.role === 'tutor';
                     userProfile.group_name = gName;
+                    userProfile.group_color = gColor;
+                    userProfile.group_role = groupMem.role;
                     localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
+
+                    // Check if group was newly assigned (notification)
+                    var prevGroup = localStorage.getItem('gerama_last_known_group');
+                    var isNewGroup = prevGroup !== gName;
+                    if(isNewGroup){
+                        localStorage.setItem('gerama_last_known_group', gName);
+                        localStorage.setItem('gerama_group_notif_unread', '1');
+                    }
 
                     var groupEl = document.getElementById('displayGroup');
                     if(groupEl){
                         groupEl.style.display = 'block';
+                        var notifDot = isNewGroup && localStorage.getItem('gerama_group_notif_unread') === '1'
+                            ? '<span style="width:8px;height:8px;background:#ef4444;border-radius:50%;display:inline-block;margin-left:0.4rem;vertical-align:middle;" title="New group assignment!"></span>' : '';
                         groupEl.innerHTML =
-                            '<span style="background:'+gColor+';color:white;padding:0.3rem 0.9rem;border-radius:20px;font-size:0.82rem;font-weight:700;">'+
-                                '<i class="fas fa-users" style="margin-right:0.35rem;"></i>'+ escDash(gName)+
+                            '<span style="background:'+gColor+';color:white;padding:0.4rem 1rem;border-radius:20px;font-size:0.88rem;font-weight:700;display:inline-flex;align-items:center;gap:0.35rem;">'+
+                                '<i class="fas fa-users"></i> '+ escDash(gName)+
                                 (isTutor ? ' &nbsp;·&nbsp; <i class="fas fa-chalkboard-teacher"></i> Tutor' : '')+
-                            '</span>';
+                            '</span>'+notifDot;
                     }
 
-                    // Also show in profile card under stats
+                    // Show prominent group card
                     var groupStatEl = document.getElementById('groupStatCard');
                     if(groupStatEl){
                         groupStatEl.style.display = 'block';
-                        groupStatEl.querySelector('#groupStatName').textContent = gName;
+                        groupStatEl.style.borderLeft = '4px solid '+gColor;
+                        var nameEl = groupStatEl.querySelector('#groupStatName');
+                        if(nameEl){
+                            nameEl.innerHTML =
+                                '<span style="color:'+gColor+';font-size:1.3rem;font-weight:800;">'+escDash(gName)+'</span>'+
+                                (isTutor
+                                    ? '<span style="display:block;margin-top:0.35rem;background:'+gColor+'22;color:'+gColor+';font-size:0.78rem;font-weight:700;padding:0.25rem 0.7rem;border-radius:20px;display:inline-block;"><i class="fas fa-chalkboard-teacher"></i> Assigned as Group Tutor</span>'
+                                    : '<span style="display:block;margin-top:0.35rem;font-size:0.8rem;color:#6b7280;">Group Member</span>')+
+                                (localStorage.getItem('gerama_group_notif_unread')==='1'
+                                    ? '<div style="margin-top:0.5rem;background:#fef3c7;border-radius:8px;padding:0.5rem 0.7rem;font-size:0.78rem;color:#92400e;font-weight:600;" id="groupNotifBanner"><i class="fas fa-bell" style="margin-right:0.3rem;"></i> You have been added to a study group! <button onclick="dismissGroupNotif()" style="background:none;border:none;color:#92400e;font-size:0.78rem;cursor:pointer;text-decoration:underline;margin-left:0.4rem;">Dismiss</button></div>'
+                                    : '');
+                        }
                     }
                 }
             }catch(e){ console.warn('Group load error:', e); }
@@ -378,6 +401,14 @@
         }
 
         function escDash(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        function dismissGroupNotif(){
+            localStorage.removeItem('gerama_group_notif_unread');
+            var banner = document.getElementById('groupNotifBanner');
+            if(banner) banner.remove();
+            var dots = document.querySelectorAll('[title="New group assignment!"]');
+            dots.forEach(function(d){ d.remove(); });
+        }
 
         // Kick off Supabase data load
         (function waitAndLoad(){

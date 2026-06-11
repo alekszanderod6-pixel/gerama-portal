@@ -249,6 +249,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="reels"><i class="fas fa-film"></i> Manage Reels</div>
     <div class="nav-item" data-panel="adminprofiles"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> Admin Profiles</div>
     <div class="nav-item" data-panel="team"><i class="fas fa-users-cog" style="color:#34d399;"></i> Manage Team</div>
+    <div class="nav-item" data-panel="quotes"><i class="fas fa-quote-right" style="color:#f59e0b;"></i> Quote of the Day</div>
     <div class="nav-item" data-panel="mall"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</div>
     <div class="nav-item" data-panel="settings"><i class="fas fa-cog"></i> Settings</div>
   </nav>
@@ -319,8 +320,25 @@ tr:hover td{background:#fafcfa;}
         <button class="btn-primary" onclick="switchPanel('assignments')"><i class="fas fa-tasks"></i> Post Assignment</button>
         <button class="btn-primary" onclick="switchPanel('classes')"><i class="fas fa-video"></i> Schedule Class</button>
         <button class="btn-gold" onclick="switchPanel('review')"><i class="fas fa-inbox"></i> Review Submissions</button>
+        <button class="btn-primary" onclick="switchPanel('groups')"><i class="fas fa-layer-group"></i> Study Groups</button>
+        <button class="btn-primary" onclick="switchPanel('users')"><i class="fas fa-users"></i> Registered Users</button>
+        <button class="btn-primary" onclick="switchPanel('team')" style="background:linear-gradient(135deg,#059669,#10b981);"><i class="fas fa-users-cog"></i> Manage Team</button>
         <button class="btn-primary" onclick="switchPanel('quizrequests')"><i class="fas fa-question-circle"></i> Quiz Requests</button>
+        <button onclick="exportActivityLog()" style="background:#f5f3ff;color:#7c3aed;border:1px solid #c4b5fd;padding:0.7rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.5rem;"><i class="fas fa-download"></i> Export Activity Log</button>
       </div>
+    </div>
+
+    <!-- Smart member lookup -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-search" style="color:#6366f1;"></i> Quick Member Lookup</div>
+      <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="quickMemberSearch" placeholder="Search by name, email or index number…" autocomplete="off"
+          style="flex:1;min-width:200px;padding:0.6rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;"
+          onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e5e7eb'"
+          oninput="quickMemberLookup(this.value)">
+        <button onclick="switchPanel('users')" class="btn-primary" style="background:#6366f1;padding:0.6rem 1rem;font-size:0.85rem;"><i class="fas fa-arrow-right"></i> Full List</button>
+      </div>
+      <div id="quickMemberResults" style="margin-top:0.6rem;"></div>
     </div>
 
     <!-- Recent activity -->
@@ -1159,11 +1177,11 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field"><label>WhatsApp</label><input type="tel" id="apPhone" placeholder="0551234567"></div>
         <div class="form-field full">
           <label>Profile Photo</label>
-          <div class="drop-zone" style="padding:0.8rem;cursor:pointer;" onclick="document.getElementById('apPhoto').click()">
+          <div class="drop-zone" style="padding:0.8rem;cursor:pointer;" onclick="document.getElementById('apPhotoFile').click()">
             <i class="fas fa-camera"></i><p>Click to upload photo</p>
             <p class="file-chosen" id="apPhotoChosen"></p>
           </div>
-          <input type="file" id="apPhoto" accept="image/*" style="display:none;" onchange="previewApPhoto(this)">
+          <input type="file" id="apPhotoFile" accept="image/*" style="display:none;" onchange="previewAdminPhoto(this)">
           <img id="apPhotoPreview" style="display:none;width:80px;height:80px;border-radius:50%;object-fit:cover;margin-top:0.5rem;border:3px solid #a78bfa;" alt="">
         </div>
         <div class="form-field full"><label>Short Bio</label><textarea id="apBio" rows="2" placeholder="e.g. GERAMA founder, electrical engineering student at UENR."></textarea></div>
@@ -1180,9 +1198,103 @@ tr:hover td{background:#fafcfa;}
     </div>
   </div>
 
-  <div class="panel" id="panel-settings">
+  <!-- ═══════════════════════════════════════
+       MANAGE TEAM PANEL (GERAMA/26 & About Page)
+  ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-team">
     <div class="card">
-      <div class="card-title"><i class="fas fa-cog"></i> Settings</div>
+      <div class="card-title"><i class="fas fa-users-cog" style="color:#34d399;"></i> Add Team Member</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Add people to the About page — Founding Team, GERAMA/25, GERAMA/26 tutors &amp; leadership, or Media Team. After making anyone a tutor in Study Groups, also add them here with their batch label (e.g. <em>GERAMA TEAM A Tutor</em>).</p>
+      <div class="form-grid">
+        <div class="form-field"><label>Full Name *</label><input type="text" id="tmName" placeholder="e.g. Edem H.K Prince"></div>
+        <div class="form-field"><label>Role / Position *</label><input type="text" id="tmRole" placeholder="e.g. Lead Tutor · Electrical Engineering"></div>
+        <div class="form-field full">
+          <label>Team Group *</label>
+          <select id="tmGroup">
+            <option value="founding">Founding Team &amp; Core Leads</option>
+            <option value="gerama25">GERAMA/25 Tutors</option>
+            <option value="gerama26" selected>GERAMA/26 Tutors &amp; Leadership</option>
+            <option value="media">Media Team</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label>Batch / Team Label <small style="font-weight:400;color:#6b7280;">(e.g. GERAMA TEAM A Tutor — shown as a badge on their profile card)</small></label>
+          <input type="text" id="tmBadge" placeholder="e.g. GERAMA TEAM A Tutor">
+        </div>
+        <div class="form-field"><label>Emoji (shown if no photo)</label><input type="text" id="tmEmoji" value="👤" maxlength="4" style="font-size:1.2rem;"></div>
+        <div class="form-field"><label>Sort Order (lower = appears first)</label><input type="number" id="tmOrder" value="99" min="1" max="999"></div>
+        <div class="form-field full">
+          <label>Photo (JPG/PNG, max 5 MB)</label>
+          <div class="drop-zone" id="tmPhotoZone" style="padding:1.2rem;cursor:pointer;">
+            <i class="fas fa-camera" style="font-size:1.5rem;color:#34d399;display:block;margin-bottom:0.4rem;"></i>
+            <p>Click or drag &amp; drop a photo</p>
+            <p class="file-chosen" id="tmPhotoChosen" style="color:#1B5E20;font-weight:600;margin-top:0.3rem;"></p>
+          </div>
+          <input type="file" id="tmPhotoFile" accept="image/*" style="display:none;">
+          <img id="tmPhotoPreview" style="display:none;width:80px;height:80px;border-radius:50%;object-fit:cover;margin-top:0.5rem;border:3px solid #34d399;" alt="">
+        </div>
+      </div>
+      <div style="margin-top:1rem;">
+        <button class="btn-primary" id="tmSaveBtn" onclick="saveTeamMember()" style="background:linear-gradient(135deg,#059669,#10b981);"><i class="fas fa-save"></i> Add to About Page</button>
+      </div>
+      <div class="status-msg" id="tmStatus"></div>
+    </div>
+
+    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+      <button onclick="loadTeamList('all')" class="btn-primary" style="font-size:0.82rem;padding:0.4rem 0.9rem;background:#1e2a3e;">All</button>
+      <button onclick="loadTeamList('founding')" class="btn-gold" style="font-size:0.82rem;padding:0.4rem 0.9rem;">Founding</button>
+      <button onclick="loadTeamList('gerama25')" class="btn-primary" style="font-size:0.82rem;padding:0.4rem 0.9rem;background:#2E7D32;">GERAMA/25</button>
+      <button onclick="loadTeamList('gerama26')" class="btn-primary" style="font-size:0.82rem;padding:0.4rem 0.9rem;background:#6366f1;">GERAMA/26</button>
+      <button onclick="loadTeamList('media')" class="btn-primary" style="font-size:0.82rem;padding:0.4rem 0.9rem;background:#0ea5e9;">Media</button>
+      <button onclick="loadTeamList('all')" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.4rem 0.9rem;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-left:auto;"><i class="fas fa-sync-alt"></i> Refresh</button>
+    </div>
+    <div class="card" style="padding:1rem;">
+      <div class="card-title"><i class="fas fa-users"></i> Current Team Members</div>
+      <div id="tmList"><p style="color:#9ca3af;font-size:0.88rem;text-align:center;padding:1.5rem;">Loading team...</p></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       QUOTE OF THE DAY PANEL
+  ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-quotes">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-quote-right" style="color:#f59e0b;"></i> Post Quote of the Day</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Post motivational, academic, or faith quotes. Students see the latest one in their Study Planner.</p>
+      <div class="form-grid">
+        <div class="form-field full"><label>Quote Text *</label><textarea id="qotdText" rows="3" placeholder="e.g. The expert in anything was once a beginner."></textarea></div>
+        <div class="form-field"><label>Author</label><input type="text" id="qotdAuthor" placeholder="e.g. Helen Hayes"></div>
+        <div class="form-field"><label>Category</label>
+          <select id="qotdCategory">
+            <option value="motivation">Motivation</option>
+            <option value="academic">Academic</option>
+            <option value="life">Life</option>
+            <option value="success">Success</option>
+            <option value="faith">Faith</option>
+          </select>
+        </div>
+        <div class="form-field full">
+          <label>Quote Image (optional)</label>
+          <div class="drop-zone" style="padding:0.8rem;cursor:pointer;" onclick="document.getElementById('qotdImgFile').click()">
+            <i class="fas fa-image"></i><p>Click to upload an image (optional)</p>
+            <p class="file-chosen" id="qotdImgChosen"></p>
+          </div>
+          <input type="file" id="qotdImgFile" accept="image/*" style="display:none;">
+          <img id="qotdImgPreview" style="display:none;max-width:200px;border-radius:10px;margin-top:0.5rem;" alt="">
+        </div>
+      </div>
+      <div style="margin-top:1rem;">
+        <button class="btn-primary" id="qotdPostBtn" onclick="postQuoteOfDay()" style="background:linear-gradient(135deg,#f59e0b,#d97706);"><i class="fas fa-paper-plane"></i> Post Quote Now</button>
+      </div>
+      <div class="status-msg" id="qotdStatus"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><i class="fas fa-list"></i> Recent Quotes</div>
+      <div id="qotdList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-settings">
       <div class="form-grid">
         <div class="form-field full">
           <label>Admin Email</label>
@@ -1371,14 +1483,9 @@ tr:hover td{background:#fafcfa;}
     <div class="card">
       <div class="card-title"><i class="fas fa-layer-group" style="color:#FFC107;"></i> Study Groups Management</div>
       <p style="color:#6b7280;font-size:0.88rem;margin-bottom:0.5rem;">
-        Organise registered members into Gerama Teams (A–E). Each group holds up to 30 members with 2–3 assigned tutors.
+        Organise registered members into Gerama Teams (A–F). Each group holds up to 25 members with 2–3 assigned tutors.
         Members can see their group name in their personal dashboard.
       </p>
-      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:0.7rem 1rem;margin-bottom:1.2rem;font-size:0.82rem;color:#92400e;line-height:1.6;">
-        <strong><i class="fas fa-info-circle"></i> First-time setup:</strong>
-        These groups require two extra database tables. If you see an error below,
-        click the <strong>View Setup SQL</strong> link and run the SQL in your Supabase editor, then refresh.
-      </div>
       <div id="groupsContainer"><p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading groups...</p></div>
     </div>
   </div>
@@ -1589,6 +1696,17 @@ tr:hover td{background:#fafcfa;}
 </nav>
 
 <script src="js/admin-dashboard.js"></script>
+<script src="js/admin-extras.js"></script>
 <script src="js/admin-gate.js"></script>
+<script>
+// ── Wire switchPanel for quotes panel ──
+(function(){
+  var _origSw = window.switchPanel;
+  window.switchPanel = function(name){
+    if(_origSw) _origSw(name);
+    if(name === 'quotes' && window.loadQotdList) setTimeout(window.loadQotdList, 150);
+  };
+})();
+</script>
 </body>
 </html>
