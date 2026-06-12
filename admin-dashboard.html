@@ -31,7 +31,7 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199;opacity:0;transition:opacity 0.3s;pointer-events:none;}
 .sidebar-overlay.active{opacity:1;pointer-events:all;}
 .dash-main{margin-left:240px;padding:2rem;min-height:100vh;}
-.dash-header{background:white;border-radius:16px;padding:1.2rem 1.8rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+.dash-header{background:white;border-radius:16px;padding:1.2rem 1.8rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,0,0,0.06);position:relative;}
 .dash-header h2{font-size:1.2rem;font-weight:700;color:#1e2a3e;}
 .panel{display:none;}
 .panel.active{display:block;}
@@ -261,7 +261,27 @@ tr:hover td{background:#fafcfa;}
 <div class="dash-main" style="flex:1;">
   <div class="dash-header">
     <h2><i class="fas fa-tachometer-alt" style="color:#1B5E20;margin-right:0.5rem;"></i>GERAMA Admin Dashboard</h2>
-    <span id="dashDate"></span>
+    <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+      <!-- Pending submissions live badge -->
+      <button onclick="switchPanel('grades')" id="pendingSubsBadge" style="display:none;background:linear-gradient(135deg,#dc2626,#ef4444);color:white;border:none;border-radius:20px;padding:0.35rem 0.9rem;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.4rem;animation:pulse 2s infinite;" title="Ungraded submissions">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="pendingSubsCount">0</span> ungraded
+      </button>
+      <!-- Notification bell -->
+      <button id="adminNotifBell" onclick="toggleAdminNotifs()" style="position:relative;background:none;border:none;cursor:pointer;color:#6b7280;font-size:1.15rem;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" title="Notifications">
+        <i class="fas fa-bell"></i>
+        <span id="adminNotifDot" style="position:absolute;top:4px;right:4px;width:9px;height:9px;background:#ef4444;border-radius:50%;display:none;border:2px solid white;"></span>
+      </button>
+      <!-- Notif dropdown -->
+      <div id="adminNotifPanel" style="display:none;position:absolute;top:70px;right:2rem;background:white;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.15);border:1px solid #e5e7eb;width:300px;max-height:400px;overflow-y:auto;z-index:500;">
+        <div style="padding:0.8rem 1rem;font-size:0.88rem;font-weight:800;color:#1e2a3e;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+          <span><i class="fas fa-bell" style="color:#1B5E20;margin-right:0.4rem;"></i>Notifications</span>
+          <button onclick="clearAdminNotifs()" style="background:none;border:none;font-size:0.72rem;color:#9ca3af;cursor:pointer;font-family:'Inter',sans-serif;">Clear all</button>
+        </div>
+        <div id="adminNotifList" style="padding:0.5rem 0;"></div>
+      </div>
+      <span id="dashDate" style="color:#6b7280;font-size:0.82rem;"></span>
+    </div>
   </div>
 
   <div class="panel active" id="panel-overview">
@@ -722,11 +742,8 @@ tr:hover td{background:#fafcfa;}
       window.switchPanel = function(name) {
         if (_origSwitch) _origSwitch(name);
         if (name === 'grades') {
-          var wrap = document.getElementById('gradesTableWrap');
-          // Only auto-load if not already showing data
-          if (wrap && wrap.querySelector('button[onclick="loadGradesPanel()"]')) {
-            setTimeout(loadGradesPanel, 200);
-          }
+          // Always auto-load grades when the panel is selected
+          setTimeout(loadGradesPanel, 200);
         }
       };
     })();
@@ -759,6 +776,30 @@ tr:hover td{background:#fafcfa;}
     <div class="card">
       <div class="card-title"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> GERAMA Connect — Admin Controls</div>
       <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Monitor chats, statuses, group chats and user activity on GERAMA Connect. Block or flag suspicious users.</p>
+      <!-- Migration reminder -->
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:0.82rem;color:#166534;display:flex;align-items:flex-start;gap:0.6rem;">
+        <i class="fas fa-info-circle" style="margin-top:0.1rem;flex-shrink:0;"></i>
+        <div>
+          <strong>New Connect columns needed:</strong> To enable message editing, replies, reactions, and image messages, run the SQL migration in Supabase.
+          <button onclick="document.getElementById('connectMigrationSQL').style.display=document.getElementById('connectMigrationSQL').style.display==='none'?'block':'none'" style="background:#1B5E20;color:white;border:none;padding:0.2rem 0.7rem;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-left:0.5rem;">Show SQL</button>
+        </div>
+      </div>
+      <pre id="connectMigrationSQL" style="display:none;background:#0a2f1f;color:#4ade80;padding:1rem;border-radius:10px;font-size:0.72rem;overflow-x:auto;white-space:pre-wrap;margin-bottom:1rem;">-- Run in Supabase SQL Editor:
+ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS media_type text;
+ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS media_url text;
+ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS reaction text;
+ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS reply_to_id uuid;
+ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS reply_to_text text;
+ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS is_edited boolean DEFAULT false;
+ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS is_deleted boolean DEFAULT false;
+
+-- Allow authenticated users to update messages (for read receipts, edits):
+DROP POLICY IF EXISTS "Auth update messages" ON connect_messages;
+CREATE POLICY "Auth update messages" ON connect_messages FOR UPDATE
+  USING (sender_email = auth.email() OR recipient_email = auth.email());
+
+-- Enable realtime for live chat (if not already):
+ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.8rem;margin-bottom:1.5rem;" id="connectStats">
         <div class="stat-box" style="border-top:3px solid #0ea5e9;"><div class="num" id="cStatMsg" style="color:#0ea5e9;">—</div><div class="lbl">Messages Sent</div></div>
         <div class="stat-box" style="border-top:3px solid #7c3aed;"><div class="num" id="cStatStatus" style="color:#7c3aed;">—</div><div class="lbl">Active Statuses</div></div>
@@ -1747,6 +1788,153 @@ tr:hover td{background:#fafcfa;}
     if(_origSw) _origSw(name);
     if(name === 'quotes' && window.loadQotdList) setTimeout(window.loadQotdList, 150);
   };
+})();
+
+// ── Admin Notification Bell + Pending Submissions Badge ──
+(function(){
+  var SUPA = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  var _notifs = JSON.parse(localStorage.getItem('gerama_admin_notifs')||'[]');
+
+  function pushNotif(icon, title, msg, action){
+    _notifs.unshift({icon:icon||'fas fa-bell',title:title,msg:msg,action:action,time:new Date().toISOString(),read:false});
+    if(_notifs.length>30) _notifs=_notifs.slice(0,30);
+    localStorage.setItem('gerama_admin_notifs',JSON.stringify(_notifs));
+    renderNotifPanel();
+    var dot=document.getElementById('adminNotifDot');
+    if(dot) dot.style.display='block';
+  }
+  window.pushAdminNotif = pushNotif;
+
+  function renderNotifPanel(){
+    var list=document.getElementById('adminNotifList'); if(!list) return;
+    if(!_notifs.length){
+      list.innerHTML='<div style="text-align:center;padding:1.5rem;color:#9ca3af;font-size:0.82rem;"><i class="fas fa-bell-slash" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;opacity:0.4;"></i>No notifications</div>';
+      return;
+    }
+    list.innerHTML=_notifs.slice(0,15).map(function(n,i){
+      var dt=new Date(n.time).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+' '+new Date(n.time).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+      return '<div onclick="'+( n.action?n.action:'' )+';closeAdminNotifs();" style="padding:0.7rem 1rem;border-bottom:1px solid #f1f5f9;cursor:'+(n.action?'pointer':'default')+';background:'+(n.read?'white':'#f0fdf4')+';transition:background 0.15s;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\''+(n.read?'white':'#f0fdf4')+'\'">'
+        +'<div style="display:flex;align-items:flex-start;gap:0.7rem;">'
+          +'<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.8rem;color:white;"><i class="'+n.icon+'"></i></div>'
+          +'<div style="flex:1;min-width:0;">'
+            +'<div style="font-size:0.82rem;font-weight:700;color:#1e2a3e;">'+(window.escHtml?window.escHtml(n.title):n.title)+'</div>'
+            +'<div style="font-size:0.75rem;color:#6b7280;margin-top:0.1rem;">'+(window.escHtml?window.escHtml(n.msg):n.msg)+'</div>'
+            +'<div style="font-size:0.68rem;color:#9ca3af;margin-top:0.2rem;">'+dt+'</div>'
+          +'</div>'
+        +'</div>'
+      +'</div>';
+    }).join('');
+  }
+
+  window.toggleAdminNotifs = function(){
+    var panel=document.getElementById('adminNotifPanel');
+    if(!panel) return;
+    var shown=panel.style.display==='block';
+    panel.style.display=shown?'none':'block';
+    if(!shown){
+      // Mark all as read
+      _notifs.forEach(function(n){n.read=true;});
+      localStorage.setItem('gerama_admin_notifs',JSON.stringify(_notifs));
+      renderNotifPanel();
+      var dot=document.getElementById('adminNotifDot');
+      if(dot) dot.style.display='none';
+    }
+  };
+  window.closeAdminNotifs = function(){
+    var panel=document.getElementById('adminNotifPanel');
+    if(panel) panel.style.display='none';
+  };
+  window.clearAdminNotifs = function(){
+    _notifs=[];
+    localStorage.setItem('gerama_admin_notifs','[]');
+    renderNotifPanel();
+    var dot=document.getElementById('adminNotifDot');
+    if(dot) dot.style.display='none';
+  };
+
+  // Close when clicking outside
+  document.addEventListener('click',function(e){
+    var panel=document.getElementById('adminNotifPanel');
+    var bell=document.getElementById('adminNotifBell');
+    if(panel&&panel.style.display==='block'&&!panel.contains(e.target)&&e.target!==bell&&!bell.contains(e.target)){
+      panel.style.display='none';
+    }
+  });
+
+  // ── Pending submissions badge ──
+  async function checkPendingSubmissions(){
+    try{
+      var resp=await fetch(SUPA+'/rest/v1/assignment_submissions?select=id&score=is.null&order=submitted_at.desc',{
+        headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Prefer':'count=exact'}
+      });
+      var countHeader=resp.headers.get('content-range');
+      var count=0;
+      if(countHeader){
+        var parts=countHeader.split('/');
+        count=parseInt(parts[1]||'0')||0;
+      } else {
+        var data=await resp.json();
+        count=Array.isArray(data)?data.length:0;
+      }
+      var badge=document.getElementById('pendingSubsBadge');
+      var countEl=document.getElementById('pendingSubsCount');
+      if(count>0){
+        if(badge) badge.style.display='flex';
+        if(countEl) countEl.textContent=count;
+        // Push notification if new ones appeared
+        var prev=parseInt(localStorage.getItem('gerama_prev_pending_count')||'0');
+        if(count>prev){
+          var newCount=count-prev;
+          pushNotif('fas fa-file-alt','New Submissions',newCount+' new assignment submission'+(newCount!==1?'s':'')+' waiting to be graded','switchPanel(\'grades\')');
+          document.title=document.title.replace(/^\[\d+\]\s/,'');
+          document.title='['+count+'] '+document.title;
+        }
+        localStorage.setItem('gerama_prev_pending_count',String(count));
+      } else {
+        if(badge) badge.style.display='none';
+        localStorage.setItem('gerama_prev_pending_count','0');
+        document.title=document.title.replace(/^\[\d+\]\s/,'');
+      }
+    }catch(e){}
+  }
+
+  // ── Real-time submissions listener via Supabase ──
+  function startSubmissionsRealtime(){
+    var sb=window.geramaSupabase; if(!sb) return;
+    sb.channel('admin-submissions-live')
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'assignment_submissions'},function(p){
+        var m=p.new;
+        if(!m) return;
+        pushNotif('fas fa-paper-plane','New Submission',
+          (m.student_name||'A student')+' submitted "'+((m.assignment_title||'an assignment').substring(0,35))+'"',
+          'switchPanel(\'grades\')');
+        checkPendingSubmissions();
+      })
+      .subscribe();
+  }
+
+  // Run after login
+  function init(){
+    renderNotifPanel();
+    var unread=_notifs.some(function(n){return !n.read;});
+    if(unread){ var dot=document.getElementById('adminNotifDot'); if(dot) dot.style.display='block'; }
+    checkPendingSubmissions();
+    // Poll every 90 seconds
+    setInterval(checkPendingSubmissions, 90000);
+    // Wire realtime once Supabase is available
+    (function waitSB(){
+      if(window.geramaSupabase) startSubmissionsRealtime();
+      else setTimeout(waitSB, 500);
+    })();
+  }
+
+  // Trigger init after admin logs in
+  var _origApply=window._applySessionCallback;
+  document.addEventListener('DOMContentLoaded',function(){
+    // Small delay to let admin-gate fire first
+    setTimeout(init, 2000);
+  });
 })();
 </script>
 </body>

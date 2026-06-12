@@ -579,8 +579,9 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <input type="text" id="subName" placeholder="e.g. Kwame Mensah">
     </div>
     <div class="form-field">
-      <label>Your Email *</label>
+      <label>Your Email * <span id="emailLockBadge" style="display:none;background:#d1fae5;color:#065f46;font-size:0.68rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:10px;margin-left:0.3rem;"><i class="fas fa-lock"></i> Verified</span></label>
       <input type="email" id="subEmail" placeholder="your@email.com">
+      <small style="color:#6b7280;font-size:0.72rem;" id="emailHint">This email links your submission to your grades.</small>
     </div>
     <div class="form-field">
       <label>Index Number</label>
@@ -1302,38 +1303,65 @@ function loadAssignments() {
       if(attempts > 0) { setTimeout(function(){ tryLoad(attempts-1); }, 200); return; }
       renderAssignments([]); return;
     }
-    // Fetch assignments + student's grades in parallel
+    // Get email from session first, fall back to profile
     var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
-    var myEmail = (profile.email || '').toLowerCase().trim();
     var myIndex = profile.index_number || '';
 
-    var gradesQuery = myEmail
-      ? sb.from('student_grades').select('*').eq('student_email', myEmail)
-      : Promise.resolve({data:[]});
+    sb.auth.getSession().then(function(sRes){
+      var sessionEmail = sRes && sRes.data && sRes.data.session && sRes.data.session.user
+        ? sRes.data.session.user.email.toLowerCase().trim() : null;
+      var myEmail = sessionEmail || (profile.email || '').toLowerCase().trim();
 
-    Promise.all([
-      sb.from('assignments').select('*').order('created_at',{ascending:false}),
-      gradesQuery
-    ]).then(function(results){
-      var assignments = results[0].data || [];
-      var grades = results[1].data || [];
-
-      // Build grade map by assignment title
-      var gradeMap = {};
-      grades.forEach(function(g){ gradeMap[g.assignment_title] = g; });
-
-      // If no grades found by email but we have index number, try that
-      if(!grades.length && myIndex) {
-        sb.from('student_grades').select('*').eq('index_number', myIndex)
-          .then(function(r2){
-            var g2 = r2.data || [];
-            g2.forEach(function(g){ gradeMap[g.assignment_title] = g; });
-            renderAssignments(assignments, gradeMap);
-          }).catch(function(){ renderAssignments(assignments, gradeMap); });
-      } else {
-        renderAssignments(assignments, gradeMap);
+      // Sync email to profile
+      if(sessionEmail && profile.email !== sessionEmail){
+        profile.email = sessionEmail;
+        localStorage.setItem('gerama_profile', JSON.stringify(profile));
       }
-    }).catch(function(){ renderAssignments([]); });
+
+      var gradesQuery = myEmail
+        ? sb.from('student_grades').select('*').eq('student_email', myEmail)
+        : Promise.resolve({data:[]});
+
+      Promise.all([
+        sb.from('assignments').select('*').order('created_at',{ascending:false}),
+        gradesQuery
+      ]).then(function(results){
+        var assignments = results[0].data || [];
+        var grades = results[1].data || [];
+
+        // Build grade map by assignment title
+        var gradeMap = {};
+        grades.forEach(function(g){ gradeMap[g.assignment_title] = g; });
+
+        // If no grades found by email but we have index number, try that
+        if(!grades.length && myIndex) {
+          sb.from('student_grades').select('*').eq('index_number', myIndex)
+            .then(function(r2){
+              var g2 = r2.data || [];
+              g2.forEach(function(g){ gradeMap[g.assignment_title] = g; });
+              renderAssignments(assignments, gradeMap);
+            }).catch(function(){ renderAssignments(assignments, gradeMap); });
+        } else {
+          renderAssignments(assignments, gradeMap);
+        }
+      }).catch(function(){ renderAssignments([]); });
+    }).catch(function(){
+      // Session fetch failed — fall back to localStorage email
+      var myEmail = (profile.email || '').toLowerCase().trim();
+      var gradesQuery = myEmail
+        ? sb.from('student_grades').select('*').eq('student_email', myEmail)
+        : Promise.resolve({data:[]});
+      Promise.all([
+        sb.from('assignments').select('*').order('created_at',{ascending:false}),
+        gradesQuery
+      ]).then(function(results){
+        var assignments = results[0].data || [];
+        var grades = results[1].data || [];
+        var gradeMap = {};
+        grades.forEach(function(g){ gradeMap[g.assignment_title] = g; });
+        renderAssignments(assignments, gradeMap);
+      }).catch(function(){ renderAssignments([]); });
+    });
   }
   tryLoad(15);
 }
@@ -1389,19 +1417,57 @@ function renderAssignments(assignments, gradeMap) {
 }
 
 // ── SUBMIT ASSIGNMENT ─────────────────────────────────────────────
-function openSubmitModal(id, title) {
+async function openSubmitModal(id, title) {
   document.getElementById('modalAssignId').value = id;
   document.getElementById('modalAssignTitle').value = title;
-  // Pre-fill from profile so grade email matches lookup email
+  // Pre-fill from profile
   var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
   document.getElementById('subName').value = profile.name || '';
-  document.getElementById('subEmail').value = profile.email || '';
   document.getElementById('subIndex').value = profile.index_number || '';
   document.getElementById('subComment').value = '';
   document.getElementById('subFileChosen').textContent = '';
   document.getElementById('subStatus').className = 'status-msg';
   document.getElementById('subStatus').textContent = '';
   selectedSubFile = null;
+
+  // ── Always use authenticated session email for grade matching ──
+  var emailEl = document.getElementById('subEmail');
+  var sessionEmail = null;
+  try {
+    var sb = window.geramaSupabase;
+    if(sb) {
+      var sRes = await sb.auth.getSession();
+      if(sRes && sRes.data && sRes.data.session && sRes.data.session.user)
+        sessionEmail = sRes.data.session.user.email;
+    }
+  } catch(e) {}
+  // Use session email > profile email > blank
+  var finalEmail = (sessionEmail || profile.email || '').toLowerCase().trim();
+  emailEl.value = finalEmail;
+  if(finalEmail) {
+    emailEl.readOnly = true;
+    emailEl.style.background = '#f0fdf4';
+    emailEl.style.borderColor = '#86efac';
+    emailEl.title = 'Email locked to your account — ensures grades are linked correctly';
+    // store for later use during submit
+    emailEl.dataset.verified = '1';
+    // Show lock badge
+    var badge = document.getElementById('emailLockBadge');
+    if(badge) badge.style.display = 'inline';
+    // Update profile with session email
+    if(sessionEmail && profile.email !== sessionEmail) {
+      profile.email = sessionEmail;
+      localStorage.setItem('gerama_profile', JSON.stringify(profile));
+    }
+  } else {
+    emailEl.readOnly = false;
+    emailEl.style.background = '';
+    emailEl.style.borderColor = '';
+    emailEl.dataset.verified = '0';
+    var badge2 = document.getElementById('emailLockBadge');
+    if(badge2) badge2.style.display = 'none';
+  }
+
   document.getElementById('submitModal').classList.add('open');
 }
 
@@ -3415,7 +3481,21 @@ async function loadMyGrades() {
   if(!sb){ el.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><p>Connecting...</p></div>'; return; }
 
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
-  var myEmail = (profile.email||'').toLowerCase().trim();
+
+  // ── Always use authenticated session email ──
+  var myEmail = null;
+  try {
+    var sRes = await sb.auth.getSession();
+    if(sRes && sRes.data && sRes.data.session && sRes.data.session.user){
+      myEmail = sRes.data.session.user.email.toLowerCase().trim();
+      // Sync to localStorage if different
+      if(myEmail && profile.email !== myEmail){
+        profile.email = myEmail;
+        localStorage.setItem('gerama_profile', JSON.stringify(profile));
+      }
+    }
+  } catch(e) {}
+  if(!myEmail) myEmail = (profile.email||'').toLowerCase().trim();
   if(!myEmail){ el.innerHTML='<div class="empty-state"><i class="fas fa-user"></i><p>Please log in to see your grades.</p></div>'; return; }
 
   el.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:1rem;display:block;"></i>Loading your grades...</div>';

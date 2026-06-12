@@ -1202,7 +1202,16 @@ async function publishQuiz(){
 // ─── ASSIGNMENTS ───────────────────────────────────────────
 window.loadAsgList = async function(){
   var el = document.getElementById('asgList'); if(!el) return;
-  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+  var sb = window.geramaSupabase;
+  if(!sb){
+    el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i> Connecting…</p>';
+    // Retry until Supabase is ready (up to 8 seconds)
+    var waited=0;
+    while(!window.geramaSupabase && waited<8000){ await new Promise(function(r){setTimeout(r,250);}); waited+=250; }
+    sb=window.geramaSupabase;
+    if(!sb){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">Not connected. Please refresh.</p>'; return; }
+  }
+  el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i> Loading assignments…</p>';
   var {data,error} = await sb.from('assignments').select('*').order('created_at',{ascending:false});
   if(error||!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No assignments posted yet.</p>'; return; }
   var now = Date.now();
@@ -1224,9 +1233,24 @@ window.loadAsgList = async function(){
 window.loadSubmissionsTable = function(){
   if(window.doLoadSubs){ window.doLoadSubs(); return; }
   var el = document.getElementById('submissionsTable');
-  var sb = window.geramaSupabase;
   if(!el) return;
-  if(!sb){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">Not connected. Refresh the page.</p>'; return; }
+  var sb = window.geramaSupabase;
+  if(!sb){
+    el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i> Connecting…</p>';
+    // Retry until Supabase is ready
+    var waited=0;
+    var checkInterval=setInterval(function(){
+      waited+=250;
+      if(window.geramaSupabase){
+        clearInterval(checkInterval);
+        window.loadSubmissionsTable();
+      } else if(waited>=8000){
+        clearInterval(checkInterval);
+        el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">Not connected. Please refresh.</p>';
+      }
+    },250);
+    return;
+  }
   el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i> Loading submissions...</p>';
   sb.from('assignment_submissions').select('*').order('submitted_at',{ascending:false})
     .then(function(res){
@@ -1386,15 +1410,21 @@ window.gradeSubmission = async function(btn){
     var asgRes = await sb.from('assignments').select('course').eq('title', title).maybeSingle();
     if(asgRes && asgRes.data && asgRes.data.course) courseVal = asgRes.data.course;
 
-    await sb.from('student_grades').upsert({
+    // Delete existing grade for this submission (avoids conflict issues), then insert fresh
+    await sb.from('student_grades')
+      .delete()
+      .eq('student_email', email)
+      .eq('assignment_title', title);
+
+    await sb.from('student_grades').insert({
       student_email: email,
       assignment_title: title,
       course: courseVal,
       score: score,
       submission_id: subId,
       graded_at: new Date().toISOString()
-    }, {onConflict:'submission_id'});
-  }catch(e){}
+    });
+  }catch(e){ console.warn('student_grades insert error:', e.message); }
 
   window.logActivity('Graded: '+title+' for '+email+' → '+score);
   if(statusEl){statusEl.textContent='✅ Graded!';statusEl.style.color='#059669';}
@@ -3550,36 +3580,45 @@ window.pushGroupsToAllProfiles = async function(){
 
 // ─── DELETE GROUP ─────────────────────────────────────────────────────────────
 window.deleteGroup = async function(groupId, groupName){
-  var members = (window._allGroupMembers||[]).filter(function(m){ return m.group_id === groupId; });
+  var sb = window.geramaSupabase; if(!sb){ alert('Not connected to database.'); return; }
+
+  // Always fetch fresh member count from DB (don't rely on stale cache)
+  var members = [];
+  try{
+    var memRes = await sb.from('gerama_group_members').select('*').eq('group_id', groupId);
+    members = memRes.data || [];
+  }catch(e){ members = (window._allGroupMembers||[]).filter(function(m){ return m.group_id === groupId; }); }
+
   var memberCount = members.length;
   var msg = 'Delete group "'+groupName+'"?';
   if(memberCount > 0){
-    msg += '\n\n⚠️ This group has '+memberCount+' member'+(memberCount!==1?'s':'')+'. They will be UNASSIGNED — their group_name will be cleared from their profiles.';
+    msg += '\n\n⚠️ This group has '+memberCount+' member'+(memberCount!==1?'s':'')+'. They will be UNASSIGNED.';
   }
-  msg += '\n\nThis action cannot be undone. Type DELETE to confirm.';
+  msg += '\n\nType DELETE to confirm (all caps):';
   var input = window.prompt(msg);
   if(!input || input.trim().toUpperCase() !== 'DELETE'){
-    alert('Deletion cancelled — you must type DELETE to confirm.');
+    if(input !== null) alert('Cancelled — you must type DELETE (in capitals) to confirm.');
     return;
   }
-  var sb = window.geramaSupabase; if(!sb) return;
 
-  // Clear group_name from all affected user_profiles first
-  if(memberCount > 0){
-    for(var i=0;i<members.length;i++){
-      try{ await sb.from('user_profiles').update({ group_name: null }).eq('email', members[i].user_email); }catch(e){}
+  try{
+    // Clear group_name from all affected user_profiles
+    if(memberCount > 0){
+      for(var i=0;i<members.length;i++){
+        try{ await sb.from('user_profiles').update({ group_name: null }).eq('email', members[i].user_email); }catch(e){}
+      }
+      // Delete all members from this group
+      await sb.from('gerama_group_members').delete().eq('group_id', groupId);
     }
-    // Delete all members from this group
-    await sb.from('gerama_group_members').delete().eq('group_id', groupId);
-  }
 
-  // Delete the group itself
-  var {error} = await sb.from('gerama_groups').delete().eq('id', groupId);
-  if(error){ alert('Error deleting group: '+error.message); return; }
+    // Delete the group itself
+    var {error} = await sb.from('gerama_groups').delete().eq('id', groupId);
+    if(error){ alert('Error deleting group: '+error.message); return; }
 
-  window.logActivity('Deleted group: '+groupName+(memberCount>0?' ('+memberCount+' members unassigned)':''));
-  alert('✅ Group "'+groupName+'" deleted.'+(memberCount>0?' '+memberCount+' member'+(memberCount!==1?'s':'')+' have been unassigned.':''));
-  window.loadGroups();
+    window.logActivity('Deleted group: '+groupName+(memberCount>0?' ('+memberCount+' members unassigned)':''));
+    alert('✅ Group "'+groupName+'" deleted.'+(memberCount>0?' '+memberCount+' member'+(memberCount!==1?'s':'')+' unassigned.':''));
+    window.loadGroups();
+  }catch(e){ alert('Error: '+e.message); }
 };
 
 window.randomlyAssignAll = async function(){

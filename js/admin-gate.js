@@ -197,6 +197,9 @@
         // so give it 1 second then call it again for the stat boxes
         setTimeout(function(){
           if(typeof window.loadOverviewStats === 'function') window.loadOverviewStats();
+          // Also pre-load assignments and grades so they're ready when admin navigates there
+          if(typeof window.loadAsgList === 'function') window.loadAsgList();
+          if(typeof window.loadGradesPanel === 'function') window.loadGradesPanel();
         }, 1000);
       } else if(_reloadAttempts < 30){
         setTimeout(_reloadData, 400); // retry every 400ms up to 12 seconds

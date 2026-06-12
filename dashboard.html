@@ -41,9 +41,7 @@
     </style>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
-    <script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
     <script src="js/supabase-config.js"></script>
-    <script src="js/main.js"></script>
 </head>
 <body>
     <header>
@@ -423,6 +421,40 @@
         (function waitAndLoad(){
             if(typeof window.geramaSupabase !== 'undefined') loadStudentData();
             else setTimeout(waitAndLoad, 200);
+        })();
+
+        // ── Toast notification system ──
+        function showDashToast(msg, type, duration){
+            var existing = document.getElementById('dashToast');
+            if(existing) existing.remove();
+            var t = document.createElement('div');
+            t.id = 'dashToast';
+            var bg = type === 'success' ? 'linear-gradient(135deg,#059669,#10b981)'
+                   : type === 'warning' ? 'linear-gradient(135deg,#d97706,#f59e0b)'
+                   : 'linear-gradient(135deg,#1B5E20,#2E7D32)';
+            t.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:'+bg+';color:white;padding:0.65rem 1.4rem;border-radius:30px;font-size:0.88rem;font-weight:600;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,0.2);opacity:0;transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;font-family:Inter,sans-serif;max-width:90vw;';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)'; }, 30);
+            setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(10px)'; setTimeout(function(){ t.remove(); }, 400); }, duration || 3500);
+        }
+
+        // ── Live grade watcher — realtime new grades ──
+        (function watchNewGrades(){
+            var sb = window.geramaSupabase;
+            if(!sb){ setTimeout(watchNewGrades, 800); return; }
+            var prof = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+            if(!prof.email) return; // not logged in
+            var email = prof.email.toLowerCase().trim();
+            sb.channel('grade-notif-'+email)
+                .on('postgres_changes', {event:'INSERT', schema:'public', table:'student_grades'}, function(payload){
+                    var g = payload.new;
+                    if(!g || g.student_email !== email) return;
+                    // Refresh grades section
+                    loadStudentData();
+                    showDashToast('🎉 New grade received: '+( g.assignment_title||'Assignment')+' — '+g.score, 'success', 5000);
+                })
+                .subscribe();
         })();
     </script>
 </body>
