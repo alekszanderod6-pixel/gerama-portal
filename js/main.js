@@ -679,6 +679,34 @@ if(!document.getElementById('confettiStyle')) {
 
     setTimeout(updateNavBadges, 2000);
     setInterval(updateNavBadges, 60000);
+
+    // ── Realtime: notify student instantly when new content is uploaded ──
+    (function startRealtimeBadges(){
+        if(typeof window.geramaSupabase === 'undefined'){ setTimeout(startRealtimeBadges, 800); return; }
+        var sb = window.geramaSupabase;
+        // New material uploaded
+        sb.channel('global-new-content')
+          .on('postgres_changes',{event:'INSERT',schema:'public',table:'materials'},function(p){
+              var m = p.new; if(!m) return;
+              if(page === 'resources.html') return; // already on page
+              var name = m.name || 'a new material';
+              window.showToast && window.showToast('📚 New: '+name+' — tap Resources to view!', 5000);
+              updateNavBadges();
+          })
+          .on('postgres_changes',{event:'INSERT',schema:'public',table:'assignments'},function(p){
+              var a = p.new; if(!a) return;
+              if(page === 'classroom.html') return;
+              var title = a.title || 'a new assignment';
+              window.showToast && window.showToast('📝 New Assignment: '+title, 5000);
+              updateNavBadges();
+          })
+          .on('postgres_changes',{event:'INSERT',schema:'public',table:'announcements'},function(p){
+              var ann = p.new; if(!ann) return;
+              var title = ann.title || 'New announcement';
+              window.showToast && window.showToast('📢 '+title, 5000);
+          })
+          .subscribe();
+    })();
 })();
 
 // ── SCROLL TO TOP BUTTON ─────────────────────────────────────────

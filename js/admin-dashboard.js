@@ -699,7 +699,7 @@
     // Run every query independently — one failure never blocks others
     var safe = async function(fn){ try{ return await fn(); }catch(e){ return {count:0,data:[]}; } };
 
-    var [todayRes, weekRes, totalRes, quizRes, asgRes, clsRes, clsReqRes, qrRes, subRes, userRes, matRes, annRes] = await Promise.all([
+    var [todayRes, weekRes, totalRes, quizRes, asgRes, clsRes, clsReqRes, qrRes, subRes, userRes, matRes, annRes, ungradedRes] = await Promise.all([
       safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',todayStart); }),
       safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',weekStart); }),
       safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}); }),
@@ -711,7 +711,8 @@
       safe(function(){ return sb.from('assignment_submissions').select('id',{count:'exact',head:true}); }),
       safe(function(){ return sb.from('user_profiles').select('id',{count:'exact',head:true}); }),
       safe(function(){ return sb.from('materials').select('id',{count:'exact',head:true}); }),
-      safe(function(){ return sb.from('announcements').select('id',{count:'exact',head:true}); })
+      safe(function(){ return sb.from('announcements').select('id',{count:'exact',head:true}); }),
+      safe(function(){ return sb.from('assignment_submissions').select('id',{count:'exact',head:true}).is('score',null); })
     ]);
 
     set('statVisitsToday', todayRes.count||0);
@@ -726,6 +727,11 @@
     set('statMaterials',   matRes.count||0);
     set('statAnn',         annRes.count||0);
     set('statApproved',    subRes.count||0);  // reuse "Approved Subs" box for total submissions
+    // Ungraded count — clickable red stat box
+    var ungradedCount = ungradedRes.count || 0;
+    set('statUngradedCount', ungradedCount);
+    var ugBox = document.getElementById('statUngradedCount');
+    if(ugBox){ ugBox.style.color = ungradedCount > 0 ? '#dc2626' : '#059669'; }
 
     var reqBadge = document.getElementById('reqBadge');
     if(reqBadge){ var rc=clsReqRes.count||0; reqBadge.textContent=rc; reqBadge.style.display=rc>0?'inline':'none'; }

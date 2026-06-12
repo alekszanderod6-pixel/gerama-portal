@@ -340,8 +340,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .msg-bubble.msg-deleted{background:#f3f4f6!important;color:#9ca3af!important;border:1px dashed #e5e7eb;}
 .msg-row.mine .msg-bubble.msg-deleted{background:rgba(27,94,32,0.12)!important;color:#6b7280!important;}
 .msg-meta{font-size:0.63rem;color:var(--muted);margin-top:0.15rem;display:flex;align-items:center;gap:0.25rem;padding:0 0.1rem;}
-.msg-row.mine .msg-meta{justify-content:flex-end;color:rgba(27,94,32,0.5);}
-.msg-tick{font-size:0.7rem;line-height:1;}
+.msg-row.mine .msg-meta{justify-content:flex-end;color:rgba(255,255,255,0.55);}
+/* WhatsApp-style ticks — single grey, double blue-green when read */
+.msg-tick{font-size:0.75rem;line-height:1;letter-spacing:-0.05em;margin-left:0.15rem;}
 .msg-tick.read{color:#4ade80;}
 .msg-menu-btn{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.72rem;padding:0.25rem;border-radius:6px;flex-shrink:0;transition:all 0.15s;align-self:center;opacity:0;}
 .msg-outer:hover .msg-menu-btn{opacity:1;}
@@ -1160,11 +1161,22 @@ async function loadDMThreads(){
   list.innerHTML=keys.sort(function(a,b){return new Date(threads[b].created_at)-new Date(threads[a].created_at);}).map(function(email){
     var t=threads[email];
     var unread=!t.is_read&&t.sender_email!==_me.email;
-    var preview=t.media_type==='image'?'📷 Photo':(t.text||'').substring(0,40)||(t.is_deleted?'🚫 Message deleted':'');
-    return '<div class="chat-thread'+(email===_activeDMEmail?' active':'')+'" onclick="openDMWith(\''+esc(email)+'\',\''+esc(t.sender_email===_me.email?t.recipient_name||email:t.sender_name||email)+'\')" data-email="'+esc(email)+'">'+
-      '<div class="ct-avatar">'+esc((t.sender_email===_me.email?t.recipient_name||email:t.sender_name||email).charAt(0).toUpperCase())+'</div>'+
-      '<div class="ct-info"><div class="ct-name" style="'+(unread?'font-weight:800;':'')+'">'+esc(t.sender_email===_me.email?t.recipient_name||email:t.sender_name||email)+'</div><div class="ct-preview">'+(t.sender_email===_me.email?'You: ':'')+esc(preview)+'</div></div>'+
-      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.3rem;flex-shrink:0;"><div class="ct-time">'+timeAgo(t.created_at)+'</div>'+(unread?'<div class="ct-unread">●</div>':'')+'</div>'+
+    var otherName=t.sender_email===_me.email?t.recipient_name||email:t.sender_name||email;
+    var preview=t.media_type==='image'?'📷 Photo':(t.is_deleted?'🚫 Message deleted':(t.text||'').substring(0,40));
+    // Try to get profile image from _allMembers cache
+    var member=_allMembers.find(function(m){return m.email===email;});
+    var avatarHtml=member&&member.img_url
+      ?'<img src="'+esc(member.img_url)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'">'
+      :esc((otherName||'?').charAt(0).toUpperCase());
+    // Online dot
+    var isOnline=_onlineEmails&&_onlineEmails.has(email);
+    return '<div class="chat-thread'+(email===_activeDMEmail?' active':'')+'" onclick="openDMWith(\''+esc(email)+'\',\''+esc(otherName)+'\')" data-email="'+esc(email)+'" style="position:relative;">'+
+      '<div class="ct-avatar" style="position:relative;">'+avatarHtml+(isOnline?'<span style="position:absolute;bottom:0;right:0;width:9px;height:9px;background:#22c55e;border-radius:50%;border:2px solid white;"></span>':'')+'</div>'+
+      '<div class="ct-info"><div class="ct-name" style="'+(unread?'font-weight:800;':'')+'">'+esc(otherName)+'</div>'+
+        '<div class="ct-preview">'+(t.sender_email===_me.email?'<span style="color:#9ca3af;">You: </span>':'')+esc(preview)+'</div></div>'+
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;flex-shrink:0;">'+
+        '<div class="ct-time">'+timeAgo(t.created_at)+'</div>'+
+        (unread?'<div class="ct-unread" style="min-width:18px;text-align:center;">●</div>':'')+'</div>'+
     '</div>';
   }).join('');
 }
@@ -1493,6 +1505,7 @@ function buildMsgHtml(m,mine){
   var tickHtml='';
   if(mine&&!deleted){
     var isRead=m.read_at||m.is_read_by_recipient||m.is_read;
+    // WhatsApp style: ✓ sent, ✓✓ grey delivered, ✓✓ green read
     tickHtml='<span class="msg-tick'+(isRead?' read':'')+'">'+( isRead?'✓✓':'✓')+'</span>';
   }
   var menuBtn='<button class="msg-menu-btn" onclick="openMsgMenu(event,\''+esc(m.id||'')+'\',\''+esc((m.text||'').replace(/'/g,''))+'\','+mine+',\''+esc(m.created_at||'')+'\')"><i class="fas fa-chevron-down"></i></button>';
