@@ -65,22 +65,31 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 .dash-sidebar{transform:translateX(-100%);width:280px;z-index:400;box-shadow:4px 0 24px rgba(0,0,0,0.3);}
 .dash-sidebar.open{transform:translateX(0);}
 .sidebar-overlay{display:block;pointer-events:none;}
-.dash-main{margin-left:0;padding:1rem;padding-top:72px;padding-bottom:80px;}
-.stats-row{grid-template-columns:1fr 1fr;gap:0.6rem;}
-.stat-box{padding:0.9rem 0.6rem;}
-.stat-box .num{font-size:1.5rem;}
-.stat-box .lbl{font-size:0.68rem;}
-.card{padding:1.2rem;border-radius:14px;}
+.dash-main{margin-left:0;padding:0.8rem;padding-top:68px;padding-bottom:80px;}
+/* Stats: 2-column grid is intentional on mobile */
+.stats-row{grid-template-columns:1fr 1fr;gap:0.5rem;}
+.stat-box{padding:0.75rem 0.5rem;}
+.stat-box .num{font-size:1.4rem;}
+.stat-box .lbl{font-size:0.65rem;}
+/* Cards: full width, single column */
+.card{padding:1rem;border-radius:12px;}
 .card-title{font-size:0.92rem;}
-.form-grid{grid-template-columns:1fr;}
-.form-field.full{grid-column:auto;}
+/* ALL form grids: force single column on mobile */
+.form-grid{grid-template-columns:1fr !important;}
+.form-field.full{grid-column:auto !important;}
+/* Buttons */
 .btn-primary,.btn-gold{width:100%;justify-content:center;}
-.drop-zone{padding:1.2rem;}
+/* Sub cards */
 .sub-card{flex-direction:column;}
 .sub-actions{width:100%;justify-content:flex-end;flex-wrap:wrap;}
 .ann-card{flex-direction:column;}
+/* Tables */
 .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{min-width:500px;}
+/* Drop zone */
+.drop-zone{padding:1rem;}
+/* Quick actions grid */
+.card .form-grid ~ div[style*="grid"]{grid-template-columns:1fr 1fr !important;}
 }
 .mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
 .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;color:#9ca3af;cursor:pointer;transition:all 0.2s;font-size:0.62rem;font-weight:600;gap:0.2rem;border:none;background:none;}
@@ -557,13 +566,38 @@ tr:hover td{background:#fafcfa;}
 
         try {
           var resp = await fetch(SUPA + '/rest/v1/assignment_submissions?select=*&order=submitted_at.desc', {
-            headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
+            headers: {
+              'apikey': KEY,
+              'Authorization': 'Bearer ' + KEY,
+              'Prefer': 'count=estimated'
+            }
           });
+
+          // Surface RLS / auth errors clearly
+          if (resp.status === 401 || resp.status === 403) {
+            wrap.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.5rem;border-radius:12px;font-size:0.9rem;">' +
+              '<strong>🔒 Permission denied (HTTP ' + resp.status + ')</strong><br><br>' +
+              'The Supabase Row Level Security policy is blocking the admin from reading submissions.<br><br>' +
+              '<strong>Fix: Run this SQL in your Supabase SQL Editor:</strong><br>' +
+              '<code style="display:block;background:#fef2f2;padding:0.8rem;border-radius:8px;margin-top:0.8rem;font-size:0.82rem;white-space:pre-wrap;">DROP POLICY IF EXISTS "Public read submissions" ON assignment_submissions;\nCREATE POLICY "Public read submissions" ON assignment_submissions FOR SELECT USING (true);\nCREATE POLICY "Anon update submissions" ON assignment_submissions FOR UPDATE USING (true);</code>' +
+              '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:600;">↺ Retry after running SQL</button>' +
+              '</div>';
+            return;
+          }
+
           if (!resp.ok) throw new Error('HTTP ' + resp.status + ' — ' + await resp.text());
           var rows = await resp.json();
 
-          if (!rows.length) {
-            wrap.innerHTML = '<div style="text-align:center;padding:3rem;color:#9ca3af;"><i class="fas fa-inbox" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i><p style="font-size:1rem;font-weight:600;">No submissions yet.</p></div>';
+          if (!rows || !rows.length) {
+            // Show helpful debug info instead of plain "No submissions"
+            var countHeader = resp.headers.get('content-range');
+            wrap.innerHTML = '<div style="text-align:center;padding:3rem;color:#9ca3af;">' +
+              '<i class="fas fa-inbox" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i>' +
+              '<p style="font-size:1rem;font-weight:600;">No submissions found.</p>' +
+              '<p style="font-size:0.82rem;margin-top:0.5rem;">Content-Range: ' + (countHeader||'not returned') + '</p>' +
+              '<p style="font-size:0.82rem;margin-top:0.3rem;">If you expect submissions, check the RLS policy on <strong>assignment_submissions</strong> allows anon SELECT.</p>' +
+              '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:600;">↺ Retry</button>' +
+              '</div>';
             return;
           }
 
