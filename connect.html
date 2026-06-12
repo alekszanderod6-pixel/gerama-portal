@@ -15,6 +15,8 @@
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 <script src="js/env-config.js" onerror="console.warn('env-config not found')"></script>
 <script src="js/supabase-config.js"></script>
 <style>
@@ -322,6 +324,22 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .status-tag{font-size:0.65rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:8px;}
 .toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:#0a2f1f;color:white;padding:0.6rem 1.3rem;border-radius:30px;font-size:0.82rem;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;box-shadow:0 6px 20px rgba(10,47,31,0.4);}
 .toast.show{opacity:1;}
+
+/* ══ WHATSAPP-STYLE MESSAGES ══ */
+.msg-bubble-wrap{display:flex;flex-direction:column;max-width:72%;position:relative;}
+.msg-row.mine .msg-bubble-wrap{align-items:flex-end;}
+.msg-row.theirs .msg-bubble-wrap{align-items:flex-start;}
+.msg-bubble{padding:0.55rem 0.9rem 0.35rem;border-radius:18px;font-size:0.87rem;line-height:1.55;word-break:break-word;position:relative;}
+.msg-row.theirs .msg-bubble{background:white;border-radius:4px 18px 18px 18px;box-shadow:0 1px 6px rgba(0,0,0,0.07);}
+.msg-row.mine .msg-bubble{background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border-radius:18px 18px 18px 4px;}
+.msg-bubble.msg-deleted{background:#f3f4f6!important;color:#9ca3af!important;border:1px dashed #e5e7eb;}
+.msg-row.mine .msg-bubble.msg-deleted{background:rgba(255,255,255,0.15)!important;}
+.msg-meta{font-size:0.65rem;color:var(--muted);margin-top:0.18rem;display:flex;align-items:center;gap:0.2rem;padding:0 0.2rem;}
+.msg-row.mine .msg-meta{color:rgba(27,94,32,0.55);justify-content:flex-end;}
+.msg-menu-btn{background:none;border:none;color:rgba(27,94,32,0.4);cursor:pointer;font-size:0.75rem;padding:0.2rem 0.4rem;border-radius:8px;align-self:flex-start;margin-top:0.3rem;transition:all 0.15s;display:flex;align-items:center;}
+.msg-menu-btn:hover{background:rgba(27,94,32,0.1);color:#1B5E20;}
+.msg-row.mine .msg-menu-btn{order:-1;align-self:flex-end;color:rgba(255,255,255,0.5);}
+.msg-row.mine .msg-menu-btn:hover{background:rgba(255,255,255,0.15);color:white;}
 </style>
 </head>
 <body>
@@ -576,6 +594,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
     <div style="display:flex;gap:0.5rem;margin-bottom:0.8rem;flex-wrap:wrap;" id="statusTypeSwitch">
       <button class="ps-btn" id="stTypeText" onclick="switchStatusType('text')" style="background:#e8f5e9;color:#1B5E20;"><i class="fas fa-font"></i> Text</button>
       <button class="ps-btn" id="stTypePhoto" onclick="switchStatusType('photo')"><i class="fas fa-image"></i> Photo</button>
+      <button class="ps-btn" id="stTypeVideo" onclick="switchStatusType('video')"><i class="fas fa-video"></i> Video</button>
     </div>
     <!-- Text status -->
     <div id="statusTextArea">
@@ -597,6 +616,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
       </div>
       <input type="file" id="statusPhotoInput" accept="image/*" style="display:none;" onchange="previewStatusPhoto(this)">
       <input type="text" id="statusPhotoCaption" placeholder="Optional caption…" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;">
+    </div>
+    <!-- Video status -->
+    <div id="statusVideoArea" style="display:none;">
+      <div style="border:2.5px dashed #a5d6a7;border-radius:14px;padding:1.5rem;text-align:center;cursor:pointer;margin-bottom:0.8rem;background:#f9fdf9;" onclick="document.getElementById('statusVideoInput').click()">
+        <i class="fas fa-video" style="font-size:1.8rem;color:#1B5E20;margin-bottom:0.4rem;display:block;"></i>
+        <div style="font-size:0.82rem;color:var(--muted);font-weight:600;" id="statusVideoLabel">Tap to choose a video (max 30 seconds, 50MB)</div>
+        <video id="statusVideoPreview" style="display:none;max-width:100%;border-radius:10px;margin-top:0.6rem;max-height:220px;" controls playsinline></video>
+      </div>
+      <input type="file" id="statusVideoInput" accept="video/*" style="display:none;" onchange="previewStatusVideo(this)">
+      <input type="text" id="statusVideoCaption" placeholder="Optional caption…" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;">
     </div>
     <div id="statusPostMsg" style="font-size:0.82rem;min-height:1rem;margin-bottom:0.5rem;color:#1B5E20;"></div>
     <button onclick="postStatus()" style="width:100%;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.75rem;border-radius:16px;font-size:0.92rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;">
@@ -656,6 +685,23 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   <iframe id="jitsiFrame" style="flex:1;border:none;" allow="camera;microphone;fullscreen;display-capture"></iframe>
 </div>
 
+<!-- ══ IMAGE CROP MODAL ══ -->
+<div id="cropModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:6500;flex-direction:column;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:white;border-radius:20px;overflow:hidden;width:100%;max-width:480px;max-height:90vh;display:flex;flex-direction:column;">
+    <div style="padding:1rem 1.2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8f5e9;">
+      <div style="font-size:0.95rem;font-weight:800;color:#1e2a3e;">✂️ Crop Photo</div>
+      <button onclick="closeCropModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6b7280;">✕</button>
+    </div>
+    <div style="flex:1;overflow:hidden;min-height:260px;background:#f1f8f2;display:flex;align-items:center;justify-content:center;">
+      <img id="cropImage" style="max-width:100%;max-height:360px;display:block;" alt="crop">
+    </div>
+    <div style="padding:0.8rem 1rem;display:flex;gap:0.6rem;border-top:1px solid #e8f5e9;">
+      <button onclick="applyCrop()" style="flex:1;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.65rem;border-radius:12px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-check"></i> Use This Photo</button>
+      <button onclick="closeCropModal()" style="background:#f1f5f9;color:#374151;border:none;padding:0.65rem 1rem;border-radius:12px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ TOAST ══ -->
 <div class="toast" id="toast"></div>
 
@@ -672,6 +718,7 @@ var _me  = { email:'', name:'', img:'', level:'', program:'' };
 var _selectedStatusBg = 'linear-gradient(135deg,#1B5E20,#2E7D32)';
 var _reelFile = null;
 var _statusPhotoFile = null;
+var _statusVideoFile = null;
 var _activeDMEmail = null;
 var _activeGroupId = null;
 var _dmRealtimeSub = null;
@@ -805,6 +852,8 @@ function renderStorySlide(data,idx){
   if(avLetter)avLetter.textContent=(s.author_name||'?').charAt(0).toUpperCase();
   if(s.type==='photo'&&s.photo_url){
     content.innerHTML='<img src="'+esc(s.photo_url)+'" style="max-width:100%;max-height:60vh;object-fit:contain;">'+(s.caption?'<div style="padding:0.5rem 1rem;color:white;font-weight:600;text-align:center;">'+esc(s.caption)+'</div>':'');
+  } else if(s.type==='video'&&s.video_url){
+    content.innerHTML='<video src="'+esc(s.video_url)+'" style="max-width:100%;max-height:60vh;object-fit:contain;border-radius:8px;" controls autoplay playsinline></video>'+(s.caption?'<div style="padding:0.5rem 1rem;color:white;font-weight:600;text-align:center;">'+esc(s.caption)+'</div>':'');
   } else {
     content.innerHTML='<div style="background:'+esc(s.bg||'linear-gradient(135deg,#1B5E20,#2E7D32)')+';width:100%;min-height:50vh;display:flex;align-items:center;justify-content:center;padding:2rem;text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:white;line-height:1.4;">'+esc(s.text||'')+'</div></div>';
   }
@@ -816,47 +865,105 @@ function closeStatusModal(){
 }
 
 function openPostStatus(){document.getElementById('postStatusModal').style.display='flex';}
-function closePostStatus(){document.getElementById('postStatusModal').style.display='none';}
+function closePostStatus(){
+  document.getElementById('postStatusModal').style.display='none';
+  _statusPhotoFile=null; _statusVideoFile=null;
+  if(window._cropperInstance){window._cropperInstance.destroy();window._cropperInstance=null;}
+}
 function switchStatusType(type){
-  document.getElementById('statusTextArea').style.display  =type==='text'?'block':'none';
+  document.getElementById('statusTextArea').style.display  =type==='text' ?'block':'none';
   document.getElementById('statusPhotoArea').style.display =type==='photo'?'block':'none';
-  document.getElementById('stTypeText').style.background   =type==='text'?'#e8f5e9':'';
-  document.getElementById('stTypePhoto').style.background  =type==='photo'?'#e8f5e9':'';
+  document.getElementById('statusVideoArea').style.display =type==='video'?'block':'none';
+  ['stTypeText','stTypePhoto','stTypeVideo'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.background='';el.style.color='';}
+  });
+  var active=document.getElementById('stType'+type.charAt(0).toUpperCase()+type.slice(1));
+  if(active){active.style.background='#e8f5e9';active.style.color='#1B5E20';}
 }
 function setStatusBg(el,bg){
   _selectedStatusBg=bg;
   document.querySelectorAll('.sbg-opt').forEach(function(o){o.style.border='2px solid transparent';});
   el.style.border='2px solid #1B5E20';
 }
+// Open cropper when user picks a photo for status
 function previewStatusPhoto(inp){
   var f=inp.files&&inp.files[0]; if(!f) return;
-  _statusPhotoFile=f;
-  var prev=document.getElementById('statusPhotoPreview');
-  var lbl=document.getElementById('statusPhotoLabel');
-  prev.src=URL.createObjectURL(f); prev.style.display='block';
-  lbl.textContent=f.name;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var cropImg=document.getElementById('cropImage');
+    if(cropImg){
+      cropImg.src=e.target.result;
+      document.getElementById('cropModal').style.display='flex';
+      if(window._cropperInstance){window._cropperInstance.destroy();}
+      window._cropperInstance=new Cropper(cropImg,{aspectRatio:NaN,viewMode:1,autoCropArea:0.9,movable:true,zoomable:true,rotatable:true,scalable:true});
+      window._cropSource=f;
+      window._cropTarget='status';
+    }
+  };
+  reader.readAsDataURL(f);
+}
+function previewStatusVideo(inp){
+  var f=inp.files&&inp.files[0]; if(!f) return;
+  _statusVideoFile=f;
+  var prev=document.getElementById('statusVideoPreview');
+  var lbl=document.getElementById('statusVideoLabel');
+  if(prev){prev.src=URL.createObjectURL(f);prev.style.display='block';}
+  if(lbl) lbl.textContent='✅ '+f.name+(f.size>50*1024*1024?' — ⚠️ may be too large':'');
+}
+function closeCropModal(){
+  document.getElementById('cropModal').style.display='none';
+  if(window._cropperInstance){window._cropperInstance.destroy();window._cropperInstance=null;}
+}
+function applyCrop(){
+  if(!window._cropperInstance) return;
+  window._cropperInstance.getCroppedCanvas({maxWidth:1200,maxHeight:1200}).toBlob(function(blob){
+    var ext=(window._cropSource&&window._cropSource.name||'photo.jpg').split('.').pop();
+    var file=new File([blob],'status-photo-'+Date.now()+'.'+ext,{type:blob.type||'image/jpeg'});
+    if(window._cropTarget==='status'){
+      _statusPhotoFile=file;
+      var prev=document.getElementById('statusPhotoPreview');
+      var lbl=document.getElementById('statusPhotoLabel');
+      if(prev){prev.src=URL.createObjectURL(file);prev.style.display='block';}
+      if(lbl) lbl.textContent='✅ Photo cropped & ready';
+    }
+    closeCropModal();
+  },'image/jpeg',0.9);
 }
 async function postStatus(){
   if(!_sb||!_me.email){toast('Please log in first');return;}
-  var isPhoto=document.getElementById('statusPhotoArea').style.display!=='none';
+  var photoVisible=document.getElementById('statusPhotoArea').style.display!=='none';
+  var videoVisible=document.getElementById('statusVideoArea').style.display!=='none';
   var msg=document.getElementById('statusPostMsg');
   msg.textContent='Posting…';
-  var record={author_email:_me.email,author_name:_me.name,author_img:_me.img||null,type:isPhoto?'photo':'text',expires_at:new Date(Date.now()+86400000).toISOString(),created_at:new Date().toISOString()};
-  if(isPhoto){
+  var record={author_email:_me.email,author_name:_me.name,author_img:_me.img||null,expires_at:new Date(Date.now()+86400000).toISOString(),created_at:new Date().toISOString()};
+  if(photoVisible){
     if(!_statusPhotoFile){msg.textContent='Please choose a photo.';return;}
+    record.type='photo';
     var path='statuses/'+_me.email.replace(/[^a-z0-9]/gi,'-')+'-'+Date.now();
     var up=await _sb.storage.from('gerama-materials').upload(path,_statusPhotoFile,{upsert:true});
     if(up.error){msg.textContent='Upload failed: '+up.error.message;return;}
     record.photo_url=_sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
     record.caption=document.getElementById('statusPhotoCaption').value.trim()||null;
+  } else if(videoVisible){
+    if(!_statusVideoFile){msg.textContent='Please choose a video.';return;}
+    if(_statusVideoFile.size>50*1024*1024){msg.textContent='Video too large. Max 50MB.';return;}
+    record.type='video';
+    msg.textContent='Uploading video…';
+    var vpath='statuses/vid-'+_me.email.replace(/[^a-z0-9]/gi,'-')+'-'+Date.now()+'.'+(_statusVideoFile.name.split('.').pop()||'mp4');
+    var vup=await _sb.storage.from('gerama-materials').upload(vpath,_statusVideoFile,{upsert:true,contentType:_statusVideoFile.type});
+    if(vup.error){msg.textContent='Video upload failed: '+vup.error.message;return;}
+    record.video_url=_sb.storage.from('gerama-materials').getPublicUrl(vpath).data.publicUrl;
+    record.caption=document.getElementById('statusVideoCaption').value.trim()||null;
   } else {
     var text=document.getElementById('statusTextInput').value.trim();
     if(!text){msg.textContent='Write something first.';return;}
-    record.text=text; record.bg=_selectedStatusBg;
+    record.type='text'; record.text=text; record.bg=_selectedStatusBg;
   }
   var {error}=await _sb.from('connect_statuses').insert(record);
   if(error){msg.textContent='Error: '+error.message;return;}
   msg.textContent='✅ Status posted! Visible for 24h.';
+  _statusPhotoFile=null; _statusVideoFile=null;
   setTimeout(closePostStatus,1200);
   loadStories();
 }
@@ -868,10 +975,15 @@ var _memberLevelFilter='all';
 
 async function loadMembers(){
   var grid=document.getElementById('peopleGrid'); if(!grid||!_sb) return;
-  if(_allMembers.length){renderMemberGrid(_allMembers);return;}
-  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading…</div>';
-  var {data}=await _sb.from('user_profiles').select('email,full_name,program,level,img_url').order('full_name');
-  _allMembers=(data||[]).filter(function(u){return u.email!==_me.email;});
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading members…</div>';
+  try{
+    var {data,error}=await _sb.from('user_profiles').select('email,full_name,program,level,img_url,group_name').order('full_name');
+    if(error) throw error;
+    _allMembers=(data||[]).filter(function(u){return u.email&&u.email!==_me.email;});
+  }catch(e){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#dc2626;font-size:0.85rem;"><i class="fas fa-exclamation-circle" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;"></i>Could not load members. Check your connection.<br><button onclick="_allMembers=[];loadMembers()" style="margin-top:0.8rem;background:#1B5E20;color:white;border:none;padding:0.4rem 1rem;border-radius:20px;cursor:pointer;font-family:Inter,sans-serif;font-size:0.8rem;">Retry</button></div>';
+    return;
+  }
   renderMemberGrid(_allMembers);
 }
 function renderMemberGrid(list){
@@ -882,14 +994,23 @@ function renderMemberGrid(list){
     var matchQ=q.length<2||((u.full_name||'').toLowerCase().includes(q.toLowerCase())||(u.program||'').toLowerCase().includes(q.toLowerCase()));
     return matchLevel&&matchQ;
   });
-  if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-users" style="font-size:2rem;opacity:0.3;display:block;margin-bottom:0.5rem;"></i>No members found.</div>';return;}
+  if(!filtered.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);"><div style="font-size:2.5rem;margin-bottom:0.5rem;">👥</div><div style="font-size:0.88rem;font-weight:600;">No members found</div><div style="font-size:0.78rem;margin-top:0.3rem;">Try a different search or filter</div></div>';
+    return;
+  }
   grid.innerHTML=filtered.map(function(u){
-    var av=u.img_url?'<img src="'+esc(u.img_url)+'" style="width:100%;height:100%;object-fit:cover;">':'<div style="font-size:1.5rem;font-weight:800;color:white;">'+esc((u.full_name||'?').charAt(0).toUpperCase())+'</div>';
+    var av=u.img_url
+      ?'<img src="'+esc(u.img_url)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
+        +'<div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:white;">'+esc((u.full_name||'?').charAt(0).toUpperCase())+'</div>'
+      :'<div style="font-size:1.4rem;font-weight:800;color:white;">'+esc((u.full_name||'?').charAt(0).toUpperCase())+'</div>';
     return '<div class="people-card" onclick="openDMWith(\''+esc(u.email)+'\',\''+esc(u.full_name||u.email)+'\')">'+
       '<div class="pc-avatar">'+av+'</div>'+
-      '<div class="pc-name">'+esc(u.full_name||u.email)+'</div>'+
-      '<div class="pc-prog">'+esc(u.program||'UENR')+'</div>'+
-      (u.level?'<div class="pc-group">'+esc(u.level)+'</div>':'')+
+      '<div class="pc-name" title="'+esc(u.full_name||u.email)+'">'+esc(u.full_name||u.email)+'</div>'+
+      '<div class="pc-prog" title="'+esc(u.program||'UENR')+'">'+esc(u.program||'UENR')+'</div>'+
+      (u.level||u.group_name?'<div style="display:flex;gap:0.3rem;justify-content:center;flex-wrap:wrap;margin-top:0.3rem;">'
+        +(u.level?'<span class="pc-group">'+esc(u.level)+'</span>':'')
+        +(u.group_name?'<span style="font-size:0.6rem;font-weight:700;background:#fef9e7;color:#92400e;padding:0.12rem 0.45rem;border-radius:8px;">'+esc(u.group_name)+'</span>':'')
+        +'</div>':'')+
       '<button class="pc-dm-btn"><i class="fas fa-comment-dots"></i> Message</button>'+
     '</div>';
   }).join('');
@@ -1005,10 +1126,26 @@ function renderMessages(data,container){
     var d=new Date(m.created_at).toDateString();
     var divider='';
     if(d!==lastDate){lastDate=d;divider='<div class="msg-date-divider">'+new Date(m.created_at).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})+'</div>';}
-    return divider+'<div class="msg-row '+(mine?'mine':'theirs')+'">'+
-      (!mine?'<div class="msg-avatar-sm">'+esc((m.sender_name||m.sender_email||'?').charAt(0))+'</div>':'')+
-      '<div><div class="msg-bubble">'+esc(m.text||'')+'</div><div class="msg-time">'+timeAgo(m.created_at)+(mine?' ✓✓':'')+'</div></div>'+
-    '</div>';
+    var deleted=m.is_deleted||m.deleted;
+    var edited=m.is_edited||m.edited;
+    var timeStr=new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    var msgContent=deleted
+      ?'<em style="opacity:0.5;font-style:italic;font-size:0.82rem;">🚫 Message deleted</em>'
+      :esc(m.text||'');
+    var editLabel=(!deleted&&edited)?'<span style="font-size:0.58rem;opacity:0.6;margin-left:0.3rem;">edited</span>':'';
+    var ticksHtml=mine&&!deleted?'<span style="font-size:0.7rem;margin-left:0.3rem;opacity:0.8;">✓✓</span>':'';
+    var menuBtn=mine&&!deleted
+      ?'<button class="msg-menu-btn" onclick="openMsgMenu(event,\''+esc(m.id||'')+'\',\''+esc(m.text||'')+'\')"><i class="fas fa-ellipsis-v"></i></button>'
+      :'';
+    return divider+
+      '<div class="msg-row '+(mine?'mine':'theirs')+'" data-msgid="'+(m.id||'')+'" data-msgtext="'+esc(m.text||'')+'" data-msgtime="'+esc(m.created_at||'')+'">'+
+        (!mine?'<div class="msg-avatar-sm">'+esc((m.sender_name||m.sender_email||'?').charAt(0))+'</div>':'')+
+        '<div class="msg-bubble-wrap">'+
+          (mine?menuBtn:'')+
+          '<div class="msg-bubble'+(deleted?' msg-deleted':'')+'">'+msgContent+editLabel+'</div>'+
+          '<div class="msg-meta">'+timeStr+ticksHtml+'</div>'+
+        '</div>'+
+      '</div>';
   }).join('');
   container.scrollTop=container.scrollHeight;
 }
@@ -1016,13 +1153,84 @@ function renderMessages(data,container){
 function appendMessage(m,tempId){
   var container=document.getElementById('chatMsgList'); if(!container) return;
   var mine=m.sender_email===_me.email;
+  var timeStr=new Date(m.created_at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  var menuBtn=mine?'<button class="msg-menu-btn" onclick="openMsgMenu(event,\''+esc(m.id||tempId||'')+'\',\''+esc(m.text||'')+'\')"><i class="fas fa-ellipsis-v"></i></button>':'';
   var div=document.createElement('div');
   div.className='msg-row '+(mine?'mine':'theirs');
   div.setAttribute('data-msgid', tempId||m.id||('msg-'+Date.now()));
-  div.innerHTML=(!mine?'<div class="msg-avatar-sm">'+esc((m.sender_name||'?').charAt(0))+'</div>':'')+
-    '<div><div class="msg-bubble">'+esc(m.text||'')+'</div><div class="msg-time">'+timeAgo(m.created_at)+(mine?' ✓✓':'')+'</div></div>';
+  div.setAttribute('data-msgtext', m.text||'');
+  div.innerHTML=
+    (!mine?'<div class="msg-avatar-sm">'+esc((m.sender_name||'?').charAt(0))+'</div>':'')+
+    '<div class="msg-bubble-wrap">'+
+      (mine?menuBtn:'')+
+      '<div class="msg-bubble">'+esc(m.text||'')+'</div>'+
+      '<div class="msg-meta">'+timeStr+(mine?'<span style="font-size:0.7rem;margin-left:0.3rem;opacity:0.8;">✓✓</span>':'')+'</div>'+
+    '</div>';
   container.appendChild(div);
   container.scrollTop=container.scrollHeight;
+}
+
+// ── Message context menu (recall / edit / delete) ─────────────
+var _msgMenuTarget=null;
+function openMsgMenu(e,msgId,msgText){
+  e.stopPropagation();
+  closeMsgMenu();
+  if(!msgId) return;
+  _msgMenuTarget={id:msgId,text:msgText};
+  var rect=e.currentTarget.getBoundingClientRect();
+  var menu=document.createElement('div');
+  menu.id='msgCtxMenu';
+  menu.style.cssText='position:fixed;z-index:9000;background:white;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,0.18);padding:0.4rem 0;min-width:160px;border:1px solid #e8f5e9;animation:fadeUp 0.15s ease;';
+  menu.style.top=(rect.bottom+4)+'px';
+  menu.style.left=Math.min(rect.left,window.innerWidth-180)+'px';
+  menu.innerHTML=[
+    {icon:'fas fa-edit',label:'Edit message',fn:'editMsg()'},
+    {icon:'fas fa-undo',label:'Recall message',fn:'recallMsg()',color:'#f59e0b'},
+    {icon:'fas fa-trash',label:'Delete for me',fn:'deleteMsg(false)',color:'#ef4444'},
+    {icon:'fas fa-trash-alt',label:'Delete for everyone',fn:'deleteMsg(true)',color:'#dc2626'},
+  ].map(function(item){
+    return '<div onclick="'+item.fn+';closeMsgMenu()" style="display:flex;align-items:center;gap:0.7rem;padding:0.6rem 1rem;cursor:pointer;font-size:0.85rem;font-weight:600;color:'+(item.color||'#1e2a3e')+';transition:background 0.1s;" onmouseover="this.style.background=\'#f1f8f2\'" onmouseout="this.style.background=\'\'">'+
+      '<i class="'+item.icon+'" style="width:16px;text-align:center;color:'+(item.color||'#1B5E20')+'"></i> '+item.label+'</div>';
+  }).join('');
+  document.body.appendChild(menu);
+  setTimeout(function(){document.addEventListener('click',closeMsgMenu,{once:true});},0);
+}
+function closeMsgMenu(){var m=document.getElementById('msgCtxMenu');if(m)m.remove();}
+
+async function editMsg(){
+  if(!_msgMenuTarget||!_msgMenuTarget.id||!_sb) return;
+  var newText=prompt('Edit message:',_msgMenuTarget.text);
+  if(!newText||newText===_msgMenuTarget.text) return;
+  var {error}=await _sb.from('connect_messages').update({text:newText,is_edited:true}).eq('id',_msgMenuTarget.id).eq('sender_email',_me.email);
+  if(error){toast('Could not edit: '+error.message);return;}
+  // Update DOM
+  var row=document.querySelector('[data-msgid="'+_msgMenuTarget.id+'"]');
+  if(row){
+    var bubble=row.querySelector('.msg-bubble');
+    if(bubble) bubble.innerHTML=esc(newText)+'<span style="font-size:0.58rem;opacity:0.6;margin-left:0.3rem;">edited</span>';
+    row.setAttribute('data-msgtext',newText);
+  }
+}
+
+async function recallMsg(){
+  if(!_msgMenuTarget||!_msgMenuTarget.id||!_sb) return;
+  if(!confirm('Recall this message for everyone?')) return;
+  var {error}=await _sb.from('connect_messages').update({text:'',is_deleted:true}).eq('id',_msgMenuTarget.id).eq('sender_email',_me.email);
+  if(error){toast('Could not recall: '+error.message);return;}
+  var row=document.querySelector('[data-msgid="'+_msgMenuTarget.id+'"]');
+  if(row){var bubble=row.querySelector('.msg-bubble');if(bubble){bubble.innerHTML='<em style="opacity:0.5;font-style:italic;font-size:0.82rem;">🚫 Message deleted</em>';bubble.classList.add('msg-deleted');}}
+}
+
+async function deleteMsg(forEveryone){
+  if(!_msgMenuTarget||!_msgMenuTarget.id||!_sb) return;
+  if(forEveryone){
+    await recallMsg();
+  } else {
+    // Soft delete just from view — remove from DOM only
+    var row=document.querySelector('[data-msgid="'+_msgMenuTarget.id+'"]');
+    if(row) row.remove();
+    toast('Message removed from your view');
+  }
 }
 
 function chatKeydown(e,email,name){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendDM(email,name);}}

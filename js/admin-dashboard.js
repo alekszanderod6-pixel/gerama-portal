@@ -68,7 +68,7 @@
     if(name === 'assignments') setTimeout(function(){
       if(window.loadAsgList) window.loadAsgList();
     }, 150);
-    if(name === 'grades') setTimeout(function(){ if(window.loadSubmissionsTable) window.loadSubmissionsTable(); }, 150);
+    if(name === 'grades') setTimeout(function(){ if(window.loadGradesPanel) window.loadGradesPanel(); else if(window.loadSubmissionsTable) window.loadSubmissionsTable(); }, 150);
     if(name === 'quizzes' && window.loadQzList) setTimeout(function(){ window.loadQzList(); window.loadQzAttempts && window.loadQzAttempts(); }, 150);
     if(name === 'quizrequests' && window.loadQuizRequests) setTimeout(window.loadQuizRequests, 150);
     if(name === 'classes' && window.loadClsList) setTimeout(window.loadClsList, 150);
@@ -1406,8 +1406,10 @@ window.gradeSubmission = async function(btn){
   }, 2000);
 };
 
-// Alias so the grades panel auto-refreshes after grading
-window.loadGradesPanel = window.loadSubmissionsTable;
+// Alias so the grades panel auto-refreshes after grading — but don't override the dashboard.html version
+if(!window._gradesPanelFromDashboard){
+  window.loadGradesPanel = window.loadSubmissionsTable;
+}
 
 window.postAssignment = async function(){
   var title   = document.getElementById('asgTitle').value.trim();

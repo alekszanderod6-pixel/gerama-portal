@@ -502,6 +502,7 @@ tr:hover td{background:#fafcfa;}
       var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
 
       window.loadGradesPanel = async function() {
+        window._gradesPanelFromDashboard = true;
         var wrap = document.getElementById('gradesTableWrap');
         if (!wrap) return;
         wrap.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Fetching submissions from Supabase...</p>';

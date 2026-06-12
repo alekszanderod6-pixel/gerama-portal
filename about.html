@@ -719,17 +719,6 @@ if(!window._geramaTeamLoaded)(function(){
 
   var allGroups = ['founding','gerama25','gerama26','media'];
 
-  // *** IMMEDIATELY clear ALL static placeholder cards ***
-  // This is the definitive fix for doubling — static + dynamic cards never co-exist.
-  // We replace static HTML with a spinner right now, before ANY async work.
-  allGroups.forEach(function(g){
-    var el = document.getElementById('teamGrid-'+g);
-    if(el){
-      el.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;"></i></div>';
-      el.setAttribute('data-pending','1');
-    }
-  });
-
   function waitForSB(cb, tries){
     tries = tries || 0;
     if(window.geramaSupabase){ cb(window.geramaSupabase); return; }
@@ -748,8 +737,9 @@ if(!window._geramaTeamLoaded)(function(){
   function buildCard(m){
     var styles = groupStyles[m.group] || groupStyles['founding'];
     var photoHtml = m.photo_url
-      ? '<img class="team-photo" src="'+escHtml(m.photo_url)+'" alt="'+escHtml(m.name)+'" style="border-color:'+styles.border+';box-shadow:0 6px 20px '+styles.photoShadow+';">'
-      : '<div class="team-photo team-photo-emoji" style="background:linear-gradient(135deg,'+styles.border+',#aaa);">'+(m.emoji||'👤')+'</div>';
+      ? '<img class="team-photo" src="'+escHtml(m.photo_url)+'" alt="'+escHtml(m.name)+'" loading="lazy" style="border-color:'+styles.border+';box-shadow:0 6px 20px '+styles.photoShadow+';" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
+        +'<div class="team-photo-emoji" style="display:none;background:linear-gradient(135deg,'+styles.border+',#4a9e50);">'+(m.emoji||'👤')+'</div>'
+      : '<div class="team-photo-emoji" style="background:linear-gradient(135deg,'+styles.border+',#4a9e50);">'+(m.emoji||'👤')+'</div>';
 
     var badgeHtml = m.badge_label
       ? '<div class="team-badge-tag" style="background:#ede9fe;color:'+styles.roleColor+';">'+escHtml(m.badge_label)+'</div>'
@@ -775,8 +765,17 @@ if(!window._geramaTeamLoaded)(function(){
     });
   }, {threshold:0.1, rootMargin:'0px 0px -40px 0px'});
 
+  // Wire static cards into scroll-reveal immediately (they're always visible)
+  allGroups.forEach(function(g){
+    var el = document.getElementById('teamGrid-'+g);
+    if(!el) return;
+    el.querySelectorAll('.team-card').forEach(function(card){
+      card.classList.add('reveal');
+      window._teamRevealObserver.observe(card);
+    });
+  });
+
   waitForSB(async function(sb){
-    // Hard single-execution guard — this function must run exactly once
     if(window._geramaTeamRendered) return;
     window._geramaTeamRendered = true;
 
@@ -788,13 +787,14 @@ if(!window._geramaTeamLoaded)(function(){
         .order('sort_order', {ascending:true})
         .order('created_at',  {ascending:true});
 
-      // Always clear static placeholders now that we have a definitive response
+      // Only replace static content if DB has records
+      if(error || !data || !data.length) return;
+
+      // Clear all grids and replace with DB data
       allGroups.forEach(function(g){
         var el = document.getElementById('teamGrid-'+g);
-        if(el){ el.innerHTML = ''; el.removeAttribute('data-pending'); }
+        if(el) el.innerHTML = '';
       });
-
-      if(error || !data || !data.length) return;
 
       data.forEach(function(m){
         var grid = document.getElementById('teamGrid-'+m.group);
@@ -805,12 +805,13 @@ if(!window._geramaTeamLoaded)(function(){
         card.style.borderTopColor = (groupStyles[m.group]||groupStyles['founding']).border;
         card.innerHTML = buildCard(m);
         grid.appendChild(card);
-
-        // Wire the new card into the scroll-reveal observer
         window._teamRevealObserver.observe(card);
       });
 
-    }catch(e){ console.warn('[GERAMA] team load error:', e); }
+    }catch(e){
+      console.warn('[GERAMA] team load error:', e);
+      // Keep static HTML — do nothing on error
+    }
   });
 })();
 </script>
