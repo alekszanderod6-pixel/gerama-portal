@@ -612,6 +612,37 @@ if(!document.getElementById('confettiStyle')) {
             }
             updateBottomNavBadge('resources.html', resCount > 0 && page !== 'resources.html' ? resCount : 0);
           }).catch(function(){});
+
+        // Connect badge: unread messages
+        if(page !== 'connect.html') {
+            var prof = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+            var myEmail = prof.email || null;
+            if(myEmail) {
+                sb.from('connect_messages')
+                  .select('id',{count:'exact',head:true})
+                  .eq('recipient_email', myEmail)
+                  .eq('is_read', false)
+                  .eq('is_group', false)
+                  .then(function(r){
+                    var cnt = r.count || 0;
+                    var connectBadge = document.getElementById('navBadgeConnect');
+                    if(connectBadge && cnt > 0){
+                        connectBadge.textContent = cnt > 9 ? '9+' : cnt;
+                        connectBadge.style.background = '#ef4444';
+                        connectBadge.style.color = 'white';
+                        connectBadge.style.borderRadius = '20px';
+                        connectBadge.style.padding = '0.1rem 0.4rem';
+                        connectBadge.style.fontWeight = '800';
+                        connectBadge.style.fontSize = '0.62rem';
+                        connectBadge.style.display = 'inline-flex';
+                        connectBadge.style.alignItems = 'center';
+                        connectBadge.style.justifyContent = 'center';
+                        connectBadge.style.marginLeft = 'auto';
+                    }
+                    updateBottomNavBadge('connect.html', cnt);
+                  }).catch(function(){});
+            }
+        }
     }
 
     function updateBottomNavBadge(href, count) {

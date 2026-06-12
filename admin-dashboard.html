@@ -349,6 +349,31 @@ tr:hover td{background:#fafcfa;}
       </div>
     </div>
 
+    <!-- Quick Announcement Broadcaster -->
+    <div class="card" style="background:linear-gradient(135deg,#fffbeb,white);border:1px solid #fde68a;">
+      <div class="card-title"><i class="fas fa-broadcast-tower" style="color:#f59e0b;"></i> Quick Broadcast to All Students</div>
+      <p style="color:#6b7280;font-size:0.85rem;margin-bottom:1rem;">Post an urgent announcement visible to every student instantly — no navigation needed.</p>
+      <div style="display:flex;flex-direction:column;gap:0.6rem;">
+        <input type="text" id="quickAnnTitle" placeholder="Title (e.g. Class Tomorrow Postponed)" maxlength="100"
+          style="padding:0.65rem 0.9rem;border:2px solid #fcd34d;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;"
+          onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#fcd34d'">
+        <textarea id="quickAnnMsg" placeholder="Message body…" rows="2"
+          style="padding:0.65rem 0.9rem;border:2px solid #fcd34d;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;background:white;"
+          onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#fcd34d'"></textarea>
+        <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+          <select id="quickAnnPriority" style="padding:0.55rem 0.8rem;border:2px solid #fcd34d;border-radius:10px;font-size:0.85rem;outline:none;font-family:'Inter',sans-serif;background:white;">
+            <option value="normal">📢 Normal</option>
+            <option value="important">🔴 Important</option>
+            <option value="urgent">🚨 Urgent</option>
+          </select>
+          <button onclick="quickBroadcast()" class="btn-gold" style="flex:1;justify-content:center;min-width:140px;">
+            <i class="fas fa-satellite-dish"></i> Broadcast Now
+          </button>
+        </div>
+        <div id="quickAnnStatus" style="font-size:0.82rem;min-height:1rem;"></div>
+      </div>
+    </div>
+
     <!-- Smart member lookup -->
     <div class="card">
       <div class="card-title"><i class="fas fa-search" style="color:#6366f1;"></i> Quick Member Lookup</div>
@@ -737,15 +762,20 @@ tr:hover td{background:#fafcfa;}
         } catch(e) { alert('Download failed: ' + e.message); }
       };
 
-      // Auto-load when this panel becomes active
-      var _origSwitch = window.switchPanel;
-      window.switchPanel = function(name) {
-        if (_origSwitch) _origSwitch(name);
-        if (name === 'grades') {
-          // Always auto-load grades when the panel is selected
-          setTimeout(loadGradesPanel, 200);
+      // Auto-load when this panel becomes active — defer until switchPanel is ready
+      (function hookGradesPanel(){
+        if(typeof window.switchPanel === 'function'){
+          var _origSwitch = window.switchPanel;
+          window.switchPanel = function(name) {
+            if (_origSwitch) _origSwitch(name);
+            if (name === 'grades') {
+              setTimeout(loadGradesPanel, 200);
+            }
+          };
+        } else {
+          setTimeout(hookGradesPanel, 300);
         }
-      };
+      })();
     })();
     </script>
   </div>
@@ -1936,6 +1966,39 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
     setTimeout(init, 2000);
   });
 })();
+
+// ── Quick Broadcast function ──────────────────────────────────────
+window.quickBroadcast = async function(){
+  var title   = (document.getElementById('quickAnnTitle').value||'').trim();
+  var msg     = (document.getElementById('quickAnnMsg').value||'').trim();
+  var priority = document.getElementById('quickAnnPriority').value || 'normal';
+  var statusEl = document.getElementById('quickAnnStatus');
+
+  if(!title){ if(statusEl){statusEl.textContent='Please enter a title.';statusEl.style.color='#dc2626';} return; }
+  if(!msg)  { if(statusEl){statusEl.textContent='Please enter a message.';statusEl.style.color='#dc2626';} return; }
+
+  var SUPA = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+
+  if(statusEl){statusEl.textContent='Broadcasting…';statusEl.style.color='#6b7280';}
+
+  try{
+    var resp = await fetch(SUPA+'/rest/v1/announcements',{
+      method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body: JSON.stringify({title:title, message:msg, priority:priority, created_at:new Date().toISOString()})
+    });
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    if(statusEl){statusEl.textContent='✅ Broadcast sent! All students will see it on their next page load.';statusEl.style.color='#059669';}
+    document.getElementById('quickAnnTitle').value='';
+    document.getElementById('quickAnnMsg').value='';
+    if(window.logActivity) window.logActivity('Quick broadcast: "'+title+'" ['+priority+']');
+    if(window.loadData) window.loadData();
+    setTimeout(function(){ if(statusEl)statusEl.textContent=''; }, 5000);
+  }catch(e){
+    if(statusEl){statusEl.textContent='❌ '+e.message;statusEl.style.color='#dc2626';}
+  }
+};
 </script>
 </body>
 </html>

@@ -137,21 +137,27 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .team-card:hover::before{opacity:1;}
 
 /* Photos */
-.team-photo{width:95px;height:95px;border-radius:50%;object-fit:cover;object-position:top center;border:3.5px solid var(--gold);margin:0 auto 1.1rem;display:block;box-shadow:0 6px 20px rgba(255,193,7,0.3);transition:all 0.35s;}
-.team-card:hover .team-photo{transform:scale(1.08);border-color:var(--primary);box-shadow:0 8px 28px rgba(27,94,32,0.3);}
-.team-photo-emoji{width:95px;height:95px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.6rem;margin:0 auto 1.1rem;border:3.5px solid var(--gold);box-shadow:0 6px 20px rgba(255,193,7,0.25);transition:all 0.35s;}
-.team-card:hover .team-photo-emoji{transform:scale(1.08);}
+.team-photo{width:110px;height:110px;border-radius:50%;object-fit:cover;object-position:top center;border:4px solid var(--gold);margin:0 auto 1.1rem;display:block;box-shadow:0 8px 24px rgba(255,193,7,0.35);transition:all 0.35s;}
+.team-card:hover .team-photo{transform:scale(1.1) translateY(-4px);border-color:var(--primary);box-shadow:0 12px 32px rgba(27,94,32,0.35);}
+.team-photo-emoji{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:3rem;margin:0 auto 1.1rem;border:4px solid var(--gold);box-shadow:0 8px 24px rgba(255,193,7,0.25);transition:all 0.35s;}
+.team-card:hover .team-photo-emoji{transform:scale(1.1) translateY(-4px);}
 
 .team-name{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:0.35rem;line-height:1.25;}
 .team-role{font-size:0.78rem;color:var(--primary);font-weight:600;margin-bottom:0.5rem;line-height:1.5;}
 .team-badge-tag{display:inline-block;font-size:0.68rem;font-weight:700;padding:0.15rem 0.65rem;border-radius:20px;margin-top:0.25rem;}
 .team-email{font-size:0.75rem;color:var(--muted);margin-top:0.3rem;}
 
-/* History expand button (shown only on mobile) */
-.who-history-expand{display:none;align-items:center;gap:0.4rem;margin-top:0.5rem;background:rgba(27,94,32,0.07);border:1px solid rgba(27,94,32,0.2);color:var(--primary);font-size:0.78rem;font-weight:700;padding:0.35rem 1rem;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
-.who-history-expand:hover{background:rgba(27,94,32,0.13);}
-.who-col-right.expanded .who-p:nth-child(n+4){display:block;}
-.who-col-right.expanded .who-history-expand{display:none;}
+/* History modal */
+.history-modal-overlay{position:fixed;inset:0;background:rgba(10,47,31,0.85);backdrop-filter:blur(8px);z-index:8000;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+.history-modal-overlay.open{opacity:1;pointer-events:all;}
+.history-modal-box{background:white;border-radius:24px;padding:2rem 2.2rem;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;position:relative;transform:translateY(20px);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);}
+.history-modal-overlay.open .history-modal-box{transform:translateY(0);}
+.history-modal-close{position:absolute;top:1rem;right:1rem;background:#f1f5f9;border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;color:#374151;transition:all 0.2s;}
+.history-modal-close:hover{background:#e5e7eb;}
+
+/* History expand button — shown everywhere, opens modal */
+.who-history-expand{display:inline-flex;align-items:center;gap:0.4rem;margin-top:0.8rem;background:linear-gradient(135deg,#1B5E20,#2E7D32);border:none;color:white;font-size:0.82rem;font-weight:700;padding:0.55rem 1.3rem;border-radius:20px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;box-shadow:0 4px 12px rgba(27,94,32,0.25);}
+.who-history-expand:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(27,94,32,0.35);}
 .team-card.g26{border-top-color:#6366f1;background:linear-gradient(160deg,#fff 0%,#fdfcff 100%);}
 .team-card.g26 .team-photo{border-color:#6366f1;box-shadow:0 6px 20px rgba(99,102,241,0.25);}
 .team-card.g26:hover .team-photo{border-color:#4338ca;box-shadow:0 8px 28px rgba(99,102,241,0.35);}
@@ -234,25 +240,31 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   .about-hero{padding:5rem 4% 3.5rem;}
   .hero-chips{gap:0.5rem;}.hero-chip{font-size:0.78rem;padding:0.4rem 0.9rem;}
   .who-section,.team-section,.mission-section,.values-section{padding:3rem 4%;}
-  /* Compact history column on mobile — tight, minimal spacing */
-  .who-col-right{font-size:0.8rem;background:#f9fdf9;border-radius:14px;padding:0.9rem 1rem;border:1px solid #e0ede0;}
-  .who-col-right .who-p{margin-bottom:0.3rem;line-height:1.45;font-size:0.78rem;color:#4b5563;}
+  /* History column on mobile */
+  .who-col-right{font-size:0.88rem;background:#f9fdf9;border-radius:14px;padding:1rem 1.1rem;border:1px solid #e0ede0;}
+  .who-col-right .who-p{margin-bottom:0.45rem;line-height:1.6;font-size:0.82rem;color:#4b5563;}
   .who-col-right .who-p strong{font-weight:700;color:#1e2a3e;}
-  .who-col-right .section-label{margin-bottom:0.25rem;font-size:0.7rem;padding:0.2rem 0.7rem;}
-  .who-col-right h2{font-size:1rem;margin-bottom:0.45rem;}
-  /* Show only first 2 paragraphs on mobile to save space */
-  .who-col-right .who-p:nth-child(n+3){display:none;}
-  .who-history-expand{display:flex !important;margin-top:0.3rem;}
-  /* Collapsed — extra tight on mobile */
-  .who-col-right{max-height:210px;overflow:hidden;transition:max-height 0.4s ease;}
-  .who-col-right.expanded{max-height:9999px;padding:0.9rem 1rem;}
-  .who-col-right.expanded .who-p:nth-child(n+3){display:block;}
+  .who-col-right .section-label{margin-bottom:0.35rem;font-size:0.7rem;padding:0.2rem 0.7rem;}
+  /* Always show Read Full Story button */
   .values-grid{grid-template-columns:1fr;}
   .footer-inner{grid-template-columns:1fr;gap:1.8rem;}
   .footer-bottom-bar{flex-direction:column;text-align:center;}
   .footer-tagline{max-width:100%;}
+  /* Team grid mobile — 2 columns, bigger photos */
+  .team-grid{grid-template-columns:repeat(2,1fr);gap:1rem;}
+  .team-card{padding:1.4rem 0.8rem 1.2rem;}
+  .team-photo{width:85px;height:85px;}
+  .team-photo-emoji{width:85px;height:85px;font-size:2.2rem;}
+  .team-name{font-size:0.88rem;}
+  .team-role{font-size:0.72rem;}
+  /* History modal */
+  .history-modal-box{padding:1.5rem 1.2rem;}
 }
-@media(max-width:420px){.team-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:420px){
+  .team-grid{grid-template-columns:repeat(2,1fr);}
+  .team-photo{width:75px;height:75px;}
+  .team-photo-emoji{width:75px;height:75px;font-size:2rem;}
+}
 </style>
 </head>
 <body>
@@ -335,16 +347,39 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <!-- RIGHT: history -->
     <div class="who-col-right">
       <div class="section-label">Our History</div>
-      <p class="who-p">The story of GERAMA begins in <strong>April 2022</strong>, when four Electrical and Electronic Engineering students, <strong>Gad, Edem, Mawuli, and Rashida</strong> — came together with a shared commitment to academic excellence. Their initials formed the original name: <em>Team GERM</em>.</p>
+      <p class="who-p">The story of GERAMA begins in <strong>April 2022</strong>, when four Electrical and Electronic Engineering students — <strong>Gad, Edem, Mawuli, and Rashida</strong> — came together with a shared commitment to academic excellence. Their initials formed the original name: <em>Team GERM</em>.</p>
       <p class="who-p">Shortly after, <strong>Aaron</strong> joined the group, expanding it to <em>Team GERMA</em>. When <strong>Alexander (Aleks)</strong> came on board, the final letter fell into place, and <strong>Team GERAMA</strong> was born.</p>
-      <p class="who-p">From 2022 through to 2025, the team grew steadily in both membership and impact. Weekly sessions became a cornerstone of academic life for EEE students, so much so that by the time the founding batch approached graduation, not a single member or non-member from EEE Level 400 had missed a meeting.</p>
-      <p class="who-p">In those sessions, complex courses were broken down, questions were welcomed, and no one was left behind. GERAMA was never just a study group, it became a family.</p>
-      <p class="who-p">Today, GERAMA has evolved into a full digital platform, curating and sharing lecture slides, textbooks, past questions, and video tutorials : all organised by level and course — so every student can study effectively, anytime, anywhere.</p>
-      <button class="who-history-expand" onclick="this.closest('.who-col-right').classList.add('expanded')"><i class="fas fa-chevron-down"></i> Read full story</button>
+      <p class="who-p">From 2022 to 2025, the team grew steadily. Weekly sessions became a cornerstone of academic life — not a single EEE Level 400 student missed a meeting as the founding batch approached graduation.</p>
+      <button class="who-history-expand" onclick="openHistoryModal()">
+        <i class="fas fa-book-open"></i> Read Full Story
+      </button>
     </div>
 
   </div>
 </section>
+
+<!-- HISTORY MODAL -->
+<div class="history-modal-overlay" id="historyModal" onclick="if(event.target===this)closeHistoryModal()">
+  <div class="history-modal-box">
+    <button class="history-modal-close" onclick="closeHistoryModal()" aria-label="Close">✕</button>
+    <div style="margin-bottom:1.5rem;">
+      <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(27,94,32,0.08);color:#1B5E20;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:0.3rem 0.9rem;border-radius:20px;margin-bottom:0.8rem;">Our History</div>
+      <h2 style="font-size:1.5rem;font-weight:800;color:#1e2a3e;line-height:1.2;">The Story of <span style="color:#1B5E20;">GERAMA</span></h2>
+    </div>
+    <div style="font-size:0.95rem;color:#374151;line-height:1.85;display:flex;flex-direction:column;gap:0.9rem;">
+      <p>The story of GERAMA begins in <strong>April 2022</strong>, when four Electrical and Electronic Engineering students — <strong>Gad, Edem, Mawuli, and Rashida</strong> — came together with a shared commitment to academic excellence. Their initials formed the original name: <em>Team GERM</em>.</p>
+      <p>Shortly after, <strong>Aaron</strong> joined the group, expanding it to <em>Team GERMA</em>. When <strong>Alexander (Aleks)</strong> came on board, the final letter fell into place, and <strong>Team GERAMA</strong> was born.</p>
+      <p>From 2022 through to 2025, the team grew steadily in both membership and impact. Weekly sessions became a cornerstone of academic life for EEE students, so much so that by the time the founding batch approached graduation, not a single member or non-member from EEE Level 400 had missed a meeting.</p>
+      <p>In those sessions, complex courses were broken down, questions were welcomed, and no one was left behind. GERAMA was never just a study group — it became a family.</p>
+      <p>Today, GERAMA has evolved into a full digital platform, curating and sharing lecture slides, textbooks, past questions, and video tutorials — all organised by level and course — so every student can study effectively, anytime, anywhere.</p>
+      <p>The platform now serves all engineering programs at UENR, with a growing library of over 1,000 materials, live online classes, assignment submission, quizzes, and a vibrant student community through GERAMA Connect.</p>
+    </div>
+    <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #e8f5e9;display:flex;gap:0.8rem;flex-wrap:wrap;">
+      <a href="connect.html" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;padding:0.6rem 1.4rem;border-radius:20px;font-size:0.85rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-satellite-dish"></i> Join Connect</a>
+      <a href="resources.html" style="background:#e8f5e9;color:#1B5E20;padding:0.6rem 1.4rem;border-radius:20px;font-size:0.85rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-book-open"></i> Browse Resources</a>
+    </div>
+  </div>
+</div>
 
 <!-- TEAM -->
 <section class="team-section">
@@ -425,49 +460,6 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div class="team-card">
       <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/alma.jpg" alt="Alma"
         onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<div class=\'team-photo-emoji\' style=\'background:linear-gradient(135deg,#1B5E20,#2E7D32);\'>A</div>')">
-      <div class="team-name">Alma</div>
-      <div class="team-role">Core Member · Project Manager</div>
-    </div>
-  </div>r · Online Platforms</div>
-    </div>
-    <div class="team-card">
-      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/rashida.jpg" alt="Rashida">
-      <div class="team-name">Rashida</div>
-      <div class="team-role">Co-founder · Student Welfare</div>
-    </div>
-    <div class="team-card">
-      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/mawuli.jpg" alt="Mawuli">
-      <div class="team-name">Mawuli</div>
-      <div class="team-role">Co-founder · PR &amp; Meetings</div>
-    </div>
-    <div class="team-card">
-      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/aleks.jpg" alt="Aleks">
-      <div class="team-name">Alexander O. Dwumaah</div>
-      <div class="team-role">Resources &amp; Academic Mentorship Lead</div>
-      <div class="team-email">gerama.uenr@gmail.com</div>
-    </div>
-    <div class="team-card">
-      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/pasword.jpg" alt="Password">
-      <div class="team-name">Password</div>
-      <div class="team-role">Core Member · Academic Support</div>
-    </div>
-    <div class="team-card">
-      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/Kamal-deen.jpg" alt="Kamal-deen">
-      <div class="team-name">Kamal-deen</div>
-      <div class="team-role">Professional &amp; Career Mentorship Lead</div>
-    </div>
-    <div class="team-card">
-      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/mavis.jpg" alt="Mavis">
-      <div class="team-name">Mavis</div>
-      <div class="team-role">Core Member · Secretary</div>
-    </div>
-    <div class="team-card">
-      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/abena.jpg" alt="Abena">
-      <div class="team-name">Abena</div>
-      <div class="team-role">Core Member · Alumni Relations</div>
-    </div>
-    <div class="team-card">
-      <img class="team-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/alma.jpg" alt="Alma">
       <div class="team-name">Alma</div>
       <div class="team-role">Core Member · Project Manager</div>
     </div>
@@ -883,6 +875,24 @@ if(!window._geramaTeamLoaded)(function(){
     }
   });
 })();
+
+// ── HISTORY MODAL ──────────────────────────────────────────────
+function openHistoryModal(){
+  var m = document.getElementById('historyModal');
+  if(!m) return;
+  m.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeHistoryModal(){
+  var m = document.getElementById('historyModal');
+  if(!m) return;
+  m.classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Close with Escape key
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeHistoryModal();
+});
 </script>
 </body>
 </html>

@@ -1251,9 +1251,12 @@ function startRealtimeForDM(email){
       if(m.id&&_sentMsgIds[m.id]){ delete _sentMsgIds[m.id]; return; }
       if(m.id&&document.querySelector('[data-msgid="'+m.id+'"]')) return;
       appendMessage(m);
-      // Mark as read
+      // Mark as read with full receipt fields so sender sees ✓✓
       if(m.sender_email!==_me.email&&_sb){
-        _sb.from('connect_messages').update({is_read:true}).eq('id',m.id).then(function(){});
+        _sb.from('connect_messages')
+          .update({is_read:true, is_read_by_recipient:true, read_at:new Date().toISOString()})
+          .eq('id',m.id)
+          .then(function(){}).catch(function(){});
       }
     })
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'connect_messages'},function(p){
@@ -1272,16 +1275,20 @@ function startRealtimeForDM(email){
 // ── Global realtime: notifications for messages when NOT in a chat ──
 var _globalRealtimeSub=null;
 function startGlobalRealtime(){
-  if(!_sb||!_me.email) return;
+  // Retry until both _sb and _me.email are ready
+  if(!_sb || !_me.email){
+    setTimeout(startGlobalRealtime, 400);
+    return;
+  }
   if(_globalRealtimeSub) _sb.removeChannel(_globalRealtimeSub);
-  _globalRealtimeSub=_sb.channel('global-notif-'+_me.email)
+  _globalRealtimeSub=_sb.channel('global-notif-'+_me.email.replace(/[^a-z0-9]/gi,'-'))
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'connect_messages'},function(p){
       var m=p.new; if(!m) return;
-      // Only notify if it's for me and I'm not already in the conversation
+      // Only notify if it's for me and I'm not already viewing that conversation
       if(m.recipient_email!==_me.email||m.is_group) return;
-      if(_activeDMEmail===m.sender_email) return; // already viewing this chat
+      if(_activeDMEmail===m.sender_email) return;
       showPushNotification(m);
-      updateUnreadBadge(1); // increment by 1
+      updateUnreadBadge(1);
     }).subscribe();
 }
 
@@ -1443,9 +1450,26 @@ async function refreshDMMessages(email){
     .or('and(sender_email.eq.'+_me.email+',recipient_email.eq.'+email+'),and(sender_email.eq.'+email+',recipient_email.eq.'+_me.email+')')
     .eq('is_group',false).order('created_at',{ascending:true}).limit(100);
   data=data||[];
-  await _sb.from('connect_messages').update({is_read:true}).eq('recipient_email',_me.email).eq('sender_email',email).eq('is_group',false);
+
+  // Mark ALL unread messages from the other person as read
+  // Set both is_read AND is_read_by_recipient so the sender's double-tick fires
+  var unreadIds = data
+    .filter(function(m){ return m.sender_email===email && !m.is_read; })
+    .map(function(m){ return m.id; });
+
+  if(unreadIds.length>0){
+    // Batch update — split into chunks of 10 if needed
+    for(var i=0;i<unreadIds.length;i+=20){
+      var chunk=unreadIds.slice(i,i+20);
+      _sb.from('connect_messages')
+        .update({is_read:true, is_read_by_recipient:true, read_at:new Date().toISOString()})
+        .in('id',chunk)
+        .then(function(){}).catch(function(){});
+    }
+  }
+
   renderMessages(data,msgList);
-  // Update unread badge after marking messages as read
+  // Refresh unread badge count
   loadUnreadCount();
 }
 
@@ -2063,6 +2087,8 @@ ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS reply_to_id uuid;
 ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS reply_to_text text;
 ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS is_edited boolean DEFAULT false;
 ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS is_deleted boolean DEFAULT false;
+ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS is_read_by_recipient boolean DEFAULT false;
+ALTER TABLE connect_messages ADD COLUMN IF NOT EXISTS read_at timestamptz;
 
 -- 3. Group Chats
 CREATE TABLE IF NOT EXISTS connect_groups (
