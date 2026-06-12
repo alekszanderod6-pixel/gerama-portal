@@ -868,25 +868,6 @@ window.showToast = function(msg, duration) {
     setTimeout(function() { toast.classList.remove('show'); }, duration || 2800);
 };
 
-// ── SCROLL-TO-TOP BUTTON ──────────────────────────────────────────
-(function() {
-    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
-    var page = window.location.pathname.split('/').pop() || 'index.html';
-    if(skip.indexOf(page) !== -1) return;
-
-    var btn = document.createElement('button');
-    btn.id = 'scrollTopBtn';
-    btn.setAttribute('aria-label', 'Scroll to top');
-    btn.innerHTML = '<i class="fas fa-chevron-up"></i>';
-    btn.onclick = function() { window.scrollTo({ top: 0, behavior: 'smooth' }); };
-    document.body.appendChild(btn);
-
-    window.addEventListener('scroll', function() {
-        if(window.scrollY > 400) btn.classList.add('visible');
-        else btn.classList.remove('visible');
-    }, { passive: true });
-})();
-
 // ── IMAGE LAZY LOADING ────────────────────────────────────────────
 (function() {
     if(!('IntersectionObserver' in window)) return;
