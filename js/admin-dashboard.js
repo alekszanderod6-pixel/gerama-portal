@@ -1714,20 +1714,40 @@ window.rejectClassRequest = async function(id){
 // ─── PERSONALITY OF THE WEEK ───────────────────────────────
 window.loadPotwList = async function(){
   var el = document.getElementById('potwList'); if(!el) return;
-  var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
-  var {data} = await sb.from('potw_nominations').select('*').order('created_at',{ascending:false});
-  if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No nominations yet.</p>'; return; }
+  var sb = window.geramaSupabase;
+  if(!sb){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">Not connected.</p>'; return; }
+  el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;"><i class="fas fa-spinner fa-spin"></i> Loading…</p>';
+  var {data,error} = await sb.from('potw_nominations').select('*').order('created_at',{ascending:false});
+  if(error){ el.innerHTML='<p style="color:#dc2626;padding:1rem;">Error: '+window.escHtml(error.message)+'</p>'; return; }
+  if(!data||!data.length){
+    el.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-star" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i><p>No nominations yet. Add the first one above.</p></div>';
+    return;
+  }
   el.innerHTML = data.map(function(p){
-    var badge = p.status==='approved' ? '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Featured</span>'
-              : p.status==='rejected' ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Rejected</span>'
-              : '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Pending</span>';
-    return '<div class="sub-card">'+
-      '<div class="sub-info"><strong>'+window.escHtml(p.name||'—')+' '+badge+'</strong>'+
-      '<div class="sub-meta">'+(p.role?'<b>Role:</b> '+window.escHtml(p.role)+'<br>':'')+window.escHtml((p.bio||'').substring(0,100))+'</div></div>'+
-      '<div class="sub-actions">'+
-        (p.status!=='approved'?'<button class="btn-success" onclick="approvePotwNom(\''+p.id+'\')"><i class="fas fa-check"></i> Feature</button>':'')+
-        '<button class="btn-danger" onclick="rejectPotwNom(\''+p.id+'\')"><i class="fas fa-trash"></i></button>'+
-      '</div></div>';
+    var badge = p.status==='approved'
+      ? '<span style="background:#d1fae5;color:#065f46;font-size:0.68rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:20px;margin-left:0.4rem;">⭐ Featured</span>'
+      : p.status==='rejected'
+      ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.68rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:20px;margin-left:0.4rem;">Removed</span>'
+      : '<span style="background:#fef3c7;color:#92400e;font-size:0.68rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:20px;margin-left:0.4rem;">Pending</span>';
+    var photoHtml = p.photo_url
+      ? '<img src="'+window.escAttr(p.photo_url)+'" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid #FFC107;flex-shrink:0;" alt="" onerror="this.style.display=\'none\'">'
+      : '<div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;color:white;flex-shrink:0;">'+window.escHtml((p.name||'?').charAt(0).toUpperCase())+'</div>';
+    var dt = p.created_at ? new Date(p.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+    return '<div style="display:flex;align-items:center;gap:0.9rem;padding:0.9rem 1rem;background:white;border-radius:14px;border:1px solid #e8f5e9;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(0,0,0,0.04);">'+
+      photoHtml+
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-size:0.92rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem;">'+window.escHtml(p.name||'—')+badge+'</div>'+
+        (p.role?'<div style="font-size:0.78rem;color:#1B5E20;font-weight:600;margin-top:0.1rem;">'+window.escHtml(p.role)+'</div>':'')+
+        '<div style="font-size:0.78rem;color:#6b7280;margin-top:0.15rem;line-height:1.5;word-break:break-word;">'+window.escHtml((p.bio||'').substring(0,90))+(p.bio&&p.bio.length>90?'…':'')+'</div>'+
+        (dt?'<div style="font-size:0.68rem;color:#9ca3af;margin-top:0.2rem;">'+dt+'</div>':'')+
+      '</div>'+
+      '<div style="display:flex;flex-direction:column;gap:0.4rem;flex-shrink:0;">'+
+        (p.status!=='approved'
+          ?'<button onclick="approvePotwNom(\''+window.escAttr(p.id)+'\')" class="btn-success" style="font-size:0.75rem;padding:0.3rem 0.6rem;white-space:nowrap;"><i class="fas fa-star"></i> Feature</button>'
+          :'<button disabled style="background:#e8f5e9;color:#065f46;border:none;padding:0.3rem 0.6rem;border-radius:8px;font-size:0.72rem;font-weight:600;white-space:nowrap;"><i class="fas fa-check"></i> Live</button>')+
+        '<button onclick="rejectPotwNom(\''+window.escAttr(p.id)+'\')" class="btn-danger" style="font-size:0.75rem;padding:0.3rem 0.6rem;"><i class="fas fa-trash"></i></button>'+
+      '</div>'+
+    '</div>';
   }).join('');
 };
 
