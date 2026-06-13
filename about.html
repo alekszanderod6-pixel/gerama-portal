@@ -822,11 +822,27 @@ if(!window._geramaTeamLoaded)(function(){
         .order('sort_order', {ascending:true})
         .order('created_at',  {ascending:true});
 
-      // Only replace static content if DB has records
-      // ALWAYS keep static HTML if DB is empty or errors — photos must show
+      // Only replace static content if DB has records with valid photo_url fields
+      // AND the DB data should AUGMENT the static HTML — not replace it.
+      // The static HTML uses local image paths which always work.
+      // Only replace if ALL records in the DB have a photo_url set (admin uploaded photos).
       if(error || !data || !data.length) return;
 
-      // Clear all grids and replace with DB data
+      // Check if DB records have photo URLs — if not, keep static HTML
+      var hasPhotos = data.some(function(m){ return m.photo_url && m.photo_url.length > 10; });
+      if(!hasPhotos){
+        console.log('[GERAMA About] DB has team members but no photos set — keeping static HTML.');
+        return;
+      }
+
+      // Check that at least 80% of records have a photo_url (threshold to avoid partial replacement)
+      var withPhotos = data.filter(function(m){ return m.photo_url && m.photo_url.length > 10; }).length;
+      if(withPhotos < data.length * 0.8){
+        console.log('[GERAMA About] Not enough DB photos ('+withPhotos+'/'+data.length+') — keeping static HTML to avoid broken images.');
+        return;
+      }
+
+      // All records have photos — safe to replace static HTML with DB version
       allGroups.forEach(function(g){
         var el = document.getElementById('teamGrid-'+g);
         if(el) el.innerHTML = '';
