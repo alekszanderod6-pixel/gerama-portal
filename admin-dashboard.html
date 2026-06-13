@@ -66,19 +66,21 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 .dash-sidebar.open{transform:translateX(0);}
 .sidebar-overlay{display:block;pointer-events:none;}
 .dash-main{margin-left:0;padding:0.8rem;padding-top:68px;padding-bottom:80px;}
-/* Stats: 2-column grid is intentional on mobile */
+/* Stats: 2-column grid on mobile */
 .stats-row{grid-template-columns:1fr 1fr;gap:0.5rem;}
 .stat-box{padding:0.75rem 0.5rem;}
 .stat-box .num{font-size:1.4rem;}
 .stat-box .lbl{font-size:0.65rem;}
-/* Cards: full width, single column */
+/* Cards */
 .card{padding:1rem;border-radius:12px;}
 .card-title{font-size:0.92rem;}
-/* ALL form grids: force single column on mobile */
+/* ALL form grids: SINGLE column on mobile — this is the critical fix */
 .form-grid{grid-template-columns:1fr !important;}
 .form-field.full{grid-column:auto !important;}
-/* Buttons */
-.btn-primary,.btn-gold{width:100%;justify-content:center;}
+/* Quick actions grid: 2 columns on mobile is fine */
+.quick-actions-grid{grid-template-columns:1fr 1fr !important;}
+/* Buttons: full width only in forms */
+.form-grid .btn-primary,.form-grid .btn-gold{width:100%;justify-content:center;}
 /* Sub cards */
 .sub-card{flex-direction:column;}
 .sub-actions{width:100%;justify-content:flex-end;flex-wrap:wrap;}
@@ -88,8 +90,6 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 table{min-width:500px;}
 /* Drop zone */
 .drop-zone{padding:1rem;}
-/* Quick actions grid */
-.card .form-grid ~ div[style*="grid"]{grid-template-columns:1fr 1fr !important;}
 }
 .mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
 .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;color:#9ca3af;cursor:pointer;transition:all 0.2s;font-size:0.62rem;font-weight:600;gap:0.2rem;border:none;background:none;}
@@ -346,7 +346,7 @@ tr:hover td{background:#fafcfa;}
     <!-- Quick actions -->
     <div class="card">
       <div class="card-title"><i class="fas fa-bolt" style="color:#f59e0b;"></i> Quick Actions</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.8rem;">
+      <div class="quick-actions-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.8rem;">
         <button class="btn-primary" onclick="switchPanel('upload')"><i class="fas fa-upload"></i> Upload Material</button>
         <button class="btn-gold" onclick="switchPanel('announcements')"><i class="fas fa-bullhorn"></i> Post Announcement</button>
         <button class="btn-primary" onclick="switchPanel('quizzes')"><i class="fas fa-brain"></i> Post Quiz</button>
@@ -562,41 +562,47 @@ tr:hover td{background:#fafcfa;}
         window._gradesPanelFromDashboard = true;
         var wrap = document.getElementById('gradesTableWrap');
         if (!wrap) return;
-        wrap.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Fetching submissions from Supabase...</p>';
+        wrap.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Fetching submissions…</p>';
 
         try {
-          var resp = await fetch(SUPA + '/rest/v1/assignment_submissions?select=*&order=submitted_at.desc', {
-            headers: {
-              'apikey': KEY,
-              'Authorization': 'Bearer ' + KEY,
-              'Prefer': 'count=estimated'
-            }
-          });
+          var rows = null;
 
-          // Surface RLS / auth errors clearly
-          if (resp.status === 401 || resp.status === 403) {
-            wrap.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.5rem;border-radius:12px;font-size:0.9rem;">' +
-              '<strong>🔒 Permission denied (HTTP ' + resp.status + ')</strong><br><br>' +
-              'The Supabase Row Level Security policy is blocking the admin from reading submissions.<br><br>' +
-              '<strong>Fix: Run this SQL in your Supabase SQL Editor:</strong><br>' +
-              '<code style="display:block;background:#fef2f2;padding:0.8rem;border-radius:8px;margin-top:0.8rem;font-size:0.82rem;white-space:pre-wrap;">DROP POLICY IF EXISTS "Public read submissions" ON assignment_submissions;\nCREATE POLICY "Public read submissions" ON assignment_submissions FOR SELECT USING (true);\nCREATE POLICY "Anon update submissions" ON assignment_submissions FOR UPDATE USING (true);</code>' +
-              '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:600;">↺ Retry after running SQL</button>' +
-              '</div>';
-            return;
+          // ── Try Supabase JS SDK first (uses admin session auth if available) ──
+          var sb = window.geramaSupabase;
+          if(sb){
+            var sdkRes = await sb.from('assignment_submissions').select('*').order('submitted_at', {ascending: false});
+            if(!sdkRes.error){
+              rows = sdkRes.data || [];
+            }
           }
 
-          if (!resp.ok) throw new Error('HTTP ' + resp.status + ' — ' + await resp.text());
-          var rows = await resp.json();
+          // ── Fallback: direct REST with anon key ──
+          if(rows === null){
+            var resp = await fetch(SUPA + '/rest/v1/assignment_submissions?select=*&order=submitted_at.desc', {
+              headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
+            });
+
+            if (resp.status === 401 || resp.status === 403) {
+              wrap.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.5rem;border-radius:12px;font-size:0.9rem;">' +
+                '<strong>🔒 Permission denied (HTTP ' + resp.status + ')</strong><br><br>' +
+                'Run this SQL in your Supabase SQL Editor to fix:<br>' +
+                '<pre style="background:#fef2f2;padding:0.8rem;border-radius:8px;margin-top:0.8rem;font-size:0.78rem;white-space:pre-wrap;overflow-x:auto;">' +
+                'CREATE POLICY IF NOT EXISTS "Anon read submissions"\n  ON assignment_submissions FOR SELECT USING (true);\nCREATE POLICY IF NOT EXISTS "Anon update submissions"\n  ON assignment_submissions FOR UPDATE USING (true);' +
+                '</pre>' +
+                '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:600;font-family:\'Inter\',sans-serif;">↺ Retry after running SQL</button>' +
+                '</div>';
+              return;
+            }
+            if (!resp.ok) throw new Error('HTTP ' + resp.status + ': ' + await resp.text());
+            rows = await resp.json();
+          }
 
           if (!rows || !rows.length) {
-            // Show helpful debug info instead of plain "No submissions"
-            var countHeader = resp.headers.get('content-range');
             wrap.innerHTML = '<div style="text-align:center;padding:3rem;color:#9ca3af;">' +
               '<i class="fas fa-inbox" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i>' +
-              '<p style="font-size:1rem;font-weight:600;">No submissions found.</p>' +
-              '<p style="font-size:0.82rem;margin-top:0.5rem;">Content-Range: ' + (countHeader||'not returned') + '</p>' +
-              '<p style="font-size:0.82rem;margin-top:0.3rem;">If you expect submissions, check the RLS policy on <strong>assignment_submissions</strong> allows anon SELECT.</p>' +
-              '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:600;">↺ Retry</button>' +
+              '<p style="font-size:1rem;font-weight:600;">No submissions yet.</p>' +
+              '<p style="font-size:0.82rem;margin-top:0.5rem;">Students haven\'t submitted any assignments yet.</p>' +
+              '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;">↺ Refresh</button>' +
               '</div>';
             return;
           }
