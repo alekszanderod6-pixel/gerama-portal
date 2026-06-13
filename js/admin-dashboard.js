@@ -3205,6 +3205,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
       '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">'+
         '<button onclick="window.showAddGroupModal()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-plus"></i> New Group</button>'+
         '<button onclick="window.randomlyAssignAll()" class="btn-gold" style="font-size:0.82rem;padding:0.45rem 1rem;"><i class="fas fa-random"></i> Auto-Assign L100</button>'+
+        '<button onclick="window.openAttendanceShuffleModal()" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Fetch students from an attendance session and shuffle them into groups"><i class="fas fa-clipboard-check"></i> Shuffle by Attendance</button>'+
         '<button onclick="window.cleanDuplicateMembers()" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Remove duplicate member entries — keeps one per email"'+(dupCount>0?' ':' disabled style="opacity:0.4;cursor:not-allowed;"')+'><i class="fas fa-broom"></i> Clean Duplicates'+(dupCount>0?' ('+dupCount+')':'')+'</button>'+
         '<button onclick="window.rebalanceGroups()" style="background:linear-gradient(135deg,#059669,#10b981);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Move excess members (>25) to Group F, gender-balanced"><i class="fas fa-balance-scale"></i> Rebalance</button>'+
         '<button onclick="window.pushGroupsToAllProfiles()" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Force-sync group names into all user_profiles — so all students see their group immediately"><i class="fas fa-broadcast-tower"></i> Push Groups</button>'+
@@ -3306,6 +3307,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
         '</div>'+
         '<div style="display:flex;align-items:center;gap:0.5rem;">'+
           '<button onclick="event.stopPropagation();window.downloadSingleGroupCSV(\''+window.escAttr(group.id)+'\',\''+window.escAttr(group.name)+'\')" style="background:white;color:'+color+';border:1px solid '+color+';padding:0.2rem 0.6rem;border-radius:12px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Export this group"><i class="fas fa-download"></i> Export</button>'+
+          '<button onclick="event.stopPropagation();window.openBulkAssignModal(\''+window.escAttr(group.id)+'\',\''+window.escAttr(group.name)+'\')" style="background:white;color:#059669;border:1px solid #34d399;padding:0.2rem 0.6rem;border-radius:12px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Bulk assign students by name"><i class="fas fa-list-check"></i> Bulk</button>'+
           '<button onclick="event.stopPropagation();window.deleteGroup(\''+window.escAttr(group.id)+'\',\''+window.escAttr(group.name)+'\')" style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:0.2rem 0.6rem;border-radius:12px;font-size:0.7rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Delete this group"><i class="fas fa-trash"></i> Delete</button>'+
           '<span style="background:'+color+';color:white;border-radius:20px;padding:0.15rem 0.7rem;font-size:0.8rem;font-weight:700;">'+members.length+'/'+GROUP_MAX+'</span>'+
           '<i id="acc-icon-'+accordionId+'" class="fas fa-chevron-down" style="color:'+color+';font-size:0.85rem;transition:transform 0.2s;"></i>'+
@@ -3608,7 +3610,7 @@ window.pushGroupsToAllProfiles = async function(){
 window.deleteGroup = async function(groupId, groupName){
   var sb = window.geramaSupabase; if(!sb){ alert('Not connected to database.'); return; }
 
-  // Always fetch fresh member count from DB (don't rely on stale cache)
+  // Always fetch fresh member count from DB
   var members = [];
   try{
     var memRes = await sb.from('gerama_group_members').select('*').eq('group_id', groupId);
@@ -3616,35 +3618,338 @@ window.deleteGroup = async function(groupId, groupName){
   }catch(e){ members = (window._allGroupMembers||[]).filter(function(m){ return m.group_id === groupId; }); }
 
   var memberCount = members.length;
-  var msg = 'Delete group "'+groupName+'"?';
-  if(memberCount > 0){
-    msg += '\n\n⚠️ This group has '+memberCount+' member'+(memberCount!==1?'s':'')+'. They will be UNASSIGNED.';
-  }
-  msg += '\n\nType DELETE to confirm (all caps):';
-  var input = window.prompt(msg);
-  if(!input || input.trim().toUpperCase() !== 'DELETE'){
-    if(input !== null) alert('Cancelled — you must type DELETE (in capitals) to confirm.');
+  var msg = '⚠️ Delete group "'+groupName+'"?';
+  if(memberCount > 0) msg += '\n\nThis group has '+memberCount+' member'+(memberCount!==1?'s':'')+'. They will be UNASSIGNED.';
+  msg += '\n\nEnter the admin code to confirm deletion:';
+
+  var code = window.prompt(msg);
+  if(!code) return;
+  if(code.trim() !== '2026GERAMA'){
+    alert('❌ Wrong code. Deletion cancelled.\n\nHint: The code is 2026GERAMA');
     return;
   }
 
   try{
-    // Clear group_name from all affected user_profiles
     if(memberCount > 0){
       for(var i=0;i<members.length;i++){
         try{ await sb.from('user_profiles').update({ group_name: null }).eq('email', members[i].user_email); }catch(e){}
       }
-      // Delete all members from this group
       await sb.from('gerama_group_members').delete().eq('group_id', groupId);
     }
-
-    // Delete the group itself
     var {error} = await sb.from('gerama_groups').delete().eq('id', groupId);
     if(error){ alert('Error deleting group: '+error.message); return; }
-
     window.logActivity('Deleted group: '+groupName+(memberCount>0?' ('+memberCount+' members unassigned)':''));
     alert('✅ Group "'+groupName+'" deleted.'+(memberCount>0?' '+memberCount+' member'+(memberCount!==1?'s':'')+' unassigned.':''));
     window.loadGroups();
   }catch(e){ alert('Error: '+e.message); }
+};
+
+// ─── BULK ASSIGN MEMBERS BY NAME ──────────────────────────────────────────────
+// Admin pastes/types up to ~50 student names, system matches them against
+// registered user_profiles and assigns them to the chosen group.
+window.openBulkAssignModal = function(groupId, groupName){
+  var existing = document.getElementById('bulkAssignModal');
+  if(existing) existing.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'bulkAssignModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);overflow-y:auto;';
+  modal.innerHTML =
+    '<div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">'+
+        '<div style="font-size:1.05rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-users" style="color:#1B5E20;"></i> Bulk Assign to <span style="color:#1B5E20;">'+window.escHtml(groupName)+'</span></div>'+
+        '<button onclick="document.getElementById(\'bulkAssignModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">✕</button>'+
+      '</div>'+
+      '<p style="font-size:0.85rem;color:#6b7280;margin-bottom:1rem;line-height:1.6;">'+
+        'Enter one student name <strong>per line</strong> (or paste from a list). The system will match names against registered students.'+
+      '</p>'+
+      '<textarea id="bulkNamesInput" placeholder="John Kwame&#10;Ama Serwaa&#10;Kofi Mensah&#10;..." '+
+        'style="width:100%;height:180px;border:2px solid #c8e6c9;border-radius:12px;padding:0.8rem;font-family:\'Inter\',sans-serif;font-size:0.88rem;resize:vertical;outline:none;box-sizing:border-box;"'+
+        'onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#c8e6c9\'"></textarea>'+
+      '<div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.8rem;padding:0.7rem 0.9rem;background:#fef3c7;border-radius:10px;border:1px solid #fde68a;">'+
+        '<input type="checkbox" id="bulkReplaceAll" style="width:16px;height:16px;cursor:pointer;accent-color:#1B5E20;">'+
+        '<label for="bulkReplaceAll" style="font-size:0.85rem;font-weight:600;color:#92400e;cursor:pointer;">'+
+          '⚠️ Replace all current members in this group with the new list'+
+        '</label>'+
+      '</div>'+
+      '<div id="bulkAssignPreview" style="margin-top:0.8rem;min-height:2rem;"></div>'+
+      '<div style="display:flex;gap:0.7rem;margin-top:1rem;flex-wrap:wrap;">'+
+        '<button onclick="previewBulkAssign(\''+window.escAttr(groupId)+'\')" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.6rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-search"></i> Preview Match</button>'+
+        '<button onclick="confirmBulkAssign(\''+window.escAttr(groupId)+'\',\''+window.escAttr(groupName)+'\')" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.6rem 1.4rem;border-radius:10px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;gap:0.4rem;flex:1;justify-content:center;"><i class="fas fa-user-plus"></i> Assign to Group</button>'+
+        '<button onclick="document.getElementById(\'bulkAssignModal\').remove()" style="background:#fee2e2;color:#dc2626;border:none;padding:0.6rem 1rem;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>'+
+      '</div>'+
+      '<div id="bulkAssignStatus" style="margin-top:0.8rem;font-size:0.85rem;min-height:1rem;"></div>'+
+    '</div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
+  setTimeout(function(){ var ta=document.getElementById('bulkNamesInput'); if(ta) ta.focus(); }, 100);
+};
+
+window.previewBulkAssign = function(groupId){
+  var raw = (document.getElementById('bulkNamesInput').value||'').trim();
+  var preview = document.getElementById('bulkAssignPreview');
+  if(!raw){ if(preview) preview.innerHTML=''; return; }
+
+  var lines = raw.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l.length>1; });
+  var allUsers = window._allUsers || [];
+  var results = [];
+
+  lines.forEach(function(name){
+    var nameLow = name.toLowerCase();
+    // Try exact match first, then partial
+    var match = allUsers.find(function(u){
+      return (u.full_name||'').toLowerCase() === nameLow;
+    }) || allUsers.find(function(u){
+      return (u.full_name||'').toLowerCase().includes(nameLow) || nameLow.includes((u.full_name||'').toLowerCase().split(' ')[0]);
+    });
+    results.push({ input: name, match: match || null });
+  });
+
+  var found = results.filter(function(r){ return r.match; });
+  var notFound = results.filter(function(r){ return !r.match; });
+
+  var html = '<div style="border:1px solid #e8f5e9;border-radius:12px;padding:0.9rem;background:#f9fdf9;">';
+  html += '<div style="font-size:0.82rem;font-weight:700;color:#1B5E20;margin-bottom:0.5rem;"><i class="fas fa-check-circle"></i> '+found.length+' matched · <span style="color:#dc2626;">'+notFound.length+' not found</span></div>';
+  html += found.map(function(r){
+    var u = r.match;
+    return '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.25rem 0;font-size:0.8rem;">'+
+      '<i class="fas fa-user-check" style="color:#059669;"></i>'+
+      '<span style="font-weight:600;">'+window.escHtml(u.full_name||u.email)+'</span>'+
+      (u.index_number?'<span style="color:#9ca3af;font-size:0.72rem;">'+window.escHtml(u.index_number)+'</span>':'')+
+      (u.level?'<span style="background:#e8f5e9;color:#1B5E20;font-size:0.68rem;font-weight:700;padding:0.05rem 0.4rem;border-radius:8px;">'+window.escHtml(u.level)+'</span>':'')+
+    '</div>';
+  }).join('');
+  if(notFound.length){
+    html += '<div style="margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid #fde8d8;">';
+    html += notFound.map(function(r){
+      return '<div style="font-size:0.78rem;color:#dc2626;display:flex;align-items:center;gap:0.4rem;padding:0.2rem 0;">'+
+        '<i class="fas fa-user-times"></i>'+
+        '<span>'+window.escHtml(r.input)+' — not found in registered members</span>'+
+      '</div>';
+    }).join('');
+    html += '</div>';
+  }
+  html += '</div>';
+  if(preview) preview.innerHTML = html;
+  window._bulkAssignResults = results;
+};
+
+window.confirmBulkAssign = async function(groupId, groupName){
+  var statusEl = document.getElementById('bulkAssignStatus');
+  function setStatus(msg, ok){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=ok?'#059669':'#dc2626'; } }
+
+  // Run preview if not done yet
+  window.previewBulkAssign(groupId);
+  var results = window._bulkAssignResults;
+  if(!results || !results.length){ setStatus('Please enter names and click Preview Match first.', false); return; }
+
+  var toAssign = results.filter(function(r){ return r.match; });
+  if(!toAssign.length){ setStatus('No matching students found. Check names against registered members.', false); return; }
+
+  var replaceAll = document.getElementById('bulkReplaceAll').checked;
+  var sb = window.geramaSupabase; if(!sb){ setStatus('Not connected.', false); return; }
+
+  setStatus('Processing...', true);
+
+  try{
+    // ── If Replace All: clear existing members first ──
+    if(replaceAll){
+      // Get current members to clear their profiles
+      var {data: current} = await sb.from('gerama_group_members').select('user_email').eq('group_id', groupId);
+      (current||[]).forEach(async function(m){
+        try{ await sb.from('user_profiles').update({group_name:null}).eq('email',m.user_email); }catch(e){}
+      });
+      await sb.from('gerama_group_members').delete().eq('group_id', groupId);
+      window.logActivity('Cleared all members from '+groupName+' for bulk replace');
+    }
+
+    // Get existing members (after potential clear) to avoid duplicates
+    var {data: existingMems} = await sb.from('gerama_group_members').select('user_email').eq('group_id', groupId);
+    var existingSet = {};
+    (existingMems||[]).forEach(function(m){ if(m.user_email) existingSet[m.user_email.toLowerCase().trim()]=true; });
+
+    // Get the group info for updating profiles
+    var group = (window._geramaGroups||[]).find(function(g){ return g.id===groupId; });
+
+    var added=0, skipped=0, errors=0;
+    for(var i=0; i<toAssign.length; i++){
+      var u = toAssign[i].match;
+      var emailKey = (u.email||'').toLowerCase().trim();
+      if(existingSet[emailKey]){ skipped++; continue; }
+      try{
+        await sb.from('gerama_group_members').insert({
+          group_id: groupId,
+          user_email: u.email,
+          user_name: u.full_name || u.email,
+          role: 'member',
+          assigned_at: new Date().toISOString()
+        });
+        if(group) await sb.from('user_profiles').update({group_name:group.name}).eq('email',u.email);
+        existingSet[emailKey]=true;
+        added++;
+      }catch(e){ errors++; }
+    }
+
+    window.logActivity('Bulk assigned '+added+' members to '+groupName+(skipped?' ('+skipped+' already in group)':'')+(replaceAll?' [replaced all]':''));
+    setStatus('✅ '+added+' member'+(added!==1?'s':'')+' assigned!'+(skipped?' '+skipped+' already in group, skipped.':'')+(errors?' '+errors+' errors.':''), true);
+    setTimeout(function(){ document.getElementById('bulkAssignModal').remove(); window.loadGroups(); }, 1800);
+
+  }catch(e){ setStatus('❌ '+e.message, false); }
+};
+
+// ─── ATTENDANCE-BASED SHUFFLE ─────────────────────────────────────────────────
+// Fetches students from a selected attendance session, shuffles them randomly,
+// and distributes them evenly across all study groups.
+window.openAttendanceShuffleModal = async function(){
+  var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
+  var existing = document.getElementById('attShuffleModal');
+  if(existing) existing.remove();
+
+  // Fetch attendance sessions
+  var {data: sessions} = await sb.from('attendance_sessions')
+    .select('id,class_title,code,created_at')
+    .order('created_at',{ascending:false})
+    .limit(30);
+  sessions = sessions||[];
+
+  var modal = document.createElement('div');
+  modal.id = 'attShuffleModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);overflow-y:auto;';
+
+  var sessionOptions = sessions.length
+    ? sessions.map(function(s){
+        var dt = s.created_at ? new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+        return '<option value="'+window.escAttr(s.id)+'">'+window.escHtml(s.class_title||'Session')+(dt?' · '+dt:'')+(s.code?' ['+s.code+']':'')+'</option>';
+      }).join('')
+    : '<option value="">No sessions found</option>';
+
+  modal.innerHTML =
+    '<div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">'+
+        '<div style="font-size:1.05rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-random" style="color:#6366f1;"></i> Shuffle from Attendance</div>'+
+        '<button onclick="document.getElementById(\'attShuffleModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">✕</button>'+
+      '</div>'+
+      '<p style="font-size:0.85rem;color:#6b7280;margin-bottom:1rem;line-height:1.6;">'+
+        'Select an attendance session. All students who signed that session will be fetched, shuffled randomly, and distributed equally across all 5 (or 6) study groups.'+
+      '</p>'+
+      '<div style="margin-bottom:0.8rem;">'+
+        '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.35rem;">Select Attendance Session</label>'+
+        '<select id="shuffleSessionId" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:\'Inter\',sans-serif;" onfocus="this.style.borderColor=\'#6366f1\'" onblur="this.style.borderColor=\'#e5e7eb\'">'+
+          sessionOptions+
+        '</select>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.8rem;padding:0.7rem 0.9rem;background:#fef3c7;border-radius:10px;border:1px solid #fde68a;">'+
+        '<input type="checkbox" id="shuffleClearFirst" checked style="width:16px;height:16px;cursor:pointer;accent-color:#6366f1;">'+
+        '<label for="shuffleClearFirst" style="font-size:0.85rem;font-weight:600;color:#92400e;cursor:pointer;">'+
+          '⚠️ Clear all existing group members before shuffling (fresh groupings)'+
+        '</label>'+
+      '</div>'+
+      '<button onclick="previewAttendanceShuffle()" style="background:#f5f3ff;color:#6366f1;border:1px solid #c4b5fd;padding:0.6rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.8rem;"><i class="fas fa-eye"></i> Preview Shuffle</button>'+
+      '<div id="shufflePreview" style="margin-bottom:0.8rem;"></div>'+
+      '<div style="display:flex;gap:0.7rem;flex-wrap:wrap;">'+
+        '<button onclick="executeAttendanceShuffle()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.6rem 1.4rem;border-radius:10px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;flex:1;justify-content:center;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-random"></i> Execute Shuffle</button>'+
+        '<button onclick="document.getElementById(\'attShuffleModal\').remove()" style="background:#fee2e2;color:#dc2626;border:none;padding:0.6rem 1rem;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>'+
+      '</div>'+
+      '<div id="shuffleStatus" style="margin-top:0.8rem;font-size:0.85rem;min-height:1rem;"></div>'+
+    '</div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
+};
+
+window.previewAttendanceShuffle = async function(){
+  var preview = document.getElementById('shufflePreview');
+  var statusEl = document.getElementById('shuffleStatus');
+  var sessionId = document.getElementById('shuffleSessionId').value;
+  if(!sessionId){ if(preview) preview.innerHTML='<p style="color:#dc2626;font-size:0.85rem;">Please select a session.</p>'; return; }
+
+  var sb = window.geramaSupabase; if(!sb) return;
+  if(preview) preview.innerHTML='<p style="color:#9ca3af;font-size:0.82rem;"><i class="fas fa-spinner fa-spin"></i> Fetching attendees…</p>';
+
+  var {data:records} = await sb.from('attendance_records').select('student_email,student_name').eq('session_id', sessionId);
+  records = records||[];
+
+  if(!records.length){
+    preview.innerHTML='<p style="color:#dc2626;font-size:0.85rem;">No attendance records found for this session.</p>';
+    return;
+  }
+
+  var groups = window._geramaGroups || [];
+  var numGroups = groups.length || 5;
+  var perGroup = Math.ceil(records.length / numGroups);
+
+  window._shuffleAttendees = records;
+
+  preview.innerHTML =
+    '<div style="background:#f5f3ff;border-radius:12px;padding:0.9rem;border:1px solid #c4b5fd;">'+
+      '<div style="font-size:0.82rem;font-weight:700;color:#6366f1;margin-bottom:0.4rem;">'+
+        '<i class="fas fa-users"></i> '+records.length+' attendees → '+numGroups+' groups (~'+perGroup+' per group)'+
+      '</div>'+
+      '<div style="font-size:0.78rem;color:#6b7280;">'+
+        records.slice(0,8).map(function(r){ return window.escHtml(r.student_name||r.student_email); }).join(', ')+
+        (records.length>8?'… and '+(records.length-8)+' more':'.')+
+      '</div>'+
+    '</div>';
+};
+
+window.executeAttendanceShuffle = async function(){
+  var statusEl = document.getElementById('shuffleStatus');
+  function setStatus(msg, ok){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=ok?'#059669':'#dc2626'; } }
+
+  var attendees = window._shuffleAttendees;
+  if(!attendees||!attendees.length){ setStatus('Run Preview first.', false); return; }
+
+  var sb = window.geramaSupabase; if(!sb){ setStatus('Not connected.', false); return; }
+  var groups = window._geramaGroups;
+  if(!groups||!groups.length){ setStatus('No groups found. Load groups panel first.', false); return; }
+
+  var clearFirst = document.getElementById('shuffleClearFirst').checked;
+  setStatus('Shuffling…', true);
+
+  try{
+    // ── 1. Optionally clear existing members ──
+    if(clearFirst){
+      for(var g=0;g<groups.length;g++){
+        var {data:cur} = await sb.from('gerama_group_members').select('user_email').eq('group_id',groups[g].id);
+        (cur||[]).forEach(async function(m){ try{ await sb.from('user_profiles').update({group_name:null}).eq('email',m.user_email); }catch(e){} });
+        await sb.from('gerama_group_members').delete().eq('group_id',groups[g].id);
+      }
+    }
+
+    // ── 2. Shuffle attendees randomly ──
+    var shuffled = attendees.slice();
+    for(var i=shuffled.length-1;i>0;i--){
+      var j=Math.floor(Math.random()*(i+1));
+      var tmp=shuffled[i]; shuffled[i]=shuffled[j]; shuffled[j]=tmp;
+    }
+
+    // ── 3. Distribute evenly across groups ──
+    var assigned=0, errors=0;
+    for(var k=0;k<shuffled.length;k++){
+      var att = shuffled[k];
+      var targetGroup = groups[k % groups.length];
+      var email = att.student_email;
+      if(!email) continue;
+      try{
+        // Get full user details
+        var user = (window._allUsers||[]).find(function(u){ return u.email===email; });
+        var name = att.student_name || (user&&user.full_name) || email;
+        await sb.from('gerama_group_members').insert({
+          group_id: targetGroup.id,
+          user_email: email,
+          user_name: name,
+          role: 'member',
+          assigned_at: new Date().toISOString()
+        });
+        await sb.from('user_profiles').update({group_name:targetGroup.name}).eq('email',email);
+        assigned++;
+      }catch(e){ errors++; }
+    }
+
+    window.logActivity('Attendance shuffle: '+assigned+' students distributed across '+groups.length+' groups'+(errors?' ('+errors+' errors)':''));
+    setStatus('✅ Done! '+assigned+' students shuffled into '+groups.length+' groups.'+(errors?' '+errors+' errors.':''), true);
+    setTimeout(function(){ document.getElementById('attShuffleModal').remove(); window.loadGroups(); }, 2000);
+
+  }catch(e){ setStatus('❌ '+e.message, false); }
 };
 
 window.randomlyAssignAll = async function(){
