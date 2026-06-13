@@ -3542,7 +3542,6 @@ async function loadMyGrades() {
     var sRes = await sb.auth.getSession();
     if(sRes && sRes.data && sRes.data.session && sRes.data.session.user){
       myEmail = sRes.data.session.user.email.toLowerCase().trim();
-      // Sync to localStorage if different
       if(myEmail && profile.email !== myEmail){
         profile.email = myEmail;
         localStorage.setItem('gerama_profile', JSON.stringify(profile));
@@ -3555,8 +3554,25 @@ async function loadMyGrades() {
   el.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:1rem;display:block;"></i>Loading your grades...</div>';
 
   try {
-    var {data: grades, error} = await sb.from('student_grades').select('*').eq('student_email', myEmail).order('graded_at',{ascending:false});
-    if(error) throw new Error(error.message);
+    // Fetch grades AND all quizzes/assignments to enrich with type + course + max marks
+    var [gradesRes, quizzesRes, assignmentsRes] = await Promise.all([
+      sb.from('student_grades').select('*').eq('student_email', myEmail).order('graded_at',{ascending:false}),
+      sb.from('quizzes').select('title,course,points'),
+      sb.from('assignments').select('title,course,points')
+    ]);
+
+    if(gradesRes.error) throw new Error(gradesRes.error.message);
+
+    // Build lookup maps: title → {course, points, type}
+    var itemMap = {};
+    (quizzesRes.data||[]).forEach(function(q){
+      if(q.title) itemMap[q.title.toLowerCase().trim()] = {course:q.course||'', points:q.points||null, type:'quiz'};
+    });
+    (assignmentsRes.data||[]).forEach(function(a){
+      if(a.title) itemMap[a.title.toLowerCase().trim()] = {course:a.course||'', points:a.points||null, type:'assignment'};
+    });
+
+    var grades = gradesRes.data || [];
 
     // ── Student identity card ──
     var initials = (profile.name||'S').split(' ').map(function(n){return n[0];}).join('').toUpperCase().substring(0,2);
@@ -3581,45 +3597,98 @@ async function loadMyGrades() {
       return;
     }
 
+    // Separate into quizzes and assignments using the lookup map
+    var quizGrades = [], asgGrades = [], otherGrades = [];
+    grades.forEach(function(g){
+      var key = (g.assignment_title||'').toLowerCase().trim();
+      var meta = itemMap[key];
+      g._type   = meta ? meta.type : (g.quiz_id ? 'quiz' : 'assignment');
+      g._course = meta ? meta.course : (g.course||'');
+      g._points = meta ? meta.points : null;
+      if(g._type === 'quiz') quizGrades.push(g);
+      else if(g._type === 'assignment') asgGrades.push(g);
+      else otherGrades.push(g);
+    });
+
+    // Summary stats
     var totalScore = 0, count = 0;
-    grades.forEach(function(g){ if(g.score!==null&&g.score!==undefined){ totalScore+=parseFloat(g.score); count++; } });
+    grades.forEach(function(g){ if(g.score!==null&&g.score!==undefined){ totalScore+=parseFloat(g.score)||0; count++; } });
     var avg = count ? (totalScore/count).toFixed(1) : '—';
 
-    el.innerHTML = identityCard +
-      // Summary bar
+    var summaryBar =
       '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;">' +
-        '<div style="flex:1;min-width:130px;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border-radius:16px;padding:1.2rem 1.5rem;">' +
-          '<div style="font-size:0.75rem;opacity:0.8;margin-bottom:0.3rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Graded Items</div>' +
-          '<div style="font-size:2rem;font-weight:900;">' + grades.length + '</div>' +
+        '<div style="flex:1;min-width:110px;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border-radius:16px;padding:1.1rem 1.3rem;">' +
+          '<div style="font-size:0.7rem;opacity:0.8;margin-bottom:0.2rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Total Graded</div>' +
+          '<div style="font-size:1.8rem;font-weight:900;">' + grades.length + '</div>' +
         '</div>' +
-        '<div style="flex:1;min-width:130px;background:linear-gradient(135deg,#FFC107,#e6a800);color:#0a2f1f;border-radius:16px;padding:1.2rem 1.5rem;">' +
-          '<div style="font-size:0.75rem;margin-bottom:0.3rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Average Score</div>' +
-          '<div style="font-size:2rem;font-weight:900;">' + avg + '</div>' +
+        '<div style="flex:1;min-width:110px;background:linear-gradient(135deg,#FFC107,#e6a800);color:#0a2f1f;border-radius:16px;padding:1.1rem 1.3rem;">' +
+          '<div style="font-size:0.7rem;margin-bottom:0.2rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Average</div>' +
+          '<div style="font-size:1.8rem;font-weight:900;">' + avg + '</div>' +
         '</div>' +
-        '<div style="flex:1;min-width:130px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border-radius:16px;padding:1.2rem 1.5rem;">' +
-          '<div style="font-size:0.75rem;opacity:0.8;margin-bottom:0.3rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Total Points</div>' +
-          '<div style="font-size:2rem;font-weight:900;">' + totalScore.toFixed(0) + '</div>' +
+        '<div style="flex:1;min-width:110px;background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border-radius:16px;padding:1.1rem 1.3rem;">' +
+          '<div style="font-size:0.7rem;opacity:0.8;margin-bottom:0.2rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Assignments</div>' +
+          '<div style="font-size:1.8rem;font-weight:900;">' + asgGrades.length + '</div>' +
         '</div>' +
-      '</div>' +
-      // Grade list
-      '<div style="display:flex;flex-direction:column;gap:0.8rem;">' +
-      grades.map(function(g) {
-        var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
-        var scoreColor = g.score >= 70 ? '#059669' : g.score >= 50 ? '#d97706' : '#dc2626';
-        var scoreBg = g.score >= 70 ? '#d1fae5' : g.score >= 50 ? '#fef3c7' : '#fee2e2';
-        return '<div style="background:white;border-radius:16px;padding:1.2rem 1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">' +
-          '<div style="flex:1;min-width:0;">' +
-            '<div style="font-weight:700;color:#1e2a3e;font-size:0.95rem;margin-bottom:0.2rem;">'+escHtml(g.assignment_title||'—')+'</div>' +
-            '<div style="font-size:0.78rem;color:#6b7280;display:flex;align-items:center;gap:0.5rem;">' +
-              '<i class="fas fa-calendar-check"></i> Graded '+dt+
-            '</div>' +
-          '</div>' +
-          '<div style="background:'+scoreBg+';color:'+scoreColor+';font-size:1.4rem;font-weight:900;padding:0.5rem 1.2rem;border-radius:12px;white-space:nowrap;">' +
-            g.score + '<span style="font-size:0.8rem;font-weight:600;opacity:0.7;"> pts</span>' +
-          '</div>' +
-        '</div>';
-      }).join('') +
+        '<div style="flex:1;min-width:110px;background:linear-gradient(135deg,#0ea5e9,#0284c7);color:white;border-radius:16px;padding:1.1rem 1.3rem;">' +
+          '<div style="font-size:0.7rem;opacity:0.8;margin-bottom:0.2rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Quizzes</div>' +
+          '<div style="font-size:1.8rem;font-weight:900;">' + quizGrades.length + '</div>' +
+        '</div>' +
       '</div>';
+
+    function renderGradeCard(g){
+      var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      var scoreNum = parseFloat(g.score)||0;
+      var maxPts   = g._points ? parseFloat(g._points) : null;
+      var pct      = maxPts ? Math.round((scoreNum/maxPts)*100) : null;
+      var scoreColor = (pct!==null) ? (pct>=70?'#059669':pct>=50?'#d97706':'#dc2626') : (scoreNum>=70?'#059669':scoreNum>=50?'#d97706':'#dc2626');
+      var scoreBg    = (pct!==null) ? (pct>=70?'#d1fae5':pct>=50?'#fef3c7':'#fee2e2') : (scoreNum>=70?'#d1fae5':scoreNum>=50?'#fef3c7':'#fee2e2');
+      var isQuiz = g._type === 'quiz';
+      var typeBadge = isQuiz
+        ? '<span style="background:#e0f2fe;color:#0369a1;font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;"><i class="fas fa-brain" style="margin-right:0.2rem;"></i>Quiz</span>'
+        : '<span style="background:#f3e8ff;color:#6d28d9;font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;"><i class="fas fa-tasks" style="margin-right:0.2rem;"></i>Assignment</span>';
+      var courseTag = g._course ? '<span style="font-size:0.72rem;color:#6b7280;background:#f8fafc;padding:0.12rem 0.45rem;border-radius:8px;border:1px solid #e5e7eb;">'+escHtml(g._course)+'</span>' : '';
+
+      // Mini progress bar if we have max marks
+      var progressBar = maxPts ? '<div style="margin-top:0.5rem;height:4px;background:#e5e7eb;border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+scoreColor+';border-radius:4px;"></div></div>' : '';
+
+      return '<div style="background:white;border-radius:16px;padding:1.1rem 1.4rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.35rem;">'+typeBadge+courseTag+'</div>' +
+          '<div style="font-weight:700;color:#1e2a3e;font-size:0.95rem;margin-bottom:0.15rem;">'+escHtml(g.assignment_title||'—')+'</div>' +
+          '<div style="font-size:0.75rem;color:#9ca3af;"><i class="fas fa-check-circle" style="color:#059669;margin-right:0.3rem;"></i>Graded '+dt+'</div>' +
+          progressBar +
+        '</div>' +
+        '<div style="background:'+scoreBg+';color:'+scoreColor+';font-size:1.5rem;font-weight:900;padding:0.5rem 1.1rem;border-radius:12px;white-space:nowrap;text-align:center;flex-shrink:0;min-width:80px;">' +
+          g.score + (maxPts ? '<div style="font-size:0.62rem;font-weight:600;opacity:0.7;">/ '+maxPts+'</div>' : '<div style="font-size:0.62rem;font-weight:600;opacity:0.7;">pts</div>') +
+        '</div>' +
+      '</div>';
+    }
+
+    var sectionsHtml = '';
+
+    // Assignments section
+    if(asgGrades.length){
+      sectionsHtml +=
+        '<div style="font-size:0.8rem;font-weight:800;color:#6d28d9;text-transform:uppercase;letter-spacing:1px;margin:1.2rem 0 0.6rem;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-tasks"></i> Assignments ('+asgGrades.length+')</div>' +
+        '<div style="display:flex;flex-direction:column;gap:0.7rem;">'+asgGrades.map(renderGradeCard).join('')+'</div>';
+    }
+
+    // Quizzes section
+    if(quizGrades.length){
+      sectionsHtml +=
+        '<div style="font-size:0.8rem;font-weight:800;color:#0369a1;text-transform:uppercase;letter-spacing:1px;margin:1.4rem 0 0.6rem;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-brain"></i> Quizzes ('+quizGrades.length+')</div>' +
+        '<div style="display:flex;flex-direction:column;gap:0.7rem;">'+quizGrades.map(renderGradeCard).join('')+'</div>';
+    }
+
+    // Other (unmatched)
+    if(otherGrades.length){
+      sectionsHtml +=
+        '<div style="font-size:0.8rem;font-weight:800;color:#6b7280;text-transform:uppercase;letter-spacing:1px;margin:1.4rem 0 0.6rem;">Other ('+otherGrades.length+')</div>' +
+        '<div style="display:flex;flex-direction:column;gap:0.7rem;">'+otherGrades.map(renderGradeCard).join('')+'</div>';
+    }
+
+    el.innerHTML = identityCard + summaryBar + sectionsHtml;
+
   } catch(e) {
     el.innerHTML='<div style="background:#fee2e2;color:#991b1b;padding:1rem;border-radius:12px;">Error: '+escHtml(e.message)+'</div>';
   }

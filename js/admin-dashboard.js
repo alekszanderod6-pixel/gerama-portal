@@ -1043,6 +1043,7 @@ window.loadQzList = async function(){
     var linkHtml = links.map(function(l,i){
       return '<a href="'+window.escAttr(l)+'" target="_blank" style="color:#6366f1;font-size:0.8rem;display:inline-flex;align-items:center;gap:0.3rem;margin-right:0.8rem;"><i class="fas fa-link"></i> Link '+(i+1)+'</a>';
     }).join('');
+    var pdfLink = q.pdf_url ? '<a href="'+window.escAttr(q.pdf_url)+'" target="_blank" style="color:#dc2626;font-size:0.8rem;display:inline-flex;align-items:center;gap:0.3rem;margin-right:0.8rem;"><i class="fas fa-file-pdf"></i> PDF Quiz</a>' : '';
     return '<div class="sub-card">'+
       '<div class="sub-info">'+
         '<strong>'+window.escHtml(q.title)+badge+'</strong>'+
@@ -1051,11 +1052,16 @@ window.loadQzList = async function(){
           ' | <b>Deadline:</b> '+dl+
           (q.duration_mins?' | <b>Time:</b> '+q.duration_mins+' min':'')+
           (q.points?' | <b>Marks:</b> '+q.points:'')+
-          '<br>'+linkHtml+
+          '<br>'+linkHtml+pdfLink+
           (links.length>1?'<span style="background:#f5f3ff;color:#5b21b6;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;"><i class="fas fa-random"></i> '+links.length+' versions (shuffle)</span>':'')+
+        '</div>'+
+        // Expandable grades drawer
+        '<div id="qzgrades-'+q.id+'" style="display:none;margin-top:0.8rem;background:#f8fafc;border-radius:10px;padding:0.9rem;border:1px solid #e5e7eb;">'+
+          '<div style="text-align:center;color:#9ca3af;font-size:0.82rem;"><i class="fas fa-spinner fa-spin"></i> Loading grades…</div>'+
         '</div>'+
       '</div>'+
       '<div class="sub-actions">'+
+        '<button style="background:#f0fdf4;color:#1B5E20;border:1px solid #c8e6c9;padding:0.35rem 0.8rem;border-radius:8px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;" onclick="toggleQzGrades(\''+q.id+'\',\''+window.escAttr(q.title)+'\')"><i class="fas fa-list-ol"></i> Grades</button>'+
         '<button class="btn-gold" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="extendQuizDeadline(\''+q.id+'\')"><i class="fas fa-clock"></i> Extend</button>'+
         (isPast||q.status==='closed'
           ? '<button class="btn-success" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="toggleQuizStatus(\''+q.id+'\',\'active\')"><i class="fas fa-unlock"></i> Reopen</button>'
@@ -1072,6 +1078,67 @@ window.deleteQuiz = async function(id){
   if(sb) await sb.from('quizzes').delete().eq('id', id);
   window.loadQzList();
   window.showStatus('quizStatus','Quiz deleted.','ok');
+};
+
+// Toggle quiz grades drawer — shows all student_grades for that quiz title
+window.toggleQzGrades = async function(quizId, quizTitle){
+  var drawer = document.getElementById('qzgrades-'+quizId);
+  if(!drawer) return;
+  // Toggle
+  if(drawer.style.display === 'block'){
+    drawer.style.display = 'none';
+    return;
+  }
+  drawer.style.display = 'block';
+  drawer.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:0.82rem;padding:0.5rem;"><i class="fas fa-spinner fa-spin"></i> Loading grades…</div>';
+  var sb = window.geramaSupabase;
+  if(!sb){ drawer.innerHTML='<p style="color:#9ca3af;font-size:0.82rem;">Not connected.</p>'; return; }
+  var {data, error} = await sb.from('student_grades')
+    .select('*').eq('assignment_title', quizTitle).order('graded_at',{ascending:false});
+  if(error){ drawer.innerHTML='<p style="color:#dc2626;font-size:0.82rem;">Error: '+window.escHtml(error.message)+'</p>'; return; }
+  if(!data||!data.length){
+    drawer.innerHTML='<p style="color:#9ca3af;font-size:0.82rem;text-align:center;padding:0.5rem;">No grades imported yet for this quiz. Use "Import Quiz Scores" above.</p>';
+    return;
+  }
+  var graded = data.length;
+  var avg = (data.reduce(function(s,g){ return s+(parseFloat(g.score)||0); },0)/graded).toFixed(1);
+  var html = '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.7rem;">' +
+    '<div style="font-size:0.82rem;font-weight:700;color:#1B5E20;"><i class="fas fa-list-ol" style="margin-right:0.3rem;"></i>'+graded+' graded · Avg: <strong>'+avg+'</strong></div>' +
+    '<button onclick="downloadQzGradesCSV(\''+window.escAttr(quizTitle)+'\')" style="background:none;border:1px solid #c8e6c9;color:#1B5E20;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> CSV</button>' +
+  '</div>' +
+  '<div class="tbl-wrap"><table style="min-width:340px;"><thead><tr style="background:#f0fdf4;"><th style="font-size:0.75rem;">Student</th><th style="font-size:0.75rem;">Email</th><th style="font-size:0.75rem;">Score</th><th style="font-size:0.75rem;">Graded</th></tr></thead><tbody>' +
+  data.map(function(g){
+    var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '—';
+    var scoreColor = (g.score>=70)?'#059669':(g.score>=50)?'#d97706':'#dc2626';
+    return '<tr>' +
+      '<td style="font-size:0.82rem;font-weight:600;">'+window.escHtml(g.student_name||'—')+'</td>' +
+      '<td style="font-size:0.75rem;color:#6b7280;">'+window.escHtml(g.student_email||'—')+'</td>' +
+      '<td><strong style="color:'+scoreColor+';">'+g.score+'</strong></td>' +
+      '<td style="font-size:0.72rem;color:#9ca3af;white-space:nowrap;">'+dt+'</td>' +
+    '</tr>';
+  }).join('') +
+  '</tbody></table></div>';
+  drawer.innerHTML = html;
+};
+
+// Download grades CSV for a specific quiz
+window.downloadQzGradesCSV = async function(quizTitle){
+  var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
+  var {data} = await sb.from('student_grades').select('*').eq('assignment_title',quizTitle).order('graded_at',{ascending:false});
+  if(!data||!data.length){ alert('No grades to download.'); return; }
+  var headers = ['Student Name','Email','Score','Graded At'];
+  var rows = data.map(function(g){
+    return [g.student_name||'', g.student_email||'', g.score!==null?g.score:'', g.graded_at?new Date(g.graded_at).toLocaleString('en-GB'):'']
+      .map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
+  });
+  var csv = [headers.join(',')].concat(rows).join('\n');
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url; a.download='GERAMA_Quiz_'+quizTitle.replace(/[^a-z0-9]/gi,'_')+'_'+new Date().toISOString().split('T')[0]+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  window.logActivity('Downloaded quiz grades CSV: '+quizTitle);
 };
 
 window.extendQuizDeadline = async function(id){
