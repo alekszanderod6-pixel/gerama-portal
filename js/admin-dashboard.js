@@ -1122,23 +1122,28 @@ async function publishQuiz(){
   if(!title){ window.showStatus('quizStatus','Quiz title is required.','err'); return; }
   if(!deadline){ window.showStatus('quizStatus','Please set a deadline.','err'); return; }
 
-  // Detect mode: link or question paper
-  var isPaper = document.getElementById('qzPaperSection') && document.getElementById('qzPaperSection').style.display !== 'none';
+  // Detect mode: link, question paper, or pdf upload
+  var currentType = window._qzCurrentType || 'link';
+  var isPaper = currentType === 'paper';
+  var isPdf   = currentType === 'pdf';
 
   var links = [];
   var paperQuestions = null;
+  var pdfUrl = null;
 
-  if(isPaper){
+  if(isPdf){
+    if(!_qzPdfFile){ window.showStatus('quizStatus','Please upload a PDF file.','err'); return; }
+  } else if(isPaper){
     // Collect typed questions
     var blocks = document.querySelectorAll('.qz-question-block');
     var qs = [];
     blocks.forEach(function(block){
       var text = (block.querySelector('.qz-q-text')||{}).value||'';
-      var type = (block.querySelector('.qz-q-type')||{}).value||'text';
+      var type2 = (block.querySelector('.qz-q-type')||{}).value||'text';
       var marks = parseInt((block.querySelector('.qz-q-marks')||{}).value)||2;
       if(!text.trim()) return;
-      var q = {text:text.trim(), type:type, marks:marks};
-      if(type==='mc'){
+      var q = {text:text.trim(), type:type2, marks:marks};
+      if(type2==='mc'){
         var opts = block.querySelectorAll('.mc-options input');
         q.optA = opts[0]?opts[0].value:''; q.optB = opts[1]?opts[1].value:'';
         q.optC = opts[2]?opts[2].value:''; q.optD = opts[3]?opts[3].value:'';
@@ -1162,13 +1167,24 @@ async function publishQuiz(){
     var sb = window.geramaSupabase;
     if(!sb) throw new Error('Supabase not connected. Check your connection.');
 
+    // Upload PDF if in pdf mode
+    if(isPdf && _qzPdfFile){
+      window.showStatus('quizStatus','Uploading PDF…','info');
+      var ext  = _qzPdfFile.name.split('.').pop()||'pdf';
+      var path = 'quizzes/'+title.replace(/[^a-z0-9]/gi,'-').toLowerCase()+'-'+Date.now()+'.'+ext;
+      var {error: upErr} = await sb.storage.from(window.BUCKET||'gerama-materials').upload(path, _qzPdfFile, {upsert:true, contentType:_qzPdfFile.type});
+      if(upErr) throw new Error('PDF upload failed: '+upErr.message);
+      pdfUrl = sb.storage.from(window.BUCKET||'gerama-materials').getPublicUrl(path).data.publicUrl;
+    }
+
     var record = {
       title:        title,
       course:       course || null,
       tutor:        tutor  || null,
       duration_mins: duration || null,
       points:       points  || null,
-      quiz_url:     links.length ? JSON.stringify(links) : null,
+      quiz_url:     isPdf ? null : (links.length ? JSON.stringify(links) : null),
+      pdf_url:      pdfUrl || null,
       paper_questions: paperQuestions,
       deadline:     new Date(deadline).toISOString(),
       description:  desc   || null,
@@ -1179,14 +1195,16 @@ async function publishQuiz(){
     var {error} = await sb.from('quizzes').insert(record);
     if(error) throw new Error(error.message + (error.details ? ' — '+error.details : ''));
 
-    var mode = isPaper ? 'Question Paper ('+JSON.parse(paperQuestions).length+' questions)' : 'Link'+(links.length>1?' ('+links.length+' versions)':'');
-    window.logActivity('Published quiz: '+title+' — '+mode);
-    window.showStatus('quizStatus','✅ Quiz published! Students can now '+(isPaper?'open the question paper':'take it')+' on the Classroom page.','ok');
+    var modeLabel = isPdf ? 'PDF Upload' : isPaper ? 'Question Paper ('+JSON.parse(paperQuestions).length+' questions)' : 'Link'+(links.length>1?' ('+links.length+' versions)':'');
+    window.logActivity('Published quiz: '+title+' — '+modeLabel);
+    window.showStatus('quizStatus','✅ Quiz published! Students can now '+(isPaper?'open the question paper':isPdf?'download the PDF':'take it')+' on the Classroom page.','ok');
 
     // Clear form
     ['qzTitle','qzCourse','qzDuration','qzPoints','qzTutor','qzDeadline','qzDesc','qzUrl1','qzUrl2','qzUrl3'].forEach(function(id){
       var el = document.getElementById(id); if(el) el.value = id==='qzDuration'?'0':'';
     });
+    _qzPdfFile = null;
+    var chosen = document.getElementById('qzPdfChosen'); if(chosen) chosen.textContent='';
     // Clear question paper blocks
     var container = document.getElementById('qzQuestionsContainer');
     if(container){
@@ -1276,45 +1294,134 @@ window.loadSubmissionsTable = function(){
 window._renderSubmissions = function(data, el){
   if(!el) el = document.getElementById('submissionsTable');
   if(!el) return;
-  var byCourse={};
-  data.forEach(function(s){ var c=s._course||'General'; if(!byCourse[c]) byCourse[c]=[]; byCourse[c].push(s); });
-  var total=data.length, graded=data.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
-  var html='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;margin-bottom:1.2rem;padding:1rem 1.2rem;background:linear-gradient(135deg,#f0fdf4,#f8fafc);border-radius:14px;border:1px solid #c8e6c9;">'+
-    '<div><div style="font-size:1rem;font-weight:800;color:#1B5E20;"><i class="fas fa-file-alt"></i> Student Submissions</div>'+
-    '<div style="font-size:0.82rem;color:#6b7280;margin-top:0.2rem;">'+
-      '<span style="background:#e8f5e9;color:#1B5E20;padding:0.1rem 0.5rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+total+' total</span>'+
-      '<span style="background:#d1fae5;color:#065f46;padding:0.1rem 0.5rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+graded+' graded</span>'+
-      '<span style="background:#fef3c7;color:#92400e;padding:0.1rem 0.5rem;border-radius:10px;font-weight:700;">'+(total-graded)+' pending</span></div></div>'+
+
+  // Group by assignment title first, then within each group show students
+  var byAssignment = {};
+  data.forEach(function(s){
+    var title = s.assignment_title || 'Untitled Assignment';
+    if(!byAssignment[title]) byAssignment[title] = {subs:[], course: s._course||'General', points: s._points||null};
+    byAssignment[title].subs.push(s);
+    // Use the first non-null _points we find for this assignment
+    if(!byAssignment[title].points && s._points) byAssignment[title].points = s._points;
+  });
+
+  var total   = data.length;
+  var graded  = data.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
+  var pending = total - graded;
+
+  var html = '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;margin-bottom:1.5rem;padding:1rem 1.2rem;background:linear-gradient(135deg,#f0fdf4,#f8fafc);border-radius:14px;border:1px solid #c8e6c9;">'+
+    '<div>'+
+      '<div style="font-size:1rem;font-weight:800;color:#1B5E20;"><i class="fas fa-file-alt"></i> Student Submissions</div>'+
+      '<div style="font-size:0.82rem;color:#6b7280;margin-top:0.3rem;">'+
+        '<span style="background:#e8f5e9;color:#1B5E20;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+total+' total</span>'+
+        '<span style="background:#d1fae5;color:#065f46;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">✅ '+graded+' graded</span>'+
+        (pending>0?'<span style="background:#fef3c7;color:#92400e;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;">⏳ '+pending+' pending</span>':'')+
+      '</div>'+
+    '</div>'+
     '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">'+
       '<button onclick="window.loadSubmissionsTable()" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.45rem 0.9rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-sync-alt"></i> Refresh</button>'+
       '<button onclick="downloadGradesSummary()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> Download All Grades</button>'+
-    '</div></div>';
-  Object.keys(byCourse).sort().forEach(function(course){
-    var subs=byCourse[course], cg=subs.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
-    var rows=subs.map(function(s){
-      var dt=s.submitted_at?new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-      var pts=s._points, cur=(s.score!==null&&s.score!==undefined&&s.score!=='')?s.score:'', sid=String(s.id).replace(/[^a-z0-9]/gi,'');
-      var badge=cur!==''?'<span style="background:#d1fae5;color:#065f46;font-size:0.82rem;font-weight:800;padding:0.2rem 0.6rem;border-radius:10px;">'+cur+(pts?'/'+pts:'')+'</span>':'<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:10px;">Ungraded</span>';
+    '</div>'+
+  '</div>';
+
+  // Sort assignments: ungraded first, then by title
+  var assignmentTitles = Object.keys(byAssignment).sort(function(a,b){
+    var ag = byAssignment[a].subs.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
+    var bg = byAssignment[b].subs.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
+    var ap = byAssignment[a].subs.length - ag;
+    var bp = byAssignment[b].subs.length - bg;
+    if(ap !== bp) return bp - ap; // more pending first
+    return a.localeCompare(b);
+  });
+
+  assignmentTitles.forEach(function(asgTitle){
+    var group  = byAssignment[asgTitle];
+    var subs   = group.subs;
+    var pts    = group.points;
+    var course = group.course;
+    var gradedCount = subs.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
+    var pendingCount = subs.length - gradedCount;
+
+    var rows = subs.map(function(s){
+      var dt   = s.submitted_at ? new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      var cur  = (s.score!==null&&s.score!==undefined&&s.score!=='') ? s.score : '';
+      var sid  = String(s.id).replace(/[^a-z0-9]/gi,'');
+      var badge = cur!==''
+        ? '<span style="background:#d1fae5;color:#065f46;font-size:0.82rem;font-weight:800;padding:0.2rem 0.6rem;border-radius:10px;">'+cur+(pts?'/'+pts:'')+'</span>'
+        : '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:10px;">⏳ Ungraded</span>';
       return '<tr>'+
-        '<td><strong style="font-size:0.88rem;">'+window.escHtml(s.student_name||'—')+'</strong><div style="font-size:0.75rem;color:#6b7280;">'+window.escHtml(s.student_email||'')+'</div>'+(s.index_number?'<div style="font-size:0.7rem;color:#9ca3af;">'+window.escHtml(s.index_number)+'</div>':'')+'</td>'+
-        '<td style="font-size:0.82rem;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+window.escHtml(s.assignment_title||'—')+'</td>'+
+        '<td>'+
+          '<strong style="font-size:0.88rem;">'+window.escHtml(s.student_name||'—')+'</strong>'+
+          '<div style="font-size:0.75rem;color:#6b7280;">'+window.escHtml(s.student_email||'')+'</div>'+
+          (s.index_number?'<div style="font-size:0.7rem;color:#1B5E20;font-weight:600;">'+window.escHtml(s.index_number)+'</div>':'')+
+        '</td>'+
         '<td style="font-size:0.78rem;color:#6b7280;white-space:nowrap;">'+dt+'</td>'+
-        '<td>'+(s.file_url?'<a href="'+window.escAttr(s.file_url)+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;font-weight:600;"><i class="fas fa-download"></i> Download</a>':'<span style="color:#9ca3af;font-size:0.78rem;">No file</span>')+'</td>'+
+        '<td>'+
+          (s.file_url
+            ? '<a href="'+window.escAttr(s.file_url)+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;font-weight:600;white-space:nowrap;"><i class="fas fa-download"></i> File</a>'
+            : '<span style="color:#9ca3af;font-size:0.78rem;">—</span>')+
+        '</td>'+
         '<td>'+badge+'</td>'+
-        '<td><div style="display:flex;gap:0.3rem;align-items:center;">'+
-          '<input type="number" id="score-'+sid+'" value="'+window.escAttr(String(cur))+'" min="0"'+(pts?' max="'+pts+'"':'')+' placeholder="0" style="width:60px;padding:0.3rem 0.4rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;outline:none;font-family:\'Inter\',sans-serif;text-align:center;" onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'">'+
-          (pts?'<span style="font-size:0.72rem;color:#9ca3af;">/'+pts+'</span>':'')+
-          '<button style="background:#1B5E20;color:white;border:none;padding:0.3rem 0.7rem;border-radius:8px;font-size:0.75rem;cursor:pointer;font-family:\'Inter\',sans-serif;" data-subid="'+s.id+'" data-safeid="'+sid+'" data-email="'+window.escAttr(s.student_email||'')+'" data-title="'+window.escAttr(s.assignment_title||'')+'" onclick="gradeSubmission(this)"><i class="fas fa-check"></i> Grade</button>'+
-        '</div><div id="grade-status-'+sid+'" style="font-size:0.7rem;margin-top:0.2rem;color:#059669;"></div></td>'+
+        '<td>'+
+          '<div style="display:flex;gap:0.3rem;align-items:center;">'+
+            '<input type="number" id="score-'+sid+'" value="'+window.escAttr(String(cur))+'" min="0"'+(pts?' max="'+pts+'"':'')+' placeholder="0" style="width:58px;padding:0.3rem 0.4rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;outline:none;text-align:center;font-family:\'Inter\',sans-serif;" onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'">'+
+            (pts?'<span style="font-size:0.72rem;color:#9ca3af;">/'+pts+'</span>':'')+
+            '<button data-subid="'+s.id+'" data-safeid="'+sid+'" data-email="'+window.escAttr(s.student_email||'')+'" data-title="'+window.escAttr(s.assignment_title||'')+'" onclick="gradeSubmission(this)" style="background:#1B5E20;color:white;border:none;padding:0.3rem 0.7rem;border-radius:8px;font-size:0.75rem;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-check"></i> Grade</button>'+
+          '</div>'+
+          '<div id="grade-status-'+sid+'" style="font-size:0.7rem;margin-top:0.2rem;color:#059669;"></div>'+
+        '</td>'+
       '</tr>';
     }).join('');
-    html+='<div style="margin-bottom:2rem;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.7rem;flex-wrap:wrap;gap:0.5rem;">'+
-      '<div style="display:flex;align-items:center;gap:0.6rem;"><span style="background:#e8f5e9;color:#1B5E20;font-size:0.82rem;font-weight:700;padding:0.35rem 1rem;border-radius:20px;"><i class="fas fa-book" style="margin-right:0.3rem;"></i>'+window.escHtml(course)+'</span>'+
-      '<span style="font-size:0.8rem;color:#6b7280;">'+subs.length+' submission'+(subs.length!==1?'s':'')+(cg?' · <span style="color:#059669;font-weight:600;">'+cg+' graded</span>':'')+'</span></div>'+
-      '<button onclick="downloadCourseGrades(\''+window.escAttr(course)+'\')" style="background:none;border:1px solid #c8e6c9;color:#1B5E20;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-file-csv"></i> Export CSV</button></div>'+
-      '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Assignment</th><th>Submitted</th><th>File</th><th>Score</th><th>Grade</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+
+    html +=
+      '<div style="margin-bottom:2rem;border-radius:16px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 2px 10px rgba(0,0,0,0.04);">'+
+        // Assignment header bar
+        '<div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;padding:0.9rem 1.2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">'+
+          '<div>'+
+            '<div style="font-size:0.95rem;font-weight:800;"><i class="fas fa-tasks" style="margin-right:0.4rem;opacity:0.8;"></i>'+window.escHtml(asgTitle)+'</div>'+
+            '<div style="font-size:0.72rem;opacity:0.7;margin-top:0.2rem;"><i class="fas fa-book" style="margin-right:0.3rem;"></i>'+window.escHtml(course)+(pts?' &nbsp;·&nbsp; <i class="fas fa-star" style="margin-right:0.2rem;"></i>'+pts+' marks':'')+'</div>'+
+          '</div>'+
+          '<div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">'+
+            '<span style="background:rgba(255,255,255,0.15);padding:0.2rem 0.7rem;border-radius:20px;font-size:0.75rem;font-weight:700;">'+subs.length+' submitted</span>'+
+            (gradedCount?'<span style="background:rgba(16,185,129,0.25);color:#6ee7b7;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.75rem;font-weight:700;">✅ '+gradedCount+' graded</span>':'')+
+            (pendingCount?'<span style="background:rgba(245,158,11,0.25);color:#FFC107;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.75rem;font-weight:700;">⏳ '+pendingCount+' pending</span>':'')+
+            '<button onclick="downloadAssignmentGrades(\''+window.escAttr(asgTitle)+'\')" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.25rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-file-csv"></i> CSV</button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="tbl-wrap">'+
+          '<table><thead><tr style="background:#f8fafc;"><th>Student</th><th>Submitted</th><th>File</th><th>Score</th><th>Grade</th></tr></thead>'+
+          '<tbody>'+rows+'</tbody></table>'+
+        '</div>'+
+      '</div>';
   });
-  el.innerHTML=html;
+
+  el.innerHTML = html;
+};
+
+// Download grades for a specific assignment title
+window.downloadAssignmentGrades = async function(asgTitle){
+  var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
+  var {data} = await sb.from('assignment_submissions').select('*').eq('assignment_title', asgTitle).order('submitted_at',{ascending:false});
+  if(!data||!data.length){ alert('No submissions for this assignment.'); return; }
+  var asgRes = await sb.from('assignments').select('course,points').eq('title',asgTitle).maybeSingle();
+  var pts = asgRes&&asgRes.data ? asgRes.data.points||'' : '';
+  var headers = ['Student Name','Email','Index Number','Assignment','Score','Total Marks','Submitted','Graded At'];
+  var rows = data.map(function(s){
+    return [
+      s.student_name||'', s.student_email||'', s.index_number||'', s.assignment_title||'',
+      s.score!==null&&s.score!==undefined?s.score:'', pts,
+      s.submitted_at?new Date(s.submitted_at).toLocaleString('en-GB'):'',
+      s.graded_at?new Date(s.graded_at).toLocaleString('en-GB'):''
+    ].map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
+  });
+  var csv = [headers.join(',')].concat(rows).join('\n');
+  var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href=url; a.download='GERAMA_'+asgTitle.replace(/[^a-z0-9]/gi,'_')+'_'+new Date().toISOString().split('T')[0]+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  window.logActivity('Downloaded grades CSV for assignment: '+asgTitle);
 };
 
 // Download ALL grades as CSV
@@ -1851,19 +1958,22 @@ window.loadQuizRequests = async function(){
               : r.status==='rejected' ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Rejected</span>'
               : '<span style="background:#ede9fe;color:#5b21b6;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Pending</span>';
     var dt = r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    var linkOrFile = r.file_url
+      ? '<a href="'+window.escAttr(r.file_url)+'" target="_blank" style="color:#dc2626;font-size:0.82rem;"><i class="fas fa-file-pdf"></i> View Uploaded PDF</a>'
+      : (r.quiz_url ? '<a href="'+window.escAttr(r.quiz_url)+'" target="_blank" style="color:#6366f1;font-size:0.82rem;"><i class="fas fa-external-link-alt"></i> Preview Quiz Link</a>' : '—');
     return '<div class="sub-card">'+
       '<div class="sub-info">'+
         '<strong>'+window.escHtml(r.title||'Untitled Quiz')+' '+badge+'</strong>'+
         '<div class="sub-meta">'+
           '<b>Submitted by:</b> '+window.escHtml(r.submitted_by||'—')+' ('+window.escHtml(r.email||'—')+')<br>'+
           '<b>Course:</b> '+window.escHtml(r.course||'—')+' | <b>Date:</b> '+dt+'<br>'+
-          '<a href="'+window.escAttr(r.quiz_url||'#')+'" target="_blank" style="color:#6366f1;font-size:0.82rem;"><i class="fas fa-external-link-alt"></i> Preview Quiz Link</a>'+
+          linkOrFile+
           (r.description?'<br><span style="color:#374151;font-size:0.82rem;">'+window.escHtml(r.description)+'</span>':'')+
         '</div>'+
       '</div>'+
       '<div class="sub-actions">'+
         (r.status==='pending'?
-          '<button class="btn-success" onclick="approveQuizRequest(\''+r.id+'\',\''+window.escAttr(r.title||'')+'\',\''+window.escAttr(r.course||'')+'\',\''+window.escAttr(r.quiz_url||'')+'\',\''+window.escAttr(r.description||'')+'\')"><i class="fas fa-check"></i> Approve & Publish</button>'+
+          '<button class="btn-success" onclick="approveQuizRequest(\''+r.id+'\',\''+window.escAttr(r.title||'')+'\',\''+window.escAttr(r.course||'')+'\',\''+window.escAttr(r.quiz_url||'')+'\',\''+window.escAttr(r.description||'')+'\',\''+window.escAttr(r.file_url||'')+'\')"><i class="fas fa-check"></i> Approve & Publish</button>'+
           '<button class="btn-danger" onclick="rejectQuizRequest(\''+r.id+'\')"><i class="fas fa-times"></i> Reject</button>'
         :'')+
       '</div>'+
@@ -1871,17 +1981,18 @@ window.loadQuizRequests = async function(){
   }).join('');
 };
 
-window.approveQuizRequest = async function(id, title, course, url, desc){
+window.approveQuizRequest = async function(id, title, course, url, desc, fileUrl){
   var sb = window.geramaSupabase; if(!sb) return;
   var deadline = new Date(Date.now() + 7*24*60*60*1000).toISOString();
-  // Store as JSON array so classroom shuffle works
-  var linksJson = JSON.stringify([url]);
-  var {error} = await sb.from('quizzes').insert({
+  var isPdfQuiz = !url && fileUrl;
+  var record = {
     title:title, course:course||null,
-    quiz_url: linksJson,
+    quiz_url:  isPdfQuiz ? null : (url ? JSON.stringify([url]) : null),
+    pdf_url:   fileUrl || null,
     description: desc||null,
     deadline:deadline, status:'active', created_at:new Date().toISOString()
-  });
+  };
+  var {error} = await sb.from('quizzes').insert(record);
   if(error){ alert('Error publishing: '+error.message); return; }
   await sb.from('quiz_requests').update({status:'approved'}).eq('id',id);
   window.logActivity('Approved & published quiz request: '+title);
@@ -2800,8 +2911,21 @@ window.setQzType = function(type, btn) {
     b.style.background='white'; b.style.color='#374151'; b.style.borderColor='#e5e7eb';
   });
   btn.style.background='#1B5E20'; btn.style.color='white'; btn.style.borderColor='#1B5E20';
-  document.getElementById('qzLinkSection').style.display = type==='link' ? 'block' : 'none';
-  document.getElementById('qzPaperSection').style.display = type==='paper' ? 'block' : 'none';
+  var linkSec  = document.getElementById('qzLinkSection');
+  var paperSec = document.getElementById('qzPaperSection');
+  var pdfSec   = document.getElementById('qzPdfSection');
+  if(linkSec)  linkSec.style.display  = type==='link'  ? 'block' : 'none';
+  if(paperSec) paperSec.style.display = type==='paper' ? 'block' : 'none';
+  if(pdfSec)   pdfSec.style.display   = type==='pdf'   ? 'block' : 'none';
+  window._qzCurrentType = type;
+};
+
+var _qzPdfFile = null;
+window.previewQzPdf = function(inp) {
+  var f = inp.files && inp.files[0]; if(!f) return;
+  _qzPdfFile = f;
+  var chosen = document.getElementById('qzPdfChosen');
+  if(chosen) chosen.textContent = '✅ ' + f.name + (f.size > 20*1024*1024 ? ' — ⚠️ too large (max 20MB)' : '');
 };
 
 window.addQuestion = function() {
@@ -3108,36 +3232,61 @@ window.importScoresFromCSV = async function() {
   var nameRows  = parsed.filter(function(r){ return !r.isEmail; });
   var emailRows = parsed.filter(function(r){ return r.isEmail; });
 
-  // Resolve names to emails via user_profiles
-  var nameMap = {}; // lowercase name → email
+  // Resolve names to emails via user_profiles — fuzzy token matching
+  var nameMap = {}; // lowercase full_name → email
+  var profiles = [];
   if(nameRows.length > 0){
     window.showStatus('importStatus','Resolving student names…','info');
     try{
-      var {data: profiles} = await sb.from('user_profiles').select('email,full_name');
-      (profiles||[]).forEach(function(p){
+      var profRes = await sb.from('user_profiles').select('email,full_name');
+      profiles = profRes.data || [];
+      profiles.forEach(function(p){
         if(p.full_name && p.email){
           nameMap[p.full_name.toLowerCase().trim()] = p.email.toLowerCase();
         }
       });
-    }catch(e){ /* non-fatal — unresolved names will be counted as skipped */ }
+    }catch(e){ /* non-fatal */ }
+  }
+
+  // Token-based fuzzy matcher: splits name into words, scores overlap
+  function fuzzyMatchEmail(searchName){
+    var key = searchName.toLowerCase().trim();
+    // 1. Exact match
+    if(nameMap[key]) return nameMap[key];
+    // 2. Contains match (one side contains the other fully)
+    var found = null;
+    Object.keys(nameMap).forEach(function(k){
+      if(!found && (k.includes(key) || key.includes(k))) found = nameMap[k];
+    });
+    if(found) return found;
+    // 3. Token overlap: split both names into words, count shared tokens
+    var searchTokens = key.split(/\s+/).filter(Boolean);
+    var bestScore = 0, bestEmail = null;
+    Object.keys(nameMap).forEach(function(k){
+      var profileTokens = k.split(/\s+/).filter(Boolean);
+      var shared = searchTokens.filter(function(t){
+        return profileTokens.some(function(pt){ return pt === t || (t.length > 3 && pt.startsWith(t)) || (pt.length > 3 && t.startsWith(pt)); });
+      }).length;
+      // Score = shared tokens / max possible
+      var score = shared / Math.max(searchTokens.length, profileTokens.length);
+      if(score > bestScore && score >= 0.5){ // at least 50% token match
+        bestScore = score;
+        bestEmail = nameMap[k];
+      }
+    });
+    return bestEmail;
   }
 
   // Build final list with emails
   var toImport = [];
   var skipped = [];
+  var matchLog = []; // for status display
   emailRows.forEach(function(r){ toImport.push({email: r.email, score: r.score, ident: r.email}); });
   nameRows.forEach(function(r){
-    var key = r.name.toLowerCase().trim();
-    // Try exact match first, then partial
-    var email = nameMap[key];
-    if(!email){
-      // Partial: find profile whose full_name contains the search term or vice versa
-      Object.keys(nameMap).forEach(function(k){
-        if(!email && (k.includes(key) || key.includes(k))) email = nameMap[k];
-      });
-    }
+    var email = fuzzyMatchEmail(r.name);
     if(email){
       toImport.push({email: email, score: r.score, ident: r.name+' → '+email});
+      matchLog.push(r.name+' → '+email);
     } else {
       skipped.push(r.name);
     }
@@ -3170,7 +3319,8 @@ window.importScoresFromCSV = async function() {
 
   window.logActivity('Imported '+ok+' quiz scores for: '+qzTitle);
   var msg = '✅ Imported '+ok+' score'+(ok!==1?'s':'')+' for "'+qzTitle+'".';
-  if(skipped.length) msg += ' ⚠️ '+skipped.length+' name(s) not matched: '+skipped.slice(0,3).join(', ')+(skipped.length>3?' …':'')+'';
+  if(matchLog.length) msg += ' 🔗 Name matches: '+matchLog.slice(0,3).join(', ')+(matchLog.length>3?' …+'+( matchLog.length-3)+' more':'')+'';
+  if(skipped.length) msg += ' ⚠️ '+skipped.length+' unmatched: '+skipped.slice(0,3).join(', ')+(skipped.length>3?' …+' +(skipped.length-3)+' more':'');
   if(fail) msg += ' ❌ '+fail+' failed to save.';
   window.showStatus('importStatus', msg, ok>0?'ok':'err');
   if(errors.length) console.warn('Import errors:', errors);

@@ -681,7 +681,21 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         <input type="text" id="qrCourse" placeholder="Course (optional)" style="padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;">
         <input type="text" id="qrName" placeholder="Your name *" style="padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;">
       </div>
-      <input type="url" id="qrUrl" placeholder="Quiz link * (Google Forms, Testmoz, Kahoot...)" style="width:100%;padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;box-sizing:border-box;">
+      <!-- Toggle: link or file -->
+      <div style="display:flex;gap:0.5rem;" id="qrTypeToggle">
+        <button type="button" id="qrTypeLinkBtn" onclick="switchQrType('link')" style="flex:1;padding:0.5rem;border-radius:10px;border:2px solid #6366f1;background:#6366f1;color:white;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;">🔗 Quiz Link</button>
+        <button type="button" id="qrTypeFileBtn" onclick="switchQrType('file')" style="flex:1;padding:0.5rem;border-radius:10px;border:2px solid #e5e7eb;background:white;color:#374151;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;">📄 Upload PDF</button>
+      </div>
+      <div id="qrLinkArea">
+        <input type="url" id="qrUrl" placeholder="Quiz link * (Google Forms, Testmoz, Kahoot...)" style="width:100%;padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;box-sizing:border-box;">
+      </div>
+      <div id="qrFileArea" style="display:none;">
+        <label style="display:block;border:2.5px dashed #c4b5fd;border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer;background:#faf5ff;" onclick="document.getElementById('qrPdfFile').click()">
+          <i class="fas fa-file-pdf" style="font-size:1.5rem;color:#6366f1;display:block;margin-bottom:0.3rem;"></i>
+          <span id="qrPdfLabel" style="font-size:0.85rem;color:#6b7280;">Tap to upload quiz PDF/image (max 10MB)</span>
+        </label>
+        <input type="file" id="qrPdfFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display:none;" onchange="previewQrFile(this)">
+      </div>
       <textarea id="qrDesc" rows="2" placeholder="Brief description (optional)" style="width:100%;padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;resize:none;box-sizing:border-box;"></textarea>
     </div>
     <div style="margin-top:1rem;display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
@@ -2561,7 +2575,9 @@ async function loadQuizzes() {
       ? '<span class="quiz-done-badge"><i class="fas fa-check-circle"></i> Completed</span>'
       : (isClosed||isPast)
         ? '<button class="btn-take-quiz" disabled style="opacity:0.5;cursor:not-allowed;"><i class="fas fa-lock"></i> Closed</button>'
-        : (q.paper_questions ? '<button class="btn-take-quiz" data-qid="'+q.id+'"><i class="fas fa-file-alt"></i> Open Question Paper</button>' : '<button class="btn-take-quiz" data-qid="'+q.id+'"><i class="fas fa-play"></i> Take Quiz</button>');
+        : q.pdf_url
+          ? '<a href="'+q.pdf_url+'" target="_blank" class="btn-take-quiz" style="text-decoration:none;"><i class="fas fa-file-pdf" style="color:#fca5a5;"></i> Download PDF Quiz</a>'
+          : (q.paper_questions ? '<button class="btn-take-quiz" data-qid="'+q.id+'"><i class="fas fa-file-alt"></i> Open Question Paper</button>' : '<button class="btn-take-quiz" data-qid="'+q.id+'"><i class="fas fa-play"></i> Take Quiz</button>');
 
     var durationTag = q.duration_mins ? '<span class="quiz-timer"><i class="fas fa-clock"></i> '+q.duration_mins+' min</span>' : '';
     var pointsTag   = q.points ? '<span class="quiz-points-badge"><i class="fas fa-star"></i> '+q.points+' pts</span>' : '';
@@ -2929,13 +2945,35 @@ async function markQuizDone() {
   }, 2000);
 }
 // ── STUDENT QUIZ SUBMISSION ───────────────────────────────────
+var _qrType = 'link'; // 'link' or 'file'
+var _qrPdfFile = null;
+
+function switchQrType(type){
+  _qrType = type;
+  var linkArea = document.getElementById('qrLinkArea');
+  var fileArea = document.getElementById('qrFileArea');
+  var linkBtn  = document.getElementById('qrTypeLinkBtn');
+  var fileBtn  = document.getElementById('qrTypeFileBtn');
+  if(linkArea) linkArea.style.display = type==='link' ? 'block' : 'none';
+  if(fileArea) fileArea.style.display = type==='file' ? 'block' : 'none';
+  if(linkBtn){ linkBtn.style.background = type==='link'?'#6366f1':'white'; linkBtn.style.color = type==='link'?'white':'#374151'; linkBtn.style.borderColor = type==='link'?'#6366f1':'#e5e7eb'; }
+  if(fileBtn){ fileBtn.style.background = type==='file'?'#6366f1':'white'; fileBtn.style.color = type==='file'?'white':'#374151'; fileBtn.style.borderColor = type==='file'?'#6366f1':'#e5e7eb'; }
+}
+
+function previewQrFile(inp){
+  var f = inp.files && inp.files[0]; if(!f) return;
+  _qrPdfFile = f;
+  var lbl = document.getElementById('qrPdfLabel');
+  if(lbl) lbl.textContent = '✅ ' + f.name + (f.size > 10*1024*1024 ? ' — ⚠️ too large (max 10MB)' : '');
+}
+
 async function submitQuizRequest() {
   var title = (document.getElementById('qrTitle')||{}).value||'';
   var course= (document.getElementById('qrCourse')||{}).value||'';
   var name  = (document.getElementById('qrName')||{}).value||'';
-  var url   = (document.getElementById('qrUrl')||{}).value||'';
+  var url   = _qrType === 'link' ? ((document.getElementById('qrUrl')||{}).value||'').trim() : '';
   var desc  = (document.getElementById('qrDesc')||{}).value||'';
-  title=title.trim(); name=name.trim(); url=url.trim();
+  title=title.trim(); name=name.trim();
 
   var statusEl = document.getElementById('qrStatus');
   function showQrStatus(msg, type){
@@ -2948,7 +2986,8 @@ async function submitQuizRequest() {
 
   if(!title){ showQrStatus('Please enter a quiz title.','err'); return; }
   if(!name){ showQrStatus('Please enter your name.','err'); return; }
-  if(!url){ showQrStatus('Please enter the quiz link.','err'); return; }
+  if(_qrType === 'link' && !url){ showQrStatus('Please enter the quiz link.','err'); return; }
+  if(_qrType === 'file' && !_qrPdfFile){ showQrStatus('Please choose a PDF or image file.','err'); return; }
 
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
   var email = profile.email || 'unknown';
@@ -2956,17 +2995,32 @@ async function submitQuizRequest() {
   var sb = window.geramaSupabase;
   if(!sb){ showQrStatus('Not connected. Please refresh.','err'); return; }
 
-  showQrStatus('Submitting...','info');
+  showQrStatus('Submitting…','info');
+
+  // If file mode, upload to storage first
+  var fileUrl = null;
+  if(_qrType === 'file' && _qrPdfFile){
+    showQrStatus('Uploading file…','info');
+    var safeName = name.replace(/[^a-z0-9]/gi,'-').toLowerCase() + '-' + Date.now() + '.' + (_qrPdfFile.name.split('.').pop()||'pdf');
+    var {data: upData, error: upErr} = await sb.storage.from('gerama-materials').upload('quiz-requests/'+safeName, _qrPdfFile, {upsert:true, contentType:_qrPdfFile.type});
+    if(upErr){ showQrStatus('Upload failed: '+upErr.message,'err'); return; }
+    fileUrl = sb.storage.from('gerama-materials').getPublicUrl('quiz-requests/'+safeName).data.publicUrl;
+    url = fileUrl; // store file URL as the quiz_url
+  }
 
   try {
     var {error} = await sb.from('quiz_requests').insert({
       title: title, course: course||null, submitted_by: name,
-      email: email, quiz_url: url, description: desc||null,
+      email: email, quiz_url: url||null, file_url: fileUrl||null,
+      description: desc||null,
       status: 'pending', created_at: new Date().toISOString()
     });
     if(error) throw new Error(error.message);
     showQrStatus('✅ Submitted! Admin will review and publish it soon.','ok');
     ['qrTitle','qrCourse','qrName','qrUrl','qrDesc'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    _qrPdfFile = null;
+    var lbl = document.getElementById('qrPdfLabel'); if(lbl) lbl.textContent = 'Tap to upload quiz PDF/image (max 10MB)';
+    switchQrType('link'); // reset to link mode
   } catch(e) {
     // If quiz_requests table doesn't exist yet, show helpful message
     if(e.message && e.message.includes('does not exist')){

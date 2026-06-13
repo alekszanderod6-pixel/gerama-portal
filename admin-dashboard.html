@@ -1622,6 +1622,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
       <div style="display:flex;gap:0.6rem;margin-bottom:1.2rem;flex-wrap:wrap;">
         <button id="qzTypeLink" onclick="setQzType('link',this)" style="flex:1;padding:0.6rem 1rem;border-radius:10px;border:2px solid #1B5E20;background:#1B5E20;color:white;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.4rem;"><i class="fas fa-link"></i> Link / URL</button>
         <button id="qzTypePaper" onclick="setQzType('paper',this)" style="flex:1;padding:0.6rem 1rem;border-radius:10px;border:2px solid #e5e7eb;background:white;color:#374151;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.4rem;"><i class="fas fa-file-alt"></i> Question Paper</button>
+        <button id="qzTypePdf" onclick="setQzType('pdf',this)" style="flex:1;padding:0.6rem 1rem;border-radius:10px;border:2px solid #e5e7eb;background:white;color:#374151;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.4rem;"><i class="fas fa-file-pdf" style="color:#dc2626;"></i> Upload PDF</button>
       </div>
 
       <div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#5b21b6;line-height:1.6;">
@@ -1659,8 +1660,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
       <div id="qzPaperSection" style="display:none;">
         <div style="background:#f0fdf4;border:1px solid #c8e6c9;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;font-size:0.85rem;color:#1B5E20;">
           <strong><i class="fas fa-file-alt"></i> Question Paper Mode:</strong> Type your questions below. Students will see them in a beautiful GERAMA-branded workspace, type their answers, and can download as a PDF.
-        </div>
-        <div id="qzQuestionsContainer">
+        </div>        <div id="qzQuestionsContainer">
           <div class="qz-question-block" data-q="1" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:1rem;margin-bottom:0.8rem;">
             <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.6rem;">
               <span style="background:#1B5E20;color:white;font-weight:800;font-size:0.82rem;padding:0.2rem 0.6rem;border-radius:20px;">Q1</span>
@@ -1688,8 +1688,20 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
         <button onclick="addQuestion()" style="background:#f0fdf4;color:#1B5E20;border:2px dashed #c8e6c9;padding:0.6rem 1.2rem;border-radius:10px;cursor:pointer;font-size:0.85rem;font-weight:600;font-family:'Inter',sans-serif;width:100%;margin-top:0.2rem;"><i class="fas fa-plus"></i> Add Another Question</button>
       </div>
 
-      <button class="btn-primary" id="publishQuizBtn" style="margin-top:1rem;"><i class="fas fa-paper-plane"></i> Publish Quiz Live</button>
-      <div class="status-msg" id="quizStatus"></div>
+      <!-- PDF UPLOAD MODE -->
+      <div id="qzPdfSection" style="display:none;">
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;font-size:0.85rem;color:#991b1b;">
+          <strong><i class="fas fa-file-pdf"></i> PDF Quiz Mode:</strong> Upload a PDF quiz sheet. Students can download and view it, then submit answers via the assignment submission form.
+        </div>
+        <div class="drop-zone" id="qzPdfDropZone" style="padding:1.5rem;" onclick="document.getElementById('qzPdfFile').click()">
+          <i class="fas fa-file-pdf" style="color:#dc2626;font-size:1.8rem;display:block;margin-bottom:0.5rem;"></i>
+          <p>Click to upload quiz PDF (max 20MB)</p>
+          <p class="file-chosen" id="qzPdfChosen" style="color:#1B5E20;font-weight:600;margin-top:0.3rem;"></p>
+        </div>
+        <input type="file" id="qzPdfFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" style="display:none;" onchange="previewQzPdf(this)">
+      </div>
+
+      <button class="btn-primary" id="publishQuizBtn" style="margin-top:1rem;"><i class="fas fa-paper-plane"></i> Publish Quiz Live</button>      <div class="status-msg" id="quizStatus"></div>
     </div>
 
     <!-- SCORE IMPORT -->
