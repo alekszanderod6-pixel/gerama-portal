@@ -3,9 +3,648 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashboard | GERAMA</title>
+    <title>My Dashboard | GERAMA</title>
+    <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1B5E20">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+    :root{--primary:#1B5E20;--primary-dark:#0a2f1f;--gold:#FFC107;--light:#f8fafc;--text:#1e2a3e;--muted:#6b7280;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;overflow-x:hidden;}
+    body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);line-height:1.6;overflow-x:hidden;}
+
+    /* ── HEADER ── */
+    .site-header{position:sticky;top:0;z-index:1000;background:rgba(10,47,31,0.97);backdrop-filter:blur(12px);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:70px;box-shadow:0 2px 20px rgba(0,0,0,0.2);}
+    .header-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .header-logo img{height:38px;border-radius:8px;}
+    .header-logo span{color:white;font-weight:700;font-size:1rem;}
+    .header-nav{display:flex;align-items:center;gap:0.3rem;}
+    .header-nav a{color:rgba(255,255,255,0.85);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.9rem;transition:all 0.2s;}
+    .header-nav a:hover,.header-nav a.active{color:var(--gold);background:rgba(255,193,7,0.1);}
+    .menu-toggle-btn{display:flex;background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;margin-right:0.5rem;}
+    .menu-toggle-btn:hover{background:rgba(255,255,255,0.1);}
+    @media(max-width:640px){.header-nav{display:none;}}
+
+    /* ── DASHBOARD HERO ── */
+    .dash-hero{background:linear-gradient(135deg,#0a2f1f,#1B5E20);padding:2rem 5%;color:white;position:relative;overflow:hidden;}
+    .dash-hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
+    .dash-hero-inner{display:flex;align-items:center;gap:1.5rem;position:relative;z-index:1;flex-wrap:wrap;}
+    .dash-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#FFC107,#e6a800);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;color:#0a2f1f;border:3px solid rgba(255,193,7,0.4);flex-shrink:0;overflow:hidden;}
+    .dash-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+    .dash-greeting{flex:1;}
+    .dash-greeting .hello{font-size:0.82rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.2rem;}
+    .dash-greeting .name{font-size:1.5rem;font-weight:800;margin-bottom:0.2rem;}
+    .dash-greeting .meta{font-size:0.82rem;opacity:0.75;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;}
+    .dash-greeting .meta span{display:flex;align-items:center;gap:0.3rem;}
+    .dash-streak{background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.35);border-radius:12px;padding:0.7rem 1rem;text-align:center;flex-shrink:0;}
+    .dash-streak-num{font-size:1.5rem;font-weight:900;color:#FFC107;line-height:1;}
+    .dash-streak-lbl{font-size:0.7rem;opacity:0.7;margin-top:0.15rem;}
+
+    /* ── MAIN LAYOUT ── */
+    .dash-body{max-width:1100px;margin:0 auto;padding:2rem 5%;display:grid;grid-template-columns:320px 1fr;gap:1.5rem;align-items:start;}
+    @media(max-width:900px){.dash-body{grid-template-columns:1fr;}}
+    @media(max-width:640px){.dash-body{padding:1rem 3%;gap:1rem;}}
+
+    /* ── CARDS ── */
+    .dash-card{background:white;border-radius:20px;padding:1.5rem;box-shadow:0 4px 20px rgba(0,0,0,0.06);border:1px solid #e8f0e8;margin-bottom:1.2rem;}
+    .dash-card-title{font-size:0.9rem;font-weight:800;color:var(--text);margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}
+    .dash-card-title i{color:var(--primary);font-size:1rem;}
+
+    /* ── PROFILE FORM ── */
+    .profile-photo-wrap{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;}
+    .profile-photo-circle{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:white;border:3px solid #FFC107;overflow:hidden;flex-shrink:0;cursor:pointer;position:relative;}
+    .profile-photo-circle img{width:100%;height:100%;object-fit:cover;}
+    .profile-photo-circle .upload-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.45);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;}
+    .profile-photo-circle:hover .upload-overlay{opacity:1;}
+    .fld{margin-bottom:0.9rem;}
+    .fld label{display:block;font-size:0.78rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.35rem;}
+    .fld input,.fld select{width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;transition:border 0.2s;}
+    .fld input:focus,.fld select:focus{border-color:var(--primary);}
+    .btn-save-profile{width:100%;padding:0.8rem;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;border-radius:30px;font-size:0.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.5rem;}
+    .btn-save-profile:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,94,32,0.3);}
+
+    /* ── QUICK STATS ── */
+    .quick-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:0.8rem;margin-bottom:1.2rem;}
+    .qs-box{background:linear-gradient(135deg,#f0fdf4,#e8f5e9);border-radius:14px;padding:1rem;border:1px solid #c8e6c9;text-align:center;transition:all 0.2s;cursor:default;}
+    .qs-box:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(27,94,32,0.1);}
+    .qs-num{font-size:1.6rem;font-weight:900;color:var(--primary);line-height:1;}
+    .qs-lbl{font-size:0.7rem;color:var(--muted);margin-top:0.2rem;font-weight:600;}
+
+    /* ── GRADE ITEMS ── */
+    .grade-item{display:flex;align-items:center;gap:0.8rem;padding:0.65rem 0.8rem;background:#f8fafc;border-radius:12px;border-left:3px solid #c8e6c9;margin-bottom:0.5rem;transition:background 0.15s;}
+    .grade-item:hover{background:#f0fdf4;}
+    .grade-item-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1B5E20,#2E7D32);display:flex;align-items:center;justify-content:center;color:white;font-size:0.78rem;flex-shrink:0;}
+    .grade-item-info{flex:1;min-width:0;}
+    .grade-item-title{font-size:0.85rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .grade-item-sub{font-size:0.72rem;color:var(--muted);}
+    .grade-item-score{font-size:1rem;font-weight:800;color:var(--primary);flex-shrink:0;}
+
+    /* ── QUIZ HISTORY ── */
+    .quiz-hist-item{display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.7rem;background:#f5f3ff;border-radius:10px;border-left:3px solid #6366f1;margin-bottom:0.4rem;}
+    .quiz-hist-title{flex:1;font-size:0.83rem;font-weight:600;color:#1e2a3e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .quiz-hist-date{font-size:0.7rem;color:#6b7280;flex-shrink:0;}
+
+    /* ── GROUP CARD ── */
+    .group-banner{border-radius:16px;padding:1rem 1.2rem;color:white;display:flex;align-items:center;gap:0.8rem;margin-bottom:1.2rem;}
+    .group-banner i{font-size:1.3rem;flex-shrink:0;}
+    .group-banner .gname{font-size:1rem;font-weight:800;}
+    .group-banner .grole{font-size:0.75rem;opacity:0.8;margin-top:0.1rem;}
+
+    /* ── QUICK NAV LINKS ── */
+    .quick-nav{display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem;margin-bottom:1.2rem;}
+    .qn-btn{display:flex;align-items:center;gap:0.6rem;padding:0.7rem 0.9rem;border-radius:12px;font-size:0.82rem;font-weight:700;text-decoration:none;transition:all 0.2s;border:2px solid transparent;}
+    .qn-btn:hover{transform:translateY(-2px);}
+    .qn-btn.green{background:#e8f5e9;color:#1B5E20;border-color:#c8e6c9;}
+    .qn-btn.green:hover{background:#1B5E20;color:white;}
+    .qn-btn.purple{background:#f3e8ff;color:#6d28d9;border-color:#c4b5fd;}
+    .qn-btn.purple:hover{background:#6d28d9;color:white;}
+    .qn-btn.blue{background:#dbeafe;color:#1d4ed8;border-color:#bfdbfe;}
+    .qn-btn.blue:hover{background:#1d4ed8;color:white;}
+    .qn-btn.gold{background:#fef3c7;color:#92400e;border-color:#fde68a;}
+    .qn-btn.gold:hover{background:#f59e0b;color:white;}
+
+    /* ── ACTIVITY FEED ── */
+    .activity-item{display:flex;align-items:flex-start;gap:0.7rem;padding:0.6rem 0;border-bottom:1px solid #f1f5f9;}
+    .activity-item:last-child{border-bottom:none;}
+    .activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:0.45rem;}
+    .activity-text{flex:1;font-size:0.83rem;color:#374151;line-height:1.4;}
+    .activity-time{font-size:0.7rem;color:var(--muted);flex-shrink:0;}
+
+    /* ── REALTIME GRADE NOTIF ── */
+    .grade-notif-badge{position:fixed;top:80px;right:1rem;z-index:9999;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;padding:0.7rem 1.2rem;border-radius:20px;box-shadow:0 8px 25px rgba(27,94,32,0.4);transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);font-size:0.88rem;font-weight:700;display:flex;align-items:center;gap:0.5rem;max-width:300px;}
+    .grade-notif-badge.show{transform:translateX(0);}
+
+    /* ── SITE BOTTOM NAV ── */
+    .site-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;z-index:400;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
+    .site-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;color:#9ca3af;text-decoration:none;font-size:0.6rem;font-weight:600;gap:0.2rem;transition:all 0.2s;}
+    .site-bnav-item i{font-size:1.1rem;}
+    .site-bnav-item.active,.site-bnav-item:hover{color:var(--primary);}
+    @media(max-width:640px){.site-bottom-nav{display:flex;}body{padding-bottom:60px;}}
+
+    /* ── FOOTER ── */
+    .site-footer{background:linear-gradient(180deg,#0a2f1f,#071a12);color:white;padding:2rem 5%;margin-top:0;}
+    .footer-bottom-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;}
+    .footer-copy,.footer-credits{font-size:0.8rem;color:rgba(255,255,255,0.4);margin:0;}
+    .footer-credits strong{color:rgba(255,255,255,0.6);}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
+    <script src="js/supabase-config.js"></script>
+</head>
+<body>
+
+<!-- Sidebar injected by main.js -->
+
+<!-- HEADER -->
+<header class="site-header">
+  <button class="menu-toggle-btn" id="menuToggle2" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+  <a href="index.html" class="header-logo">
+    <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA">
+    <span>GERAMA</span>
+  </a>
+  <nav class="header-nav">
+    <a href="index.html">Home</a>
+    <a href="resources.html">Resources</a>
+    <a href="classroom.html">Classroom</a>
+    <a href="connect.html" style="color:#0ea5e9;">📡 Connect</a>
+    <a href="dashboard.html" class="active">My Dashboard</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="dash-hero">
+  <div class="dash-hero-inner">
+    <div class="dash-avatar" id="heroAvatar">⚙️</div>
+    <div class="dash-greeting">
+      <div class="hello" id="timeGreeting">Good day</div>
+      <div class="name" id="heroName">Student</div>
+      <div class="meta">
+        <span id="heroProg"><i class="fas fa-graduation-cap"></i> GERAMA Member</span>
+        <span id="heroLevel" style="display:none;"><i class="fas fa-layer-group"></i> —</span>
+        <span id="heroIndex" style="display:none;"><i class="fas fa-id-card"></i> —</span>
+      </div>
+    </div>
+    <div class="dash-streak">
+      <div class="dash-streak-num" id="streakNumDisplay">0</div>
+      <div class="dash-streak-lbl">🔥 Day Streak</div>
+    </div>
+  </div>
+</section>
+
+<!-- GRADE NOTIFICATION BADGE -->
+<div class="grade-notif-badge" id="gradeNotifBadge">
+  <i class="fas fa-star" style="color:#FFC107;"></i>
+  <span id="gradeNotifText">New grade received!</span>
+</div>
+
+<!-- BODY -->
+<div class="dash-body">
+
+  <!-- LEFT: Profile + Quick Actions -->
+  <div>
+    <!-- Quick Nav -->
+    <div class="dash-card">
+      <div class="dash-card-title"><span><i class="fas fa-bolt"></i> Quick Access</span></div>
+      <div class="quick-nav">
+        <a href="resources.html" class="qn-btn green"><i class="fas fa-book-open"></i> Resources</a>
+        <a href="classroom.html?tab=assignments" class="qn-btn purple"><i class="fas fa-tasks"></i> Assignments</a>
+        <a href="classroom.html?tab=quizzes" class="qn-btn blue"><i class="fas fa-brain"></i> Quizzes</a>
+        <a href="classroom.html?tab=mygrades" class="qn-btn gold"><i class="fas fa-star"></i> My Grades</a>
+        <a href="connect.html" class="qn-btn" style="background:#e0f2fe;color:#0369a1;border-color:#bae6fd;grid-column:1/-1;" onmouseover="this.style.background='#0369a1';this.style.color='white'" onmouseout="this.style.background='#e0f2fe';this.style.color='#0369a1'"><i class="fas fa-satellite-dish"></i> GERAMA Connect</a>
+      </div>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="dash-card">
+      <div class="dash-card-title"><span><i class="fas fa-user-edit"></i> My Profile</span></div>
+
+      <div class="profile-photo-wrap">
+        <div class="profile-photo-circle" id="profilePhotoCircle" onclick="document.getElementById('profilePictureUpload').click()">
+          <span id="profileInitial">⚙️</span>
+          <div class="upload-overlay"><i class="fas fa-camera" style="color:white;font-size:1.1rem;"></i></div>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:0.9rem;" id="profileDisplayName">Loading…</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:0.2rem;" id="profileDisplayEmail"></div>
+          <label style="font-size:0.75rem;color:#1B5E20;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.4rem;">
+            <i class="fas fa-camera"></i> Change photo
+            <input type="file" id="profilePictureUpload" accept="image/*" style="display:none;">
+          </label>
+        </div>
+      </div>
+
+      <div class="fld">
+        <label>Full Name</label>
+        <input type="text" id="fullName" placeholder="Your full name">
+      </div>
+      <div class="fld">
+        <label>Engineering Program</label>
+        <select id="programStudy">
+          <option value="">Select Program</option>
+          <option>Electrical Engineering</option>
+          <option>Mechanical Engineering</option>
+          <option>Computer Engineering</option>
+          <option>Agricultural Engineering</option>
+          <option>Petroleum Engineering</option>
+          <option>Renewable Energy Engineering</option>
+          <option>Civil Engineering</option>
+          <option>Environmental Engineering</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Academic Level</label>
+        <select id="levelSelect">
+          <option value="">Select Level</option>
+          <option>L100</option><option>L200</option><option>L300</option><option>L400</option>
+          <option>Graduate</option><option>Visitor / Non-Student</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Phone Number</label>
+        <input type="tel" id="profilePhone" placeholder="e.g. 0551234567">
+      </div>
+      <button class="btn-save-profile" id="saveProfileBtn"><i class="fas fa-save"></i> Save Profile</button>
+      <div id="saveStatus" style="font-size:0.82rem;text-align:center;margin-top:0.6rem;min-height:1rem;"></div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="dash-card">
+      <div class="dash-card-title"><span><i class="fas fa-chart-bar"></i> My Stats</span></div>
+      <div class="quick-stats">
+        <div class="qs-box">
+          <div class="qs-num" id="statGrades">—</div>
+          <div class="qs-lbl">📝 Grades</div>
+        </div>
+        <div class="qs-box">
+          <div class="qs-num" id="statQuizzes">—</div>
+          <div class="qs-lbl">🧠 Quizzes Done</div>
+        </div>
+        <div class="qs-box">
+          <div class="qs-num" id="statAttendance">—</div>
+          <div class="qs-lbl">✅ Classes Attended</div>
+        </div>
+        <div class="qs-box">
+          <div class="qs-num" id="statStreak">—</div>
+          <div class="qs-lbl">🔥 Study Streak</div>
+        </div>
+      </div>
+      <a href="classroom.html?tab=attendance" style="font-size:0.8rem;color:#1B5E20;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.7rem;"></i> View attendance history</a>
+    </div>
+  </div>
+
+  <!-- RIGHT: Grades, Quizzes, Group, Activity -->
+  <div>
+
+    <!-- Study Group Card -->
+    <div class="dash-card" id="groupCard" style="display:none;">
+      <div class="dash-card-title"><span><i class="fas fa-users"></i> My Study Group</span></div>
+      <div class="group-banner" id="groupBanner" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);">
+        <i class="fas fa-users"></i>
+        <div>
+          <div class="gname" id="groupNameEl">—</div>
+          <div class="grole" id="groupRoleEl">Member</div>
+        </div>
+        <a href="connect.html?tab=groups" style="margin-left:auto;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;text-decoration:none;white-space:nowrap;"><i class="fas fa-arrow-right"></i> View</a>
+      </div>
+      <div id="groupNewNotif" style="display:none;background:#fef3c7;border-radius:10px;padding:0.6rem 0.9rem;font-size:0.8rem;color:#92400e;font-weight:600;display:flex;align-items:center;gap:0.5rem;">
+        <i class="fas fa-bell"></i> You've been added to a new study group!
+        <button onclick="dismissGroupNotif()" style="background:none;border:none;color:#92400e;cursor:pointer;font-size:0.78rem;margin-left:auto;text-decoration:underline;font-family:'Inter',sans-serif;">Dismiss</button>
+      </div>
+    </div>
+
+    <!-- Grades Card -->
+    <div class="dash-card">
+      <div class="dash-card-title">
+        <span><i class="fas fa-star"></i> My Grades</span>
+        <a href="classroom.html?tab=mygrades" style="font-size:0.78rem;color:#1B5E20;font-weight:600;text-decoration:none;">View all <i class="fas fa-chevron-right" style="font-size:0.65rem;"></i></a>
+      </div>
+      <div id="gradesSection">
+        <div style="text-align:center;padding:1.5rem;color:#9ca3af;font-size:0.85rem;">
+          <i class="fas fa-spinner fa-spin" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;"></i>Loading grades…
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz History Card -->
+    <div class="dash-card" id="quizHistoryCard" style="display:none;">
+      <div class="dash-card-title"><span><i class="fas fa-brain"></i> Quizzes Completed</span></div>
+      <div id="quizHistoryList"></div>
+    </div>
+
+    <!-- Recent Activity Feed -->
+    <div class="dash-card">
+      <div class="dash-card-title"><span><i class="fas fa-history"></i> Recent Activity</span></div>
+      <div id="activityFeed">
+        <div style="text-align:center;padding:1rem;color:#9ca3af;font-size:0.82rem;">No recent activity yet.</div>
+      </div>
+    </div>
+
+    <!-- Logout Card -->
+    <div class="dash-card" style="text-align:center;padding:1.2rem;">
+      <button onclick="logoutUser()" style="background:#fee2e2;color:#dc2626;border:none;padding:0.65rem 2rem;border-radius:30px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:0.5rem;" onmouseover="this.style.background='#dc2626';this.style.color='white'" onmouseout="this.style.background='#fee2e2';this.style.color='#dc2626'">
+        <i class="fas fa-sign-out-alt"></i> Sign Out
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-bottom-bar">
+    <p class="footer-copy">© 2026 GERAMA Academic Resources · All rights reserved</p>
+    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> · Editor: <strong>Edem H.K Prince</strong></p>
+  </div>
+</footer>
+
+<!-- BOTTOM NAV -->
+<nav class="site-bottom-nav">
+  <a href="index.html" class="site-bnav-item"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="resources.html" class="site-bnav-item"><i class="fas fa-book-open"></i><span>Resources</span></a>
+  <a href="classroom.html" class="site-bnav-item"><i class="fas fa-chalkboard-teacher"></i><span>Class</span></a>
+  <a href="connect.html" class="site-bnav-item"><i class="fas fa-satellite-dish"></i><span>Connect</span></a>
+  <a href="dashboard.html" class="site-bnav-item active"><i class="fas fa-user"></i><span>Me</span></a>
+</nav>
+
+<script src="js/main.js"></script>
+<script>
+'use strict';
+
+// ── Helpers ──────────────────────────────────────────
+function escD(s){ var d=document.createElement('div'); d.textContent=String(s||''); return d.innerHTML; }
+
+// ── Greeting based on time ────────────────────────────
+(function(){
+  var h = new Date().getHours();
+  var greet = h < 12 ? '☀️ Good morning' : h < 17 ? '🌤️ Good afternoon' : h < 21 ? '🌆 Good evening' : '🌙 Good night';
+  var el = document.getElementById('timeGreeting');
+  if(el) el.textContent = greet;
+})();
+
+// ── Load profile from localStorage first (instant), then sync from Supabase ──
+var userProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+
+function applyProfileToUI(p) {
+  // Hero
+  var heroAv = document.getElementById('heroAvatar');
+  var heroName = document.getElementById('heroName');
+  var heroProg = document.getElementById('heroProg');
+  var heroLevel = document.getElementById('heroLevel');
+  var heroIndex = document.getElementById('heroIndex');
+
+  if(heroAv){
+    if(p.img){ heroAv.innerHTML='<img src="'+p.img+'" alt="'+escD(p.name||'')+'">'; }
+    else { heroAv.textContent=(p.name||'S').charAt(0).toUpperCase(); }
+  }
+  if(heroName) heroName.textContent = p.name || 'Student';
+  if(heroProg) heroProg.innerHTML = '<i class="fas fa-graduation-cap"></i> ' + escD(p.program||'GERAMA Member');
+  if(heroLevel && p.level){ heroLevel.innerHTML='<i class="fas fa-layer-group"></i> '+escD(p.level); heroLevel.style.display=''; }
+  if(heroIndex && p.index_number){ heroIndex.innerHTML='<i class="fas fa-id-card"></i> '+escD(p.index_number); heroIndex.style.display=''; }
+
+  // Profile form
+  var fc = document.getElementById('profilePhotoCircle');
+  var pi = document.getElementById('profileInitial');
+  if(fc && pi){
+    if(p.img){ fc.innerHTML='<img src="'+p.img+'"><div class="upload-overlay"><i class="fas fa-camera" style="color:white;font-size:1.1rem;"></i></div>'; }
+    else { pi.textContent=(p.name||'S').charAt(0).toUpperCase(); }
+  }
+  var dn = document.getElementById('profileDisplayName');
+  var de = document.getElementById('profileDisplayEmail');
+  if(dn) dn.textContent = p.name || 'Student';
+  if(de) de.textContent = p.email || '';
+
+  var fn = document.getElementById('fullName');
+  var ps = document.getElementById('programStudy');
+  var ls = document.getElementById('levelSelect');
+  var ph = document.getElementById('profilePhone');
+  if(fn) fn.value = p.name || '';
+  if(ps) ps.value = p.program || '';
+  if(ls) ls.value = p.level || '';
+  if(ph) ph.value = p.phone || '';
+
+  // Streak display
+  var streak = JSON.parse(localStorage.getItem('gerama_streak')||'{"count":0}');
+  var sn = document.getElementById('streakNumDisplay');
+  var ss = document.getElementById('statStreak');
+  if(sn) sn.textContent = streak.count || 0;
+  if(ss) ss.textContent = streak.count || 0;
+}
+
+applyProfileToUI(userProfile);
+
+// ── Profile picture upload ────────────────────────────
+document.getElementById('profilePictureUpload').addEventListener('change', function(e){
+  var file = e.target.files[0]; if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    userProfile.img = ev.target.result;
+    localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
+    applyProfileToUI(userProfile);
+  };
+  reader.readAsDataURL(file);
+});
+
+// ── Save profile ──────────────────────────────────────
+document.getElementById('saveProfileBtn').addEventListener('click', async function(){
+  var name    = document.getElementById('fullName').value.trim();
+  var program = document.getElementById('programStudy').value;
+  var level   = document.getElementById('levelSelect').value;
+  var phone   = document.getElementById('profilePhone').value.trim();
+  var statusEl= document.getElementById('saveStatus');
+
+  userProfile.name    = name    || userProfile.name;
+  userProfile.program = program || userProfile.program;
+  userProfile.level   = level   || userProfile.level;
+  userProfile.phone   = phone   || userProfile.phone;
+  localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
+  applyProfileToUI(userProfile);
+  statusEl.textContent = '✅ Saved!';
+  statusEl.style.color = '#059669';
+
+  // Sync to Supabase
+  var sb = window.geramaSupabase;
+  if(sb && userProfile.email){
+    try{
+      await sb.from('user_profiles').upsert({
+        email: userProfile.email,
+        full_name: name || null,
+        program: program || null,
+        level: level || null,
+        phone: phone || null,
+        updated_at: new Date().toISOString()
+      }, {onConflict:'email'});
+      statusEl.textContent = '✅ Profile saved & synced!';
+    }catch(e){ statusEl.textContent = '✅ Saved locally.'; }
+  }
+  setTimeout(function(){ statusEl.textContent=''; }, 3000);
+});
+
+// ── Main data loader ──────────────────────────────────
+async function loadDashboardData(){
+  var sb = window.geramaSupabase;
+  if(!sb){ setTimeout(loadDashboardData, 400); return; }
+
+  // Get authenticated email
+  var email = null;
+  try{
+    var sess = await sb.auth.getSession();
+    if(sess && sess.data && sess.data.session && sess.data.session.user){
+      email = sess.data.session.user.email.toLowerCase().trim();
+      if(userProfile.email !== email){ userProfile.email = email; localStorage.setItem('gerama_profile', JSON.stringify(userProfile)); }
+    }
+  }catch(e){}
+  if(!email) email = (userProfile.email||'').toLowerCase().trim();
+  if(!email){ document.getElementById('gradesSection').innerHTML='<p style="color:#9ca3af;text-align:center;font-size:0.85rem;padding:1rem;">Please log in to see your data.</p>'; return; }
+
+  // Parallel load: grades, profile from DB, attendance, group
+  var [gradesRes, profRes, attRes] = await Promise.all([
+    sb.from('student_grades').select('*').eq('student_email', email).order('graded_at',{ascending:false}).limit(20),
+    sb.from('user_profiles').select('*').eq('email', email).maybeSingle(),
+    sb.from('attendance_records').select('id,class_title,marked_at').eq('student_email', email).order('marked_at',{ascending:false}).limit(10)
+  ]);
+
+  // Sync Supabase profile data to localStorage
+  if(profRes && profRes.data){
+    var p = profRes.data;
+    if(p.full_name)      userProfile.name         = p.full_name;
+    if(p.program)        userProfile.program      = p.program;
+    if(p.level)          userProfile.level        = p.level;
+    if(p.phone)          userProfile.phone        = p.phone;
+    if(p.index_number)   userProfile.index_number = p.index_number;
+    localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
+    applyProfileToUI(userProfile);
+  }
+
+  // Load group
+  try{
+    var memRes = await sb.from('gerama_group_members').select('group_id,role').eq('user_email',email).maybeSingle();
+    if(memRes && memRes.data && memRes.data.group_id){
+      var grpRes = await sb.from('gerama_groups').select('name,color').eq('id',memRes.data.group_id).maybeSingle();
+      if(grpRes && grpRes.data){
+        var gName = grpRes.data.name;
+        var gColor = grpRes.data.color || '#1B5E20';
+        var isTutor = memRes.data.role === 'tutor';
+        document.getElementById('groupCard').style.display = 'block';
+        document.getElementById('groupNameEl').textContent = gName;
+        document.getElementById('groupRoleEl').textContent = isTutor ? '🎓 Group Tutor' : '👤 Member';
+        document.getElementById('groupBanner').style.background = 'linear-gradient(135deg,'+gColor+'dd,'+gColor+')';
+        // New group notification
+        var prevGroup = localStorage.getItem('gerama_last_known_group');
+        if(prevGroup && prevGroup !== gName){
+          document.getElementById('groupNewNotif').style.display = 'flex';
+        }
+        localStorage.setItem('gerama_last_known_group', gName);
+        userProfile.group_name = gName; userProfile.group_color = gColor;
+        localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
+      }
+    }
+  }catch(e){}
+
+  // Render grades
+  renderGrades(gradesRes.data || []);
+
+  // Update quick stats
+  var grades = gradesRes.data || [];
+  var qDone = JSON.parse(localStorage.getItem('gerama_quizzes_done')||'{}');
+  var qCount = Object.keys(qDone).length;
+  var attCount = (attRes.data || []).length;
+  document.getElementById('statGrades').textContent = grades.length;
+  document.getElementById('statQuizzes').textContent = qCount;
+  document.getElementById('statAttendance').textContent = attCount;
+
+  // Render quiz history
+  if(qCount > 0){
+    var qhCard = document.getElementById('quizHistoryCard');
+    var qhList = document.getElementById('quizHistoryList');
+    qhCard.style.display = 'block';
+    qhList.innerHTML = Object.entries(qDone).slice(0,6).map(function(entry){
+      var dt = entry[1].at ? new Date(entry[1].at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+      return '<div class="quiz-hist-item">'+
+        '<i class="fas fa-check-circle" style="color:#059669;font-size:0.85rem;flex-shrink:0;"></i>'+
+        '<span class="quiz-hist-title">'+escD(entry[1].title||'Quiz')+'</span>'+
+        '<span class="quiz-hist-date">'+dt+'</span>'+
+      '</div>';
+    }).join('');
+  }
+
+  // Build recent activity feed
+  buildActivityFeed(grades, attRes.data || [], qDone);
+}
+
+function renderGrades(grades){
+  var sec = document.getElementById('gradesSection');
+  if(!grades.length){
+    sec.innerHTML = '<div style="text-align:center;padding:1.5rem;color:#9ca3af;font-size:0.85rem;"><i class="fas fa-star" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No grades yet. They appear here once graded.</div>';
+    return;
+  }
+  sec.innerHTML = grades.slice(0,8).map(function(g){
+    var score = g.score !== null && g.score !== undefined ? g.score : '—';
+    var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
+    var scoreColor = typeof g.score === 'number' ? (g.score >= 70 ? '#059669' : g.score >= 50 ? '#d97706' : '#dc2626') : '#1B5E20';
+    var icon = g._type === 'quiz' ? 'fa-brain' : 'fa-file-alt';
+    return '<div class="grade-item">'+
+      '<div class="grade-item-icon"><i class="fas '+icon+'"></i></div>'+
+      '<div class="grade-item-info">'+
+        '<div class="grade-item-title">'+escD(g.assignment_title||'Assignment')+'</div>'+
+        '<div class="grade-item-sub">'+escD(g.course||'')+(dt?' · Graded '+dt:'')+'</div>'+
+      '</div>'+
+      '<div class="grade-item-score" style="color:'+scoreColor+';">'+score+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function buildActivityFeed(grades, attendance, quizDone){
+  var items = [];
+  grades.slice(0,4).forEach(function(g){
+    items.push({text:'Graded: <strong>'+escD(g.assignment_title)+'</strong> → '+g.score+' pts',time:g.graded_at,color:'#1B5E20'});
+  });
+  attendance.slice(0,3).forEach(function(a){
+    items.push({text:'Attended: <strong>'+escD(a.class_title||'Class')+'</strong>',time:a.marked_at,color:'#0ea5e9'});
+  });
+  Object.entries(quizDone).slice(0,3).forEach(function(e){
+    items.push({text:'Completed quiz: <strong>'+escD(e[1].title||'Quiz')+'</strong>',time:e[1].at,color:'#6366f1'});
+  });
+  // Sort by time descending
+  items.sort(function(a,b){ return new Date(b.time||0)-new Date(a.time||0); });
+
+  var feed = document.getElementById('activityFeed');
+  if(!items.length){ feed.innerHTML='<div style="text-align:center;padding:1rem;color:#9ca3af;font-size:0.82rem;">No recent activity yet.</div>'; return; }
+
+  feed.innerHTML = items.slice(0,8).map(function(item){
+    var dt = item.time ? new Date(item.time).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
+    return '<div class="activity-item">'+
+      '<div class="activity-dot" style="background:'+item.color+';"></div>'+
+      '<div class="activity-text">'+item.text+'</div>'+
+      '<div class="activity-time">'+dt+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function dismissGroupNotif(){
+  document.getElementById('groupNewNotif').style.display = 'none';
+  localStorage.removeItem('gerama_group_notif_unread');
+}
+
+// ── Realtime grade watcher ────────────────────────────
+(function watchGrades(){
+  var sb = window.geramaSupabase;
+  if(!sb){ setTimeout(watchGrades, 600); return; }
+  var email = (userProfile.email||'').toLowerCase().trim();
+  if(!email) return;
+  sb.channel('grade-dashboard-'+email.replace(/[^a-z0-9]/gi,'-'))
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'student_grades'},function(p){
+      var g = p.new; if(!g||g.student_email!==email) return;
+      loadDashboardData();
+      var badge = document.getElementById('gradeNotifBadge');
+      var text = document.getElementById('gradeNotifText');
+      if(badge && text){
+        text.textContent = '🎉 New grade: '+(g.assignment_title||'Assignment')+' → '+g.score+' pts';
+        badge.classList.add('show');
+        setTimeout(function(){ badge.classList.remove('show'); }, 6000);
+      }
+    }).subscribe();
+})();
+
+// ── Logout ────────────────────────────────────────────
+async function logoutUser(){
+  var sb = window.geramaSupabase;
+  if(sb) await sb.auth.signOut();
+  sessionStorage.clear();
+  localStorage.removeItem('gerama_profile');
+  window.location.href = 'login.html';
+}
+
+// ── Boot ─────────────────────────────────────────────
+(function boot(){
+  if(typeof window.geramaSupabase !== 'undefined') loadDashboardData();
+  else setTimeout(boot, 300);
+})();
+</script>
+</body>
+</html>
     <style>
         .dashboard-grid {
             display: grid;
