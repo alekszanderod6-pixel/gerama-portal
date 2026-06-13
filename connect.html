@@ -1487,8 +1487,11 @@ async function refreshDMMessages(email){
 
 function renderMessages(data,container){
   if(!container) return;
+  // Filter out messages the current user hid locally
+  var hiddenKey = 'gerama_hidden_msgs_'+_me.email;
+  var hidden = JSON.parse(localStorage.getItem(hiddenKey)||'[]');
   var lastDate='';
-  container.innerHTML=data.map(function(m){
+  container.innerHTML=data.filter(function(m){ return !hidden.includes(m.id); }).map(function(m){
     var mine=m.sender_email===_me.email;
     var d=new Date(m.created_at).toDateString();
     var divider='';
@@ -1553,17 +1556,59 @@ function autoLink(text){
 
 
 function buildVoiceMsg(m){
-  var dur=m.audio_duration||0;
-  var mm=Math.floor(dur/60), ss=String(dur%60).padStart(2,'0');
-  var bars=Array.from({length:28},function(_,i){
-    var h=6+Math.floor(Math.abs(Math.sin(i*0.8+1)*14));
+  var dur = m.audio_duration || 0;
+  var mm = Math.floor(dur/60), ss = String(dur%60).padStart(2,'0');
+  var bars = Array.from({length:28}, function(_,i){
+    var h = 6 + Math.floor(Math.abs(Math.sin(i*0.8+1)*14));
     return '<span style="height:'+h+'px;"></span>';
   }).join('');
+  var safeUrl = esc(m.media_url||'');
+  var btnId = 'vplay-'+(m.id||Date.now());
   return '<div class="voice-msg">'+
-    '<button class="voice-play-btn" onclick="playVoice(this,\''+esc(m.media_url)+'\')"><i class="fas fa-play" style="font-size:0.75rem;"></i></button>'+
+    '<button class="voice-play-btn" id="'+btnId+'" onclick="playVoice(this,\''+safeUrl+'\')"><i class="fas fa-play" style="font-size:0.75rem;"></i></button>'+
     '<div class="voice-waveform">'+bars+'</div>'+
-    '<span class="voice-dur">'+(dur?mm+':'+ss:'0:00')+'</span>'+
+    '<span class="voice-dur">'+mm+':'+ss+'</span>'+
   '</div>';
+}
+
+// Play/pause voice notes
+var _activeAudio = null;
+function playVoice(btn, url){
+  if(!url) return;
+  // If same audio already playing, toggle pause/play
+  if(_activeAudio && _activeAudio._url === url){
+    if(_activeAudio.paused){
+      _activeAudio.play();
+      btn.innerHTML = '<i class="fas fa-pause" style="font-size:0.75rem;"></i>';
+    } else {
+      _activeAudio.pause();
+      btn.innerHTML = '<i class="fas fa-play" style="font-size:0.75rem;"></i>';
+    }
+    return;
+  }
+  // Stop previous
+  if(_activeAudio){
+    _activeAudio.pause();
+    // Reset any previously active play button
+    document.querySelectorAll('.voice-play-btn').forEach(function(b){
+      b.innerHTML = '<i class="fas fa-play" style="font-size:0.75rem;"></i>';
+    });
+  }
+  var audio = new Audio(url);
+  audio._url = url;
+  _activeAudio = audio;
+  audio.play().then(function(){
+    btn.innerHTML = '<i class="fas fa-pause" style="font-size:0.75rem;"></i>';
+  }).catch(function(e){ toast('Could not play audio: '+e.message); });
+  audio.onended = function(){
+    btn.innerHTML = '<i class="fas fa-play" style="font-size:0.75rem;"></i>';
+    _activeAudio = null;
+  };
+  audio.onerror = function(){
+    btn.innerHTML = '<i class="fas fa-play" style="font-size:0.75rem;"></i>';
+    toast('Audio playback error');
+    _activeAudio = null;
+  };
 }
 
 function appendMessage(m,tempId){
@@ -1709,7 +1754,19 @@ async function deleteMsg(forEveryone){
   if(forEveryone){
     await recallMsg();
   } else {
-    // Soft delete just from view — remove from DOM only
+    // Soft delete for the current user — mark in DB so it stays hidden on refresh
+    if(_me.email === _msgMenuTarget.mine && _msgMenuTarget.mine){
+      // sender: mark is_deleted=true (recall)
+      await _sb.from('connect_messages').update({is_deleted:true}).eq('id',_msgMenuTarget.id);
+    } else {
+      // recipient: store in localStorage that this message ID is hidden for us
+      var hiddenKey = 'gerama_hidden_msgs_'+_me.email;
+      var hidden = JSON.parse(localStorage.getItem(hiddenKey)||'[]');
+      if(!hidden.includes(_msgMenuTarget.id)) hidden.push(_msgMenuTarget.id);
+      // Cap at 500 IDs
+      if(hidden.length > 500) hidden = hidden.slice(-500);
+      localStorage.setItem(hiddenKey, JSON.stringify(hidden));
+    }
     var row=document.querySelector('[data-msgid="'+_msgMenuTarget.id+'"]');
     if(row) row.remove();
     toast('Message removed from your view');
@@ -2372,6 +2429,7 @@ function updateRecordBtn(recording){
 async function sendVoiceMsg(blob, email, name){
   if(!_sb || !_me.email){ toast('Please log in'); return; }
   toast('Sending voice note…');
+  var duration = _recordingSecs; // capture before reset
   var path = 'voice-notes/'+_me.email.replace(/[^a-z0-9]/gi,'-')+'-'+Date.now()+'.webm';
   var up = await _sb.storage.from('gerama-materials').upload(path, blob, {upsert:true, contentType:'audio/webm'});
   if(up.error){ toast('Upload failed: '+up.error.message); return; }
@@ -2380,6 +2438,7 @@ async function sendVoiceMsg(blob, email, name){
     sender_email: _me.email, sender_name: _me.name,
     recipient_email: email, recipient_name: name,
     text: '', media_type: 'audio', media_url: url,
+    audio_duration: duration,
     is_group: false, is_read: false,
     created_at: new Date().toISOString()
   };
@@ -2418,14 +2477,15 @@ renderMemberGrid = function(list){
   updateOnlineUI();
 };
 
-// Add mic button + search button to chat window
-var _origRenderChatWindowStr = renderChatWindow.toString();
+// Add mic button + refresh button to chat window
 var _origRenderChatWindow = renderChatWindow;
 renderChatWindow = async function(email, name){
   await _origRenderChatWindow(email, name);
-  // Inject mic + search buttons into chat-input-wrap after it's rendered
+  // Always remove old mic button before adding new one (fixes stale closure bug)
+  var oldMic = document.getElementById('chatRecordBtn');
+  if(oldMic) oldMic.remove();
   var wrap = document.querySelector('.chat-input-wrap');
-  if(wrap && !document.getElementById('chatRecordBtn')){
+  if(wrap){
     var micBtn = document.createElement('button');
     micBtn.id = 'chatRecordBtn';
     micBtn.className = 'chat-emoji-btn';
@@ -2434,16 +2494,23 @@ renderChatWindow = async function(email, name){
     micBtn.onclick = function(){ startVoiceRecording(email, name); };
     wrap.appendChild(micBtn);
   }
-  // Add search button to topbar actions
+  // Add refresh button to topbar actions — always remove old one first to fix stale closure
+  var oldRef = document.getElementById('chatRefreshBtn');
+  if(oldRef) oldRef.remove();
   var actions = document.querySelector('.chat-topbar-actions');
-  if(actions && !document.getElementById('chatSearchBtn')){
-    var searchBtn = document.createElement('button');
-    searchBtn.id = 'chatSearchBtn';
-    searchBtn.className = 'chat-action-btn';
-    searchBtn.title = 'Search messages';
-    searchBtn.innerHTML = '<i class="fas fa-search"></i>';
-    searchBtn.onclick = openMsgSearch;
-    actions.insertBefore(searchBtn, actions.firstChild);
+  if(actions){
+    var refBtn = document.createElement('button');
+    refBtn.id = 'chatRefreshBtn';
+    refBtn.className = 'chat-action-btn';
+    refBtn.title = 'Refresh messages';
+    refBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+    refBtn.onclick = function(){
+      refBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      refreshDMMessages(email).then(function(){
+        setTimeout(function(){ refBtn.innerHTML = '<i class="fas fa-sync-alt"></i>'; }, 600);
+      });
+    };
+    actions.insertBefore(refBtn, actions.firstChild);
   }
 };
 

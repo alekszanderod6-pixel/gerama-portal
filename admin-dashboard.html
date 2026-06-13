@@ -96,7 +96,12 @@ table{min-width:500px;}
 #potwList .sub-card .sub-actions{width:auto;flex-shrink:0;}
 /* Grades table on mobile: wider scroll area */
 #gradesTableWrap .tbl-wrap{-webkit-overflow-scrolling:touch;}
-#gradesTableWrap table{min-width:560px;}
+#gradesTableWrap table{min-width:580px;}
+/* Overview stats: 2 per row on very small screens */
+@media(max-width:480px){
+  .stats-row{grid-template-columns:1fr 1fr;}
+  #gradesTableWrap table{min-width:520px;}
+}
 }
 .mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;z-index:300;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
 .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;color:#9ca3af;cursor:pointer;transition:all 0.2s;font-size:0.62rem;font-weight:600;gap:0.2rem;border:none;background:none;}
@@ -278,11 +283,6 @@ tr:hover td{background:#fafcfa;}
   <div class="dash-header">
     <h2><i class="fas fa-tachometer-alt" style="color:#1B5E20;margin-right:0.5rem;"></i>GERAMA Admin Dashboard</h2>
     <div style="display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
-      <!-- Pending submissions live badge -->
-      <button onclick="switchPanel('grades')" id="pendingSubsBadge" style="display:none;background:linear-gradient(135deg,#dc2626,#ef4444);color:white;border:none;border-radius:20px;padding:0.35rem 0.9rem;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.4rem;animation:pulse 2s infinite;" title="Ungraded submissions">
-        <i class="fas fa-exclamation-circle"></i>
-        <span id="pendingSubsCount">0</span> ungraded
-      </button>
       <!-- Notification bell -->
       <button id="adminNotifBell" onclick="toggleAdminNotifs()" style="position:relative;background:none;border:none;cursor:pointer;color:#6b7280;font-size:1.15rem;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" title="Notifications">
         <i class="fas fa-bell"></i>
@@ -562,13 +562,9 @@ tr:hover td{background:#fafcfa;}
     </div>
     <script>
     (function(){
-      var SUPA = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-      var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
-
       // ══════════════════════════════════════════════════════════════
-      // LOAD GRADES PANEL — fetches all assignment_submissions from
-      // Supabase and renders them grouped by assignment using the
-      // rich _renderSubmissions renderer from admin-dashboard.js.
+      // LOAD GRADES PANEL — fetches all assignment_submissions and
+      // renders them grouped by course with inline grading UI.
       // ══════════════════════════════════════════════════════════════
       window.loadGradesPanel = async function() {
         window._gradesPanelFromDashboard = true;
@@ -576,26 +572,27 @@ tr:hover td{background:#fafcfa;}
         if (!wrap) return;
         wrap.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2.5rem;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.6rem;"></i> Loading submissions…</p>';
 
-        // ── Wait up to 5s for Supabase SDK to be available ──
+        // Wait up to 8s for Supabase SDK
         var waited = 0;
-        while(!window.geramaSupabase && waited < 5000){
+        while (!window.geramaSupabase && waited < 8000) {
           await new Promise(function(r){ setTimeout(r, 200); });
           waited += 200;
         }
 
         var sb = window.geramaSupabase;
-        if(!sb){
-          wrap.innerHTML = '<div style="text-align:center;padding:2rem;color:#9ca3af;"><p>Supabase not connected. Please refresh the page.</p><button onclick="loadGradesPanel()" style="margin-top:1rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;">↺ Retry</button></div>';
+        if (!sb) {
+          wrap.innerHTML = '<div style="text-align:center;padding:2rem;color:#9ca3af;">' +
+            '<p>Supabase not connected. Please refresh the page.</p>' +
+            '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;">↺ Retry</button></div>';
           return;
         }
 
         try {
-          // Fetch submissions
           var subsRes = await sb.from('assignment_submissions').select('*').order('submitted_at', {ascending: false});
-          if(subsRes.error) throw new Error(subsRes.error.message);
+          if (subsRes.error) throw new Error(subsRes.error.message);
           var data = subsRes.data || [];
 
-          if(!data.length){
+          if (!data.length) {
             wrap.innerHTML = '<div style="text-align:center;padding:3rem;color:#9ca3af;">' +
               '<i class="fas fa-inbox" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i>' +
               '<p style="font-size:1rem;font-weight:600;">No submissions yet.</p>' +
@@ -605,11 +602,11 @@ tr:hover td{background:#fafcfa;}
             return;
           }
 
-          // Enrich submissions with assignment course/points data
+          // Enrich with assignment course/points
           try {
             var asgRes = await sb.from('assignments').select('id,title,course,points');
             var am = {};
-            if(asgRes.data) asgRes.data.forEach(function(a){ if(a.id) am[a.id]=a; if(a.title) am[a.title]=a; });
+            if (asgRes.data) asgRes.data.forEach(function(a){ if(a.id) am[a.id]=a; if(a.title) am[a.title]=a; });
             data.forEach(function(s){
               var a = am[s.assignment_id] || am[s.assignment_title] || {};
               s._course = a.course || 'General';
@@ -619,114 +616,93 @@ tr:hover td{background:#fafcfa;}
             data.forEach(function(s){ s._course = 'General'; s._points = null; });
           }
 
-          // Use the rich renderer from admin-dashboard.js (groups by course, has grading UI)
-          if(window._renderSubmissions){
+          // Use the rich renderer from admin-dashboard.js if available, otherwise fallback
+          if (typeof window._renderSubmissions === 'function') {
             window._renderSubmissions(data, wrap);
           } else {
-            // Inline fallback renderer if _renderSubmissions not ready
             _inlineRender(data, wrap);
           }
 
         } catch(err) {
           var isRLS = err.message && (err.message.toLowerCase().includes('rls') || err.message.includes('row-level') || err.message.includes('42501') || err.message.includes('permission'));
+          var esc = window.escHtml ? window.escHtml : function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); };
           wrap.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.4rem;border-radius:12px;font-size:0.9rem;">' +
-            '<strong>' + (isRLS ? '🔒 Permission denied' : '❌ Error') + ':</strong> ' + (window.escHtml ? window.escHtml(err.message) : err.message) + '<br><br>' +
+            '<strong>' + (isRLS ? '🔒 Permission denied' : '❌ Error') + ':</strong> ' + esc(err.message) + '<br><br>' +
             (isRLS ? '<div style="background:#fef2f2;padding:0.8rem;border-radius:8px;font-size:0.8rem;font-family:monospace;margin-bottom:0.8rem;white-space:pre-wrap;">-- Run in Supabase SQL Editor:\nCREATE POLICY IF NOT EXISTS "Anon read submissions"\n  ON assignment_submissions FOR SELECT USING (true);\nCREATE POLICY IF NOT EXISTS "Anon update submissions"\n  ON assignment_submissions FOR UPDATE USING (true);</div>' : '') +
             '<button onclick="loadGradesPanel()" style="background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:600;font-family:\'Inter\',sans-serif;">↺ Retry</button>' +
           '</div>';
         }
       };
 
-      // ── Inline fallback renderer (used if admin-dashboard.js _renderSubmissions not loaded) ──
+      // ── Inline fallback renderer (used if admin-dashboard.js _renderSubmissions not yet loaded) ──
       function _inlineRender(data, wrap) {
+        var esc = window.escHtml ? window.escHtml : function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
         var byCourse = {};
         data.forEach(function(s){ var c=s._course||'General'; if(!byCourse[c]) byCourse[c]=[]; byCourse[c].push(s); });
         var total = data.length;
         var graded = data.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
+
         var html = '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;margin-bottom:1.5rem;padding:1rem 1.2rem;background:linear-gradient(135deg,#f0fdf4,#f8fafc);border-radius:14px;border:1px solid #c8e6c9;">' +
-          '<div><div style="font-size:1rem;font-weight:800;color:#1B5E20;"><i class="fas fa-file-alt"></i> '+total+' Submissions</div>' +
+          '<div><div style="font-size:1rem;font-weight:800;color:#1B5E20;"><i class="fas fa-file-alt"></i> ' + total + ' Submissions</div>' +
           '<div style="font-size:0.82rem;color:#6b7280;margin-top:0.2rem;">' +
-            '<span style="background:#d1fae5;color:#065f46;padding:0.1rem 0.5rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">✅ '+graded+' graded</span>' +
-            '<span style="background:#fef3c7;color:#92400e;padding:0.1rem 0.5rem;border-radius:10px;font-weight:700;">⏳ '+(total-graded)+' pending</span>' +
+            '<span style="background:#d1fae5;color:#065f46;padding:0.1rem 0.5rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">&#10003; ' + graded + ' graded</span>' +
+            '<span style="background:#fef3c7;color:#92400e;padding:0.1rem 0.5rem;border-radius:10px;font-weight:700;">&#8987; ' + (total - graded) + ' pending</span>' +
           '</div></div>' +
-          '<div style="display:flex;gap:0.5rem;"><button onclick="loadGradesPanel()" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.45rem 0.9rem;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-sync-alt"></i> Refresh</button>' +
-          '<button onclick="downloadAllGradesCSV()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> CSV</button></div></div>';
-        Object.keys(byCourse).sort().forEach(function(course){
+          '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">' +
+            '<button onclick="loadGradesPanel()" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.45rem 0.9rem;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-sync-alt"></i> Refresh</button>' +
+            '<button onclick="window.downloadGradesSummary?window.downloadGradesSummary():downloadAllGradesCSV()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> Download All Grades</button>' +
+          '</div></div>';
+
+        Object.keys(byCourse).sort().forEach(function(course) {
           var subs = byCourse[course];
           var cg = subs.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
-          var rows = subs.map(function(s){
+          var rows = subs.map(function(s) {
             var sid = String(s.id).replace(/[^a-z0-9]/gi,'');
-            var dt = s.submitted_at ? new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+            var dt = s.submitted_at ? new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
             var cur = (s.score!==null&&s.score!==undefined&&s.score!=='') ? s.score : '';
             var pts = s._points;
             var scoreCell = cur !== ''
-              ? '<span style="background:#d1fae5;color:#065f46;font-size:0.82rem;font-weight:800;padding:0.2rem 0.5rem;border-radius:8px;">'+cur+(pts?'/'+pts:'')+'</span>'
-              : '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:600;padding:0.2rem 0.4rem;border-radius:8px;">Ungraded</span>';
+              ? '<span style="background:#d1fae5;color:#065f46;font-size:0.82rem;font-weight:800;padding:0.2rem 0.6rem;border-radius:10px;">' + cur + (pts ? '/' + pts : '') + '</span>'
+              : '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:10px;">Ungraded</span>';
             return '<tr>' +
-              '<td><strong style="font-size:0.88rem;">'+(s.student_name||'—')+'</strong><div style="font-size:0.75rem;color:#6b7280;">'+(s.student_email||'')+'</div>'+(s.index_number?'<div style="font-size:0.7rem;color:#1B5E20;font-weight:600;">'+s.index_number+'</div>':'')+'</td>' +
-              '<td style="font-size:0.78rem;color:#6b7280;white-space:nowrap;">'+dt+'</td>' +
-              '<td>'+(s.file_url?'<a href="'+s.file_url+'" target="_blank" style="color:#1B5E20;font-weight:600;font-size:0.82rem;display:inline-flex;align-items:center;gap:0.3rem;"><i class="fas fa-download"></i> File</a>':'<span style="color:#9ca3af;font-size:0.78rem;">No file</span>')+'</td>' +
-              '<td>'+scoreCell+'</td>' +
+              '<td><strong style="font-size:0.88rem;">' + esc(s.student_name||'—') + '</strong>' +
+              '<div style="font-size:0.75rem;color:#6b7280;">' + esc(s.student_email||'') + '</div>' +
+              (s.index_number ? '<div style="font-size:0.7rem;color:#1B5E20;font-weight:600;">' + esc(s.index_number) + '</div>' : '') + '</td>' +
+              '<td style="font-size:0.82rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(s.assignment_title||'—') + '</td>' +
+              '<td style="font-size:0.78rem;color:#6b7280;white-space:nowrap;">' + dt + '</td>' +
+              '<td>' + (s.file_url ? '<a href="' + esc(s.file_url) + '" target="_blank" style="color:#1B5E20;font-size:0.8rem;font-weight:600;"><i class="fas fa-download"></i> File</a>' : '<span style="color:#9ca3af;font-size:0.78rem;">No file</span>') + '</td>' +
+              '<td>' + scoreCell + '</td>' +
               '<td><div style="display:flex;gap:0.3rem;align-items:center;">' +
-                '<input type="number" id="gscore-'+sid+'" value="'+cur+'" min="0"'+(pts?' max="'+pts+'"':'')+' placeholder="0" style="width:60px;padding:0.3rem 0.4rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;outline:none;text-align:center;" onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
-                '<button onclick="saveGrade(\''+s.id+'\',\''+sid+'\',\''+(s.student_email||'')+'\',\''+(s.assignment_title||'').replace(/'/g,'').replace(/"/g,'')+'\''+')" style="background:#1B5E20;color:white;border:none;padding:0.3rem 0.7rem;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-check"></i> Grade</button>' +
-              '</div><div id="gstatus-'+sid+'" style="font-size:0.7rem;margin-top:0.2rem;min-height:0.9rem;"></div></td>' +
+                '<input type="number" id="gscore-' + sid + '" value="' + cur + '" min="0"' + (pts ? ' max="' + pts + '"' : '') + ' placeholder="0" style="width:60px;padding:0.3rem 0.4rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;outline:none;text-align:center;font-family:\'Inter\',sans-serif;" onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
+                (pts ? '<span style="font-size:0.72rem;color:#9ca3af;">/' + pts + '</span>' : '') +
+                '<button data-subid="' + s.id + '" data-safeid="' + sid + '" data-email="' + esc(s.student_email||'') + '" data-title="' + esc(s.assignment_title||'') + '" onclick="gradeSubmission(this)" style="background:#1B5E20;color:white;border:none;padding:0.3rem 0.7rem;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-check"></i> Grade</button>' +
+              '</div><div id="grade-status-' + sid + '" style="font-size:0.7rem;margin-top:0.2rem;min-height:0.9rem;color:#059669;"></div></td>' +
             '</tr>';
           }).join('');
-          html += '<div style="margin-bottom:2rem;"><div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;border-radius:14px 14px 0 0;padding:0.85rem 1.1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.4rem;">' +
-            '<div style="font-size:0.92rem;font-weight:800;"><i class="fas fa-book" style="margin-right:0.4rem;opacity:0.8;"></i>'+course+'</div>' +
-            '<div style="display:flex;gap:0.5rem;">' +
-              '<span style="background:rgba(255,255,255,0.15);padding:0.2rem 0.7rem;border-radius:20px;font-size:0.78rem;font-weight:700;">'+subs.length+' submitted</span>' +
-              '<span style="background:rgba(255,193,7,0.25);color:#FFC107;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.78rem;font-weight:700;">'+cg+' graded</span>' +
-            '</div></div>' +
-            '<div class="tbl-wrap" style="border:1px solid #e5e7eb;border-top:none;border-radius:0 0 14px 14px;overflow:hidden;">' +
-            '<table><thead><tr style="background:#f8fafc;"><th>Student</th><th>Submitted</th><th>File</th><th>Score</th><th>Grade</th></tr></thead>' +
-            '<tbody>'+rows+'</tbody></table></div></div>';
+
+          html += '<div style="margin-bottom:2rem;">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.7rem;flex-wrap:wrap;gap:0.5rem;">' +
+              '<div style="display:flex;align-items:center;gap:0.6rem;">' +
+                '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.82rem;font-weight:700;padding:0.35rem 1rem;border-radius:20px;"><i class="fas fa-book" style="margin-right:0.3rem;"></i>' + esc(course) + '</span>' +
+                '<span style="font-size:0.8rem;color:#6b7280;">' + subs.length + ' submission' + (subs.length!==1?'s':'') + (cg ? ' &middot; <span style="color:#059669;font-weight:600;">' + cg + ' graded</span>' : '') + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="tbl-wrap" style="border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">' +
+            '<table><thead><tr style="background:#f8fafc;"><th>Student</th><th>Assignment</th><th>Submitted</th><th>File</th><th>Score</th><th>Grade</th></tr></thead>' +
+            '<tbody>' + rows + '</tbody></table></div></div>';
         });
+
         wrap.innerHTML = html;
       }
 
-      window.saveGrade = async function(subId, sid, email, title) {
-        var scoreEl = document.getElementById('gscore-' + sid);
-        var statusEl = document.getElementById('gstatus-' + sid);
-        if (!scoreEl) return;
-        var score = parseFloat(scoreEl.value);
-        if (isNaN(score) || score < 0) {
-          if(statusEl) { statusEl.textContent='Enter valid score.'; statusEl.style.color='#f59e0b'; }
-          return;
-        }
-        if (statusEl) { statusEl.textContent='Saving…'; statusEl.style.color='#6b7280'; }
-        var graded_at = new Date().toISOString();
-        try {
-          var r1 = await fetch(SUPA + '/rest/v1/assignment_submissions?id=eq.' + subId, {
-            method: 'PATCH',
-            headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-            body: JSON.stringify({ score: score, graded_at: graded_at })
-          });
-          if (!r1.ok) throw new Error('HTTP ' + r1.status);
-          await fetch(SUPA + '/rest/v1/student_grades?student_email=eq.' + encodeURIComponent(email) + '&assignment_title=eq.' + encodeURIComponent(title), {
-            method: 'DELETE', headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
-          });
-          await fetch(SUPA + '/rest/v1/student_grades', {
-            method: 'POST',
-            headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-            body: JSON.stringify({ student_email: email, assignment_title: title, score: score, submission_id: subId, graded_at: graded_at })
-          });
-          if (statusEl) { statusEl.textContent = '✅ Graded!'; statusEl.style.color = '#059669'; }
-          setTimeout(function() { if(statusEl) statusEl.textContent=''; }, 4000);
-          if(window.logActivity) window.logActivity('Graded: '+title+' for '+email+' → '+score);
-        } catch(err) {
-          if (statusEl) { statusEl.textContent = '❌ ' + err.message; statusEl.style.color = '#dc2626'; }
-        }
-      };
-
+      // Fallback CSV download (used if admin-dashboard.js downloadGradesSummary not available)
       window.downloadAllGradesCSV = async function() {
+        var sb = window.geramaSupabase;
+        if (!sb) { alert('Not connected.'); return; }
         try {
-          var resp = await fetch(SUPA + '/rest/v1/assignment_submissions?select=*&order=submitted_at.desc', {
-            headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
-          });
-          var data = await resp.json();
-          if (!data || !data.length) { alert('No submissions to download.'); return; }
+          var r = await sb.from('assignment_submissions').select('*').order('submitted_at', {ascending: false});
+          var data = r.data || [];
+          if (!data.length) { alert('No submissions to download.'); return; }
           var headers = ['Student Name','Email','Index Number','Assignment','Submitted','Score','Graded At'];
           var rows = data.map(function(s) {
             return [s.student_name||'', s.student_email||'', s.index_number||'', s.assignment_title||'',
@@ -736,22 +712,22 @@ tr:hover td{background:#fafcfa;}
             ].map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
           });
           var csv = [headers.join(',')].concat(rows).join('\n');
-          var blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+          var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
           var url = URL.createObjectURL(blob);
           var a = document.createElement('a');
-          a.href=url; a.download='GERAMA_Grades_'+new Date().toISOString().split('T')[0]+'.csv';
+          a.href = url; a.download = 'GERAMA_Grades_' + new Date().toISOString().split('T')[0] + '.csv';
           document.body.appendChild(a); a.click(); document.body.removeChild(a);
           URL.revokeObjectURL(url);
         } catch(e) { alert('Download failed: ' + e.message); }
       };
 
-      // Auto-hook switchPanel to auto-load grades when panel is opened
-      (function hookGradesPanel(){
-        if(typeof window.switchPanel === 'function'){
+      // Auto-load when the grades panel is switched to
+      (function hookGradesPanel() {
+        if (typeof window.switchPanel === 'function') {
           var _orig = window.switchPanel;
           window.switchPanel = function(name) {
-            if(_orig) _orig(name);
-            if(name === 'grades') setTimeout(loadGradesPanel, 250);
+            _orig(name);
+            if (name === 'grades') setTimeout(loadGradesPanel, 150);
           };
         } else {
           setTimeout(hookGradesPanel, 300);
@@ -1723,7 +1699,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
       <div style="background:#f0fdf4;border:1px solid #c8e6c9;border-radius:12px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.83rem;color:#1B5E20;">
         <strong>📋 How to export from Testmoz:</strong> Open your quiz → Results tab → Download CSV<br>
         <strong>📋 How to export from Google Forms:</strong> Open responses → Spreadsheet icon → File → Download → CSV<br>
-        <strong>Format needed:</strong> A column with student <strong>email</strong> and a column with their <strong>score</strong> (any column order is fine — system auto-detects)
+        <strong>Format needed:</strong> A column with student <strong>name or email</strong> and a column with their <strong>score</strong> — any column order is fine, system auto-detects both.
       </div>
       <div class="form-grid">
         <div class="form-field full"><label>Select Quiz to Import Scores For</label>
@@ -1739,12 +1715,12 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
           <input type="file" id="csvFileInput" accept=".csv,.txt" style="display:none;" onchange="loadCsvFile(this)">
         </div>
         <div class="form-field full">
-          <label>Or paste CSV data directly (email,score — one per line)</label>
-          <textarea id="importCsvData" rows="6" placeholder="email,score&#10;john@gmail.com,18&#10;amara@gmail.com,20&#10;kofi@gmail.com,15" style="font-family:monospace;font-size:0.85rem;"></textarea>
+          <label>Or paste CSV data directly <span style="color:#6b7280;font-weight:400;">(name or email + score — one per line)</span></label>
+          <textarea id="importCsvData" rows="6" placeholder="name,score&#10;Kofi Mensah,18&#10;Amara Boateng,20&#10;john@gmail.com,15" style="font-family:monospace;font-size:0.85rem;"></textarea>
         </div>
         <div class="form-field">
-          <label>Email column name / number <span style="color:#6b7280;font-weight:400;">(leave blank = auto-detect)</span></label>
-          <input type="text" id="importEmailCol" placeholder="e.g. Email or 1">
+          <label>Name/Email column <span style="color:#6b7280;font-weight:400;">(leave blank = auto-detect)</span></label>
+          <input type="text" id="importEmailCol" placeholder="e.g. Name, Email, or 1">
         </div>
         <div class="form-field">
           <label>Score column name / number <span style="color:#6b7280;font-weight:400;">(leave blank = auto-detect)</span></label>
@@ -1785,6 +1761,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
   <button class="bnav-item" data-panel="upload" onclick="switchPanel('upload')"><i class="fas fa-upload"></i><span>Upload</span></button>
   <button class="bnav-item" data-panel="history" onclick="switchPanel('history')"><i class="fas fa-history"></i><span>History</span></button>
   <button class="bnav-item" data-panel="review" onclick="switchPanel('review')"><i class="fas fa-inbox"></i><span>Review</span></button>
+  <button class="bnav-item" data-panel="grades" onclick="switchPanel('grades')"><i class="fas fa-graduation-cap"></i><span>Grades</span></button>
   <button class="bnav-item" data-panel="announcements" onclick="switchPanel('announcements')"><i class="fas fa-bullhorn"></i><span>News</span></button>
 </nav>
 
@@ -1873,7 +1850,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
     }
   });
 
-  // ── Pending submissions badge ──
+  // ── Pending submissions checker — pushes bell notifications only (badge removed) ──
   async function checkPendingSubmissions(){
     try{
       var resp=await fetch(SUPA+'/rest/v1/assignment_submissions?select=id&score=is.null&order=submitted_at.desc',{
@@ -1888,12 +1865,8 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
         var data=await resp.json();
         count=Array.isArray(data)?data.length:0;
       }
-      var badge=document.getElementById('pendingSubsBadge');
-      var countEl=document.getElementById('pendingSubsCount');
       if(count>0){
-        if(badge) badge.style.display='flex';
-        if(countEl) countEl.textContent=count;
-        // Push notification if new ones appeared
+        // Push notification only if new submissions arrived since last check
         var prev=parseInt(localStorage.getItem('gerama_prev_pending_count')||'0');
         if(count>prev){
           var newCount=count-prev;
@@ -1903,7 +1876,6 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
         }
         localStorage.setItem('gerama_prev_pending_count',String(count));
       } else {
-        if(badge) badge.style.display='none';
         localStorage.setItem('gerama_prev_pending_count','0');
         document.title=document.title.replace(/^\[\d+\]\s/,'');
       }

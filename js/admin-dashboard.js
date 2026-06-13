@@ -1442,8 +1442,11 @@ window.gradeSubmission = async function(btn){
   }, 2000);
 };
 
-// Alias so the grades panel auto-refreshes after grading — but don't override the dashboard.html version
-if(!window._gradesPanelFromDashboard){
+// Keep a reference to loadSubmissionsTable so gradeSubmission can call it after grading.
+// loadGradesPanel is defined by the inline script in admin-dashboard.html which loads after this file.
+// If it hasn't been defined yet (e.g. loaded standalone), fall back to loadSubmissionsTable.
+window._loadGradesFallback = window.loadSubmissionsTable;
+if (!window.loadGradesPanel) {
   window.loadGradesPanel = window.loadSubmissionsTable;
 }
 
@@ -2990,21 +2993,24 @@ window.loadCsvFile = function(input) {
   reader.readAsText(file);
 };
 
-// Smart CSV parser — auto-detects email and score columns
-function parseScoreCSV(csvText, emailColHint, scoreColHint) {
+// Smart CSV parser — auto-detects identifier (email OR name) and score columns
+function parseScoreCSV(csvText, identColHint, scoreColHint) {
   var lines = csvText.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
   if(!lines.length) return [];
 
-  // Parse header
+  // Parse header row
   var header = lines[0].toLowerCase().split(',').map(function(h){ return h.replace(/"/g,'').trim(); });
-  var hasHeader = header.some(function(h){ return h.includes('email')||h.includes('name')||h.includes('student'); });
+  var hasHeader = header.some(function(h){
+    return h.includes('email') || h.includes('name') || h.includes('student') || h.includes('score') || h.includes('mark');
+  });
 
-  var emailIdx = -1, scoreIdx = -1;
+  var identIdx = -1, scoreIdx = -1;
 
-  if(emailColHint) {
-    var n = parseInt(emailColHint);
-    if(!isNaN(n)) emailIdx = n - 1;
-    else emailIdx = header.findIndex(function(h){ return h.includes(emailColHint.toLowerCase()); });
+  // Use hints if provided
+  if(identColHint) {
+    var n = parseInt(identColHint);
+    if(!isNaN(n)) identIdx = n - 1;
+    else identIdx = header.findIndex(function(h){ return h.includes(identColHint.toLowerCase()); });
   }
   if(scoreColHint) {
     var n2 = parseInt(scoreColHint);
@@ -3012,24 +3018,37 @@ function parseScoreCSV(csvText, emailColHint, scoreColHint) {
     else scoreIdx = header.findIndex(function(h){ return h.includes(scoreColHint.toLowerCase()); });
   }
 
-  // Auto-detect if not specified
-  if(emailIdx === -1) {
-    emailIdx = header.findIndex(function(h){ return h.includes('email')||h.includes('mail'); });
+  // Auto-detect identifier column (email preferred, then name)
+  if(identIdx === -1) {
+    identIdx = header.findIndex(function(h){ return h.includes('email') || h.includes('mail'); });
   }
+  if(identIdx === -1) {
+    identIdx = header.findIndex(function(h){ return h.includes('name') || h.includes('student'); });
+  }
+
+  // Auto-detect score column
   if(scoreIdx === -1) {
-    scoreIdx = header.findIndex(function(h){ return h.includes('score')||h.includes('mark')||h.includes('grade')||h.includes('result')||h.includes('total'); });
+    scoreIdx = header.findIndex(function(h){
+      return h.includes('score') || h.includes('mark') || h.includes('grade') || h.includes('result') || h.includes('total') || h.includes('point');
+    });
   }
-  // Fallback: assume first col = email, second = score
-  if(emailIdx === -1) emailIdx = 0;
+
+  // Last-resort fallback: col 0 = identifier, col 1 = score
+  if(identIdx === -1) identIdx = 0;
   if(scoreIdx === -1) scoreIdx = 1;
 
   var dataLines = hasHeader ? lines.slice(1) : lines;
   var results = [];
   dataLines.forEach(function(line) {
+    if(!line) return;
     var cols = line.split(',').map(function(c){ return c.replace(/"/g,'').trim(); });
-    var email = (cols[emailIdx]||'').toLowerCase();
+    var ident = (cols[identIdx] || '').trim();
     var score = parseFloat(cols[scoreIdx]);
-    if(email.includes('@') && !isNaN(score)) results.push({email:email, score:score});
+    if(ident && !isNaN(score)) {
+      // Determine if it's an email or a name
+      var isEmail = ident.includes('@');
+      results.push({ ident: ident, isEmail: isEmail, email: isEmail ? ident.toLowerCase() : '', name: isEmail ? '' : ident, score: score });
+    }
   });
   return results;
 }
@@ -3041,42 +3060,103 @@ window.previewCsvImport = function() {
   var parsed = parseScoreCSV(csvText, emailCol, scoreCol);
   var prevEl = document.getElementById('csvPreview');
   if(!prevEl) return;
-  if(!parsed.length){ prevEl.style.display='block'; prevEl.innerHTML='<p style="color:#dc2626;">No valid rows found. Check your CSV format.</p>'; return; }
+  if(!parsed.length){
+    prevEl.style.display='block';
+    prevEl.innerHTML='<p style="color:#dc2626;">No valid rows found. Check your CSV format — make sure there is a name or email column and a score column.</p>';
+    return;
+  }
+  var nameCount = parsed.filter(function(r){ return !r.isEmail; }).length;
+  var emailCount = parsed.filter(function(r){ return r.isEmail; }).length;
+  var note = nameCount > 0 ? '<div style="font-size:0.78rem;color:#f59e0b;font-weight:600;margin-bottom:0.5rem;"><i class="fas fa-info-circle"></i> '+nameCount+' row(s) use student names — will be matched to registered email addresses automatically.</div>' : '';
   prevEl.style.display = 'block';
-  prevEl.innerHTML = '<div style="font-weight:700;color:#1B5E20;margin-bottom:0.5rem;">Preview ('+parsed.length+' students detected):</div>' +
-    '<div class="tbl-wrap"><table><thead><tr><th>Email</th><th>Score</th></tr></thead><tbody>' +
+  prevEl.innerHTML = '<div style="font-weight:700;color:#1B5E20;margin-bottom:0.4rem;">Preview ('+parsed.length+' students detected, '+emailCount+' by email, '+nameCount+' by name):</div>' +
+    note +
+    '<div class="tbl-wrap"><table><thead><tr><th>Name / Email</th><th>Score</th></tr></thead><tbody>' +
     parsed.slice(0,10).map(function(r){
-      return '<tr><td style="font-size:0.85rem;">'+window.escHtml(r.email)+'</td><td><strong>'+r.score+'</strong></td></tr>';
+      var label = r.isEmail
+        ? window.escHtml(r.email)
+        : '<span style="background:#fef3c7;color:#92400e;padding:0.1rem 0.4rem;border-radius:6px;font-size:0.78rem;">name: </span> '+window.escHtml(r.name);
+      return '<tr><td style="font-size:0.85rem;">'+label+'</td><td><strong>'+r.score+'</strong></td></tr>';
     }).join('') +
-    (parsed.length>10?'<tr><td colspan="2" style="color:#9ca3af;font-size:0.8rem;text-align:center;">...and '+(parsed.length-10)+' more</td></tr>':'')+
+    (parsed.length>10?'<tr><td colspan="2" style="color:#9ca3af;font-size:0.8rem;text-align:center;">…and '+(parsed.length-10)+' more</td></tr>':'')+
     '</tbody></table></div>';
 };
 
-// Override the old importScoresFromCSV with smart version
+// Override the old importScoresFromCSV with smart version (supports name OR email)
 window.importScoresFromCSV = async function() {
-  var quizId = document.getElementById('importQzSelect').value;
-  var csvText = (document.getElementById('importCsvData').value||'').trim();
-  var emailCol = document.getElementById('importEmailCol').value||'';
+  var quizId   = document.getElementById('importQzSelect').value;
+  var csvText  = (document.getElementById('importCsvData').value||'').trim();
+  var identCol = document.getElementById('importEmailCol').value||'';
   var scoreCol = document.getElementById('importScoreCol').value||'';
 
-  if(!quizId){ window.showStatus('importStatus','Please select a quiz.','err'); return; }
-  if(!csvText){ window.showStatus('importStatus','Please paste CSV data or upload a file.','err'); return; }
+  if(!quizId)  { window.showStatus('importStatus','Please select a quiz.','err'); return; }
+  if(!csvText) { window.showStatus('importStatus','Please paste CSV data or upload a file.','err'); return; }
 
-  var sb = window.geramaSupabase; if(!sb){ window.showStatus('importStatus','Not connected.','err'); return; }
+  var sb = window.geramaSupabase;
+  if(!sb){ window.showStatus('importStatus','Not connected.','err'); return; }
 
-  var qzRes = await sb.from('quizzes').select('title,points').eq('id',quizId).single();
+  var qzRes  = await sb.from('quizzes').select('title,points').eq('id',quizId).single();
   var qzTitle = qzRes.data ? qzRes.data.title : 'Quiz';
 
-  var parsed = parseScoreCSV(csvText, emailCol, scoreCol);
-  if(!parsed.length){ window.showStatus('importStatus','No valid email+score rows found. Try Preview to diagnose.','err'); return; }
+  var parsed = parseScoreCSV(csvText, identCol, scoreCol);
+  if(!parsed.length){
+    window.showStatus('importStatus','No valid rows found. Use Preview to diagnose. Make sure there is a name/email column and a score column.','err');
+    return;
+  }
 
-  window.showStatus('importStatus','Importing '+parsed.length+' scores...','info');
+  // Separate rows that need name→email resolution
+  var nameRows  = parsed.filter(function(r){ return !r.isEmail; });
+  var emailRows = parsed.filter(function(r){ return r.isEmail; });
+
+  // Resolve names to emails via user_profiles
+  var nameMap = {}; // lowercase name → email
+  if(nameRows.length > 0){
+    window.showStatus('importStatus','Resolving student names…','info');
+    try{
+      var {data: profiles} = await sb.from('user_profiles').select('email,full_name');
+      (profiles||[]).forEach(function(p){
+        if(p.full_name && p.email){
+          nameMap[p.full_name.toLowerCase().trim()] = p.email.toLowerCase();
+        }
+      });
+    }catch(e){ /* non-fatal — unresolved names will be counted as skipped */ }
+  }
+
+  // Build final list with emails
+  var toImport = [];
+  var skipped = [];
+  emailRows.forEach(function(r){ toImport.push({email: r.email, score: r.score, ident: r.email}); });
+  nameRows.forEach(function(r){
+    var key = r.name.toLowerCase().trim();
+    // Try exact match first, then partial
+    var email = nameMap[key];
+    if(!email){
+      // Partial: find profile whose full_name contains the search term or vice versa
+      Object.keys(nameMap).forEach(function(k){
+        if(!email && (k.includes(key) || key.includes(k))) email = nameMap[k];
+      });
+    }
+    if(email){
+      toImport.push({email: email, score: r.score, ident: r.name+' → '+email});
+    } else {
+      skipped.push(r.name);
+    }
+  });
+
+  if(!toImport.length){
+    var skipMsg = 'No students matched. ';
+    if(skipped.length) skipMsg += 'Could not find emails for: '+skipped.slice(0,5).join(', ')+(skipped.length>5?' …and '+(skipped.length-5)+' more':'');
+    skipMsg += ' — make sure names match the registered profile names exactly (or use emails instead).';
+    window.showStatus('importStatus', skipMsg, 'err');
+    return;
+  }
+
+  window.showStatus('importStatus','Importing '+toImport.length+' scores'+(skipped.length?' ('+skipped.length+' names unmatched)':'')+'…','info');
 
   var ok=0, fail=0, errors=[];
-  for(var i=0;i<parsed.length;i++){
-    var row = parsed[i];
+  for(var i=0;i<toImport.length;i++){
+    var row = toImport[i];
     try{
-      // Delete existing then insert fresh (avoids unique constraint issues)
       await sb.from('student_grades').delete().eq('student_email',row.email).eq('assignment_title',qzTitle);
       await sb.from('student_grades').insert({
         student_email: row.email,
@@ -3085,12 +3165,14 @@ window.importScoresFromCSV = async function() {
         graded_at: new Date().toISOString()
       });
       ok++;
-    }catch(e){ fail++; errors.push(row.email+': '+e.message); }
+    }catch(e){ fail++; errors.push(row.ident+': '+e.message); }
   }
+
   window.logActivity('Imported '+ok+' quiz scores for: '+qzTitle);
-  var msg = '✅ Successfully imported '+ok+' scores for "'+qzTitle+'"! Students can now see their grades in the Classroom → My Grades tab.';
-  if(fail) msg += ' ('+fail+' failed)';
-  window.showStatus('importStatus',msg,'ok');
+  var msg = '✅ Imported '+ok+' score'+(ok!==1?'s':'')+' for "'+qzTitle+'".';
+  if(skipped.length) msg += ' ⚠️ '+skipped.length+' name(s) not matched: '+skipped.slice(0,3).join(', ')+(skipped.length>3?' …':'')+'';
+  if(fail) msg += ' ❌ '+fail+' failed to save.';
+  window.showStatus('importStatus', msg, ok>0?'ok':'err');
   if(errors.length) console.warn('Import errors:', errors);
 };
 
