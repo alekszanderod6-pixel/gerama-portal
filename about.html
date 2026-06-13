@@ -850,6 +850,7 @@ if(!window._geramaTeamLoaded)(function(){
         .order('created_at',  {ascending:true});
 
       // Only replace static content if DB has records
+      // ALWAYS keep static HTML if DB is empty or errors — photos must show
       if(error || !data || !data.length) return;
 
       // Clear all grids and replace with DB data

@@ -562,48 +562,76 @@ tr:hover td{background:#fafcfa;}
         window._gradesPanelFromDashboard = true;
         var wrap = document.getElementById('gradesTableWrap');
         if (!wrap) return;
-        wrap.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Fetching submissions…</p>';
 
-        try {
-          var rows = null;
+        // ── Use the robust SDK-based loadSubmissionsTable from admin-dashboard.js ──
+        // Temporarily point it at gradesTableWrap so it renders here
+        var origEl = null;
 
-          // ── Try Supabase JS SDK first (uses admin session auth if available) ──
+        // Check if the full SDK version is available
+        if(window._renderSubmissions && window.geramaSupabase){
+          wrap.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading submissions…</p>';
           var sb = window.geramaSupabase;
-          if(sb){
-            var sdkRes = await sb.from('assignment_submissions').select('*').order('submitted_at', {ascending: false});
-            if(!sdkRes.error){
-              rows = sdkRes.data || [];
-            }
-          }
 
-          // ── Fallback: direct REST with anon key ──
-          if(rows === null){
-            var resp = await fetch(SUPA + '/rest/v1/assignment_submissions?select=*&order=submitted_at.desc', {
-              headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
-            });
+          try{
+            var subsRes = await sb.from('assignment_submissions').select('*').order('submitted_at',{ascending:false});
+            if(subsRes.error) throw new Error(subsRes.error.message);
+            var data = subsRes.data || [];
 
-            if (resp.status === 401 || resp.status === 403) {
-              wrap.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.5rem;border-radius:12px;font-size:0.9rem;">' +
-                '<strong>🔒 Permission denied (HTTP ' + resp.status + ')</strong><br><br>' +
-                'Run this SQL in your Supabase SQL Editor to fix:<br>' +
-                '<pre style="background:#fef2f2;padding:0.8rem;border-radius:8px;margin-top:0.8rem;font-size:0.78rem;white-space:pre-wrap;overflow-x:auto;">' +
-                'CREATE POLICY IF NOT EXISTS "Anon read submissions"\n  ON assignment_submissions FOR SELECT USING (true);\nCREATE POLICY IF NOT EXISTS "Anon update submissions"\n  ON assignment_submissions FOR UPDATE USING (true);' +
-                '</pre>' +
-                '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:600;font-family:\'Inter\',sans-serif;">↺ Retry after running SQL</button>' +
-                '</div>';
+            if(!data.length){
+              wrap.innerHTML = '<div style="text-align:center;padding:3rem;color:#9ca3af;">'+
+                '<i class="fas fa-inbox" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i>'+
+                '<p style="font-size:1rem;font-weight:600;">No submissions yet.</p>'+
+                '<p style="font-size:0.82rem;margin-top:0.4rem;">Students haven\'t submitted any assignments yet.</p>'+
+                '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;">↺ Refresh</button>'+
+              '</div>';
               return;
             }
-            if (!resp.ok) throw new Error('HTTP ' + resp.status + ': ' + await resp.text());
-            rows = await resp.json();
+
+            // Enrich with assignment data
+            try{
+              var asgRes = await sb.from('assignments').select('id,title,course,points');
+              var am = {};
+              if(asgRes.data) asgRes.data.forEach(function(a){ if(a.id) am[a.id]=a; if(a.title) am[a.title]=a; });
+              data.forEach(function(s){ var a=am[s.assignment_id]||am[s.assignment_title]||{}; s._course=a.course||'General'; s._points=a.points||null; });
+            }catch(e){ data.forEach(function(s){ s._course='General'; s._points=null; }); }
+
+            window._renderSubmissions(data, wrap);
+          }catch(err){
+            wrap.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.2rem;border-radius:12px;">'+
+              '<strong>Error loading submissions:</strong> '+window.escHtml(err.message)+'<br><br>'+
+              '<small>If this is a permission error, run this SQL in Supabase:<br>'+
+              '<code>CREATE POLICY IF NOT EXISTS "Anon read submissions" ON assignment_submissions FOR SELECT USING (true);</code></small><br><br>'+
+              '<button onclick="loadGradesPanel()" style="background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:600;font-family:\'Inter\',sans-serif;">↺ Retry</button>'+
+            '</div>';
           }
+          return;
+        }
+
+        // ── Fallback: direct REST fetch ──
+        try {
+          wrap.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Fetching submissions…</p>';
+          var resp = await fetch(SUPA + '/rest/v1/assignment_submissions?select=*&order=submitted_at.desc', {
+            headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }
+          });
+
+          if (resp.status === 401 || resp.status === 403) {
+            wrap.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.5rem;border-radius:12px;font-size:0.9rem;">'+
+              '<strong>🔒 Permission denied (HTTP ' + resp.status + ')</strong><br><br>'+
+              'Run this SQL in Supabase to fix:<br>'+
+              '<pre style="background:#fef2f2;padding:0.7rem;border-radius:8px;margin-top:0.6rem;font-size:0.78rem;">CREATE POLICY IF NOT EXISTS "Anon read submissions"\n  ON assignment_submissions FOR SELECT USING (true);</pre>'+
+              '<button onclick="loadGradesPanel()" style="margin-top:0.8rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-family:\'Inter\',sans-serif;">↺ Retry</button>'+
+            '</div>';
+            return;
+          }
+          if (!resp.ok) throw new Error('HTTP ' + resp.status);
+          var rows = await resp.json();
 
           if (!rows || !rows.length) {
-            wrap.innerHTML = '<div style="text-align:center;padding:3rem;color:#9ca3af;">' +
-              '<i class="fas fa-inbox" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i>' +
-              '<p style="font-size:1rem;font-weight:600;">No submissions yet.</p>' +
-              '<p style="font-size:0.82rem;margin-top:0.5rem;">Students haven\'t submitted any assignments yet.</p>' +
-              '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;">↺ Refresh</button>' +
-              '</div>';
+            wrap.innerHTML = '<div style="text-align:center;padding:3rem;color:#9ca3af;">'+
+              '<i class="fas fa-inbox" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i>'+
+              '<p style="font-size:1rem;font-weight:600;">No submissions yet.</p>'+
+              '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;">↺ Refresh</button>'+
+            '</div>';
             return;
           }
 
