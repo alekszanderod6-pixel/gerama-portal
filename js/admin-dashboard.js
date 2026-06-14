@@ -3201,16 +3201,34 @@ window.loadAdminProfiles = async function() {
   var sb = window.geramaSupabase; if(!sb) return;
   var {data} = await sb.from('admin_profiles').select('*').order('updated_at',{ascending:false});
   if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;">No admin profiles yet. Add yours above!</p>'; return; }
+
+  // Get current session to show "You" badge
+  var session = (window.getAdminSession && window.getAdminSession()) || {};
+  var myId = session.id || '';
+
   el.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;">'+
     data.map(function(p){
-      return '<div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:16px;padding:1.2rem;border:1px solid #c4b5fd;">'+
-        (p.photo_url?'<img src="'+p.photo_url+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid #a78bfa;margin-bottom:0.8rem;display:block;">':
-          '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;font-weight:800;margin-bottom:0.8rem;">'+p.name.charAt(0)+'</div>')+
+      var isMe = myId && p.id === myId;
+      return '<div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-radius:16px;padding:1.2rem;border:1px solid #c4b5fd;position:relative;">'+
+        // "You" badge
+        (isMe ? '<span style="position:absolute;top:0.7rem;right:0.7rem;background:#7c3aed;color:white;font-size:0.65rem;font-weight:800;padding:0.15rem 0.5rem;border-radius:20px;">You</span>' : '')+
+        (p.photo_url
+          ? '<img src="'+p.photo_url+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid #a78bfa;margin-bottom:0.8rem;display:block;">'
+          : '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;color:white;font-size:1.5rem;font-weight:800;margin-bottom:0.8rem;">'+window.escHtml(p.name.charAt(0))+'</div>')+
         '<div style="font-weight:800;color:#1e2a3e;margin-bottom:0.2rem;">'+window.escHtml(p.name)+'</div>'+
-        '<div style="font-size:0.78rem;color:#7c3aed;font-weight:700;margin-bottom:0.4rem;">'+window.escHtml(p.role)+'</div>'+
-        (p.bio?'<div style="font-size:0.8rem;color:#6b7280;margin-bottom:0.4rem;">'+window.escHtml(p.bio)+'</div>':'')+
-        (p.phone?'<div style="font-size:0.78rem;color:#374151;"><i class="fas fa-phone" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.phone)+'</div>':'')+
-        (p.email?'<div style="font-size:0.78rem;color:#374151;"><i class="fas fa-envelope" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.email)+'</div>':'')+
+        '<div style="font-size:0.78rem;color:#7c3aed;font-weight:700;margin-bottom:0.4rem;">'+window.escHtml(p.role||'Admin')+'</div>'+
+        (p.bio  ? '<div style="font-size:0.8rem;color:#6b7280;margin-bottom:0.4rem;">'+window.escHtml(p.bio)+'</div>' : '')+
+        (p.phone? '<div style="font-size:0.78rem;color:#374151;margin-bottom:0.2rem;"><i class="fas fa-phone" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.phone)+'</div>' : '')+
+        (p.email? '<div style="font-size:0.78rem;color:#374151;margin-bottom:0.8rem;"><i class="fas fa-envelope" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.email)+'</div>' : '')+
+        // Remove button — always visible, requires super-admin code
+        (!isMe
+          ? '<button onclick="deleteAdminProfile(\''+window.escAttr(p.id||'')+'\',\''+window.escAttr(p.name)+'\')" '+
+            'style="width:100%;background:#fee2e2;color:#dc2626;border:none;padding:0.4rem 0.8rem;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.4rem;" '+
+            'onmouseover="this.style.background=\'#dc2626\';this.style.color=\'white\'" '+
+            'onmouseout="this.style.background=\'#fee2e2\';this.style.color=\'#dc2626\'">'+
+            '<i class="fas fa-user-minus"></i> Remove Admin</button>'
+          : '<div style="font-size:0.72rem;color:#9ca3af;text-align:center;padding-top:0.3rem;">Edit your profile above</div>'
+        )+
       '</div>';
     }).join('')+
   '</div>';
