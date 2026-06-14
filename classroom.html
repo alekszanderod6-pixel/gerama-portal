@@ -199,6 +199,60 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 /* Planner grid: single column on mobile */
 @media(max-width:640px){
   #tab-planner > div:nth-child(2){grid-template-columns:1fr !important;}
+  /* Fix planner reminder banner on mobile — prevent overflow/invisible content */
+  #plannerReminderBanner{flex-direction:column;gap:0.7rem;padding:1rem;}
+  #plannerReminderBanner > i.fas{display:none;}
+  #adminSuggestionsBanner{padding:1rem;}
+  /* Planner QOTD + Did You Know cards: full width, visible */
+  #plannerQotdCard{margin-top:1rem;padding:1.2rem;}
+  #plannerQotdText{font-size:0.92rem;}
+  /* Pomodoro display smaller on mobile */
+  #pomodoroDisplay{font-size:2.6rem;}
+  /* Goals + Timer: stack vertically (already handled by grid, but ensure padding) */
+  #tab-planner .planner-grid > div{padding:1.2rem;}
+  /* Target the goals/timer 2-col grid by its inline grid style */
+  #tab-planner div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr !important;}
+}
+/* Opportunities tab styles */
+.opp-card{background:white;border-radius:20px;padding:1.4rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;transition:transform 0.2s,box-shadow 0.2s;display:flex;flex-direction:column;gap:0.8rem;position:relative;overflow:hidden;}
+.opp-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.1);}
+.opp-badge{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.72rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;}
+.opp-badge.internship{background:#dbeafe;color:#1d4ed8;}
+.opp-badge.nss{background:#d1fae5;color:#065f46;}
+.opp-badge.scholarship{background:#fef3c7;color:#92400e;}
+.opp-badge.job{background:#fce7f3;color:#9d174d;}
+.opp-badge.other{background:#f3f4f6;color:#374151;}
+.opp-img{width:100%;height:160px;object-fit:cover;border-radius:14px;background:#f1f5f9;}
+.opp-img-placeholder{width:100%;height:120px;border-radius:14px;background:linear-gradient(135deg,#e8f5e9,#f0fdf4);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#4caf50;}
+.opp-company{font-weight:800;font-size:1rem;color:var(--text);}
+.opp-location{font-size:0.82rem;color:var(--muted);display:flex;align-items:center;gap:0.3rem;}
+.opp-description{font-size:0.87rem;color:#374151;line-height:1.6;}
+.opp-meta{display:flex;flex-wrap:wrap;gap:0.5rem;font-size:0.8rem;color:#6b7280;}
+.opp-apply-btn{background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.6rem 1.2rem;border-radius:30px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.4rem;text-decoration:none;transition:all 0.2s;align-self:flex-start;}
+.opp-apply-btn:hover{background:linear-gradient(135deg,#145214,#1B5E20);transform:translateY(-1px);}
+.opp-stat-pill{background:#f0fdf4;color:#1B5E20;border:1px solid #c8e6c9;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;display:inline-flex;align-items:center;gap:0.25rem;}
+.opp-filter-bar{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.2rem;align-items:center;}
+.opp-filter-btn{background:#f8fafc;border:2px solid #e5e7eb;color:#374151;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.opp-filter-btn.active,
+.opp-filter-btn:hover{background:#1B5E20;color:white;border-color:#1B5E20;}
+.opp-comment-box{background:#f8fafc;border-radius:12px;padding:0.8rem;border:1px solid #e5e7eb;margin-top:0.5rem;}
+.opp-comment-item{display:flex;gap:0.6rem;align-items:flex-start;padding:0.5rem 0;border-bottom:1px solid #f1f5f9;}
+.opp-comment-item:last-child{border-bottom:none;}
+.opp-comment-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;font-weight:800;font-size:0.78rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+/* Did You Know card */
+.diyk-card{background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd;border-radius:20px;padding:1.4rem;position:relative;overflow:hidden;}
+.diyk-card .icon{font-size:3rem;position:absolute;top:-10px;right:-5px;opacity:0.1;pointer-events:none;}
+@media(max-width:640px){
+  .opp-card{padding:1.1rem;}
+  .opp-img{height:130px;}
+  .opp-filter-bar{gap:0.4rem;}
+  .opp-filter-btn{font-size:0.75rem;padding:0.3rem 0.65rem;}
+  /* Opportunities submission form grid: single column */
+  #oppSubmitGrid{grid-template-columns:1fr !important;}
+  /* Opportunities cards: single column */
+  #oppGrid{grid-template-columns:1fr !important;}
+  /* Did You Know share form */
+  #diykShareBody textarea,#diykShareBody input{font-size:0.82rem;}
 }
 /* ── STUDY PLANNER ── */
 .deadline-item{display:flex;align-items:center;gap:0.8rem;background:rgba(255,255,255,0.1);border-radius:12px;padding:0.7rem 1rem;}
@@ -217,6 +271,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .goal-text{flex:1;font-size:0.88rem;color:var(--text);}
 .goal-del{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.8rem;padding:0.2rem;opacity:0;transition:opacity 0.2s;}
 .goal-item:hover .goal-del{opacity:1;}
+/* Quizzes: single column on mobile (applied globally, not inside media query) */
+@media(max-width:500px){
   #tab-quizzes .qr-grid{grid-template-columns:1fr !important;}
 }
 .reel-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;}
@@ -462,6 +518,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <button class="tab-btn" id="plannerTabBtn" onclick="showTab('planner')"><i class="fas fa-calendar-alt"></i><span class="tab-label">Planner</span><span id="plannerBadge" class="tab-badge" style="background:#f59e0b;display:none;">!</span></button>
   <button class="tab-btn" onclick="showTab('assistance')"><i class="fas fa-graduation-cap" style="color:#059669;"></i><span class="tab-label">Get Help</span></button>
   <button class="tab-btn" id="qaTabBtn" onclick="showTab('qa')"><i class="fas fa-comments"></i><span class="tab-label">Q&amp;A</span><span id="qaBadge" class="tab-badge" style="background:#dc2626;"></span></button>
+  <button class="tab-btn" id="oppTabBtn" onclick="showTab('opportunities')"><i class="fas fa-briefcase" style="color:#0ea5e9;"></i><span class="tab-label">Opportunities</span><span id="oppBadge" class="tab-badge" style="background:#0ea5e9;display:none;"></span></button>
   <!-- Reels moved to GERAMA Connect — use the Connect tab for video reels -->
 </div>
 
@@ -826,7 +883,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <div class="tab-section" id="tab-planner">
 
   <!-- Smart Planner Notifications Banner (shown at reminder hours) -->
-  <div id="plannerReminderBanner" style="display:none;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border-radius:16px;padding:1.2rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:1rem;box-shadow:0 4px 20px rgba(245,158,11,0.35);position:relative;overflow:hidden;">
+  <div id="plannerReminderBanner" style="display:none;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border-radius:16px;padding:1.2rem 1.5rem;margin-bottom:1.5rem;align-items:flex-start;gap:1rem;box-shadow:0 4px 20px rgba(245,158,11,0.35);position:relative;overflow:hidden;">
     <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(255,255,255,0.07);border-radius:50%;pointer-events:none;"></div>
     <i class="fas fa-bell" style="font-size:1.4rem;margin-top:0.1rem;flex-shrink:0;"></i>
     <div style="flex:1;position:relative;">
@@ -941,6 +998,34 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div id="plannerQotdAuthor" style="font-size:0.82rem;color:#d97706;font-weight:700;"></div>
   </div>
 
+  <!-- Did You Know -->
+  <div id="plannerDidYouKnowCard" style="background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.05);margin-top:1.2rem;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-10px;right:-5px;font-size:4rem;opacity:0.08;pointer-events:none;">💡</div>
+    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.9rem;flex-wrap:wrap;">
+      <span style="background:#0ea5e9;color:white;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">💡</span>
+      <div style="font-size:1rem;font-weight:800;color:#0c4a6e;">Did You Know?</div>
+      <button onclick="refreshDidYouKnow()" style="margin-left:auto;background:none;border:none;color:#0284c7;font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.3rem;"><i class="fas fa-lightbulb"></i> Next fact</button>
+      <button onclick="var b=document.getElementById('diykShareBody');b.style.display=b.style.display==='none'?'block':'none';" style="background:rgba(14,165,233,0.1);border:1px solid #bae6fd;color:#0284c7;font-size:0.75rem;cursor:pointer;font-family:'Inter',sans-serif;padding:0.25rem 0.6rem;border-radius:20px;font-weight:600;"><i class="fas fa-plus"></i> Add a fact</button>
+    </div>
+    <div id="diykText" style="font-size:0.95rem;font-weight:600;color:#075985;line-height:1.7;margin-bottom:0.5rem;">Loading...</div>
+    <div id="diykSource" style="font-size:0.78rem;color:#0284c7;"></div>
+    <!-- Contribute a Did You Know fact -->
+    <div id="diykShareBody" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid #bae6fd;">
+      <div style="font-size:0.82rem;font-weight:700;color:#075985;margin-bottom:0.6rem;">Share a fun engineering fact 🔬</div>
+      <textarea id="diykInput" rows="2" placeholder="e.g. Did you know that concrete gains strength over time? A 50-year-old concrete structure is often stronger than when it was first built." maxlength="400"
+        style="width:100%;padding:0.6rem 0.8rem;border:2px solid #bae6fd;border-radius:10px;font-size:0.87rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;box-sizing:border-box;"
+        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#bae6fd'"></textarea>
+      <input type="text" id="diykSourceInput" placeholder="Source (optional — e.g. Engineering Today, NASA)" maxlength="100"
+        style="width:100%;margin-top:0.5rem;padding:0.55rem 0.8rem;border:2px solid #bae6fd;border-radius:10px;font-size:0.85rem;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box;"
+        onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#bae6fd'">
+      <div style="display:flex;gap:0.6rem;margin-top:0.7rem;align-items:center;flex-wrap:wrap;">
+        <button onclick="submitDidYouKnow()" style="background:#0ea5e9;color:white;border:none;padding:0.55rem 1.2rem;border-radius:30px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-paper-plane"></i> Submit Fact</button>
+        <span style="font-size:0.75rem;color:#6b7280;">Admins review before publishing.</span>
+      </div>
+      <div id="diykStatus" style="font-size:0.82rem;margin-top:0.5rem;display:none;padding:0.5rem 0.8rem;border-radius:8px;"></div>
+    </div>
+  </div>
+
   <!-- Quick Notes -->
   <div style="background:white;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;margin-top:1.2rem;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;">
@@ -954,6 +1039,107 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
       <span id="notesSaved" style="font-size:0.75rem;color:#9ca3af;"></span>
       <button onclick="clearNotes()" style="background:none;border:none;color:#9ca3af;font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;">Clear notes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OPPORTUNITIES TAB ═══ -->
+<div class="tab-section" id="tab-opportunities">
+  <!-- Hero Banner -->
+  <div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20,#0ea5e9);border-radius:20px;padding:1.8rem;color:white;margin-bottom:1.5rem;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-30px;right:-30px;width:160px;height:160px;background:rgba(255,255,255,0.05);border-radius:50%;pointer-events:none;"></div>
+    <div style="position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;background:rgba(255,193,7,0.07);border-radius:50%;pointer-events:none;"></div>
+    <div style="position:relative;z-index:1;">
+      <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.6rem;flex-wrap:wrap;">
+        <span style="background:rgba(14,165,233,0.25);border:1px solid rgba(14,165,233,0.5);color:#7dd3fc;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">🌍 Opportunities Hub</span>
+      </div>
+      <div style="font-size:1.3rem;font-weight:900;margin-bottom:0.5rem;">Internships · NSS · Scholarships &amp; More</div>
+      <div style="font-size:0.88rem;opacity:0.85;line-height:1.6;max-width:500px;">Engineering opportunities curated for GERAMA members. Apply, track your progress, and connect with others who've been through the process. <a href="contact.html" style="color:#FFC107;font-weight:700;text-decoration:underline;">Contact admins</a> for assistance.</div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="opp-filter-bar" id="oppFilterBar">
+    <button class="opp-filter-btn active" data-filter="all" onclick="filterOpportunities('all',this)">All</button>
+    <button class="opp-filter-btn" data-filter="internship" onclick="filterOpportunities('internship',this)">🏢 Internship</button>
+    <button class="opp-filter-btn" data-filter="nss" onclick="filterOpportunities('nss',this)">📋 NSS</button>
+    <button class="opp-filter-btn" data-filter="scholarship" onclick="filterOpportunities('scholarship',this)">🎓 Scholarship</button>
+    <button class="opp-filter-btn" data-filter="job" onclick="filterOpportunities('job',this)">💼 Job</button>
+    <button class="opp-filter-btn" data-filter="other" onclick="filterOpportunities('other',this)">✨ Other</button>
+    <button onclick="loadOpportunities()" style="margin-left:auto;background:none;border:none;color:#6b7280;cursor:pointer;font-size:0.8rem;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.3rem;padding:0.35rem 0.6rem;border-radius:20px;border:1px solid #e5e7eb;"><i class="fas fa-sync-alt"></i> Refresh</button>
+  </div>
+
+  <!-- User Submission Form (collapsible) -->
+  <div style="background:linear-gradient(135deg,#f0fdf4,#fffbeb);border:1px solid #c8e6c9;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;" onclick="var b=document.getElementById('oppSubmitBody');var ch=document.getElementById('oppSubmitChevron');b.style.display=b.style.display==='none'?'block':'none';ch.className='fas fa-chevron-'+(b.style.display==='none'?'down':'up');">
+      <i class="fas fa-plus-circle" style="color:#1B5E20;font-size:1rem;"></i>
+      <div style="flex:1;">
+        <div style="font-weight:800;font-size:0.92rem;color:#1B5E20;">Know an Opportunity? Share it!</div>
+        <div style="font-size:0.78rem;color:#4caf50;">Help a fellow engineer — post an internship, NSS opening, or scholarship</div>
+      </div>
+      <i id="oppSubmitChevron" class="fas fa-chevron-down" style="color:#4caf50;"></i>
+    </div>
+    <div id="oppSubmitBody" style="display:none;margin-top:1.2rem;padding-top:1rem;border-top:1px solid #c8e6c9;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;" id="oppSubmitGrid">
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Company / Organisation *</label>
+          <input type="text" id="oppCompany" placeholder="e.g. Ghana National Petroleum Corp." maxlength="100" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Location *</label>
+          <input type="text" id="oppLocation" placeholder="e.g. Accra, Ghana" maxlength="100" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Type *</label>
+          <select id="oppType" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+            <option value="">Select type...</option>
+            <option value="internship">Internship</option>
+            <option value="nss">NSS (National Service)</option>
+            <option value="scholarship">Scholarship</option>
+            <option value="job">Job / Employment</option>
+            <option value="other">Other Opportunity</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Application Link (optional)</label>
+          <input type="url" id="oppLink" placeholder="https://..." style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Mode of Application</label>
+          <input type="text" id="oppMode" placeholder="e.g. Submit letter in person / Online form" maxlength="150" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Deadline (optional)</label>
+          <input type="date" id="oppDeadline" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        </div>
+        <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Description / Eligibility</label>
+          <textarea id="oppDesc" rows="3" placeholder="Describe the opportunity, who can apply, requirements, what to bring, etc." maxlength="800" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+        </div>
+        <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Image (optional — company logo or flyer)</label>
+          <div id="oppImgZone" style="border:2px dashed #c8e6c9;border-radius:10px;padding:1rem;text-align:center;cursor:pointer;background:#f9fdf9;transition:all 0.3s;" onclick="document.getElementById('oppImgFile').click()">
+            <i class="fas fa-image" style="color:#4caf50;font-size:1.4rem;display:block;margin-bottom:0.3rem;"></i>
+            <div style="font-size:0.82rem;color:#6b7280;">Click to upload image (JPG/PNG, max 5MB)</div>
+            <div id="oppImgChosen" style="font-size:0.8rem;color:#1B5E20;font-weight:600;margin-top:0.3rem;"></div>
+          </div>
+          <input type="file" id="oppImgFile" accept="image/*" style="display:none;" onchange="previewOppImg(this)">
+          <img id="oppImgPreview" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:8px;margin-top:0.4rem;border:2px solid #c8e6c9;" alt="">
+        </div>
+      </div>
+      <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;align-items:center;">
+        <button onclick="submitOpportunity()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.7rem 1.5rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-paper-plane"></i> Submit Opportunity</button>
+        <span style="font-size:0.78rem;color:#9ca3af;flex:1;">Admins will review and approve your submission.</span>
+      </div>
+      <div id="oppSubmitStatus" style="font-size:0.85rem;margin-top:0.7rem;display:none;padding:0.6rem 0.9rem;border-radius:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Opportunities Grid -->
+  <div id="oppGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem;">
+    <div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:#9ca3af;">
+      <i class="fas fa-briefcase" style="font-size:2.5rem;display:block;margin-bottom:0.8rem;opacity:0.3;"></i>
+      <div style="font-size:1rem;font-weight:600;margin-bottom:0.3rem;">Loading opportunities...</div>
     </div>
   </div>
 </div>
@@ -1023,6 +1209,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 </footer>
 
 <script src="js/main.js"></script>
+<script src="js/gerama-features.js"></script>
 <script>
 // XSS Prevention Helpers (already in main.js, but re-export here for local scope)
 window.escHtml = window.escHtml || function(s) {
@@ -1088,6 +1275,7 @@ function showTab(name) {
     hideQaBadge();
   }
   if(name === 'reels') loadReels();
+  if(name === 'opportunities') loadOpportunities();
 }
 
 // ── Q&A NOTIFICATION BADGE ────────────────────────────────────────
@@ -1211,18 +1399,23 @@ function renderClasses(classes) {
   var now = Date.now();
   var userEmail = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email) || '';
 
-  // Sort: live first, then upcoming soonest first, then ended
+  // Sort: live first → upcoming soonest → ended most-recently last
   classes.sort(function(a,b){
-    var aL=a.status==='live',bL=b.status==='live',aE=a.status==='ended',bE=b.status==='ended';
+    var aL=a.status==='live', bL=b.status==='live';
+    // A class is "ended" if status==='ended' OR its scheduled_at is more than 1 hour in the past
+    var aE=a.status==='ended'||(new Date(a.scheduled_at).getTime()<Date.now()-3600000&&a.status!=='live');
+    var bE=b.status==='ended'||(new Date(b.scheduled_at).getTime()<Date.now()-3600000&&b.status!=='live');
     if(aL&&!bL) return -1; if(!aL&&bL) return 1;
-    if(aE&&!bE) return 1; if(!aE&&bE) return -1;
+    if(aE&&!bE) return 1;  if(!aE&&bE) return -1;
+    // Both upcoming: soonest first. Both ended: most recent end first (descending)
+    if(aE&&bE) return new Date(b.scheduled_at)-new Date(a.scheduled_at);
     return new Date(a.scheduled_at)-new Date(b.scheduled_at);
   });
 
   el.innerHTML = classes.map(function(c){
     var dt = new Date(c.scheduled_at);
     var isLive = c.status === 'live';
-    var isEnded = c.status === 'ended';
+    var isEnded = c.status === 'ended' || (dt.getTime() < Date.now()-3600000 && c.status !== 'live');
     var isUpcoming = !isLive && !isEnded;
     var isInPerson = c.class_type === 'inperson';
     var badgeClass = isLive ? 'live' : (isEnded ? 'ended' : 'upcoming');
@@ -3239,6 +3432,9 @@ async function loadPlanner() {
 
   // ── Load Quote of the Day ──
   loadPlannerQotd();
+
+  // ── Load Did You Know ──
+  loadDidYouKnow();
 }
 
 // ── PLANNER REMINDER (8–12pm evening / 5–8am morning) ───────────
@@ -3382,7 +3578,426 @@ window.refreshQotd = function() {
   renderQotd();
 };
 
-// ── GOALS ──────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// DID YOU KNOW
+// ══════════════════════════════════════════════════════════════
+var _diykData = [];
+var _diykIndex = 0;
+
+async function loadDidYouKnow() {
+  var textEl = document.getElementById('diykText');
+  var srcEl  = document.getElementById('diykSource');
+  if(!textEl) return;
+  var sb = window.geramaSupabase;
+  if(!sb) { textEl.textContent = 'Did you know that steel is the most recycled material on Earth? Over 80 million tons are recycled annually.'; return; }
+  try {
+    var {data} = await sb.from('did_you_know').select('*').eq('status','approved').order('created_at',{ascending:false}).limit(20);
+    if(!data || !data.length) {
+      textEl.textContent = 'Did you know that the Eiffel Tower can grow up to 15 cm taller during summer due to thermal expansion of iron?';
+      if(srcEl) srcEl.textContent = '';
+      return;
+    }
+    _diykData = data;
+    _diykIndex = Math.floor(Math.random() * data.length);
+    renderDidYouKnow();
+  } catch(e) {
+    textEl.textContent = 'Did you know that one lightning bolt contains enough energy to power a 100-watt light bulb for 3 months?';
+    if(srcEl) srcEl.textContent = '';
+  }
+}
+
+function renderDidYouKnow() {
+  var textEl = document.getElementById('diykText');
+  var srcEl  = document.getElementById('diykSource');
+  if(!textEl || !_diykData.length) return;
+  var item = _diykData[_diykIndex];
+  textEl.textContent = item.fact_text || '';
+  if(srcEl) srcEl.textContent = item.source ? '— ' + item.source : '';
+}
+
+window.refreshDidYouKnow = function() {
+  if(!_diykData.length) { loadDidYouKnow(); return; }
+  _diykIndex = (_diykIndex + 1) % _diykData.length;
+  renderDidYouKnow();
+};
+
+window.submitDidYouKnow = async function() {
+  var text = (document.getElementById('diykInput').value || '').trim();
+  var src  = (document.getElementById('diykSourceInput').value || '').trim();
+  var statusEl = document.getElementById('diykStatus');
+  if(!text) { showDiykStatus('Please write a fact first.', 'err'); return; }
+  var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+  var sb = window.geramaSupabase;
+  if(!sb) { showDiykStatus('Not connected. Try again.', 'err'); return; }
+  try {
+    await sb.from('did_you_know').insert({
+      fact_text: text,
+      source: src || null,
+      submitted_by: profile.name || 'Anonymous',
+      submitted_by_email: profile.email || '',
+      status: 'pending',
+      created_at: new Date().toISOString()
+    });
+    document.getElementById('diykInput').value = '';
+    document.getElementById('diykSourceInput').value = '';
+    showDiykStatus('✅ Thank you! Your fact has been submitted for review.', 'ok');
+    setTimeout(function(){ document.getElementById('diykShareBody').style.display='none'; }, 2500);
+  } catch(e) {
+    showDiykStatus('Failed: ' + e.message, 'err');
+  }
+};
+
+function showDiykStatus(msg, type) {
+  var el = document.getElementById('diykStatus');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = type === 'ok' ? '#d1fae5' : '#fee2e2';
+  el.style.color = type === 'ok' ? '#065f46' : '#991b1b';
+}
+
+// ══════════════════════════════════════════════════════════════
+// OPPORTUNITIES
+// ══════════════════════════════════════════════════════════════
+var _allOpportunities = [];
+var _oppFilter = 'all';
+
+async function loadOpportunities() {
+  var grid = document.getElementById('oppGrid');
+  if(!grid) return;
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2.5rem;color:#9ca3af;"><i class="fas fa-spinner fa-spin" style="font-size:2rem;display:block;margin-bottom:0.7rem;"></i>Loading opportunities...</div>';
+
+  var sb = window.geramaSupabase;
+  if(!sb) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-wifi" style="font-size:2rem;display:block;margin-bottom:0.7rem;opacity:0.4;"></i>Connecting...</div>';
+    setTimeout(loadOpportunities, 800);
+    return;
+  }
+
+  try {
+    var {data, error} = await sb.from('opportunities').select('*').eq('status','approved').order('created_at',{ascending:false});
+    if(error) throw new Error(error.message);
+    _allOpportunities = data || [];
+    renderOpportunities();
+
+    // Update badge count
+    var oppBadge = document.getElementById('oppBadge');
+    if(oppBadge && _allOpportunities.length > 0) {
+      var seen = JSON.parse(localStorage.getItem('gerama_opp_seen') || '0');
+      var newCount = _allOpportunities.filter(function(o){ return new Date(o.created_at) > new Date(seen); }).length;
+      if(newCount > 0) {
+        oppBadge.textContent = newCount > 9 ? '9+' : newCount;
+        oppBadge.style.display = 'flex';
+      }
+    }
+  } catch(e) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:0.7rem;"></i>Could not load opportunities. <button onclick="loadOpportunities()" style="background:none;border:none;color:#1B5E20;cursor:pointer;font-weight:700;font-size:0.9rem;font-family:\'Inter\',sans-serif;text-decoration:underline;">Retry</button></div>';
+  }
+}
+
+function renderOpportunities() {
+  var grid = document.getElementById('oppGrid');
+  if(!grid) return;
+  var list = _oppFilter === 'all' ? _allOpportunities : _allOpportunities.filter(function(o){ return o.type === _oppFilter; });
+
+  if(!list.length) {
+    var msg = _oppFilter === 'all' ? 'No opportunities posted yet. Be the first to share one!' : 'No ' + _oppFilter + ' opportunities yet.';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:#9ca3af;"><i class="fas fa-briefcase" style="font-size:2.5rem;display:block;margin-bottom:0.8rem;opacity:0.3;"></i><div style="font-weight:600;">' + msg + '</div></div>';
+    return;
+  }
+
+  var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+
+  grid.innerHTML = list.map(function(opp) {
+    var badge = '<span class="opp-badge ' + (opp.type||'other') + '">' + getOppTypeLabel(opp.type) + '</span>';
+    var img = opp.image_url
+      ? '<img src="' + escHtml(opp.image_url) + '" class="opp-img" alt="' + escHtml(opp.company) + '" loading="lazy" onerror="this.style.display=\'none\'">'
+      : '<div class="opp-img-placeholder">' + getOppEmoji(opp.type) + '</div>';
+    var deadline = opp.deadline ? '<span><i class="fas fa-calendar-alt" style="color:#dc2626;"></i> Deadline: ' + new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + '</span>' : '';
+    var mode = opp.mode_of_application ? '<span><i class="fas fa-file-alt" style="color:#6366f1;"></i> ' + escHtml(opp.mode_of_application) + '</span>' : '';
+    var loc  = opp.location ? '<span class="opp-location"><i class="fas fa-map-marker-alt" style="color:#dc2626;"></i> ' + escHtml(opp.location) + '</span>' : '';
+    var viewCount = opp.view_count || 0;
+    var applyCount = opp.apply_count || 0;
+    var applyBtn = opp.apply_link
+      ? '<a href="' + escHtml(opp.apply_link) + '" target="_blank" rel="noopener" class="opp-apply-btn" onclick="trackOppApply(\'' + opp.id + '\')"><i class="fas fa-external-link-alt"></i> Apply Now</a>'
+      : '<span style="font-size:0.82rem;color:#6b7280;font-style:italic;">Contact admins to apply →</span>';
+
+    return '<div class="opp-card" id="opp-' + opp.id + '" onclick="trackOppView(\'' + opp.id + '\')">' +
+      badge +
+      img +
+      '<div class="opp-company">' + escHtml(opp.company) + '</div>' +
+      loc +
+      (opp.description ? '<div class="opp-description">' + escHtml(opp.description).substring(0,200) + (opp.description.length > 200 ? '...' : '') + '</div>' : '') +
+      '<div class="opp-meta">' + deadline + mode + '</div>' +
+      '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-top:auto;">' +
+        '<span class="opp-stat-pill"><i class="fas fa-eye"></i> ' + viewCount + ' views</span>' +
+        '<span class="opp-stat-pill"><i class="fas fa-user-check"></i> ' + applyCount + ' applied</span>' +
+      '</div>' +
+      applyBtn +
+      '<button onclick="event.stopPropagation();toggleOppComments(\'' + opp.id + '\')" style="background:none;border:1px solid #e5e7eb;color:#6b7280;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;align-self:flex-start;"><i class="fas fa-comment"></i> Comments <span id="opp-cmt-count-' + opp.id + '"></span></button>' +
+      '<div id="opp-comments-' + opp.id + '" style="display:none;"></div>' +
+    '</div>';
+  }).join('');
+}
+
+function getOppTypeLabel(type) {
+  var map = {internship:'🏢 Internship', nss:'📋 NSS', scholarship:'🎓 Scholarship', job:'💼 Job', other:'✨ Other'};
+  return map[type] || '✨ Other';
+}
+function getOppEmoji(type) {
+  var map = {internship:'🏢', nss:'📋', scholarship:'🎓', job:'💼', other:'✨'};
+  return map[type] || '✨';
+}
+
+function filterOpportunities(type, btn) {
+  _oppFilter = type;
+  document.querySelectorAll('.opp-filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  renderOpportunities();
+  // Mark as seen
+  localStorage.setItem('gerama_opp_seen', new Date().toISOString());
+  var badge = document.getElementById('oppBadge');
+  if(badge) { badge.style.display = 'none'; badge.textContent = ''; }
+}
+
+async function trackOppView(oppId) {
+  var sb = window.geramaSupabase; if(!sb) return;
+  var key = 'gerama_opp_viewed_' + oppId;
+  if(localStorage.getItem(key)) return;
+  localStorage.setItem(key, '1');
+  try {
+    await sb.rpc('increment_opp_views', {opp_id: oppId});
+    // Update local count
+    var card = document.getElementById('opp-' + oppId);
+    if(card) {
+      var pills = card.querySelectorAll('.opp-stat-pill');
+      if(pills[0]) {
+        var cur = parseInt(pills[0].textContent.replace(/\D/g,'')) || 0;
+        pills[0].innerHTML = '<i class="fas fa-eye"></i> ' + (cur+1) + ' views';
+      }
+    }
+  } catch(e) {}
+}
+
+async function trackOppApply(oppId) {
+  var sb = window.geramaSupabase; if(!sb) return;
+  var key = 'gerama_opp_applied_' + oppId;
+  if(localStorage.getItem(key)) return;
+  localStorage.setItem(key, '1');
+  try {
+    var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+    await sb.from('opportunity_applications').upsert({
+      opportunity_id: oppId,
+      user_email: profile.email || '',
+      user_name: profile.name || 'Anonymous',
+      status: 'applied',
+      applied_at: new Date().toISOString()
+    }, {onConflict: 'opportunity_id,user_email', ignoreDuplicates: true});
+  } catch(e) {}
+}
+
+async function toggleOppComments(oppId) {
+  var box = document.getElementById('opp-comments-' + oppId);
+  if(!box) return;
+  if(box.style.display !== 'none') { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  loadOppComments(oppId);
+}
+
+async function loadOppComments(oppId) {
+  var box = document.getElementById('opp-comments-' + oppId);
+  if(!box) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  box.innerHTML = '<div style="text-align:center;padding:1rem;color:#9ca3af;font-size:0.82rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+  try {
+    var {data} = await sb.from('opportunity_comments').select('*').eq('opportunity_id', oppId).order('created_at',{ascending:true}).limit(50);
+    var list = data || [];
+    var countEl = document.getElementById('opp-cmt-count-' + oppId);
+    if(countEl) countEl.textContent = list.length ? ' (' + list.length + ')' : '';
+
+    var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+    var appliedKey = 'gerama_opp_applied_' + oppId;
+    var alreadyApplied = !!localStorage.getItem(appliedKey);
+
+    var html = '<div class="opp-comment-box">';
+    if(list.length) {
+      html += list.map(function(c) {
+        var statusTag = c.action_type ? '<span style="background:' + (c.action_type==='applied'?'#d1fae5':c.action_type==='interested'?'#dbeafe':'#f3f4f6') + ';color:' + (c.action_type==='applied'?'#065f46':c.action_type==='interested'?'#1e40af':'#374151') + ';font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;margin-left:0.4rem;">' + (c.action_type==='applied'?'✅ Applied':c.action_type==='interested'?'👀 Interested':'💬 Comment') + '</span>' : '';
+        return '<div class="opp-comment-item">' +
+          '<div class="opp-comment-avatar">' + escHtml((c.author_name||'A').charAt(0).toUpperCase()) + '</div>' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem;">' +
+              '<strong style="font-size:0.82rem;color:#1e2a3e;">' + escHtml(c.author_name||'Anonymous') + '</strong>' +
+              statusTag +
+              '<span style="font-size:0.72rem;color:#9ca3af;">' + formatTimeAgo(c.created_at) + '</span>' +
+            '</div>' +
+            '<div style="font-size:0.85rem;color:#374151;margin-top:0.2rem;line-height:1.5;">' + escHtml(c.comment||'') + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      html += '<div style="text-align:center;padding:1rem;color:#9ca3af;font-size:0.82rem;">No comments yet. Share your experience!</div>';
+    }
+
+    // Quick action buttons
+    html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.8rem;">';
+    if(!alreadyApplied) {
+      html += '<button onclick="postOppAction(\'' + oppId + '\',\'applied\')" style="background:#d1fae5;color:#065f46;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;">✅ I\'ve Applied</button>';
+    }
+    html += '<button onclick="postOppAction(\'' + oppId + '\',\'interested\')" style="background:#dbeafe;color:#1e40af;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;">👀 Interested</button>';
+    html += '</div>';
+
+    // Comment input
+    html += '<div style="margin-top:0.8rem;display:flex;gap:0.5rem;align-items:flex-start;">' +
+      '<textarea id="opp-cmt-input-' + oppId + '" placeholder="Leave a comment, experience, or tip..." rows="2" ' +
+        'style="flex:1;padding:0.55rem 0.7rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.85rem;font-family:\'Inter\',sans-serif;outline:none;resize:none;" ' +
+        'onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'" ' +
+        'onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();postOppComment(\'' + oppId + '\')}"></textarea>' +
+      '<button onclick="postOppComment(\'' + oppId + '\')" style="background:#1B5E20;color:white;border:none;padding:0.55rem 0.9rem;border-radius:10px;font-size:0.85rem;cursor:pointer;font-family:\'Inter\',sans-serif;flex-shrink:0;"><i class="fas fa-paper-plane"></i></button>' +
+    '</div></div>';
+
+    box.innerHTML = html;
+  } catch(e) {
+    box.innerHTML = '<div style="text-align:center;padding:1rem;color:#9ca3af;font-size:0.82rem;">Could not load comments.</div>';
+  }
+}
+
+async function postOppComment(oppId) {
+  var inp = document.getElementById('opp-cmt-input-' + oppId);
+  var text = inp ? inp.value.trim() : '';
+  if(!text) return;
+  var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+  var sb = window.geramaSupabase; if(!sb) return;
+  inp.value = '';
+  try {
+    await sb.from('opportunity_comments').insert({
+      opportunity_id: oppId,
+      author_name: profile.name || 'Anonymous',
+      author_email: profile.email || '',
+      comment: text,
+      action_type: 'comment',
+      created_at: new Date().toISOString()
+    });
+    loadOppComments(oppId);
+  } catch(e) { alert('Failed to post comment.'); }
+}
+
+async function postOppAction(oppId, actionType) {
+  var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+  var sb = window.geramaSupabase; if(!sb) return;
+  var msg = actionType === 'applied' ? 'I have applied for this opportunity!' : 'I am interested in this opportunity.';
+  try {
+    await sb.from('opportunity_comments').insert({
+      opportunity_id: oppId,
+      author_name: profile.name || 'Anonymous',
+      author_email: profile.email || '',
+      comment: msg,
+      action_type: actionType,
+      created_at: new Date().toISOString()
+    });
+    if(actionType === 'applied') {
+      localStorage.setItem('gerama_opp_applied_' + oppId, '1');
+      trackOppApply(oppId);
+    }
+    loadOppComments(oppId);
+  } catch(e) {}
+}
+
+window.submitOpportunity = async function() {
+  var company  = (document.getElementById('oppCompany').value || '').trim();
+  var location = (document.getElementById('oppLocation').value || '').trim();
+  var type     = document.getElementById('oppType').value;
+  var link     = (document.getElementById('oppLink').value || '').trim();
+  var mode     = (document.getElementById('oppMode').value || '').trim();
+  var deadline = document.getElementById('oppDeadline').value || null;
+  var desc     = (document.getElementById('oppDesc').value || '').trim();
+  var imgFile  = document.getElementById('oppImgFile').files[0] || null;
+  var statusEl = document.getElementById('oppSubmitStatus');
+
+  if(!company || !location || !type) {
+    showOppSubmitStatus('Please fill in Company, Location and Type.', 'err'); return;
+  }
+  var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+  var sb = window.geramaSupabase;
+  if(!sb) { showOppSubmitStatus('Not connected. Please refresh.', 'err'); return; }
+
+  showOppSubmitStatus('Submitting...', 'info');
+
+  var imageUrl = null;
+  if(imgFile) {
+    var ext = imgFile.name.split('.').pop();
+    var path = 'opportunities/' + Date.now() + '-' + company.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.' + ext;
+    var up = await sb.storage.from('gerama-materials').upload(path, imgFile, {upsert:true});
+    if(!up.error) imageUrl = sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
+  }
+
+  try {
+    await sb.from('opportunities').insert({
+      company, location, type,
+      apply_link: link || null,
+      mode_of_application: mode || null,
+      deadline: deadline || null,
+      description: desc || null,
+      image_url: imageUrl,
+      submitted_by: profile.name || 'Anonymous',
+      submitted_by_email: profile.email || '',
+      status: 'pending',
+      view_count: 0,
+      apply_count: 0,
+      created_at: new Date().toISOString()
+    });
+    showOppSubmitStatus('✅ Submitted! Admins will review shortly.', 'ok');
+    // Clear form
+    ['oppCompany','oppLocation','oppLink','oppMode','oppDesc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('oppType').value = '';
+    document.getElementById('oppDeadline').value = '';
+    document.getElementById('oppImgFile').value = '';
+    document.getElementById('oppImgChosen').textContent = '';
+    document.getElementById('oppImgPreview').style.display = 'none';
+    setTimeout(function(){ document.getElementById('oppSubmitBody').style.display='none'; }, 3000);
+  } catch(e) {
+    showOppSubmitStatus('Error: ' + e.message, 'err');
+  }
+};
+
+function showOppSubmitStatus(msg, type) {
+  var el = document.getElementById('oppSubmitStatus');
+  if(!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = type==='ok'?'#d1fae5':type==='err'?'#fee2e2':'#dbeafe';
+  el.style.color = type==='ok'?'#065f46':type==='err'?'#991b1b':'#1e40af';
+}
+
+window.previewOppImg = function(input) {
+  var f = input.files[0]; if(!f) return;
+  if(f.size > 5*1024*1024) { alert('Image too large. Max 5MB.'); return; }
+  document.getElementById('oppImgChosen').textContent = '✅ ' + f.name;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var prev = document.getElementById('oppImgPreview');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(f);
+  var zone = document.getElementById('oppImgZone');
+  if(zone){ zone.style.borderColor='#1B5E20'; zone.style.background='#f0fdf4'; }
+};
+
+// Mobile fix: make oppSubmitGrid single column
+(function() {
+  function fixOppGrid() {
+    var grid = document.getElementById('oppSubmitGrid');
+    if(!grid) return;
+    if(window.innerWidth <= 640) {
+      grid.style.gridTemplateColumns = '1fr';
+    } else {
+      grid.style.gridTemplateColumns = '1fr 1fr';
+    }
+  }
+  window.addEventListener('resize', fixOppGrid);
+  document.addEventListener('DOMContentLoaded', fixOppGrid);
+})();
 function renderGoals(){
   var goals = JSON.parse(localStorage.getItem('gerama_goals')||'[]');
   var el = document.getElementById('goalsList');
@@ -3637,9 +4252,9 @@ async function loadMyGrades() {
 
     function renderGradeCard(g){
       var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      var participatedDt = g.participated_at ? new Date(g.participated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : null;
       var scoreNum = parseFloat(g.score)||0;
-      var maxPts   = g._points ? parseFloat(g._points) : null;
-      var pct      = maxPts ? Math.round((scoreNum/maxPts)*100) : null;
+      var maxPts   = g._points ? parseFloat(g._points) : null;      var pct      = maxPts ? Math.round((scoreNum/maxPts)*100) : null;
       var scoreColor = (pct!==null) ? (pct>=70?'#059669':pct>=50?'#d97706':'#dc2626') : (scoreNum>=70?'#059669':scoreNum>=50?'#d97706':'#dc2626');
       var scoreBg    = (pct!==null) ? (pct>=70?'#d1fae5':pct>=50?'#fef3c7':'#fee2e2') : (scoreNum>=70?'#d1fae5':scoreNum>=50?'#fef3c7':'#fee2e2');
       var isQuiz = g._type === 'quiz';
@@ -3655,8 +4270,7 @@ async function loadMyGrades() {
         '<div style="flex:1;min-width:0;">' +
           '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.35rem;">'+typeBadge+courseTag+'</div>' +
           '<div style="font-weight:700;color:#1e2a3e;font-size:0.95rem;margin-bottom:0.15rem;">'+escHtml(g.assignment_title||'—')+'</div>' +
-          '<div style="font-size:0.75rem;color:#9ca3af;"><i class="fas fa-check-circle" style="color:#059669;margin-right:0.3rem;"></i>Graded '+dt+'</div>' +
-          progressBar +
+      '<div style="font-size:0.75rem;color:#9ca3af;"><i class="fas fa-check-circle" style="color:#059669;margin-right:0.3rem;"></i>Graded ' + dt + (participatedDt ? ' · Participated '+participatedDt : '') + '</div>' +          progressBar +
         '</div>' +
         '<div style="background:'+scoreBg+';color:'+scoreColor+';font-size:1.5rem;font-weight:900;padding:0.5rem 1.1rem;border-radius:12px;white-space:nowrap;text-align:center;flex-shrink:0;min-width:80px;">' +
           g.score + (maxPts ? '<div style="font-size:0.62rem;font-weight:600;opacity:0.7;">/ '+maxPts+'</div>' : '<div style="font-size:0.62rem;font-weight:600;opacity:0.7;">pts</div>') +

@@ -81,6 +81,8 @@
     if(name === 'potw' && window.loadPotwList) setTimeout(window.loadPotwList, 150);
     if(name === 'reels' && window.loadAdminReels) setTimeout(window.loadAdminReels, 150);
     if(name === 'connect') setTimeout(function(){ if(window.loadConnectStats) window.loadConnectStats(); }, 150);
+    if(name === 'opportunities') setTimeout(function(){ if(window.loadAdminOpportunities) window.loadAdminOpportunities(); }, 150);
+    if(name === 'diyk') setTimeout(function(){ if(window.loadDiykAdmin) window.loadDiykAdmin(); }, 150);
   };
 
   window.showStatus = function(id, msg, type){
@@ -737,7 +739,23 @@
     if(reqBadge){ var rc=clsReqRes.count||0; reqBadge.textContent=rc; reqBadge.style.display=rc>0?'inline':'none'; }
     var qrBadge = document.getElementById('quizReqBadge');
     if(qrBadge){ var qc=qrRes.count||0; qrBadge.textContent=qc; qrBadge.style.display=qc>0?'inline':'none'; }
+
+    // Opportunities pending badge
+    try {
+      var oppPendRes = await safe(function(){ return sb.from('opportunities').select('id',{count:'exact',head:true}).eq('status','pending'); });
+      var oppPendCount = oppPendRes.count || 0;
+      var oppBadge = document.getElementById('oppPendingBadge');
+      if(oppBadge){ oppBadge.textContent = oppPendCount; oppBadge.style.display = oppPendCount > 0 ? 'inline' : 'none'; }
+    } catch(e) {}
+
+    // Did You Know pending badge
+    try {
+      var diykPendRes = await safe(function(){ return sb.from('did_you_know').select('id',{count:'exact',head:true}).eq('status','pending'); });
+    } catch(e) {}
   }
+
+  // Expose so admin-gate.js _applySession can call it after login
+  window.loadOverviewStats = loadOverviewStats;
 
   // --- App boot ---
   document.addEventListener('DOMContentLoaded', function(){
@@ -1583,28 +1601,38 @@ window.gradeSubmission = async function(btn){
 
   if(error){ if(statusEl){statusEl.textContent='❌ '+error.message;statusEl.style.color='#dc2626';} return; }
 
-  // Also save to student_grades table for portal display
-  try{
-    // Fetch course for this submission so the student dashboard can group by course
-    var courseVal = 'General';
-    var asgRes = await sb.from('assignments').select('course').eq('title', title).maybeSingle();
-    if(asgRes && asgRes.data && asgRes.data.course) courseVal = asgRes.data.course;
+    // Upsert (atomic) to student_grades table for portal display
+    try{
+      // Fetch course AND points for this submission
+      var courseVal = 'General';
+      var pointsVal = null;
+      var studentNameVal = null;
 
-    // Delete existing grade for this submission (avoids conflict issues), then insert fresh
-    await sb.from('student_grades')
-      .delete()
-      .eq('student_email', email)
-      .eq('assignment_title', title);
+      // Get assignment details (course + points)
+      var asgRes = await sb.from('assignments').select('course,points').eq('title', title).maybeSingle();
+      if(asgRes && asgRes.data){
+        if(asgRes.data.course) courseVal = asgRes.data.course;
+        if(asgRes.data.points) pointsVal = asgRes.data.points;
+      }
 
-    await sb.from('student_grades').insert({
-      student_email: email,
-      assignment_title: title,
-      course: courseVal,
-      score: score,
-      submission_id: subId,
-      graded_at: new Date().toISOString()
-    });
-  }catch(e){ console.warn('student_grades insert error:', e.message); }
+      // Get student name from the submission
+      var subRes = await sb.from('assignment_submissions').select('student_name,submitted_at').eq('id',subId).maybeSingle();
+      if(subRes && subRes.data && subRes.data.student_name) studentNameVal = subRes.data.student_name;
+
+      // Upsert grade atomically — no more delete+insert race
+      await sb.from('student_grades').upsert({
+        student_email:    email,
+        student_name:     studentNameVal || null,
+        assignment_title: title,
+        course:           courseVal,
+        score:            score,
+        total_marks:      pointsVal || null,
+        points:           pointsVal || null,
+        submission_id:    subId,
+        graded_at:        new Date().toISOString(),
+        participated_at:  (subRes && subRes.data && subRes.data.submitted_at) || new Date().toISOString()
+      }, {onConflict: 'student_email,assignment_title'});
+    }catch(e){ console.warn('student_grades upsert error:', e.message); }
 
   window.logActivity('Graded: '+title+' for '+email+' → '+score);
   if(statusEl){statusEl.textContent='✅ Graded!';statusEl.style.color='#059669';}
@@ -2231,12 +2259,20 @@ window.loadAttRecords = async function(){
           '<strong style="font-size:0.95rem;">'+window.escHtml(title)+'</strong>'+
           '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.78rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">'+records.length+' student'+(records.length!==1?'s':'')+' present</span>'+
         '</div>'+
-        '<button class="btn-danger" style="font-size:0.75rem;padding:0.3rem 0.8rem;" '+
-          'data-session-id="'+(sessionId||'')+'" data-session-title="'+window.escAttr(title)+'" '+
-          'onclick="deleteEntireSession(this.getAttribute(\'data-session-id\'),this.getAttribute(\'data-session-title\'))" '+
-          'title="Delete entire session and all its records (requires admin code)">'+
-          '<i class="fas fa-trash-alt"></i> Delete Session'+
-        '</button>'+
+        '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">'+
+          '<button class="btn-primary" style="font-size:0.75rem;padding:0.3rem 0.8rem;background:#059669;" '+
+            'data-session-id="'+(sessionId||'')+'" data-session-title="'+window.escAttr(title)+'" '+
+            'onclick="openAddToSession(this.getAttribute(\'data-session-id\'),this.getAttribute(\'data-session-title\'))" '+
+            'title="Add a student to this session">'+
+            '<i class="fas fa-user-plus"></i> Add to Session'+
+          '</button>'+
+          '<button class="btn-danger" style="font-size:0.75rem;padding:0.3rem 0.8rem;" '+
+            'data-session-id="'+(sessionId||'')+'" data-session-title="'+window.escAttr(title)+'" '+
+            'onclick="deleteEntireSession(this.getAttribute(\'data-session-id\'),this.getAttribute(\'data-session-title\'))" '+
+            'title="Delete entire session and all its records (requires admin code)">'+
+            '<i class="fas fa-trash-alt"></i> Delete Session'+
+          '</button>'+
+        '</div>'+
       '</div>'+
       '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Phone</th><th>Time</th><th>Location</th><th>Points</th><th>Remove</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
     '</div>';
@@ -2669,7 +2705,50 @@ var _ATTENDANCE_SECRET = '2026GERAMA';
 
 window.showAddAttendanceRow = function(){
   var row = document.getElementById('addAttRow');
-  if(row) row.style.display = row.style.display==='none' ? 'block' : 'none';
+  if(!row) return;
+  // Reset session link when opened from the top "Add Record" button
+  var sessionIdEl = document.getElementById('addAttSessionId');
+  var sessionTag  = document.getElementById('addAttSessionTag');
+  var classEl     = document.getElementById('addAttClass');
+  if(sessionIdEl) sessionIdEl.value = '';
+  if(sessionTag)  sessionTag.style.display = 'none';
+  if(classEl)     classEl.removeAttribute('readonly');
+  row.style.display = row.style.display === 'none' ? 'block' : 'none';
+  if(row.style.display === 'block') row.scrollIntoView({behavior:'smooth', block:'nearest'});
+};
+
+window.openAddToSession = function(sessionId, sessionTitle) {
+  var row = document.getElementById('addAttRow');
+  if(!row) return;
+  // Pre-fill the session context
+  var sessionIdEl = document.getElementById('addAttSessionId');
+  var sessionTag  = document.getElementById('addAttSessionTag');
+  var classEl     = document.getElementById('addAttClass');
+  if(sessionIdEl) sessionIdEl.value = sessionId || '';
+  if(classEl){ classEl.value = sessionTitle || ''; classEl.setAttribute('readonly','readonly'); }
+  if(sessionTag){ sessionTag.textContent = '📋 Session: ' + sessionTitle; sessionTag.style.display = 'inline-block'; }
+  // Clear other fields
+  ['addAttName','addAttEmail','addAttSearch','addAttSecret'].forEach(function(id){
+    var e = document.getElementById(id); if(e) e.value = '';
+  });
+  document.getElementById('addAttPoints').value = '1';
+  var statusEl = document.getElementById('addAttStatus');
+  if(statusEl){ statusEl.textContent = ''; statusEl.style.display = 'none'; }
+  var sugEl = document.getElementById('addAttSuggestions');
+  if(sugEl) sugEl.style.display = 'none';
+  row.style.display = 'block';
+  row.scrollIntoView({behavior:'smooth', block:'nearest'});
+};
+
+window.closeAddAttRow = function() {
+  var row = document.getElementById('addAttRow');
+  if(row) row.style.display = 'none';
+  var sessionIdEl = document.getElementById('addAttSessionId');
+  var sessionTag  = document.getElementById('addAttSessionTag');
+  var classEl     = document.getElementById('addAttClass');
+  if(sessionIdEl) sessionIdEl.value = '';
+  if(sessionTag)  sessionTag.style.display = 'none';
+  if(classEl)     classEl.removeAttribute('readonly');
 };
 
 window.searchAttUser = async function(q){
@@ -2710,42 +2789,50 @@ window.fillAttUser = function(name, email, indexNum){
 };
 
 window.submitManualAttendance = async function(){
-  var name    = (document.getElementById('addAttName')||{}).value||'';
-  var email   = (document.getElementById('addAttEmail')||{}).value||'';
-  var cls     = (document.getElementById('addAttClass')||{}).value||'';
-  var pts     = parseInt((document.getElementById('addAttPoints')||{}).value)||1;
-  var secret  = (document.getElementById('addAttSecret')||{}).value||'';
-  var statusEl = document.getElementById('addAttStatus');
+  var name      = (document.getElementById('addAttName')||{}).value||'';
+  var email     = (document.getElementById('addAttEmail')||{}).value||'';
+  var cls       = (document.getElementById('addAttClass')||{}).value||'';
+  var pts       = parseInt((document.getElementById('addAttPoints')||{}).value)||1;
+  var secret    = (document.getElementById('addAttSecret')||{}).value||'';
+  var sessionId = (document.getElementById('addAttSessionId')||{}).value||'';
+  var statusEl  = document.getElementById('addAttStatus');
 
-  function setS(msg,type){ if(statusEl){ statusEl.textContent=msg; statusEl.className='status-msg status-'+type; statusEl.style.display='block'; } }
+  function setS(msg, type){ if(statusEl){ statusEl.textContent=msg; statusEl.className='status-msg status-'+type; statusEl.style.display='block'; } }
 
-  if(!name||!email||!cls){ setS('Please fill in Name, Email and Class Title.','err'); return; }
-  if(secret !== _ATTENDANCE_SECRET){ setS('❌ Wrong secret code. Access denied.','err'); return; }
+  if(!name.trim() || !email.trim() || !cls.trim()){ setS('Please fill in Name, Email and Class Title.','err'); return; }
+  if(secret !== _ATTENDANCE_SECRET){ setS('❌ Wrong secret code (2026GERAMA). Access denied.','err'); return; }
 
   var sb = window.geramaSupabase; if(!sb){ setS('Not connected.','err'); return; }
   setS('Adding...','info');
 
-  var {error} = await sb.from('attendance_records').insert({
-    class_title:   cls,
+  var record = {
+    class_title:   cls.trim(),
     student_name:  name.trim(),
     student_email: email.trim().toLowerCase(),
     points:        pts,
     marked_at:     new Date().toISOString()
-  });
+  };
 
+  // If added to a specific session, link it
+  if(sessionId) record.session_id = sessionId;
+
+  var {error} = await sb.from('attendance_records').insert(record);
   if(error){ setS('❌ '+error.message,'err'); return; }
 
-  window.logActivity('Manually added attendance: '+name+' for "'+cls+'"');
-  setS('✅ Attendance record added for '+name+'!','ok');
+  var sessionLabel = sessionId ? ' to session "'+cls.trim()+'"' : ' for "'+cls.trim()+'"';
+  window.logActivity('Manually added attendance: '+name.trim()+sessionLabel);
+  setS('✅ '+name.trim()+' added to attendance'+sessionLabel+'!','ok');
 
   // Clear form
-  ['addAttName','addAttEmail','addAttClass','addAttSecret','addAttSearch'].forEach(function(id){
+  ['addAttName','addAttEmail','addAttSecret','addAttSearch'].forEach(function(id){
     var e=document.getElementById(id); if(e) e.value='';
   });
   document.getElementById('addAttPoints').value='1';
+  var sugEl = document.getElementById('addAttSuggestions');
+  if(sugEl) sugEl.style.display = 'none';
 
   setTimeout(function(){
-    document.getElementById('addAttRow').style.display='none';
+    window.closeAddAttRow();
     window.loadAttRecords();
     window.loadAttSessions();
   }, 1500);
@@ -3155,22 +3242,29 @@ window.importScoresFromCSV = async function() {
   if(!parsed.length){ window.showStatus('importStatus','No valid rows found. Format: email,score','err'); return; }
   window.showStatus('importStatus','Importing '+parsed.length+' scores...','info');
 
+  // Pick up the participated date set by admin (defaults to today)
+  var participatedDateEl = document.getElementById('importParticipatedDate');
+  var participatedAt = (participatedDateEl && participatedDateEl.value)
+    ? new Date(participatedDateEl.value).toISOString()
+    : new Date().toISOString();
+
   var ok=0, fail=0;
   for(var i=0;i<parsed.length;i++){
     var row = parsed[i];
     try{
       // Upsert to student_grades
       await sb.from('student_grades').upsert({
-        student_email: row.email,
+        student_email:    row.email,
         assignment_title: qzTitle,
-        score: row.score,
-        graded_at: new Date().toISOString()
+        score:            row.score,
+        graded_at:        new Date().toISOString(),
+        participated_at:  participatedAt
       }, {onConflict:'student_email,assignment_title'});
       ok++;
     }catch(e){ fail++; }
   }
   window.logActivity('Imported '+ok+' quiz scores for: '+qzTitle);
-  window.showStatus('importStatus','✅ Imported '+ok+' scores'+(fail?' ('+fail+' failed)':'')+'! Students can now see their grades in the Classroom → Assignments tab.','ok');
+  window.showStatus('importStatus','✅ Imported '+ok+' scores'+(fail?' ('+fail+' failed)':'')+'! Students can now see their grades in the Classroom → My Grades tab.','ok');
 };
 
 // ─── CSV FILE UPLOAD FOR SCORE IMPORT ───────────────────────────
@@ -3369,17 +3463,35 @@ window.importScoresFromCSV = async function() {
 
   window.showStatus('importStatus','Importing '+toImport.length+' scores'+(skipped.length?' ('+skipped.length+' names unmatched)':'')+'…','info');
 
+  // Read admin-specified participation date (shown on student dashboard)
+  var partDateEl2 = document.getElementById('importParticipatedDate');
+  var participatedAt2 = (partDateEl2 && partDateEl2.value)
+    ? new Date(partDateEl2.value).toISOString()
+    : new Date().toISOString();
+
+  // Fetch quiz points once, not inside the loop
+  var qzPoints = null;
+  var qzCourse = null;
+  try{
+    var qzDetail = await sb.from('quizzes').select('points,course').eq('title',qzTitle).maybeSingle();
+    if(qzDetail && qzDetail.data){ qzPoints = qzDetail.data.points || null; qzCourse = qzDetail.data.course || null; }
+  }catch(e){}
+
   var ok=0, fail=0, errors=[];
   for(var i=0;i<toImport.length;i++){
     var row = toImport[i];
     try{
-      await sb.from('student_grades').delete().eq('student_email',row.email).eq('assignment_title',qzTitle);
-      await sb.from('student_grades').insert({
-        student_email: row.email,
+      // Upsert atomically — prevents race condition from delete+insert
+      await sb.from('student_grades').upsert({
+        student_email:    row.email,
         assignment_title: qzTitle,
-        score: row.score,
-        graded_at: new Date().toISOString()
-      });
+        course:           qzCourse,
+        score:            row.score,
+        total_marks:      qzPoints,
+        points:           qzPoints,
+        graded_at:        new Date().toISOString(),
+        participated_at:  participatedAt2
+      }, {onConflict: 'student_email,assignment_title'});
       ok++;
     }catch(e){ fail++; errors.push(row.ident+': '+e.message); }
   }
@@ -4611,9 +4723,15 @@ window.quickMemberLookup = async function(q) {
       if (el) el.innerHTML = '';
       var inp = document.getElementById('quickMemberSearch');
       if (inp) inp.value = '';
+      // Reload live stats
+      setTimeout(function(){ if(window.loadOverviewStats) window.loadOverviewStats(); }, 200);
     }
   };
 })();
+
+// ─── LIVE OVERVIEW STATS (defined inside IIFE above, exposed as window.loadOverviewStats) ────
+// The canonical loadOverviewStats is already assigned to window inside the main IIFE.
+// Nothing extra needed here — admin-gate.js calls window.loadOverviewStats() after login.
 
 // ═══════════════════════════════════════════════════════════════
 // GERAMA CONNECT — Admin Panel Functions
@@ -4761,4 +4879,307 @@ window.adminDeleteConnectGroup = async function(id,name){
   window.logActivity('Deleted Connect group: '+name);
   window.loadAdminConnectGroups();
   window.loadAdminConnectMessages();
+};
+
+// ══════════════════════════════════════════════════════════════
+// DID YOU KNOW — ADMIN
+// ══════════════════════════════════════════════════════════════
+
+window.loadDiykAdmin = async function() {
+  var sb = window.geramaSupabase; if(!sb) return;
+  var pendEl    = document.getElementById('diykPendingList');
+  var approvedEl = document.getElementById('diykApprovedList');
+  if(pendEl)    pendEl.innerHTML    = '<p style="color:#9ca3af;">Loading...</p>';
+  if(approvedEl) approvedEl.innerHTML = '<p style="color:#9ca3af;">Loading...</p>';
+
+  try {
+    var {data: pending} = await sb.from('did_you_know').select('*').eq('status','pending').order('created_at',{ascending:false});
+    var {data: approved} = await sb.from('did_you_know').select('*').eq('status','approved').order('created_at',{ascending:false});
+    _renderDiykList(pending||[], pendEl, 'pending');
+    _renderDiykList(approved||[], approvedEl, 'approved');
+
+    // Update badge
+    var badge = document.getElementById('oppPendingBadge');
+    if(badge && (pending||[]).length > 0) {
+      badge.textContent = pending.length;
+      badge.style.display = 'inline';
+    }
+  } catch(e) {
+    if(pendEl) pendEl.innerHTML = '<p style="color:#9ca3af;">Error: ' + window.escHtml(e.message) + '</p>';
+  }
+};
+
+function _renderDiykList(list, el, type) {
+  if(!el) return;
+  if(!list.length) {
+    el.innerHTML = '<p style="color:#9ca3af;font-size:0.85rem;padding:0.5rem 0;">No ' + type + ' facts yet.</p>';
+    return;
+  }
+  el.innerHTML = list.map(function(item) {
+    var date = new Date(item.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return '<div class="sub-card">' +
+      '<div class="sub-info">' +
+        '<strong style="font-size:0.92rem;color:#075985;">' + window.escHtml(item.fact_text||'') + '</strong>' +
+        '<div class="sub-meta">' +
+          (item.source ? '<b>Source:</b> ' + window.escHtml(item.source) + ' &nbsp;|&nbsp; ' : '') +
+          '<b>By:</b> ' + window.escHtml(item.submitted_by||'Admin') +
+          ' &nbsp;|&nbsp; <b>Date:</b> ' + window.escHtml(date) +
+        '</div>' +
+      '</div>' +
+      '<div class="sub-actions">' +
+        (type === 'pending'
+          ? '<button class="btn-success" onclick="approveDiyk(\'' + window.escAttr(item.id) + '\')"><i class="fas fa-check"></i> Approve</button>'
+          : '') +
+        '<button class="btn-danger" onclick="deleteDiyk(\'' + window.escAttr(item.id) + '\')"><i class="fas fa-trash"></i> Delete</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+window.postDiykFact = async function() {
+  var fact   = (document.getElementById('diykAdminFact').value || '').trim();
+  var source = (document.getElementById('diykAdminSource').value || '').trim();
+  var status = document.getElementById('diykAdminStatusSelect').value || 'approved';
+  if(!fact) { window.showStatus('diykAdminStatusMsg','Please enter a fact.','err'); return; }
+  var sb = window.geramaSupabase; if(!sb) return;
+  try {
+    await sb.from('did_you_know').insert({
+      fact_text: fact,
+      source: source || null,
+      submitted_by: 'Admin',
+      status: status,
+      created_at: new Date().toISOString()
+    });
+    document.getElementById('diykAdminFact').value = '';
+    document.getElementById('diykAdminSource').value = '';
+    window.showStatus('diykAdminStatusMsg', '✅ Fact posted!', 'ok');
+    window.logActivity('Added Did You Know fact');
+    window.loadDiykAdmin();
+  } catch(e) {
+    window.showStatus('diykAdminStatusMsg', '❌ ' + e.message, 'err');
+  }
+};
+
+window.approveDiyk = async function(id) {
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('did_you_know').update({status:'approved'}).eq('id', id);
+  window.logActivity('Approved Did You Know fact');
+  window.loadDiykAdmin();
+};
+
+window.deleteDiyk = async function(id) {
+  if(!confirm('Delete this fact?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('did_you_know').delete().eq('id', id);
+  window.logActivity('Deleted Did You Know fact');
+  window.loadDiykAdmin();
+};
+
+
+// ══════════════════════════════════════════════════════════════
+// OPPORTUNITIES — ADMIN
+// ══════════════════════════════════════════════════════════════
+
+window.loadAdminOpportunities = async function() {
+  var sb = window.geramaSupabase; if(!sb) return;
+  var pendEl   = document.getElementById('adminOppPendingList');
+  var listEl   = document.getElementById('adminOppList');
+  var appsEl   = document.getElementById('adminOppApplications');
+
+  if(pendEl) pendEl.innerHTML = '<p style="color:#9ca3af;font-size:0.88rem;">Loading...</p>';
+  if(listEl) listEl.innerHTML = '<p style="color:#9ca3af;font-size:0.88rem;">Loading...</p>';
+  if(appsEl) appsEl.innerHTML = '<p style="color:#9ca3af;font-size:0.88rem;">Loading...</p>';
+
+  try {
+    var {data: all}     = await sb.from('opportunities').select('*').order('created_at',{ascending:false});
+    var {data: apps}    = await sb.from('opportunity_applications').select('*').order('applied_at',{ascending:false}).limit(100);
+    all  = all  || [];
+    apps = apps || [];
+
+    var pending  = all.filter(function(o){ return o.status === 'pending'; });
+    var approved = all.filter(function(o){ return o.status === 'approved'; });
+    var totalViews  = all.reduce(function(s,o){ return s + (o.view_count||0); }, 0);
+    var totalApplied = apps.length;
+
+    // Stats
+    var setEl = function(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; };
+    setEl('oppStatTotal',   approved.length);
+    setEl('oppStatPending', pending.length);
+    setEl('oppStatViews',   totalViews);
+    setEl('oppStatApplied', totalApplied);
+
+    // Pending badge on nav
+    var pb = document.getElementById('oppPendingBadge');
+    if(pb) { pb.textContent = pending.length; pb.style.display = pending.length ? 'inline' : 'none'; }
+
+    // Render pending
+    if(pendEl) {
+      if(!pending.length) {
+        pendEl.innerHTML = '<p style="color:#9ca3af;font-size:0.85rem;">No pending submissions.</p>';
+      } else {
+        pendEl.innerHTML = pending.map(function(opp) {
+          return _renderAdminOppCard(opp, true);
+        }).join('');
+      }
+    }
+
+    // Render approved
+    if(listEl) {
+      if(!approved.length) {
+        listEl.innerHTML = '<p style="color:#9ca3af;font-size:0.85rem;">No approved opportunities yet.</p>';
+      } else {
+        listEl.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Type</th><th>Location</th><th>Views</th><th>Applied</th><th>Deadline</th><th>Actions</th></tr></thead><tbody>' +
+          approved.map(function(opp) {
+            var oppApps = apps.filter(function(a){ return a.opportunity_id === opp.id; });
+            var deadline = opp.deadline ? new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+            return '<tr>' +
+              '<td style="font-weight:600;">' + window.escHtml(opp.company||'') + '</td>' +
+              '<td><span style="background:#ede9fe;color:#5b21b6;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;">' + window.escHtml(opp.type||'') + '</span></td>' +
+              '<td style="font-size:0.82rem;">' + window.escHtml(opp.location||'—') + '</td>' +
+              '<td style="text-align:center;">' + (opp.view_count||0) + '</td>' +
+              '<td style="text-align:center;">' + oppApps.length + '</td>' +
+              '<td style="font-size:0.82rem;">' + window.escHtml(deadline) + '</td>' +
+              '<td style="white-space:nowrap;">' +
+                '<button class="btn-danger" onclick="deleteAdminOpp(\'' + window.escAttr(opp.id) + '\',\'' + window.escAttr(opp.image_url||'') + '\')" style="font-size:0.75rem;padding:0.25rem 0.6rem;"><i class="fas fa-trash"></i></button>' +
+              '</td>' +
+            '</tr>';
+          }).join('') +
+          '</tbody></table></div>';
+      }
+    }
+
+    // Applications list
+    if(appsEl) {
+      if(!apps.length) {
+        appsEl.innerHTML = '<p style="color:#9ca3af;font-size:0.85rem;">No applications tracked yet.</p>';
+      } else {
+        var oppMap = {};
+        all.forEach(function(o){ oppMap[o.id] = o.company; });
+        appsEl.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Opportunity</th><th>Date Applied</th><th>Status</th></tr></thead><tbody>' +
+          apps.map(function(a) {
+            var date = new Date(a.applied_at||a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+            return '<tr>' +
+              '<td>' + window.escHtml(a.user_name||'—') + '</td>' +
+              '<td style="font-size:0.82rem;">' + window.escHtml(a.user_email||'—') + '</td>' +
+              '<td>' + window.escHtml(oppMap[a.opportunity_id] || a.opportunity_id || '—') + '</td>' +
+              '<td style="font-size:0.82rem;">' + window.escHtml(date) + '</td>' +
+              '<td><span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;">' + window.escHtml(a.status||'applied') + '</span></td>' +
+            '</tr>';
+          }).join('') +
+          '</tbody></table></div>';
+      }
+    }
+  } catch(e) {
+    if(listEl) listEl.innerHTML = '<p style="color:#9ca3af;">Error: ' + window.escHtml(e.message) + '</p>';
+  }
+};
+
+function _renderAdminOppCard(opp, showApprove) {
+  var date = new Date(opp.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  return '<div class="sub-card">' +
+    (opp.image_url ? '<img src="' + window.escAttr(opp.image_url) + '" style="width:60px;height:50px;object-fit:cover;border-radius:8px;flex-shrink:0;" alt="">' : '') +
+    '<div class="sub-info">' +
+      '<strong>' + window.escHtml(opp.company||'') + ' — ' + window.escHtml(opp.location||'') + '</strong>' +
+      '<div class="sub-meta">' +
+        '<b>Type:</b> ' + window.escHtml(opp.type||'—') +
+        (opp.deadline ? ' &nbsp;|&nbsp; <b>Deadline:</b> ' + new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '') +
+        '<br><b>Submitted by:</b> ' + window.escHtml(opp.submitted_by||'Admin') + ' &nbsp;|&nbsp; ' + window.escHtml(date) +
+        (opp.apply_link ? '<br><a href="' + window.escAttr(opp.apply_link) + '" target="_blank" style="color:#1B5E20;font-size:0.8rem;"><i class="fas fa-external-link-alt"></i> Apply Link</a>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="sub-actions">' +
+      (showApprove ? '<button class="btn-success" onclick="approveAdminOpp(\'' + window.escAttr(opp.id) + '\')"><i class="fas fa-check"></i> Approve</button>' : '') +
+      '<button class="btn-danger" onclick="deleteAdminOpp(\'' + window.escAttr(opp.id) + '\',\'' + window.escAttr(opp.image_url||'') + '\')"><i class="fas fa-trash"></i></button>' +
+    '</div>' +
+  '</div>';
+}
+
+window.approveAdminOpp = async function(id) {
+  var sb = window.geramaSupabase; if(!sb) return;
+  await sb.from('opportunities').update({status:'approved'}).eq('id', id);
+  window.logActivity('Approved opportunity: ' + id);
+  window.loadAdminOpportunities();
+};
+
+window.deleteAdminOpp = async function(id, imgUrl) {
+  if(!confirm('Delete this opportunity permanently?')) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  // Delete comments and applications too
+  await sb.from('opportunity_comments').delete().eq('opportunity_id', id);
+  await sb.from('opportunity_applications').delete().eq('opportunity_id', id);
+  await sb.from('opportunities').delete().eq('id', id);
+  window.logActivity('Deleted opportunity: ' + id);
+  window.loadAdminOpportunities();
+};
+
+window.postAdminOpportunity = async function() {
+  var company  = (document.getElementById('adminOppCompany').value || '').trim();
+  var location = (document.getElementById('adminOppLocation').value || '').trim();
+  var type     = document.getElementById('adminOppType').value;
+  var link     = (document.getElementById('adminOppLink').value || '').trim();
+  var mode     = (document.getElementById('adminOppMode').value || '').trim();
+  var deadline = document.getElementById('adminOppDeadline').value || null;
+  var desc     = (document.getElementById('adminOppDesc').value || '').trim();
+  var imgFile  = document.getElementById('adminOppImgFile').files[0] || null;
+
+  if(!company || !location || !type) { window.showStatus('adminOppStatus','Fill in Company, Location and Type.','err'); return; }
+
+  var btn = document.querySelector('[onclick="postAdminOpportunity()"]');
+  if(btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving...'; }
+
+  var sb = window.geramaSupabase;
+  if(!sb) { window.showStatus('adminOppStatus','Supabase not connected.','err'); if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i> Publish Opportunity';} return; }
+
+  var imageUrl = null;
+  if(imgFile) {
+    try {
+      var ext = imgFile.name.split('.').pop();
+      var path = 'opportunities/' + Date.now() + '-' + company.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.' + ext;
+      var up = await sb.storage.from(window.BUCKET).upload(path, imgFile, {upsert:true});
+      if(!up.error) imageUrl = sb.storage.from(window.BUCKET).getPublicUrl(path).data.publicUrl;
+    } catch(e) {}
+  }
+
+  try {
+    await sb.from('opportunities').insert({
+      company, location, type,
+      apply_link: link || null,
+      mode_of_application: mode || null,
+      deadline: deadline || null,
+      description: desc || null,
+      image_url: imageUrl,
+      submitted_by: 'Admin',
+      submitted_by_email: 'gerama.uenr@gmail.com',
+      status: 'approved',
+      view_count: 0,
+      apply_count: 0,
+      created_at: new Date().toISOString()
+    });
+    window.showStatus('adminOppStatus', '✅ Opportunity published and live!', 'ok');
+    window.logActivity('Posted opportunity: ' + company + ' — ' + type);
+    // Clear form
+    ['adminOppCompany','adminOppLocation','adminOppLink','adminOppMode','adminOppDesc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    document.getElementById('adminOppType').value = '';
+    document.getElementById('adminOppDeadline').value = '';
+    document.getElementById('adminOppImgFile').value = '';
+    document.getElementById('adminOppImgChosen').textContent = '';
+    document.getElementById('adminOppImgPreview').style.display = 'none';
+    window.loadAdminOpportunities();
+  } catch(e) {
+    window.showStatus('adminOppStatus', '❌ ' + e.message, 'err');
+  }
+  if(btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Publish Opportunity'; }
+};
+
+window.previewAdminOppImg = function(input) {
+  var f = input.files[0]; if(!f) return;
+  if(f.size > 5*1024*1024) { alert('Image too large. Max 5MB.'); return; }
+  document.getElementById('adminOppImgChosen').textContent = '✅ ' + f.name;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var prev = document.getElementById('adminOppImgPreview');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(f);
 };

@@ -272,6 +272,8 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="adminprofiles"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> Admin Profiles</div>
     <div class="nav-item" data-panel="team"><i class="fas fa-users-cog" style="color:#34d399;"></i> Manage Team</div>
     <div class="nav-item" data-panel="quotes"><i class="fas fa-quote-right" style="color:#f59e0b;"></i> Quote of the Day</div>
+    <div class="nav-item" data-panel="diyk"><i class="fas fa-lightbulb" style="color:#0ea5e9;"></i> Did You Know</div>
+    <div class="nav-item" data-panel="opportunities"><i class="fas fa-briefcase" style="color:#6366f1;"></i> Opportunities <span id="oppPendingBadge" style="background:#6366f1;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="mall"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</div>
     <div class="nav-item" data-panel="settings"><i class="fas fa-cog"></i> Settings</div>
   </nav>
@@ -365,6 +367,7 @@ tr:hover td{background:#fafcfa;}
         <button class="btn-primary" onclick="switchPanel('team')" style="background:linear-gradient(135deg,#059669,#10b981);"><i class="fas fa-users-cog"></i> Manage Team</button>
         <button class="btn-primary" onclick="switchPanel('quizrequests')"><i class="fas fa-question-circle"></i> Quiz Requests</button>
         <button onclick="exportActivityLog()" style="background:#f5f3ff;color:#7c3aed;border:1px solid #c4b5fd;padding:0.7rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.5rem;"><i class="fas fa-download"></i> Export Activity Log</button>
+        <button class="btn-primary" onclick="switchPanel('opportunities')" style="background:linear-gradient(135deg,#4c1d95,#6d28d9);"><i class="fas fa-briefcase"></i> Opportunities</button>
       </div>
     </div>
 
@@ -1363,6 +1366,117 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════
+       DID YOU KNOW PANEL
+  ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-diyk">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-lightbulb" style="color:#0ea5e9;"></i> Did You Know — Manage Facts</div>
+      <p style="color:#6b7280;font-size:0.85rem;margin-bottom:1.2rem;">Post engineering facts that appear in the Planner's "Did You Know" section. Review user submissions and add your own.</p>
+
+      <!-- Post new fact -->
+      <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:1.2rem;margin-bottom:1.5rem;">
+        <div style="font-size:0.88rem;font-weight:700;color:#075985;margin-bottom:0.8rem;"><i class="fas fa-plus-circle" style="margin-right:0.4rem;"></i>Add a New Fact</div>
+        <div class="form-grid">
+          <div class="form-field full">
+            <label>Fact *</label>
+            <textarea id="diykAdminFact" rows="3" placeholder="e.g. Did you know that the Golden Gate Bridge expands up to 3 feet on hot days due to thermal expansion of steel?"></textarea>
+          </div>
+          <div class="form-field">
+            <label>Source (optional)</label>
+            <input type="text" id="diykAdminSource" placeholder="e.g. Engineering Today, NASA, etc.">
+          </div>
+          <div class="form-field">
+            <label>Status</label>
+            <select id="diykAdminStatusSelect">
+              <option value="approved">Approved (visible immediately)</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="postDiykFact()" style="margin-top:0.8rem;"><i class="fas fa-paper-plane"></i> Post Fact</button>
+        <div class="status-msg" id="diykAdminStatusMsg"></div>
+      </div>
+
+      <!-- Pending submissions from users -->
+      <div class="card-title" style="margin-top:0;"><i class="fas fa-inbox" style="color:#6366f1;"></i> User Submissions (Pending Review)</div>
+      <div id="diykPendingList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+
+      <!-- All approved facts -->
+      <div class="card-title" style="margin-top:1.5rem;"><i class="fas fa-check-circle" style="color:#059669;"></i> All Published Facts</div>
+      <div id="diykApprovedList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       OPPORTUNITIES PANEL
+  ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-opportunities">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-briefcase" style="color:#6366f1;"></i> Opportunities — Post &amp; Manage</div>
+      <p style="color:#6b7280;font-size:0.85rem;margin-bottom:1.2rem;">Post internship, NSS, scholarship and job opportunities for GERAMA members. Review user submissions and track applications.</p>
+
+      <!-- Stats row -->
+      <div class="stats-row" style="margin-bottom:1.5rem;">
+        <div class="stat-box" style="border-top:3px solid #6366f1;"><div class="num" id="oppStatTotal" style="color:#6366f1;">—</div><div class="lbl">Total Posted</div></div>
+        <div class="stat-box" style="border-top:3px solid #f59e0b;"><div class="num" id="oppStatPending" style="color:#f59e0b;">—</div><div class="lbl">Pending Review</div></div>
+        <div class="stat-box" style="border-top:3px solid #059669;"><div class="num" id="oppStatViews" style="color:#059669;">—</div><div class="lbl">Total Views</div></div>
+        <div class="stat-box" style="border-top:3px solid #dc2626;"><div class="num" id="oppStatApplied" style="color:#dc2626;">—</div><div class="lbl">Applications Tracked</div></div>
+      </div>
+
+      <!-- Post new opportunity -->
+      <div style="background:linear-gradient(135deg,#f5f3ff,white);border:1px solid #c4b5fd;border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;">
+        <div style="font-size:0.92rem;font-weight:700;color:#4c1d95;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-plus-circle"></i> Post New Opportunity</div>
+        <div class="form-grid">
+          <div class="form-field"><label>Company / Organisation *</label><input type="text" id="adminOppCompany" placeholder="e.g. Ghana Grid Company"></div>
+          <div class="form-field"><label>Location *</label><input type="text" id="adminOppLocation" placeholder="e.g. Accra, Ghana"></div>
+          <div class="form-field"><label>Type *</label>
+            <select id="adminOppType">
+              <option value="">Select...</option>
+              <option value="internship">Internship</option>
+              <option value="nss">NSS (National Service)</option>
+              <option value="scholarship">Scholarship</option>
+              <option value="job">Job / Employment</option>
+              <option value="other">Other Opportunity</option>
+            </select>
+          </div>
+          <div class="form-field"><label>Application Link (optional)</label><input type="url" id="adminOppLink" placeholder="https://..."></div>
+          <div class="form-field"><label>Mode of Application</label><input type="text" id="adminOppMode" placeholder="e.g. Submit internship letter to HR dept. / Online form"></div>
+          <div class="form-field"><label>Deadline (optional)</label><input type="date" id="adminOppDeadline"></div>
+          <div class="form-field full"><label>Description / Eligibility</label><textarea id="adminOppDesc" rows="4" placeholder="Describe the opportunity, eligibility criteria, what to submit, contacts, etc."></textarea></div>
+          <div class="form-field full">
+            <label>Image — Company logo or flyer (optional)</label>
+            <div class="drop-zone" id="adminOppImgZone" onclick="document.getElementById('adminOppImgFile').click()">
+              <i class="fas fa-image" style="color:#6366f1;font-size:1.5rem;display:block;margin-bottom:0.4rem;"></i>
+              <p>Click to upload image (JPG/PNG, max 5MB)</p>
+              <p class="file-chosen" id="adminOppImgChosen"></p>
+            </div>
+            <input type="file" id="adminOppImgFile" accept="image/*" style="display:none;" onchange="previewAdminOppImg(this)">
+            <img id="adminOppImgPreview" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:8px;margin-top:0.4rem;border:2px solid #c4b5fd;" alt="">
+          </div>
+        </div>
+        <button class="btn-primary" onclick="postAdminOpportunity()" style="margin-top:1rem;background:linear-gradient(135deg,#4c1d95,#6d28d9);"><i class="fas fa-paper-plane"></i> Publish Opportunity</button>
+        <div class="status-msg" id="adminOppStatus"></div>
+      </div>
+
+      <!-- Pending user submissions -->
+      <div class="card-title" style="margin-top:0;"><i class="fas fa-inbox" style="color:#f59e0b;"></i> Pending User Submissions</div>
+      <div id="adminOppPendingList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+
+      <!-- All approved opportunities + tracking -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;margin-top:1.5rem;margin-bottom:0.8rem;">
+        <div class="card-title" style="margin:0;"><i class="fas fa-list" style="color:#6366f1;"></i> All Approved Opportunities</div>
+        <button class="btn-gold" onclick="loadAdminOpportunities()" style="font-size:0.82rem;padding:0.4rem 1rem;"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+      <div id="adminOppList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+
+      <!-- Applications tracker -->
+      <div class="card-title" style="margin-top:1.5rem;"><i class="fas fa-user-check" style="color:#059669;"></i> Application Tracking</div>
+      <p style="color:#6b7280;font-size:0.82rem;margin-bottom:0.8rem;">Students who marked "I've Applied" on a listing.</p>
+      <div id="adminOppApplications"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
+
   <div class="panel" id="panel-settings">
       <div class="form-grid">
         <div class="form-field full">
@@ -1423,7 +1537,12 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
       </div>
       <!-- Add attendance row (hidden by default) -->
       <div id="addAttRow" style="display:none;background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:1.2rem;margin-bottom:1rem;">
-        <div style="font-size:0.88rem;font-weight:700;color:#166534;margin-bottom:0.8rem;"><i class="fas fa-lock" style="margin-right:0.4rem;"></i>Manual Attendance Entry — Admin Verification Required</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;flex-wrap:wrap;gap:0.5rem;">
+          <div style="font-size:0.88rem;font-weight:700;color:#166534;"><i class="fas fa-lock" style="margin-right:0.4rem;"></i>Manual Attendance Entry — Admin Verification Required</div>
+          <div id="addAttSessionTag" style="display:none;background:#1B5E20;color:white;font-size:0.78rem;font-weight:700;padding:0.25rem 0.8rem;border-radius:20px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+        </div>
+        <!-- Hidden fields for session linking -->
+        <input type="hidden" id="addAttSessionId" value="">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:0.8rem;">
           <div style="grid-column:1/-1;position:relative;">
             <input type="text" id="addAttSearch" placeholder="Search by name or index number..." autocomplete="off"
@@ -1436,13 +1555,13 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
           <input type="text" id="addAttClass" placeholder="Class title *" style="padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;">
           <input type="number" id="addAttPoints" value="1" min="1" max="10" placeholder="Points" style="padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;">
           <div style="grid-column:1/-1;">
-            <input type="password" id="addAttSecret" placeholder="Admin secret code *" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #fcd34d;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box;background:#fffbeb;">
-            <div style="font-size:0.75rem;color:#92400e;margin-top:0.3rem;"><i class="fas fa-shield-alt"></i> Required to prevent unauthorised changes</div>
+            <input type="password" id="addAttSecret" placeholder="Admin secret code (2026GERAMA) *" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #fcd34d;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box;background:#fffbeb;">
+            <div style="font-size:0.75rem;color:#92400e;margin-top:0.3rem;"><i class="fas fa-shield-alt"></i> Code: 2026GERAMA — required to prevent unauthorised changes</div>
           </div>
         </div>
         <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
           <button class="btn-primary" onclick="submitManualAttendance()" style="background:#059669;"><i class="fas fa-check"></i> Add to Records</button>
-          <button class="btn-danger" onclick="document.getElementById('addAttRow').style.display='none'"><i class="fas fa-times"></i> Cancel</button>
+          <button class="btn-danger" onclick="closeAddAttRow()"><i class="fas fa-times"></i> Cancel</button>
         </div>
         <div class="status-msg" id="addAttStatus"></div>
       </div>
@@ -1737,6 +1856,10 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
         <div class="form-field">
           <label>Score column name / number <span style="color:#6b7280;font-weight:400;">(leave blank = auto-detect)</span></label>
           <input type="text" id="importScoreCol" placeholder="e.g. Score or 2">
+        </div>
+        <div class="form-field full">
+          <label>Date Students Participated <span style="color:#6b7280;font-weight:400;">(shown on student dashboard — leave blank to use today)</span></label>
+          <input type="date" id="importParticipatedDate" style="max-width:260px;">
         </div>
       </div>
       <div style="margin-top:0.5rem;display:flex;gap:0.8rem;flex-wrap:wrap;">

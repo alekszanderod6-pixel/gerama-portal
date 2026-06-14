@@ -230,8 +230,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <p style="font-size:0.85rem;opacity:0.7;margin-bottom:0.8rem;">Follow us on social media</p>
       <div class="info-socials">
         <a href="https://wa.me/233555749497" target="_blank" rel="noopener" class="info-social-btn wa" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-        <a href="#" class="info-social-btn fb" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="#" class="info-social-btn tw" title="Twitter/X"><i class="fab fa-x-twitter"></i></a>
+        <a href="https://web.facebook.com/profile.php?id=61576671289131" target="_blank" rel="noopener" class="info-social-btn fb" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://x.com/gerama_uenr" target="_blank" rel="noopener" class="info-social-btn tw" title="Twitter/X"><i class="fab fa-x-twitter"></i></a>
         <a href="https://www.linkedin.com/in/alexander-opoku-dwumaah" target="_blank" rel="noopener" class="info-social-btn li" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
       </div>
 
@@ -261,12 +261,28 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
             </div>
           </div>
           <div class="fld">
+            <label>Category *</label>
+            <select id="cCategory" required style="width:100%;padding:0.75rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.92rem;outline:none;font-family:'Inter',sans-serif;background:white;transition:all 0.2s;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+              <option value="">— Select a category —</option>
+              <option value="academic">📚 Academic Support / Resources</option>
+              <option value="technical">🛠️ Technical / Website Issue</option>
+              <option value="quiz">🧠 Quiz or Assignment Help</option>
+              <option value="feedback">💬 Feedback or Suggestion</option>
+              <option value="partnership">🤝 Partnership / Collaboration</option>
+              <option value="media">📸 Media / Content Contribution</option>
+              <option value="general">✉️ General Inquiry</option>
+            </select>
+          </div>
+          <div class="fld">
             <label>Subject *</label>
             <input type="text" id="cSubject" placeholder="What's this about?" required>
           </div>
-          <div class="fld">
-            <label>Message *</label>
-            <textarea id="cMsg" placeholder="Tell us more about your inquiry..." required></textarea>
+          <div class="fld" style="position:relative;">
+            <label style="display:flex;align-items:center;justify-content:space-between;">
+              <span>Message *</span>
+              <span id="charCount" style="font-size:0.72rem;font-weight:600;color:#9ca3af;transition:color 0.2s;">0 / 1000</span>
+            </label>
+            <textarea id="cMsg" placeholder="Tell us more about your inquiry..." required rows="5" oninput="updateCharCount(this)" maxlength="1000"></textarea>
           </div>
           <button type="submit" class="btn-send" id="sendMsgBtn">
             <i class="fas fa-paper-plane"></i> Send Message
@@ -394,11 +410,13 @@ document.getElementById('contactForm').addEventListener('submit', async function
   btn.classList.add('loading');
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
+  var category = document.getElementById('cCategory').value;
   var data = {
     name:    document.getElementById('cName').value.trim(),
     email:   document.getElementById('cEmail').value.trim(),
     subject: document.getElementById('cSubject').value.trim(),
     message: document.getElementById('cMsg').value.trim(),
+    category: category || 'general',
     sent_at: new Date().toISOString(),
     type:    'contact'
   };
@@ -422,9 +440,28 @@ document.getElementById('contactForm').addEventListener('submit', async function
   btn.classList.remove('loading');
 });
 
+// ── CHARACTER COUNTER ─────────────────────────────────────────
+function updateCharCount(textarea) {
+  var count = (textarea.value || '').length;
+  var el = document.getElementById('charCount');
+  if (!el) return;
+  el.textContent = count + ' / 1000';
+  if (count > 900) { el.style.color = '#dc2626'; }
+  else if (count > 700) { el.style.color = '#d97706'; }
+  else { el.style.color = '#9ca3af'; }
+}
+
+// Pre-fill form from profile
+(function() {
+  var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+  var nameEl  = document.getElementById('cName');
+  var emailEl = document.getElementById('cEmail');
+  if (nameEl && profile.name && !nameEl.value)   nameEl.value  = profile.name;
+  if (emailEl && profile.email && !emailEl.value) emailEl.value = profile.email;
+})();
+
 // ── FAQ ACCORDION ─────────────────────────────────────────────
-document.querySelectorAll('.faq-q').forEach(function(q) {
-  q.addEventListener('click', function() {
+document.querySelectorAll('.faq-q').forEach(function(q) {  q.addEventListener('click', function() {
     var item = q.parentElement;
     var isOpen = item.classList.contains('open');
     document.querySelectorAll('.faq-item').forEach(function(i){ i.classList.remove('open'); });

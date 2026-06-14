@@ -487,8 +487,6 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div class="form-row"><label>Price (GH₵) *</label><input type="number" id="sellPrice" placeholder="e.g. 48" min="1"></div>
       <div class="form-row"><label>Original Price (GH₵) — if discounted</label><input type="number" id="sellOrigPrice" placeholder="e.g. 60" min="1"></div>
       <div class="form-row"><label>Description *</label><textarea id="sellDesc" rows="3" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;" placeholder="Describe your product — colours, sizes, materials..."></textarea></div>
-      <div class="form-row"><label>Your WhatsApp Number *</label><input type="tel" id="sellWhatsapp" placeholder="e.g. 0555749497"></div>
-      <div class="form-row"><label>Your Name / Business Name *</label><input type="text" id="sellSellerName" placeholder="e.g. Aleks ZanderOD"></div>
       <div class="form-row">
         <label>Product Images (up to 3) <small style="font-weight:400;color:#6b7280;">First image = main display photo</small></label>
         <div class="drop-zone" style="padding:0.8rem;cursor:pointer;" onclick="document.getElementById('sellFile').click()">
@@ -616,6 +614,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 </nav>
 
 <script src="js/main.js"></script>
+<script src="js/gerama-features.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
 // GERAMA URBAN MALL — Core JS
@@ -676,30 +675,32 @@ var selectedSize = '';
 
 // ── LOAD PRODUCTS ──────────────────────────────────────────
 async function loadProducts() {
-  // Start with seed products
-  allProducts = [...SEED_PRODUCTS];
-
-  // Try to load from Supabase (best-effort)
+  // Load from Supabase first (DB products go at top), fallback to seed products
+  var dbProducts = [];
   try {
-    var resp = await fetch(SUPA_URL + '/rest/v1/mall_products?select=*&eq.status=approved&order=created_at.desc', {
+    var resp = await fetch(SUPA_URL + '/rest/v1/mall_products?select=*&status=eq.approved&order=created_at.desc', {
       headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
     });
     if (resp.ok) {
-      var dbProducts = await resp.json();
-      if (dbProducts && dbProducts.length) {
-        // Parse JSON fields
-        dbProducts.forEach(function(p) {
-          try { p.colours = JSON.parse(p.colours || '[]'); } catch(e) { p.colours = []; }
-          try { p.colour_names = JSON.parse(p.colour_names || '[]'); } catch(e) { p.colour_names = []; }
-          try { p.sizes = JSON.parse(p.sizes || '[]'); } catch(e) { p.sizes = []; }
+      var raw = await resp.json();
+      if (Array.isArray(raw) && raw.length) {
+        raw.forEach(function(p) {
+          try { p.colours = typeof p.colours === 'string' ? JSON.parse(p.colours||'[]') : (p.colours||[]); } catch(e) { p.colours = []; }
+          try { p.colour_names = typeof p.colour_names === 'string' ? JSON.parse(p.colour_names||'[]') : (p.colour_names||[]); } catch(e) { p.colour_names = []; }
+          try { p.sizes = typeof p.sizes === 'string' ? JSON.parse(p.sizes||'[]') : (p.sizes||[]); } catch(e) { p.sizes = []; }
+          try { p.extra_images = typeof p.extra_images === 'string' ? JSON.parse(p.extra_images||'[]') : (p.extra_images||[]); } catch(e) { p.extra_images = []; }
+          p.verified = true; // admin-posted = verified
         });
-        allProducts = allProducts.concat(dbProducts);
+        dbProducts = raw;
       }
     }
-  } catch(e) { /* DB not set up yet — seed products still show */ }
+  } catch(e) { console.warn('Mall products fetch error:', e); }
+
+  // DB products first (newest), then seed products at the end
+  allProducts = dbProducts.concat(SEED_PRODUCTS);
 
   // Update stats
-  var sellers = new Set(allProducts.map(function(p){ return p.seller_id; }));
+  var sellers = new Set(allProducts.map(function(p){ return p.seller_id || p.seller_name; }));
   var sp = document.getElementById('statProducts');
   var ss = document.getElementById('statSellers');
   if (sp) sp.textContent = allProducts.length;
@@ -1260,6 +1261,48 @@ document.addEventListener('DOMContentLoaded', function() {
   loadProducts();
   updateCartUI();
   updateWishlistUI();
+
+  // ── Realtime: auto-reload products when admin posts a new one ──
+  (function startMallRealtime(){
+    // Wait for supabase-config.js to define window.geramaSupabase
+    if(!window.geramaSupabase){
+      setTimeout(startMallRealtime, 600);
+      return;
+    }
+    window.geramaSupabase
+      .channel('mall-products-live')
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'mall_products'},function(p){
+        var row = p.new;
+        if(!row) return;
+        // Only surface approved products
+        if(row.status && row.status !== 'approved') return;
+        // Parse JSON fields
+        try { row.colours = typeof row.colours==='string' ? JSON.parse(row.colours||'[]') : (row.colours||[]); } catch(e){ row.colours=[]; }
+        try { row.colour_names = typeof row.colour_names==='string' ? JSON.parse(row.colour_names||'[]') : (row.colour_names||[]); } catch(e){ row.colour_names=[]; }
+        try { row.sizes = typeof row.sizes==='string' ? JSON.parse(row.sizes||'[]') : (row.sizes||[]); } catch(e){ row.sizes=[]; }
+        try { row.extra_images = typeof row.extra_images==='string' ? JSON.parse(row.extra_images||'[]') : (row.extra_images||[]); } catch(e){ row.extra_images=[]; }
+        row.verified = true;
+        // Insert at the front (newest first), ahead of seed products
+        var seedStart = allProducts.findIndex(function(p){ return String(p.id).startsWith('seed-'); });
+        if(seedStart === -1) allProducts.push(row);
+        else allProducts.splice(seedStart, 0, row);
+        // Update stats
+        var sellers = new Set(allProducts.map(function(p){ return p.seller_id || p.seller_name; }));
+        var sp = document.getElementById('statProducts');
+        var ss = document.getElementById('statSellers');
+        if(sp) sp.textContent = allProducts.length;
+        if(ss) ss.textContent = sellers.size;
+        renderProducts();
+        // Show new-arrival toast
+        if(window.showMallToast) window.showMallToast(row.name, row.seller_name);
+      })
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'mall_products'},function(p){
+        // Refresh the full list on any update (e.g. status change to approved)
+        loadProducts();
+      })
+      .subscribe();
+  })();
+});
 });
 </script>
 </body>

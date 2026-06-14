@@ -35,24 +35,38 @@ if ('serviceWorker' in navigator) {
 
     // Version check for PWA — reload if site has updated
     var CACHE_KEY = 'gerama_last_check';
-    var TEN_MIN = 10 * 60 * 1000;
+    // Version-check reload — only on safe pages, not mid-session pages like
+    // classroom.html / resources.html / dashboard.html.
+    // This prevents the "shaking / tabs switching by themselves" bug that some
+    // PWA users report: location.reload() firing while setIntervals are already
+    // running causes the page to re-animate, re-trigger DOMContentLoaded handlers,
+    // and briefly flick between tab states before settling.
+    var THIRTY_MIN = 30 * 60 * 1000;  // check at most every 30 min (was 10)
     var now = Date.now();
     var last = parseInt(localStorage.getItem(CACHE_KEY) || '0');
-    if (isStandalone && (now - last) > TEN_MIN) {
+    var safePages = ['index.html', 'about.html', 'contact.html', 'mall.html', ''];
+    var isSafePage = safePages.indexOf(currentPage) !== -1;
+
+    if (isStandalone && isSafePage && (now - last) > THIRTY_MIN) {
         localStorage.setItem(CACHE_KEY, String(now));
-        fetch('/index.html?' + now, { method: 'HEAD', cache: 'no-store' })
-            .then(function(res) {
-                var serverDate = res.headers.get('last-modified') || res.headers.get('date') || '';
-                var storedDate = localStorage.getItem('gerama_server_date') || '';
-                if (serverDate && serverDate !== storedDate) {
-                    localStorage.setItem('gerama_server_date', serverDate);
-                    if (!window._geramaReloading) {
-                        window._geramaReloading = true;
-                        window.location.reload(true);
+        // Delay 3 s so the page finishes rendering before we hit the network
+        setTimeout(function() {
+            fetch(window.location.origin + '/index.html?_v=' + now,
+                { method: 'HEAD', cache: 'no-store' })
+                .then(function(res) {
+                    var serverDate = res.headers.get('last-modified') || res.headers.get('etag') || '';
+                    var storedDate = localStorage.getItem('gerama_server_date') || '';
+                    if (serverDate && serverDate !== storedDate) {
+                        localStorage.setItem('gerama_server_date', serverDate);
+                        // Only reload when user can see it and is idle (not mid-interaction)
+                        if (!window._geramaReloading && !document.hidden) {
+                            window._geramaReloading = true;
+                            window.location.reload(true);
+                        }
                     }
-                }
-            })
-            .catch(function() {});
+                })
+                .catch(function() { /* offline — skip */ });
+        }, 3000);
     }
 })();
 

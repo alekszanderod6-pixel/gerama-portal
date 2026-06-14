@@ -398,14 +398,76 @@
     });
   }
 
-  // Override adminPostProduct to handle multiple images
-  var _origPostProduct = window.adminPostProduct;
+  // Override adminPostProduct to handle both single and multiple images
+  // NOTE: This completely replaces the inline-script version so it works regardless of load order.
   window.adminPostProduct = async function(){
     // If multi-files are selected, handle upload here and inject into the original function
     var files = window._mallProductFiles || [];
     if(files.length === 0){
-      // Fall back to original behaviour
-      if(_origPostProduct) return _origPostProduct();
+      // Single-file fallback: use the standard form fields + mallProdFile input
+      var sb = getSB();
+      var name0 = (document.getElementById('mallProdName').value||'').trim();
+      var cat0  = document.getElementById('mallProdCat').value;
+      var price0 = parseFloat(document.getElementById('mallProdPrice').value);
+      var origPrice0 = parseFloat(document.getElementById('mallProdOrigPrice').value)||null;
+      var seller0 = (document.getElementById('mallProdSeller').value||'').trim();
+      var wa0 = (document.getElementById('mallProdWA').value||'').trim();
+      var desc0 = (document.getElementById('mallProdDesc').value||'').trim();
+      var badge0 = (document.getElementById('mallProdBadge')||{value:''}).value;
+      var coloursRaw0 = (document.getElementById('mallProdColours') ? document.getElementById('mallProdColours').value||'' : '').trim();
+      var colourNamesRaw0 = (document.getElementById('mallProdColourNames') ? document.getElementById('mallProdColourNames').value||'' : '').trim();
+      var sizesRaw0 = (document.getElementById('mallProdSizes') ? document.getElementById('mallProdSizes').value||'' : '').trim();
+      var stock0 = parseInt((document.getElementById('mallProdStock')||{value:'0'}).value)||0;
+      var fileInput0 = document.getElementById('mallProdFile');
+      var singleFile = fileInput0 && fileInput0.files && fileInput0.files[0];
+
+      if(!name0||!cat0||isNaN(price0)||!seller0||!wa0||!desc0){
+        window.showStatus('mallPostStatus','Please fill in all required fields.','err'); return;
+      }
+      var btn0 = document.querySelector('[onclick="adminPostProduct()"]');
+      if(btn0){ btn0.disabled=true; btn0.innerHTML='<i class="fas fa-spinner fa-spin"></i> Posting...'; }
+      window.showStatus('mallPostStatus','Uploading...','info');
+
+      var imgUrl0 = null;
+      if(singleFile && sb){
+        try{
+          var ext0 = singleFile.name.split('.').pop().toLowerCase();
+          var path0 = 'mall/'+Date.now()+'-'+name0.toLowerCase().replace(/[^a-z0-9]/g,'-').substring(0,20)+'.'+ext0;
+          var up0 = await sb.storage.from(BUCKET).upload(path0, singleFile, {upsert:true, contentType:singleFile.type});
+          if(!up0.error) imgUrl0 = sb.storage.from(BUCKET).getPublicUrl(path0).data.publicUrl;
+        }catch(e){ console.warn('Single image upload failed:', e); }
+      }
+
+      var sellerId0 = 'GUM-'+String(Date.now()).slice(-4);
+      try{
+        var r0 = await fetch(SUPA_URL+'/rest/v1/mall_products',{
+          method:'POST',
+          headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+          body:JSON.stringify({
+            name:name0, category:cat0, price:price0, original_price:origPrice0,
+            description:desc0, image_url:imgUrl0||null, seller_name:seller0,
+            seller_whatsapp:wa0, seller_id:sellerId0, status:'approved',
+            colours:coloursRaw0?JSON.stringify(coloursRaw0.split(',').map(function(s){return s.trim();})):'[]',
+            colour_names:colourNamesRaw0?JSON.stringify(colourNamesRaw0.split(',').map(function(s){return s.trim();})):'[]',
+            sizes:sizesRaw0?JSON.stringify(sizesRaw0.split(',').map(function(s){return s.trim();})):'[]',
+            stock:stock0, verified:true, featured:true, badge:badge0||null,
+            created_at:new Date().toISOString()
+          })
+        });
+        if(!r0.ok) throw new Error('HTTP '+r0.status);
+        window.showStatus('mallPostStatus','✅ Product posted! Seller ID: '+sellerId0,'ok');
+        if(window.logActivity) window.logActivity('Posted mall product: '+name0+' ('+sellerId0+')');
+        ['mallProdName','mallProdPrice','mallProdOrigPrice','mallProdSeller','mallProdWA','mallProdDesc','mallProdColours','mallProdColourNames','mallProdSizes','mallProdStock'].forEach(function(id){
+          var e=document.getElementById(id); if(e) e.value='';
+        });
+        document.getElementById('mallProdCat').value='';
+        if(document.getElementById('mallProdBadge')) document.getElementById('mallProdBadge').value='';
+        if(document.getElementById('mallProdFileChosen')) document.getElementById('mallProdFileChosen').textContent='';
+        var prev0=document.getElementById('mallProdPreview'); if(prev0){prev0.style.display='none';prev0.innerHTML='';}
+        if(fileInput0) fileInput0.value='';
+        if(window.loadMallAdmin) window.loadMallAdmin();
+      }catch(e){ window.showStatus('mallPostStatus','❌ '+e.message,'err'); }
+      if(btn0){ btn0.disabled=false; btn0.innerHTML='<i class="fas fa-paper-plane"></i> Post to Mall'; }
       return;
     }
 

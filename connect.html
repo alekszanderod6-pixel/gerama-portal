@@ -675,7 +675,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
         <img id="statusPhotoPreview" style="display:none;max-width:100%;border-radius:10px;margin-top:0.5rem;" alt="">
       </div>
       <input type="file" id="statusPhotoInput" accept="image/*" style="display:none;" onchange="previewStatusPhoto(this)">
-      <input type="text" id="statusPhotoCaption" placeholder="Optional caption…" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;">
+      <input type="text" id="statusPhotoCaption" placeholder="📝 Add a caption…" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;margin-top:0.5rem;transition:border 0.2s;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#c8e6c9'">
     </div>
     <!-- Video status -->
     <div id="statusVideoArea" style="display:none;">
@@ -685,7 +685,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
         <video id="statusVideoPreview" style="display:none;max-width:100%;border-radius:10px;margin-top:0.6rem;max-height:220px;" controls playsinline></video>
       </div>
       <input type="file" id="statusVideoInput" accept="video/*" style="display:none;" onchange="previewStatusVideo(this)">
-      <input type="text" id="statusVideoCaption" placeholder="Optional caption…" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;">
+      <input type="text" id="statusVideoCaption" placeholder="📝 Add a caption…" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;margin-top:0.5rem;transition:border 0.2s;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#c8e6c9'">
     </div>
     <div id="statusPostMsg" style="font-size:0.82rem;min-height:1rem;margin-bottom:0.5rem;color:#1B5E20;"></div>
     <button onclick="postStatus()" style="width:100%;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.75rem;border-radius:16px;font-size:0.92rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;">
@@ -766,6 +766,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 <div class="toast" id="toast"></div>
 
 <script src="js/main.js"></script>
+<script src="js/gerama-features.js"></script>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -965,9 +966,15 @@ function renderStorySlide(data,idx){
   if(timeEl)timeEl.textContent=timeAgo(s.created_at);
   if(avLetter)avLetter.textContent=(s.author_name||'?').charAt(0).toUpperCase();
   if(s.type==='photo'&&s.photo_url){
-    content.innerHTML='<img src="'+esc(s.photo_url)+'" style="max-width:100%;max-height:60vh;object-fit:contain;">'+(s.caption?'<div style="padding:0.5rem 1rem;color:white;font-weight:600;text-align:center;">'+esc(s.caption)+'</div>':'');
+    content.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;width:100%;height:100%;">' +
+      '<img src="'+esc(s.photo_url)+'" style="max-width:100%;max-height:52vh;object-fit:contain;flex:1;">' +
+      (s.caption?'<div style="padding:0.6rem 1.2rem 0.4rem;color:white;font-weight:600;font-size:0.95rem;text-align:center;background:rgba(0,0,0,0.4);width:100%;line-height:1.5;">'+esc(s.caption)+'</div>':'') +
+    '</div>';
   } else if(s.type==='video'&&s.video_url){
-    content.innerHTML='<video src="'+esc(s.video_url)+'" style="max-width:100%;max-height:60vh;object-fit:contain;border-radius:8px;" controls autoplay playsinline></video>'+(s.caption?'<div style="padding:0.5rem 1rem;color:white;font-weight:600;text-align:center;">'+esc(s.caption)+'</div>':'');
+    content.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;width:100%;height:100%;">' +
+      '<video src="'+esc(s.video_url)+'" style="max-width:100%;max-height:52vh;object-fit:contain;border-radius:0;flex:1;" controls autoplay playsinline></video>' +
+      (s.caption?'<div style="padding:0.6rem 1.2rem 0.4rem;color:white;font-weight:600;font-size:0.95rem;text-align:center;background:rgba(0,0,0,0.4);width:100%;line-height:1.5;">'+esc(s.caption)+'</div>':'') +
+    '</div>';
   } else {
     content.innerHTML='<div style="background:'+esc(s.bg||'linear-gradient(135deg,#1B5E20,#2E7D32)')+';width:100%;min-height:50vh;display:flex;align-items:center;justify-content:center;padding:2rem;text-align:center;"><div style="font-size:1.4rem;font-weight:800;color:white;line-height:1.4;">'+esc(s.text||'')+'</div></div>';
   }
@@ -1148,6 +1155,11 @@ async function loadDMThreads(){
   list.innerHTML='<div style="text-align:center;padding:1rem;color:var(--muted);font-size:0.8rem;"><i class="fas fa-spinner fa-spin"></i></div>';
   var {data}=await _sb.from('connect_messages').select('*').or('sender_email.eq.'+_me.email+',recipient_email.eq.'+_me.email).eq('is_group',false).order('created_at',{ascending:false}).limit(200);
   data=data||[];
+
+  // Load locally hidden threads (whole conversations the user deleted for themselves)
+  var hiddenThreadsKey = 'gerama_hidden_threads_'+_me.email;
+  var hiddenThreads = JSON.parse(localStorage.getItem(hiddenThreadsKey)||'[]');
+
   var threads={};
   data.forEach(function(m){
     var other=m.sender_email===_me.email?m.recipient_email:m.sender_email;
@@ -1158,7 +1170,13 @@ async function loadDMThreads(){
     list.innerHTML='<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:0.82rem;"><i class="fas fa-comment-dots" style="font-size:1.8rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No conversations yet.<br>Tap + to start chatting!</div>';
     return;
   }
-  list.innerHTML=keys.sort(function(a,b){return new Date(threads[b].created_at)-new Date(threads[a].created_at);}).map(function(email){
+  // Filter: remove threads that are hidden by the user
+  var visibleKeys=keys.filter(function(email){ return !hiddenThreads.includes(email); });
+  if(!visibleKeys.length){
+    list.innerHTML='<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:0.82rem;"><i class="fas fa-comment-dots" style="font-size:1.8rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No conversations yet.<br>Tap + to start chatting!</div>';
+    return;
+  }
+  list.innerHTML=visibleKeys.sort(function(a,b){return new Date(threads[b].created_at)-new Date(threads[a].created_at);}).map(function(email){
     var t=threads[email];
     var unread=!t.is_read&&t.sender_email!==_me.email;
     var otherName=t.sender_email===_me.email?t.recipient_name||email:t.sender_name||email;
@@ -1177,8 +1195,14 @@ async function loadDMThreads(){
       '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;flex-shrink:0;">'+
         '<div class="ct-time">'+timeAgo(t.created_at)+'</div>'+
         (unread?'<div class="ct-unread" style="min-width:18px;text-align:center;">●</div>':'')+'</div>'+
+      '<button onclick="event.stopPropagation();hideDMThread(\''+esc(email)+'\')" title="Delete conversation" style="position:absolute;top:0.4rem;right:0.3rem;background:none;border:none;color:#9ca3af;font-size:0.72rem;cursor:pointer;padding:0.2rem;opacity:0;transition:opacity 0.2s;" class="thread-del-btn"><i class="fas fa-times"></i></button>'+
     '</div>';
   }).join('');
+  // Show delete button on hover
+  list.querySelectorAll('.chat-thread').forEach(function(el){
+    el.addEventListener('mouseenter',function(){var b=el.querySelector('.thread-del-btn');if(b)b.style.opacity='1';});
+    el.addEventListener('mouseleave',function(){var b=el.querySelector('.thread-del-btn');if(b)b.style.opacity='0';});
+  });
 }
 
 function openDMWith(email,name){
@@ -1754,19 +1778,19 @@ async function deleteMsg(forEveryone){
   if(forEveryone){
     await recallMsg();
   } else {
-    // Soft delete for the current user — mark in DB so it stays hidden on refresh
-    if(_me.email === _msgMenuTarget.mine && _msgMenuTarget.mine){
-      // sender: mark is_deleted=true (recall)
-      await _sb.from('connect_messages').update({is_deleted:true}).eq('id',_msgMenuTarget.id);
-    } else {
-      // recipient: store in localStorage that this message ID is hidden for us
-      var hiddenKey = 'gerama_hidden_msgs_'+_me.email;
-      var hidden = JSON.parse(localStorage.getItem(hiddenKey)||'[]');
-      if(!hidden.includes(_msgMenuTarget.id)) hidden.push(_msgMenuTarget.id);
-      // Cap at 500 IDs
-      if(hidden.length > 500) hidden = hidden.slice(-500);
-      localStorage.setItem(hiddenKey, JSON.stringify(hidden));
+    // Always store in localStorage so hidden messages stay hidden after refresh
+    var hiddenKey = 'gerama_hidden_msgs_'+_me.email;
+    var hidden = JSON.parse(localStorage.getItem(hiddenKey)||'[]');
+    if(!hidden.includes(_msgMenuTarget.id)) hidden.push(_msgMenuTarget.id);
+    if(hidden.length > 500) hidden = hidden.slice(-500);
+    localStorage.setItem(hiddenKey, JSON.stringify(hidden));
+
+    // If sender: also mark is_deleted in DB so recipient no longer sees it
+    if(_msgMenuTarget.mine === true || _msgMenuTarget.mine === 'true'){
+      await _sb.from('connect_messages').update({is_deleted:true})
+        .eq('id',_msgMenuTarget.id).eq('sender_email',_me.email);
     }
+
     var row=document.querySelector('[data-msgid="'+_msgMenuTarget.id+'"]');
     if(row) row.remove();
     toast('Message removed from your view');
@@ -1774,6 +1798,20 @@ async function deleteMsg(forEveryone){
 }
 
 function chatKeydown(e,email,name){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendDM(email,name);}}
+
+// Hide/delete a conversation from the thread list (stored locally)
+function hideDMThread(email){
+  if(!_me.email) return;
+  var hiddenThreadsKey = 'gerama_hidden_threads_'+_me.email;
+  var hiddenThreads = JSON.parse(localStorage.getItem(hiddenThreadsKey)||'[]');
+  if(!hiddenThreads.includes(email)) hiddenThreads.push(email);
+  if(hiddenThreads.length > 200) hiddenThreads = hiddenThreads.slice(-200);
+  localStorage.setItem(hiddenThreadsKey, JSON.stringify(hiddenThreads));
+  // If this is the active chat, close it
+  if(_activeDMEmail === email) clearChatView();
+  loadDMThreads();
+  toast('Conversation removed');
+}
 
 async function sendDM(email,name){
   var inp=document.getElementById('chatInput'); if(!inp||!inp.value.trim()) return;
@@ -1800,7 +1838,15 @@ async function sendDM(email,name){
     if(el) el.setAttribute('data-msgid',inserted.id);
     _sentMsgIds[inserted.id]=true;
   }
-  loadDMThreads();
+  // Unhide this thread if it was previously hidden (since the user is now actively messaging)
+  if(_me.email){
+    var hiddenThreadsKey = 'gerama_hidden_threads_'+_me.email;
+    var hiddenThreads = JSON.parse(localStorage.getItem(hiddenThreadsKey)||'[]');
+    var idx = hiddenThreads.indexOf(email);
+    if(idx !== -1){ hiddenThreads.splice(idx,1); localStorage.setItem(hiddenThreadsKey, JSON.stringify(hiddenThreads)); }
+  }
+  // Defer thread list refresh so the DB row is committed first (avoids race where sent msg looks missing)
+  setTimeout(function(){ loadDMThreads(); }, 800);
 }
 
 function openNewDM(){document.getElementById('newDMModal').style.display='flex';searchNewDM('');}

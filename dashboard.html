@@ -126,10 +126,13 @@
     @media(max-width:640px){.site-bottom-nav{display:flex;}body{padding-bottom:60px;}}
 
     /* ── FOOTER ── */
-    .site-footer{background:linear-gradient(180deg,#0a2f1f,#071a12);color:white;padding:2rem 5%;margin-top:0;}
-    .footer-bottom-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;}
+    .site-footer{background:linear-gradient(180deg,#0a2f1f,#071a12);color:white;padding:2rem 5% 0;margin-top:3rem;}
+    .footer-grid{max-width:1100px;margin:0 auto;padding:2rem 0 1rem;display:grid;grid-template-columns:2fr 1fr 1fr;gap:2rem;}
+    @media(max-width:640px){.footer-grid{grid-template-columns:1fr;gap:1.5rem;}}
+    .footer-bottom-bar{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;padding:1.2rem 0;border-top:1px solid rgba(255,255,255,0.1);}
     .footer-copy,.footer-credits{font-size:0.8rem;color:rgba(255,255,255,0.4);margin:0;}
     .footer-credits strong{color:rgba(255,255,255,0.6);}
+    @media(max-width:640px){.footer-bottom-bar{flex-direction:column;align-items:center;text-align:center;gap:0.3rem;}}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
@@ -290,7 +293,7 @@
         </div>
         <a href="connect.html?tab=groups" style="margin-left:auto;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;text-decoration:none;white-space:nowrap;"><i class="fas fa-arrow-right"></i> View</a>
       </div>
-      <div id="groupNewNotif" style="display:none;background:#fef3c7;border-radius:10px;padding:0.6rem 0.9rem;font-size:0.8rem;color:#92400e;font-weight:600;display:flex;align-items:center;gap:0.5rem;">
+      <div id="groupNewNotif" style="display:none;background:#fef3c7;border-radius:10px;padding:0.6rem 0.9rem;font-size:0.8rem;color:#92400e;font-weight:600;align-items:center;gap:0.5rem;">
         <i class="fas fa-bell"></i> You've been added to a new study group!
         <button onclick="dismissGroupNotif()" style="background:none;border:none;color:#92400e;cursor:pointer;font-size:0.78rem;margin-left:auto;text-decoration:underline;font-family:'Inter',sans-serif;">Dismiss</button>
       </div>
@@ -334,9 +337,46 @@
 
 <!-- FOOTER -->
 <footer class="site-footer">
+  <div class="footer-grid">
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.8rem;">
+        <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA" style="height:40px;border-radius:8px;border:2px solid rgba(255,193,7,0.4);">
+        <span style="color:white;font-weight:800;font-size:1rem;">GERAMA</span>
+      </div>
+      <p style="color:rgba(255,255,255,0.55);font-size:0.85rem;line-height:1.7;max-width:280px;">Ghana Engineering Resources &amp; Academic Materials Association — empowering engineering excellence at UENR.</p>
+    </div>
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#FFC107;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid rgba(255,193,7,0.2);">Quick Links</div>
+      <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:0.5rem;">
+        <li><a href="index.html" style="color:rgba(255,255,255,0.65);text-decoration:none;font-size:0.88rem;display:flex;align-items:center;gap:0.4rem;transition:color 0.2s;" onmouseover="this.style.color='#FFC107'" onmouseout="this.style.color='rgba(255,255,255,0.65)'"><i class="fas fa-home fa-fw" style="opacity:0.6;font-size:0.75rem;"></i> Home</a></li>
+        <li><a href="resources.html" style="color:rgba(255,255,255,0.65);text-decoration:none;font-size:0.88rem;display:flex;align-items:center;gap:0.4rem;transition:color 0.2s;" onmouseover="this.style.color='#FFC107'" onmouseout="this.style.color='rgba(255,255,255,0.65)'"><i class="fas fa-book-open fa-fw" style="opacity:0.6;font-size:0.75rem;"></i> Resources</a></li>
+        <li><a href="classroom.html" style="color:rgba(255,255,255,0.65);text-decoration:none;font-size:0.88rem;display:flex;align-items:center;gap:0.4rem;transition:color 0.2s;" onmouseover="this.style.color='#FFC107'" onmouseout="this.style.color='rgba(255,255,255,0.65)'"><i class="fas fa-chalkboard-teacher fa-fw" style="opacity:0.6;font-size:0.75rem;"></i> Classroom</a></li>
+        <li><a href="connect.html" style="color:#0ea5e9;text-decoration:none;font-size:0.88rem;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-satellite-dish fa-fw" style="font-size:0.75rem;"></i> Connect</a></li>
+        <li><a href="mall.html" style="color:#FFC107;text-decoration:none;font-size:0.88rem;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-store fa-fw" style="font-size:0.75rem;"></i> Urban Mall</a></li>
+      </ul>
+    </div>
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#FFC107;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid rgba(255,193,7,0.2);">Contact Us</div>
+      <ul style="list-style:none;padding:0;margin:0 0 1rem;display:flex;flex-direction:column;gap:0.7rem;">
+        <li style="display:flex;align-items:flex-start;gap:0.6rem;font-size:0.85rem;color:rgba(255,255,255,0.6);">
+          <span style="width:26px;height:26px;border-radius:7px;background:rgba(255,193,7,0.15);display:flex;align-items:center;justify-content:center;color:#FFC107;font-size:0.78rem;flex-shrink:0;"><i class="fas fa-envelope"></i></span>
+          <a href="mailto:gerama.uenr@gmail.com" style="color:rgba(255,255,255,0.6);text-decoration:none;" onmouseover="this.style.color='#FFC107'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">gerama.uenr@gmail.com</a>
+        </li>
+        <li style="display:flex;align-items:flex-start;gap:0.6rem;font-size:0.85rem;color:rgba(255,255,255,0.6);">
+          <span style="width:26px;height:26px;border-radius:7px;background:rgba(255,193,7,0.15);display:flex;align-items:center;justify-content:center;color:#FFC107;font-size:0.78rem;flex-shrink:0;"><i class="fab fa-whatsapp"></i></span>
+          <a href="https://wa.me/233555749497" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.6);text-decoration:none;" onmouseover="this.style.color='#FFC107'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">+233 55 574 9497</a>
+        </li>
+        <li style="display:flex;align-items:flex-start;gap:0.6rem;font-size:0.85rem;color:rgba(255,255,255,0.6);">
+          <span style="width:26px;height:26px;border-radius:7px;background:rgba(255,193,7,0.15);display:flex;align-items:center;justify-content:center;color:#FFC107;font-size:0.78rem;flex-shrink:0;"><i class="fas fa-map-marker-alt"></i></span>
+          <span>UENR, Sunyani<br>Bono Region, Ghana</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,193,7,0.25),rgba(255,255,255,0.08),rgba(255,193,7,0.25),transparent);"></div>
   <div class="footer-bottom-bar">
     <p class="footer-copy">© 2026 GERAMA Academic Resources · All rights reserved</p>
-    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> · Editor: <strong>Edem H.K Prince</strong></p>
+    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
   </div>
 </footer>
 
@@ -350,6 +390,7 @@
 </nav>
 
 <script src="js/main.js"></script>
+<script src="js/gerama-features.js"></script>
 <script>
 'use strict';
 
@@ -479,12 +520,34 @@ async function loadDashboardData(){
   if(!email) email = (userProfile.email||'').toLowerCase().trim();
   if(!email){ document.getElementById('gradesSection').innerHTML='<p style="color:#9ca3af;text-align:center;font-size:0.85rem;padding:1rem;">Please log in to see your data.</p>'; return; }
 
-  // Parallel load: grades, profile from DB, attendance, group
-  var [gradesRes, profRes, attRes] = await Promise.all([
+  // Parallel load: grades + quizzes + assignments (for max marks) + profile + attendance + group
+  var [gradesRes, quizzesRes, assignmentsRes, profRes, attRes] = await Promise.all([
     sb.from('student_grades').select('*').eq('student_email', email).order('graded_at',{ascending:false}).limit(20),
+    sb.from('quizzes').select('title,course,points'),
+    sb.from('assignments').select('title,course,points'),
     sb.from('user_profiles').select('*').eq('email', email).maybeSingle(),
     sb.from('attendance_records').select('id,class_title,marked_at').eq('student_email', email).order('marked_at',{ascending:false}).limit(10)
   ]);
+
+  // Build title → {course, points, type} lookup for enriching grades
+  var itemMap = {};
+  (quizzesRes.data||[]).forEach(function(q){
+    if(q.title) itemMap[q.title.toLowerCase().trim()] = {course:q.course||'', points:q.points||null, type:'quiz'};
+  });
+  (assignmentsRes.data||[]).forEach(function(a){
+    if(a.title) itemMap[a.title.toLowerCase().trim()] = {course:a.course||'', points:a.points||null, type:'assignment'};
+  });
+
+  // Enrich grades with type, course, max marks
+  var rawGrades = gradesRes.data || [];
+  rawGrades.forEach(function(g){
+    var key = (g.assignment_title||'').toLowerCase().trim();
+    var meta = itemMap[key];
+    g._type   = meta ? meta.type : 'assignment';
+    g.course  = g.course || (meta ? meta.course : '');
+    g.points  = g.points || (meta ? meta.points : null);
+    g.total_marks = g.total_marks || g.points;
+  });
 
   // Sync Supabase profile data to localStorage
   if(profRes && profRes.data){
@@ -524,10 +587,10 @@ async function loadDashboardData(){
   }catch(e){}
 
   // Render grades
-  renderGrades(gradesRes.data || []);
+  renderGrades(rawGrades);
 
   // Update quick stats
-  var grades = gradesRes.data || [];
+  var grades = rawGrades;
   var qDone = JSON.parse(localStorage.getItem('gerama_quizzes_done')||'{}');
   var qCount = Object.keys(qDone).length;
   var attCount = (attRes.data || []).length;
@@ -560,18 +623,46 @@ function renderGrades(grades){
     sec.innerHTML = '<div style="text-align:center;padding:1.5rem;color:#9ca3af;font-size:0.85rem;"><i class="fas fa-star" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No grades yet. They appear here once graded.</div>';
     return;
   }
-  sec.innerHTML = grades.slice(0,8).map(function(g){
-    var score = g.score !== null && g.score !== undefined ? g.score : '—';
-    var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
-    var scoreColor = typeof g.score === 'number' ? (g.score >= 70 ? '#059669' : g.score >= 50 ? '#d97706' : '#dc2626') : '#1B5E20';
-    var icon = g._type === 'quiz' ? 'fa-brain' : 'fa-file-alt';
-    return '<div class="grade-item">'+
-      '<div class="grade-item-icon"><i class="fas '+icon+'"></i></div>'+
-      '<div class="grade-item-info">'+
-        '<div class="grade-item-title">'+escD(g.assignment_title||'Assignment')+'</div>'+
-        '<div class="grade-item-sub">'+escD(g.course||'')+(dt?' · Graded '+dt:'')+'</div>'+
+  // Enrich with assignment/quiz max marks from localStorage if available
+  sec.innerHTML = grades.slice(0,10).map(function(g){
+    var score = (g.score !== null && g.score !== undefined) ? g.score : '—';
+    var maxPts = g.total_marks || g.points || null;
+    var pct = (maxPts && score !== '—') ? Math.round((parseFloat(score)/parseFloat(maxPts))*100) : null;
+    var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+    var participatedDt = g.participated_at ? new Date(g.participated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : null;
+    var scoreColor = '#1B5E20';
+    var scoreBg = '#e8f5e9';
+    if(score !== '—'){
+      var n = parseFloat(score);
+      var ref = pct !== null ? pct : n;
+      if(ref >= 70){ scoreColor='#059669'; scoreBg='#d1fae5'; }
+      else if(ref >= 50){ scoreColor='#d97706'; scoreBg='#fef3c7'; }
+      else { scoreColor='#dc2626'; scoreBg='#fee2e2'; }
+    }
+    var isQuiz = g._type === 'quiz' || (g.assignment_title||'').toLowerCase().includes('quiz');
+    var icon = isQuiz ? 'fa-brain' : 'fa-file-alt';
+    var typeBg = isQuiz ? '#e0f2fe' : '#f3e8ff';
+    var typeColor = isQuiz ? '#0369a1' : '#6d28d9';
+    var typeLabel = isQuiz ? 'Quiz' : 'Assignment';
+    var progressBar = (pct !== null) ?
+      '<div style="margin-top:0.4rem;height:4px;background:#e5e7eb;border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:'+scoreColor+';border-radius:4px;transition:width 0.6s ease;"></div></div>' : '';
+
+    return '<div class="grade-item" style="flex-direction:column;align-items:stretch;gap:0;padding:0.8rem;">'+
+      '<div style="display:flex;align-items:center;gap:0.7rem;">'+
+        '<div class="grade-item-icon" style="background:'+typeColor+';"><i class="fas '+icon+'"></i></div>'+
+        '<div class="grade-item-info" style="flex:1;min-width:0;">'+
+          '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.15rem;">'+
+            '<span style="font-size:0.62rem;font-weight:700;background:'+typeBg+';color:'+typeColor+';padding:0.1rem 0.4rem;border-radius:8px;">'+typeLabel+'</span>'+
+          '</div>'+
+          '<div class="grade-item-title">'+escD(g.assignment_title||'—')+'</div>'+
+          '<div class="grade-item-sub">'+escD(g.course||g._course||'')+(participatedDt?' · '+participatedDt:dt?' · Graded '+dt:'')+'</div>'+
+        '</div>'+
+        '<div style="background:'+scoreBg+';color:'+scoreColor+';font-size:1rem;font-weight:900;padding:0.35rem 0.7rem;border-radius:10px;white-space:nowrap;text-align:center;min-width:58px;flex-shrink:0;">'+
+          score+(maxPts?'<span style="font-size:0.6rem;opacity:0.7;">/'+maxPts+'</span>':'<span style="font-size:0.6rem;opacity:0.7;"> pts</span>')+
+          (pct!==null?'<div style="font-size:0.6rem;opacity:0.65;">'+pct+'%</div>':'')+
+        '</div>'+
       '</div>'+
-      '<div class="grade-item-score" style="color:'+scoreColor+';">'+score+'</div>'+
+      progressBar+
     '</div>';
   }).join('');
 }
@@ -613,7 +704,7 @@ function dismissGroupNotif(){
   var sb = window.geramaSupabase;
   if(!sb){ setTimeout(watchGrades, 600); return; }
   var email = (userProfile.email||'').toLowerCase().trim();
-  if(!email) return;
+  if(!email){ setTimeout(watchGrades, 1000); return; }
   sb.channel('grade-dashboard-'+email.replace(/[^a-z0-9]/gi,'-'))
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'student_grades'},function(p){
       var g = p.new; if(!g||g.student_email!==email) return;
@@ -625,7 +716,20 @@ function dismissGroupNotif(){
         badge.classList.add('show');
         setTimeout(function(){ badge.classList.remove('show'); }, 6000);
       }
-    }).subscribe();
+    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'student_grades'},function(p){
+      var g = p.new; if(!g||g.student_email!==email) return;
+      loadDashboardData();
+      // Also flash notification on re-grade
+      var badge = document.getElementById('gradeNotifBadge');
+      var text = document.getElementById('gradeNotifText');
+      if(badge && text){
+        text.textContent = '✏️ Grade updated: '+(g.assignment_title||'Assignment')+' → '+g.score+' pts';
+        badge.classList.add('show');
+        setTimeout(function(){ badge.classList.remove('show'); }, 6000);
+      }
+    })
+    .subscribe();
 })();
 
 // ── Logout ────────────────────────────────────────────
@@ -645,8 +749,6 @@ async function logoutUser(){
 </script>
 </body>
 </html>
-    <style>
-        .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1.5fr;
             gap: 2rem;
