@@ -291,6 +291,15 @@
                 msg.style.borderRadius = '10px';
                 msg.innerText = '✅ Account created! Sign in with your email and password below.';
             }
+            // Coming from a password reset — pre-fill a helpful message
+            if (params.get('reset') === 'success') {
+                var msg2 = document.getElementById('errorMsg');
+                msg2.style.color = '#065f46';
+                msg2.style.background = '#d1fae5';
+                msg2.style.padding = '0.6rem 1rem';
+                msg2.style.borderRadius = '10px';
+                msg2.innerText = '🔐 Password reset! Sign in with your new password.';
+            }
         })();
     </script>
 </body>

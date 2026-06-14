@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Reset Password | GERAMA Portal</title>
     <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
     <script src="js/supabase-config.js"></script>
     <style>
@@ -42,7 +43,7 @@
         .step.active { display: block; }
         .step-title { font-size: 1.1rem; font-weight: 700; color: #1e2a3e; margin-bottom: 0.4rem; }
         .step-sub { font-size: 0.88rem; color: #6b7280; margin-bottom: 1.5rem; line-height: 1.6; }
-        .form-group { margin-bottom: 1.2rem; }
+        .form-group { margin-bottom: 1.2rem; position: relative; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 0.4rem; color: #1e2a3e; font-size: 0.9rem; }
         .form-group input {
             width: 100%;
@@ -52,8 +53,15 @@
             font-size: 0.95rem;
             font-family: 'Inter', sans-serif;
             transition: all 0.2s;
+            box-sizing: border-box;
         }
         .form-group input:focus { outline: none; border-color: #1B5E20; box-shadow: 0 0 0 3px rgba(27,94,32,0.12); }
+        .eye-btn {
+            position: absolute; right: 0.9rem; bottom: 0.75rem;
+            background: none; border: none; color: #9ca3af; cursor: pointer;
+            font-size: 1rem; padding: 0.2rem; transition: color 0.2s;
+        }
+        .eye-btn:hover { color: #1B5E20; }
         .btn {
             width: 100%;
             padding: 0.85rem;
@@ -67,32 +75,39 @@
             transition: all 0.3s;
             margin-top: 0.5rem;
             font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         .btn:hover:not(:disabled) { background: linear-gradient(135deg, #FFC107, #FFD54F); color: #1B5E20; transform: translateY(-2px); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-ghost {
-            background: none; color: #6b7280; border: 2px solid #e5e7eb; margin-top: 0.6rem;
-        }
+        .btn-ghost { background: none; color: #6b7280; border: 2px solid #e5e7eb; margin-top: 0.6rem; }
         .btn-ghost:hover:not(:disabled) { background: #f8fafc; color: #1e2a3e; transform: none; }
         .msg {
             padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.87rem;
-            font-weight: 500; margin-top: 0.8rem; display: none;
-            text-align: center; line-height: 1.5;
+            font-weight: 500; margin-top: 0.8rem;
+            text-align: center; line-height: 1.5; display: none;
         }
         .msg.error   { background: #fee2e2; color: #991b1b; display: block; }
         .msg.success { background: #d1fae5; color: #065f46; display: block; }
         .msg.info    { background: #dbeafe; color: #1e40af; display: block; }
-        .pw-strength { height: 4px; border-radius: 2px; background: #e5e7eb; margin-top: 0.4rem; overflow: hidden; }
+        .pw-wrap { position: relative; }
+        .pw-strength { height: 4px; border-radius: 2px; background: #e5e7eb; margin-top: 0.5rem; overflow: hidden; }
         .pw-fill { height: 100%; border-radius: 2px; width: 0%; transition: all 0.3s; }
+        .pw-hint { font-size: 0.75rem; color: #9ca3af; margin-top: 0.3rem; }
         .done-screen { display: none; text-align: center; padding: 1rem 0 0.5rem; }
         .done-screen .icon { font-size: 3.5rem; margin-bottom: 0.8rem; }
-        .done-screen h2 { color: #1B5E20; margin-bottom: 0.6rem; }
+        .done-screen h2 { color: #1B5E20; margin-bottom: 0.6rem; font-size: 1.3rem; }
         .done-screen p { color: #6b7280; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.6; }
         .done-screen a {
-            display: inline-block; background: #1B5E20; color: white;
-            padding: 0.7rem 2rem; border-radius: 30px; text-decoration: none;
-            font-weight: 600; font-size: 0.9rem;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            color: white; padding: 0.75rem 2rem; border-radius: 30px;
+            text-decoration: none; font-weight: 700; font-size: 0.9rem;
+            transition: all 0.2s;
         }
+        .done-screen a:hover { background: linear-gradient(135deg, #FFC107, #FFD54F); color: #1B5E20; }
         .back-link { text-align: center; margin-top: 1.5rem; font-size: 0.88rem; }
         .back-link a { color: #1B5E20; text-decoration: none; font-weight: 600; }
         .email-sent-icon { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
@@ -100,6 +115,19 @@
         .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #e5e7eb; transition: all 0.3s; }
         .step-dot.active { background: #1B5E20; transform: scale(1.3); }
         .step-dot.done { background: #FFC107; }
+        /* Token expired info box */
+        .info-box {
+            background: #fffbeb; border: 1px solid #fcd34d; border-radius: 14px;
+            padding: 1rem 1.2rem; font-size: 0.85rem; color: #92400e; line-height: 1.6;
+            margin-bottom: 1.2rem;
+        }
+        .info-box strong { color: #78350f; }
+        /* Loading spinner overlay */
+        .loading-overlay {
+            text-align: center; padding: 2rem 0;
+        }
+        .loading-overlay .spin { font-size: 2rem; color: #1B5E20; animation: spin 1s linear infinite; display: block; margin-bottom: 0.8rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -111,257 +139,418 @@
     </div>
     <div class="card-body">
 
-        <div class="steps-indicator">
+        <div class="steps-indicator" id="stepsIndicator">
             <div class="step-dot active" id="dot1"></div>
             <div class="step-dot" id="dot2"></div>
+            <div class="step-dot" id="dot3"></div>
+        </div>
+
+        <!-- LOADING — shown while checking URL token -->
+        <div id="loadingScreen" class="loading-overlay" style="display:none;">
+            <i class="fas fa-circle-notch spin"></i>
+            <div style="color:#6b7280;font-size:0.9rem;">Verifying your reset link…</div>
         </div>
 
         <!-- STEP 1: Enter email -->
         <div class="step active" id="step1">
-            <div class="step-title">Enter your email</div>
-            <div class="step-sub">We'll send a password reset link to your registered email. Click the link in the email to set a new password.</div>
+            <div class="step-title">Forgot your password?</div>
+            <div class="step-sub">Enter the email you signed up with. We'll send a secure reset link straight to your inbox.</div>
             <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="resetEmail" placeholder="your@email.com" autocomplete="email">
+                <label for="resetEmail">Email Address</label>
+                <input type="email" id="resetEmail" placeholder="your@email.com" autocomplete="email"
+                    onkeydown="if(event.key==='Enter') sendResetLink()">
             </div>
             <button class="btn" id="sendLinkBtn" onclick="sendResetLink()">
                 <i class="fas fa-paper-plane"></i> Send Reset Link
             </button>
             <div class="msg" id="msg1"></div>
+            <div class="back-link"><a href="login.html"><i class="fas fa-arrow-left"></i> Back to Sign In</a></div>
         </div>
 
-        <!-- STEP 2: Email sent confirmation -->
+        <!-- STEP 2: Email sent — waiting for user to click link -->
         <div class="step" id="step2">
             <div class="email-sent-icon">📧</div>
             <div class="step-title" style="text-align:center;">Check your email</div>
             <div class="step-sub" style="text-align:center;">
-                We sent a password reset link to <strong id="emailDisplay"></strong>.<br><br>
-                Click the link in the email — it will bring you back here to set your new password.<br><br>
-                <span style="color:#f59e0b;font-weight:600;">⚠️ Check your spam/junk folder if you don't see it within 2 minutes.</span>
+                We sent a reset link to <strong id="emailDisplay" style="color:#1B5E20;"></strong>.<br><br>
+                Click the link in that email — it will bring you <strong>back to this page</strong> automatically to set your new password.
+            </div>
+            <div class="info-box">
+                <strong>⚠️ Don't see the email?</strong><br>
+                · Check your <strong>Spam / Junk</strong> folder<br>
+                · Allow 1–2 minutes for delivery<br>
+                · The link expires after <strong>1 hour</strong>
             </div>
             <button class="btn btn-ghost" onclick="resendLink()" id="resendBtn">
                 <i class="fas fa-redo"></i> Resend Link
             </button>
             <div class="msg" id="msg2"></div>
+            <div class="back-link" style="margin-top:1rem;"><a href="reset-code.html"><i class="fas fa-arrow-left"></i> Start over</a></div>
         </div>
 
         <!-- STEP 3: Set new password (shown after clicking email link) -->
         <div class="step" id="step3">
-            <div class="step-title">Set new password</div>
-            <div class="step-sub">You're verified. Choose a strong new password for your account.</div>
-            <div class="form-group">
-                <label>New Password</label>
-                <input type="password" id="newPassword" placeholder="At least 6 characters" oninput="checkPwStrength(this.value)">
+            <div class="step-title">🔐 Set your new password</div>
+            <div class="step-sub">Your identity is verified. Choose a strong new password — this is what you'll use to sign in from now on.</div>
+            <div class="form-group pw-wrap">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" placeholder="At least 6 characters"
+                    oninput="checkPwStrength(this.value)"
+                    onkeydown="if(event.key==='Enter') document.getElementById('confirmNewPassword').focus()">
+                <button type="button" class="eye-btn" onclick="togglePw('newPassword',this)" title="Show/hide">
+                    <i class="fas fa-eye"></i>
+                </button>
                 <div class="pw-strength"><div class="pw-fill" id="pwFill"></div></div>
+                <div class="pw-hint" id="pwHint">Enter a password to see strength</div>
             </div>
-            <div class="form-group">
-                <label>Confirm New Password</label>
-                <input type="password" id="confirmNewPassword" placeholder="Re-enter new password">
+            <div class="form-group pw-wrap">
+                <label for="confirmNewPassword">Confirm New Password</label>
+                <input type="password" id="confirmNewPassword" placeholder="Re-enter your new password"
+                    onkeydown="if(event.key==='Enter') resetPassword()">
+                <button type="button" class="eye-btn" onclick="togglePw('confirmNewPassword',this)" title="Show/hide">
+                    <i class="fas fa-eye"></i>
+                </button>
             </div>
             <button class="btn" id="resetBtn" onclick="resetPassword()">
-                <i class="fas fa-lock"></i> Update Password
+                <i class="fas fa-lock"></i> Update Password &amp; Sign In
             </button>
             <div class="msg" id="msg3"></div>
         </div>
 
+        <!-- TOKEN EXPIRED / INVALID -->
+        <div class="step" id="stepExpired">
+            <div style="text-align:center;padding:1rem 0;">
+                <div style="font-size:3rem;margin-bottom:0.8rem;">⏳</div>
+                <div class="step-title" style="text-align:center;">Link Expired or Invalid</div>
+                <div class="step-sub" style="text-align:center;">
+                    This reset link has expired or has already been used. Reset links are valid for 1 hour.<br><br>
+                    Please request a new one.
+                </div>
+                <button class="btn" onclick="restartFlow()" style="max-width:260px;margin:0 auto;">
+                    <i class="fas fa-redo"></i> Request New Link
+                </button>
+            </div>
+        </div>
+
         <!-- Done -->
         <div class="done-screen" id="doneScreen">
-            <div class="icon">🔐</div>
+            <div class="icon">✅</div>
             <h2>Password Updated!</h2>
-            <p>Your password has been successfully reset. You can now sign in with your new password.</p>
-            <a href="login.html">Sign In →</a>
+            <p>Your password has been reset successfully.<br>You can now sign in with your new password.</p>
+            <a href="login.html?reset=success"><i class="fas fa-sign-in-alt"></i> Sign In Now</a>
         </div>
 
-        <div class="back-link" id="backToLogin">
-            <a href="login.html">← Back to Sign In</a>
-        </div>
-    </div>
-</div>
+    </div><!-- /card-body -->
+</div><!-- /card -->
 
 <script>
+'use strict';
+
 var currentEmail = '';
 
-function updateDots(active) {
-    for(var i=1;i<=2;i++){
-        var d=document.getElementById('dot'+i);
-        d.classList.remove('active','done');
-        if(i<active) d.classList.add('done');
-        if(i===active) d.classList.add('active');
-    }
+// ── Helpers ──────────────────────────────────────────────────────
+function showMsg(id, text, type) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'msg' + (type ? ' ' + type : '');
+    el.style.display = text ? '' : 'none';
 }
 
 function showStep(n) {
-    document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
-    var el = document.getElementById('step'+n);
-    if(el) el.classList.add('active');
-    updateDots(n <= 2 ? n : 2);
+    ['step1','step2','step3','stepExpired'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+    });
+    var target = document.getElementById('step' + n);
+    if (target) target.classList.add('active');
+    updateDots(n);
+    document.getElementById('loadingScreen').style.display = 'none';
 }
 
-function showMsg(id, text, type) {
-    var el = document.getElementById(id);
-    if(!el) return;
-    el.textContent = text;
-    el.className = 'msg' + (type ? ' '+type : '');
-    if(!text) el.style.display = 'none';
+function showDone() {
+    ['step1','step2','step3','stepExpired'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+    });
+    document.getElementById('stepsIndicator').style.display = 'none';
+    document.getElementById('doneScreen').style.display = 'block';
+    document.getElementById('loadingScreen').style.display = 'none';
+}
+
+function showExpired() {
+    ['step1','step2','step3'].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el) el.classList.remove('active');
+    });
+    document.getElementById('stepExpired').classList.add('active');
+    document.getElementById('stepsIndicator').style.display = 'none';
+    document.getElementById('loadingScreen').style.display = 'none';
+}
+
+function updateDots(active) {
+    for (var i = 1; i <= 3; i++) {
+        var d = document.getElementById('dot' + i);
+        if (!d) continue;
+        d.classList.remove('active', 'done');
+        if (i < active) d.classList.add('done');
+        if (i === active) d.classList.add('active');
+    }
+}
+
+function togglePw(inputId, btn) {
+    var inp = document.getElementById(inputId);
+    if (!inp) return;
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+    btn.querySelector('i').className = 'fas fa-' + (inp.type === 'password' ? 'eye' : 'eye-slash');
+}
+
+function restartFlow() {
+    document.getElementById('stepExpired').classList.remove('active');
+    document.getElementById('stepsIndicator').style.display = 'flex';
+    showStep(1);
+    // Clean the URL so there's no stale token
+    if (history.replaceState) history.replaceState(null, '', window.location.pathname);
+}
+
+// ── Password strength ─────────────────────────────────────────────
+function checkPwStrength(val) {
+    var fill = document.getElementById('pwFill');
+    var hint = document.getElementById('pwHint');
+    if (!val) {
+        fill.style.width = '0%';
+        hint.textContent = 'Enter a password to see strength';
+        return;
+    }
+    var score = 0;
+    if (val.length >= 6)  score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9!@#$%^&*]/.test(val)) score++;
+    var colors = ['#ef4444','#f97316','#eab308','#22c55e','#16a34a'];
+    var labels = ['Too short','Weak','Fair','Good','Strong'];
+    var pct    = [20,40,60,80,100];
+    fill.style.background = colors[Math.max(score-1,0)];
+    fill.style.width = (pct[Math.max(score-1,0)]) + '%';
+    hint.textContent = labels[Math.max(score-1,0)];
+    hint.style.color = colors[Math.max(score-1,0)];
+}
+
+// ── Wait for Supabase ─────────────────────────────────────────────
+function waitForSupa(timeout) {
+    return new Promise(function(resolve, reject) {
+        var waited = 0;
+        var interval = setInterval(function() {
+            if (typeof window.geramaSupabase !== 'undefined') {
+                clearInterval(interval);
+                resolve(window.geramaSupabase);
+            }
+            waited += 150;
+            if (waited >= (timeout || 6000)) {
+                clearInterval(interval);
+                reject(new Error('Authentication service not ready. Please refresh.'));
+            }
+        }, 150);
+    });
 }
 
 // ── STEP 1: Send reset link ───────────────────────────────────────
 async function sendResetLink() {
-    var email = (document.getElementById('resetEmail').value||'').trim().toLowerCase();
-    if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showMsg('msg1','Please enter a valid email address.','error'); return;
-    }
-
-    // Wait for Supabase
-    var waited = 0;
-    while(typeof window.geramaSupabase === 'undefined' && waited < 5000) {
-        await new Promise(function(r){ setTimeout(r,200); });
-        waited += 200;
-    }
-    if(typeof window.geramaSupabase === 'undefined') {
-        showMsg('msg1','Service not ready. Please refresh and try again.','error'); return;
+    var email = (document.getElementById('resetEmail').value || '').trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showMsg('msg1', 'Please enter a valid email address.', 'error');
+        return;
     }
 
     var btn = document.getElementById('sendLinkBtn');
-    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    showMsg('msg1','Sending reset link to '+email+'...','info');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+    showMsg('msg1', 'Sending reset link to ' + email + '…', 'info');
 
     try {
-        var sb = window.geramaSupabase;
-        // Use the current page as redirect so the token comes back here
-        var redirectUrl = window.location.origin + '/reset-code.html';
-        var { error } = await sb.auth.resetPasswordForEmail(email, {
+        var sb = await waitForSupa();
+
+        // Build the redirect URL — must be the full absolute URL of THIS page
+        // so the email link brings the user back here to step 3
+        var redirectUrl = window.location.origin +
+            (window.location.pathname.includes('reset-code.html')
+                ? window.location.pathname
+                : '/reset-code.html');
+
+        var result = await sb.auth.resetPasswordForEmail(email, {
             redirectTo: redirectUrl
         });
 
-        if(error) {
-            if(error.message.toLowerCase().includes('rate limit') || error.message.toLowerCase().includes('too many')) {
-                showMsg('msg1','⏳ Too many requests. Please wait a few minutes and try again. (Supabase limits 2 emails/hour on free plan)','error');
+        if (result.error) {
+            var errMsg = result.error.message || '';
+            if (errMsg.toLowerCase().includes('rate limit') || errMsg.toLowerCase().includes('too many')) {
+                showMsg('msg1', '⏳ Too many requests. Please wait a few minutes and try again.', 'error');
+            } else if (errMsg.toLowerCase().includes('not found') || errMsg.toLowerCase().includes('no user')) {
+                // Don't reveal if email exists or not — show generic success
+                // (security best practice)
+                currentEmail = email;
+                document.getElementById('emailDisplay').textContent = email;
+                showMsg('msg1', '', '');
+                showStep(2);
             } else {
-                showMsg('msg1','❌ '+error.message,'error');
+                showMsg('msg1', '❌ ' + errMsg, 'error');
             }
-            btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Reset Link';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
             return;
         }
 
         currentEmail = email;
         document.getElementById('emailDisplay').textContent = email;
-        showMsg('msg1','','');
+        showMsg('msg1', '', '');
         showStep(2);
-        showMsg('msg2','✅ Reset link sent to '+email+'. Check your inbox and spam folder.','success');
+        showMsg('msg2', '✅ Reset link sent! Check your inbox and spam folder.', 'success');
 
-    } catch(err) {
-        showMsg('msg1','❌ '+err.message,'error');
-        btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Send Reset Link';
+    } catch (err) {
+        showMsg('msg1', '❌ ' + err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reset Link';
     }
 }
 
+// ── Resend link ───────────────────────────────────────────────────
 async function resendLink() {
-    if(!currentEmail) { showStep(1); return; }
+    if (!currentEmail) { restartFlow(); return; }
     var btn = document.getElementById('resendBtn');
-    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Sending...';
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
     try {
-        await window.geramaSupabase.auth.resetPasswordForEmail(currentEmail, {
-            redirectTo: window.location.origin + '/reset-code.html'
-        });
-        showMsg('msg2','✅ New link sent to '+currentEmail,'success');
-    } catch(e) {
-        showMsg('msg2','Could not resend. Please try again.','error');
+        var sb = await waitForSupa();
+        var redirectUrl = window.location.origin +
+            (window.location.pathname.includes('reset-code.html')
+                ? window.location.pathname
+                : '/reset-code.html');
+        await sb.auth.resetPasswordForEmail(currentEmail, { redirectTo: redirectUrl });
+        showMsg('msg2', '✅ New link sent to ' + currentEmail + '. Check inbox and spam.', 'success');
+    } catch (e) {
+        showMsg('msg2', '❌ Could not resend. Please try again.', 'error');
     }
-    btn.disabled=false; btn.innerHTML='<i class="fas fa-redo"></i> Resend Link';
+    setTimeout(function() {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-redo"></i> Resend Link';
+    }, 3000);
 }
 
 // ── STEP 3: Set new password ──────────────────────────────────────
-function checkPwStrength(val) {
-    var fill = document.getElementById('pwFill');
-    var score = 0;
-    if(val.length >= 6)  score++;
-    if(val.length >= 10) score++;
-    if(/[A-Z]/.test(val)) score++;
-    if(/[0-9]/.test(val)) score++;
-    var colors = ['#ef4444','#f97316','#eab308','#22c55e','#16a34a'];
-    var pct    = [20,40,60,80,100];
-    fill.style.background = colors[score-1] || colors[0];
-    fill.style.width = val ? (pct[score-1]||20)+'%' : '0%';
-}
-
 async function resetPassword() {
     var newPw  = document.getElementById('newPassword').value;
     var confPw = document.getElementById('confirmNewPassword').value;
-    if(newPw.length < 6) { showMsg('msg3','Password must be at least 6 characters.','error'); return; }
-    if(newPw !== confPw)  { showMsg('msg3','Passwords do not match.','error'); return; }
+
+    if (!newPw || newPw.length < 6) {
+        showMsg('msg3', 'Password must be at least 6 characters.', 'error');
+        document.getElementById('newPassword').focus();
+        return;
+    }
+    if (newPw !== confPw) {
+        showMsg('msg3', 'Passwords do not match. Please try again.', 'error');
+        document.getElementById('confirmNewPassword').focus();
+        return;
+    }
 
     var btn = document.getElementById('resetBtn');
-    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Updating...';
-    showMsg('msg3','Updating your password...','info');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating…';
+    showMsg('msg3', 'Saving your new password…', 'info');
 
     try {
-        var { error } = await window.geramaSupabase.auth.updateUser({ password: newPw });
-        if(error) { showMsg('msg3','Failed: '+error.message,'error'); btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Update Password'; return; }
-        await window.geramaSupabase.auth.signOut();
-        document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
-        document.querySelector('.steps-indicator').style.display='none';
-        document.getElementById('doneScreen').style.display='block';
-        document.getElementById('backToLogin').style.display='none';
-    } catch(err) {
-        showMsg('msg3','Unexpected error: '+err.message,'error');
-        btn.disabled=false; btn.innerHTML='<i class="fas fa-lock"></i> Update Password';
+        var sb = await waitForSupa();
+        var result = await sb.auth.updateUser({ password: newPw });
+
+        if (result.error) {
+            // Common: "Auth session missing" means the token expired or was already used
+            if (result.error.message.toLowerCase().includes('session') ||
+                result.error.message.toLowerCase().includes('expired') ||
+                result.error.message.toLowerCase().includes('invalid')) {
+                showExpired();
+            } else {
+                showMsg('msg3', '❌ ' + result.error.message, 'error');
+            }
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-lock"></i> Update Password &amp; Sign In';
+            return;
+        }
+
+        // Sign out so the user gets a clean login with the new password
+        try { await sb.auth.signOut(); } catch(e) {}
+
+        // Clear any stale local session so login.html starts fresh
+        try {
+            sessionStorage.removeItem('gerama_loggedIn');
+            localStorage.removeItem('gerama_profile');
+        } catch(e) {}
+
+        showDone();
+
+    } catch (err) {
+        showMsg('msg3', '❌ Unexpected error: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-lock"></i> Update Password &amp; Sign In';
     }
 }
 
 // ── DETECT REDIRECT FROM EMAIL LINK ──────────────────────────────
-// When user clicks the email link, Supabase redirects back with tokens in the URL hash
-window.addEventListener('load', async function() {
-    var hash = window.location.hash || '';
+// Supabase v2 PKCE flow: email link → ?code=xxx → we exchange for session
+// Supabase v1 / implicit flow: email link → #access_token=xxx&type=recovery
+(function detectResetToken() {
+    var hash   = window.location.hash   || '';
     var search = window.location.search || '';
 
-    // Supabase v2 uses PKCE — the code comes as ?code= in the URL
-    // Supabase v1 uses #access_token= in the hash
-    var hasRecovery = hash.includes('type=recovery') ||
-                      hash.includes('access_token') ||
-                      search.includes('code=') ||
-                      search.includes('type=recovery');
+    var isPKCE      = search.includes('code=');
+    var isImplicit  = hash.includes('type=recovery') || hash.includes('access_token');
+    var hasToken    = isPKCE || isImplicit;
 
-    if(hasRecovery) {
-        // Wait for Supabase to process the token
-        var waited = 0;
-        while(typeof window.geramaSupabase === 'undefined' && waited < 3000) {
-            await new Promise(function(r){ setTimeout(r,200); });
-            waited += 200;
-        }
+    if (!hasToken) return; // normal page load — show step 1
 
-        if(typeof window.geramaSupabase !== 'undefined') {
-            try {
-                // For PKCE flow, exchange the code for a session
-                if(search.includes('code=')) {
-                    var urlParams = new URLSearchParams(search);
-                    var code = urlParams.get('code');
-                    if(code) {
-                        var { error } = await window.geramaSupabase.auth.exchangeCodeForSession(code);
-                        if(!error) {
-                            showStep(3);
-                            document.querySelector('.steps-indicator').style.display='none';
-                            document.getElementById('backToLogin').style.display='none';
-                            showMsg('msg3','✅ Email verified! Please set your new password.','success');
-                            return;
-                        }
-                    }
+    // Token detected — show loading while we process it
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('stepsIndicator').style.display = 'none';
+    document.getElementById('loadingScreen').style.display = 'block';
+
+    waitForSupa(8000).then(async function(sb) {
+        try {
+            if (isPKCE) {
+                // Exchange the PKCE code for a session
+                var urlParams = new URLSearchParams(search);
+                var code = urlParams.get('code');
+                if (!code) throw new Error('No code found in URL.');
+
+                var exchangeResult = await sb.auth.exchangeCodeForSession(code);
+                if (exchangeResult.error) throw exchangeResult.error;
+
+                // Clean up the URL so refreshing doesn't re-trigger
+                if (history.replaceState) {
+                    history.replaceState(null, '', window.location.pathname);
                 }
 
-                // For hash-based flow
-                var { data } = await window.geramaSupabase.auth.getSession();
-                if(data && data.session) {
-                    showStep(3);
-                    document.querySelector('.steps-indicator').style.display='none';
-                    document.getElementById('backToLogin').style.display='none';
-                    showMsg('msg3','✅ Email verified! Please set your new password.','success');
+            } else {
+                // Implicit: Supabase JS picks up the hash automatically on load
+                // Just check the session is there
+                var sessionResult = await sb.auth.getSession();
+                if (!sessionResult.data || !sessionResult.data.session) {
+                    throw new Error('Session could not be established from this link.');
                 }
-            } catch(e) {
-                console.warn('Token exchange error:', e);
             }
+
+            // All good — show the new password form
+            document.getElementById('stepsIndicator').style.display = 'flex';
+            showStep(3);
+            showMsg('msg3', '✅ Identity confirmed — please set your new password below.', 'success');
+
+        } catch (err) {
+            console.warn('[GERAMA] Reset token error:', err.message);
+            // Token already used, expired, or invalid
+            showExpired();
         }
-    }
-});
+    }).catch(function(err) {
+        console.warn('[GERAMA] Supabase not ready:', err.message);
+        showExpired();
+    });
+})();
 </script>
 </body>
 </html>
