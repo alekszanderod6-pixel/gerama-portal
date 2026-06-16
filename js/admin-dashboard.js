@@ -1823,6 +1823,7 @@ window.loadClsList = async function(){
     var goLiveBtn = (!isLive&&!isEnded)?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'live\')"><i class="fas fa-broadcast-tower"></i> Go Live</button>':'';
     var endBtn    = isLive?'<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:#dc2626;" onclick="setClassStatus(\''+c.id+'\',\'ended\')"><i class="fas fa-stop-circle"></i> End Class</button>':'';
     var reopenBtn = isEnded?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'upcoming\')"><i class="fas fa-redo"></i> Reopen</button>':'';
+    var editBtn   = !isEnded ? '<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:linear-gradient(135deg,#0369a1,#0ea5e9);" onclick="openEditClassModal(\''+window.escAttr(JSON.stringify(c))+'\')"><i class="fas fa-edit"></i> Edit</button>' : '';
     var deleteBtn = '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')" style="font-size:0.78rem;padding:0.4rem 0.7rem;"><i class="fas fa-trash"></i></button>';
 
     var locationInfo = isInPerson
@@ -1835,7 +1836,7 @@ window.loadClsList = async function(){
         '<strong>'+window.escHtml(c.course)+' — '+window.escHtml(c.topic)+' '+badge+typeBadge+'</strong>'+
         '<div class="sub-meta"><b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+locationInfo+'</div>'+
       '</div>'+
-      '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+deleteBtn+'</div>'+
+      '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+editBtn+deleteBtn+'</div>'+
     '</div>';
   }
 
@@ -1875,6 +1876,139 @@ window.deleteClass = async function(id){
   var sb = window.geramaSupabase; if(!sb) return;
   await sb.from('classes').delete().eq('id',id);
   window.loadClsList();
+};
+
+// ─── EDIT SCHEDULED CLASS ─────────────────────────────────────────────────────
+// Allows changing venue, date/time, tutor, description — the meeting link is
+// shown for reference only and is NEVER modified here.
+window.openEditClassModal = function(classDataStr) {
+  var c;
+  try { c = JSON.parse(classDataStr); } catch(e) { alert('Could not load class data.'); return; }
+
+  var existing = document.getElementById('editClassModal');
+  if (existing) existing.remove();
+
+  var isInPerson = c.class_type === 'inperson';
+
+  // Format datetime-local value (YYYY-MM-DDTHH:MM)
+  var dtVal = '';
+  if (c.scheduled_at) {
+    var d = new Date(c.scheduled_at);
+    dtVal = d.getFullYear() + '-' +
+            String(d.getMonth()+1).padStart(2,'0') + '-' +
+            String(d.getDate()).padStart(2,'0') + 'T' +
+            String(d.getHours()).padStart(2,'0') + ':' +
+            String(d.getMinutes()).padStart(2,'0');
+  }
+
+  var modal = document.createElement('div');
+  modal.id = 'editClassModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:6000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);overflow-y:auto;';
+  modal.innerHTML =
+    '<div style="background:white;border-radius:22px;padding:2rem;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem;">' +
+        '<div style="font-size:1.05rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.6rem;">' +
+          '<i class="fas fa-edit" style="color:#0ea5e9;"></i> Edit Class Details' +
+        '</div>' +
+        '<button onclick="document.getElementById(\'editClassModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">✕</button>' +
+      '</div>' +
+
+      // Course + Topic (read-only — they identify the class)
+      '<div style="background:#f0fdf4;border:1px solid #c8e6c9;border-radius:12px;padding:0.9rem 1.1rem;margin-bottom:1.2rem;">' +
+        '<div style="font-size:0.78rem;font-weight:700;color:#1B5E20;margin-bottom:0.3rem;"><i class="fas fa-lock" style="margin-right:0.3rem;"></i>Class Identity (read-only)</div>' +
+        '<div style="font-size:0.9rem;font-weight:700;color:#1e2a3e;">' + window.escHtml(c.course) + ' — ' + window.escHtml(c.topic) + '</div>' +
+      '</div>' +
+
+      // Meeting link shown for reference, not editable
+      (c.meet_link ?
+        '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:0.9rem 1.1rem;margin-bottom:1.2rem;">' +
+          '<div style="font-size:0.78rem;font-weight:700;color:#1d4ed8;margin-bottom:0.3rem;"><i class="fas fa-link" style="margin-right:0.3rem;"></i>Meeting Link (unchanged)</div>' +
+          '<div style="font-size:0.8rem;color:#374151;word-break:break-all;font-family:monospace;">' + window.escHtml(c.meet_link) + '</div>' +
+        '</div>'
+      : '') +
+
+      // Editable fields
+      '<div class="form-grid">' +
+        '<div class="form-field full">' +
+          '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.35rem;">Date &amp; Time *</label>' +
+          '<input type="datetime-local" id="editClsDateTime" value="' + window.escAttr(dtVal) + '" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor=\'#0ea5e9\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
+        '</div>' +
+        (isInPerson ?
+          '<div class="form-field full">' +
+            '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.35rem;">Venue / Location *</label>' +
+            '<input type="text" id="editClsVenue" value="' + window.escAttr(c.venue||'') + '" placeholder="e.g. Engineering Block, Room 204" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor=\'#0ea5e9\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
+          '</div>' +
+          '<div class="form-field full">' +
+            '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.35rem;">Google Maps Link (optional)</label>' +
+            '<input type="url" id="editClsMapLink" value="' + window.escAttr(c.map_link||'') + '" placeholder="https://maps.google.com/..." style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor=\'#0ea5e9\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
+          '</div>'
+        : '') +
+        '<div class="form-field full">' +
+          '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.35rem;">Tutor / Host</label>' +
+          '<input type="text" id="editClsTutor" value="' + window.escAttr(c.tutor||'') + '" placeholder="e.g. Aleks ZanderOD" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor=\'#0ea5e9\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
+        '</div>' +
+        '<div class="form-field full">' +
+          '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.35rem;">Description / Notes</label>' +
+          '<textarea id="editClsDesc" rows="3" placeholder="Any additional info for students..." style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;resize:vertical;box-sizing:border-box;" onfocus="this.style.borderColor=\'#0ea5e9\'" onblur="this.style.borderColor=\'#e5e7eb\'">' + window.escHtml(c.description||c.desc||'') + '</textarea>' +
+        '</div>' +
+      '</div>' +
+
+      '<div id="editClsStatus" style="font-size:0.85rem;min-height:1rem;margin:0.6rem 0;text-align:center;"></div>' +
+      '<div style="display:flex;gap:0.7rem;margin-top:0.5rem;">' +
+        '<button onclick="window.saveClassEdit(\''+window.escAttr(c.id)+'\',\''+window.escAttr(c.class_type||'virtual')+'\')" style="flex:1;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:white;border:none;padding:0.75rem;border-radius:12px;font-size:0.92rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.5rem;"><i class="fas fa-save"></i> Save Changes</button>' +
+        '<button onclick="document.getElementById(\'editClassModal\').remove()" style="flex:0 0 auto;background:#f1f5f9;color:#374151;border:none;padding:0.75rem 1.2rem;border-radius:12px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>' +
+      '</div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+  modal.addEventListener('click', function(e){ if (e.target === modal) modal.remove(); });
+};
+
+window.saveClassEdit = async function(classId, classType) {
+  var statusEl = document.getElementById('editClsStatus');
+  function setStatus(msg, ok) {
+    if (statusEl) { statusEl.textContent = msg; statusEl.style.color = ok ? '#059669' : '#dc2626'; }
+  }
+
+  var dtInput = document.getElementById('editClsDateTime');
+  var dt = dtInput && dtInput.value;
+  if (!dt) { setStatus('Please set a date and time.', false); return; }
+
+  var isInPerson = classType === 'inperson';
+  var venue   = isInPerson ? (document.getElementById('editClsVenue') && document.getElementById('editClsVenue').value.trim()) : null;
+  var mapLink = isInPerson ? (document.getElementById('editClsMapLink') && document.getElementById('editClsMapLink').value.trim()) : null;
+  var tutor   = (document.getElementById('editClsTutor') && document.getElementById('editClsTutor').value.trim()) || null;
+  var desc    = (document.getElementById('editClsDesc') && document.getElementById('editClsDesc').value.trim()) || null;
+
+  if (isInPerson && !venue) { setStatus('Venue is required for in-person classes.', false); return; }
+
+  var sb = window.geramaSupabase; if (!sb) { setStatus('Not connected.', false); return; }
+
+  setStatus('Saving…', true);
+
+  var updates = {
+    scheduled_at: new Date(dt).toISOString(),
+    tutor:        tutor,
+    description:  desc,
+    updated_at:   new Date().toISOString()
+  };
+  if (isInPerson) {
+    updates.venue    = venue || null;
+    updates.map_link = mapLink || null;
+  }
+
+  var { error } = await sb.from('classes').update(updates).eq('id', classId);
+
+  if (error) { setStatus('❌ ' + error.message, false); return; }
+
+  setStatus('✅ Class updated!', true);
+  window.logActivity('Edited class details: ' + classId);
+
+  setTimeout(function() {
+    var m = document.getElementById('editClassModal');
+    if (m) m.remove();
+    window.loadClsList();
+  }, 900);
 };
 
 // ─── CLASS REQUESTS ───────────────────────────────────────
