@@ -4,10 +4,19 @@
 // ═════════════════════════════════════════════════════════════════
 
 // Force fresh content check — unregister stale service workers
-// and add cache-busting reload for PWA/installed app users
+// IMPORTANT: skip the OneSignal worker — unregistering it breaks push notifications
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(regs) {
-        regs.forEach(function(reg) { reg.unregister(); });
+        regs.forEach(function(reg) {
+            // Keep any OneSignal service worker intact
+            var swUrl = (reg.active && reg.active.scriptURL) ||
+                        (reg.installing && reg.installing.scriptURL) ||
+                        (reg.waiting && reg.waiting.scriptURL) || '';
+            if (swUrl.indexOf('OneSignal') !== -1 || swUrl.indexOf('onesignal') !== -1) {
+                return; // leave it alone
+            }
+            reg.unregister();
+        });
     });
 }
 
