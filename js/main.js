@@ -21,9 +21,8 @@ if ('serviceWorker' in navigator) {
 }
 
 // ── PWA SESSION GUARD ──────────────────────────────────────────────
-// When the app is opened as PWA (saved to home screen) or after a
-// long absence, check if the auth session is still valid.
-// If not, clear any stale login state and send user to public home page.
+// When the app is opened as PWA (saved to home screen), check if the
+// auth session is still valid before allowing access to protected pages.
 (function() {
     var isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
                        window.navigator.standalone === true;
@@ -31,26 +30,46 @@ if ('serviceWorker' in navigator) {
     var protectedPages = ['resources.html','classroom.html','dashboard.html'];
     var publicPages  = ['index.html','about.html','contact.html','mall.html','login.html','signup.html','reset-code.html','admin-dashboard.html',''];
 
-    // On PWA launch or returning visit to a protected page with no local session marker,
-    // force re-auth by clearing stale state and redirecting to home.
     var isProtected = protectedPages.indexOf(currentPage) !== -1;
-    var hasSessionMarker = !!localStorage.getItem('gerama_profile') && !!localStorage.getItem('gerama_uid');
 
-    if(isStandalone && isProtected && !hasSessionMarker){
-        // Stale PWA session on protected page — go to public home
-        window.location.replace('index.html');
-        return;
+    // A session marker exists if the profile is stored OR if gerama_loggedIn is set
+    // gerama_uid was never reliably set so we drop that check — profile alone is enough
+    var hasSessionMarker = !!localStorage.getItem('gerama_profile') ||
+                           !!sessionStorage.getItem('gerama_loggedIn') ||
+                           !!localStorage.getItem('gerama_loggedIn');
+
+    if (isStandalone && isProtected && !hasSessionMarker) {
+        // Stale PWA session on protected page — verify with Supabase before redirecting
+        // (gives Supabase a chance to restore the session from its own storage)
+        var _checked = false;
+        function _guardCheck(attempts) {
+            if (_checked) return;
+            if (typeof window.geramaSupabase !== 'undefined') {
+                _checked = true;
+                window.geramaSupabase.auth.getSession().then(function(res) {
+                    var session = res && res.data && res.data.session;
+                    if (!session) {
+                        sessionStorage.removeItem('gerama_loggedIn');
+                        window.location.replace('index.html');
+                    }
+                    // else: Supabase has a valid session — stay on page
+                }).catch(function() {
+                    window.location.replace('index.html');
+                });
+            } else if (attempts > 0) {
+                setTimeout(function() { _guardCheck(attempts - 1); }, 150);
+            } else {
+                // Supabase never loaded — be conservative and redirect
+                window.location.replace('index.html');
+            }
+        }
+        _guardCheck(20);
+        // Don't return early — let the page load while we check in background
     }
 
     // Version check for PWA — reload if site has updated
     var CACHE_KEY = 'gerama_last_check';
-    // Version-check reload — only on safe pages, not mid-session pages like
-    // classroom.html / resources.html / dashboard.html.
-    // This prevents the "shaking / tabs switching by themselves" bug that some
-    // PWA users report: location.reload() firing while setIntervals are already
-    // running causes the page to re-animate, re-trigger DOMContentLoaded handlers,
-    // and briefly flick between tab states before settling.
-    var THIRTY_MIN = 30 * 60 * 1000;  // check at most every 30 min (was 10)
+    var THIRTY_MIN = 30 * 60 * 1000;
     var now = Date.now();
     var last = parseInt(localStorage.getItem(CACHE_KEY) || '0');
     var safePages = ['index.html', 'about.html', 'contact.html', 'mall.html', ''];
@@ -58,7 +77,6 @@ if ('serviceWorker' in navigator) {
 
     if (isStandalone && isSafePage && (now - last) > THIRTY_MIN) {
         localStorage.setItem(CACHE_KEY, String(now));
-        // Delay 3 s so the page finishes rendering before we hit the network
         setTimeout(function() {
             fetch(window.location.origin + '/index.html?_v=' + now,
                 { method: 'HEAD', cache: 'no-store' })
@@ -67,7 +85,6 @@ if ('serviceWorker' in navigator) {
                     var storedDate = localStorage.getItem('gerama_server_date') || '';
                     if (serverDate && serverDate !== storedDate) {
                         localStorage.setItem('gerama_server_date', serverDate);
-                        // Only reload when user can see it and is idle (not mid-interaction)
                         if (!window._geramaReloading && !document.hidden) {
                             window._geramaReloading = true;
                             window.location.reload(true);

@@ -196,6 +196,7 @@
                 
                 // Store session and profile - ALWAYS fetch from Supabase first (cross-device sync)
                 sessionStorage.setItem('gerama_loggedIn', 'true');
+                localStorage.setItem('gerama_loggedIn', 'true'); // also persist for PWA cold-opens
 
                 // Fetch the canonical profile from Supabase
                 var profileData = { email: email };

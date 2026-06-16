@@ -335,6 +335,7 @@ document.getElementById('form').addEventListener('submit', async function(e) {
         if (data.session) {
             // Logged in immediately — link to OneSignal, then go to site
             sessionStorage.setItem('gerama_loggedIn', 'true');
+            localStorage.setItem('gerama_loggedIn', 'true'); // persist for PWA cold-opens
             // Link Supabase user to OneSignal for targeted push notifications
             if (typeof window.geramaLinkOneSignal === 'function') {
                 window.geramaLinkOneSignal();
