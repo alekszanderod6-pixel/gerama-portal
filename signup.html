@@ -9,6 +9,9 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
     <script src="js/supabase-config.js"></script>
+    <!-- OneSignal Web Push -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script src="js/onesignal-init.js" defer></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -330,8 +333,12 @@ document.getElementById('form').addEventListener('submit', async function(e) {
         } catch(e) { /* non-critical */ }
 
         if (data.session) {
-            // Logged in immediately — go straight to the site
+            // Logged in immediately — link to OneSignal, then go to site
             sessionStorage.setItem('gerama_loggedIn', 'true');
+            // Link Supabase user to OneSignal for targeted push notifications
+            if (typeof window.geramaLinkOneSignal === 'function') {
+                window.geramaLinkOneSignal();
+            }
             showMsg('✅ Account created! Taking you in...', 'success');
             setTimeout(function(){ window.location.href = 'index.html'; }, 1200);
         } else {

@@ -95,6 +95,9 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
     <script src="js/supabase-config.js"></script>
+    <!-- OneSignal Web Push -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script src="js/onesignal-init.js" defer></script>
 </head>
 <body>
     <div class="login-container" id="loginCard">
@@ -262,6 +265,11 @@
 
                 localStorage.setItem('gerama_profile', JSON.stringify(profileData));
                 
+                // Link this Supabase user to OneSignal for targeted push notifications
+                if (typeof window.geramaLinkOneSignal === 'function') {
+                    window.geramaLinkOneSignal();
+                }
+
                 // Redirect to home page
                 window.location.href = 'index.html';
                 
