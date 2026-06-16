@@ -134,20 +134,34 @@
     function _injectBanner() {
         if (document.getElementById('geramaNotifBanner')) return;
 
+        // Detect iOS
+        var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         // Detect if PWA (saved to homescreen)
         var isPWA = window.matchMedia('(display-mode: standalone)').matches ||
                     window.navigator.standalone === true;
 
+        // On iOS, web push ONLY works when saved to homescreen (PWA mode)
+        // If they're on iOS but not in PWA mode, show the "save to homescreen" nudge instead
+        if (isIOS && !isPWA) {
+            _injectIOSBanner();
+            return;
+        }
+
+        // Check browser support
+        if (!('Notification' in window)) return;
+        if (Notification.permission === 'denied') return;
+
         var subtext = isPWA
-            ? 'Get instant alerts on your phone — even when the app is closed.'
-            : 'Get alerts on this device. Save to homescreen to receive them even when your browser is closed.';
+            ? 'Get instant GERAMA alerts on your phone — even when the app is closed.'
+            : 'Get alerts on this device. For background notifications, save to homescreen first.';
 
         var banner = document.createElement('div');
         banner.id = 'geramaNotifBanner';
         banner.setAttribute('role', 'alert');
         banner.style.cssText = [
             'position:fixed',
-            'bottom:70px',          // above mobile bottom nav
+            'bottom:70px',
             'left:0', 'right:0',
             'z-index:8500',
             'margin:0 auto',
@@ -169,9 +183,7 @@
         banner.innerHTML = [
             '<div style="font-size:1.8rem;flex-shrink:0;line-height:1;">🔔</div>',
             '<div style="flex:1;min-width:0;">',
-                '<div style="font-size:0.88rem;font-weight:800;margin-bottom:0.15rem;">',
-                    'Stay updated with GERAMA',
-                '</div>',
+                '<div style="font-size:0.88rem;font-weight:800;margin-bottom:0.15rem;">Stay updated with GERAMA</div>',
                 '<div style="font-size:0.75rem;opacity:0.8;line-height:1.4;">' + subtext + '</div>',
             '</div>',
             '<div style="display:flex;flex-direction:column;gap:0.4rem;flex-shrink:0;">',
@@ -193,33 +205,73 @@
         ].join('');
 
         document.body.appendChild(banner);
-
-        // Slide in after a brief moment
         requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-                banner.style.transform = 'translateY(0)';
-            });
+            requestAnimationFrame(function () { banner.style.transform = 'translateY(0)'; });
         });
 
-        // "Enable Alerts" — trigger the native browser permission prompt
         document.getElementById('geramaNotifEnable').addEventListener('click', async function () {
             _hideBanner();
             try {
-                // Request native browser permission via OneSignal
                 OneSignalDeferred.push(async function (OneSignal) {
                     await OneSignal.Notifications.requestPermission();
-                    // Link user after they subscribe
                     window.geramaLinkOneSignal && window.geramaLinkOneSignal();
                 });
-            } catch (e) {
-                console.warn('[GERAMA] Notification permission request failed:', e);
-            }
+            } catch (e) { console.warn('[GERAMA] Notification permission request failed:', e); }
         });
 
-        // "Not now" — dismiss for 7 days
         document.getElementById('geramaNotifDismiss').addEventListener('click', function () {
             localStorage.setItem('gerama_notif_dismissed', String(Date.now()));
             _hideBanner();
+        });
+    }
+
+    // iOS-specific: show a "Save to homescreen" guide banner instead
+    function _injectIOSBanner() {
+        if (document.getElementById('geramaIOSBanner')) return;
+        // Don't re-show if dismissed within 14 days
+        var dismissed = parseInt(localStorage.getItem('gerama_ios_banner_dismissed') || '0');
+        if (Date.now() - dismissed < 14 * 24 * 60 * 60 * 1000) return;
+
+        var banner = document.createElement('div');
+        banner.id = 'geramaIOSBanner';
+        banner.style.cssText = [
+            'position:fixed',
+            'bottom:70px', 'left:0', 'right:0',
+            'z-index:8500', 'margin:0 auto', 'max-width:520px',
+            'background:linear-gradient(135deg,#1e40af,#2563eb)',
+            'color:white', 'border-radius:16px 16px 0 0',
+            'box-shadow:0 -4px 24px rgba(0,0,0,0.35)',
+            'padding:1rem 1.2rem',
+            'font-family:Inter,sans-serif',
+            'transform:translateY(100%)',
+            'transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+            'border-top:2px solid rgba(255,255,255,0.3)'
+        ].join(';');
+
+        banner.innerHTML =
+            '<div style="display:flex;align-items:flex-start;gap:0.9rem;">' +
+                '<div style="font-size:1.8rem;flex-shrink:0;line-height:1;">📲</div>' +
+                '<div style="flex:1;min-width:0;">' +
+                    '<div style="font-size:0.88rem;font-weight:800;margin-bottom:0.3rem;">Get GERAMA notifications on iPhone</div>' +
+                    '<div style="font-size:0.78rem;opacity:0.9;line-height:1.6;">' +
+                        '1. Tap the <strong>Share</strong> button <span style="font-size:1rem;">⬆️</span> at the bottom of Safari<br>' +
+                        '2. Scroll down and tap <strong>"Add to Home Screen"</strong><br>' +
+                        '3. Open the GERAMA app from your home screen<br>' +
+                        '4. Tap <strong>"Allow"</strong> when prompted for notifications' +
+                    '</div>' +
+                '</div>' +
+                '<button id="geramaIOSDismiss" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Inter,sans-serif;line-height:1;">✕</button>' +
+            '</div>';
+
+        document.body.appendChild(banner);
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () { banner.style.transform = 'translateY(0)'; });
+        });
+
+        document.getElementById('geramaIOSDismiss').addEventListener('click', function () {
+            localStorage.setItem('gerama_ios_banner_dismissed', String(Date.now()));
+            banner.style.transform = 'translateY(110%)';
+            setTimeout(function () { if (banner.parentNode) banner.parentNode.removeChild(banner); }, 400);
         });
     }
 

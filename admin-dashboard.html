@@ -825,6 +825,103 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
        URBAN MALL ADMIN PANEL
   ═══════════════════════════════════════════════════════ -->
   <div class="panel" id="panel-mall">
+
+    <!-- SQL SETUP CARD (shown if table missing) -->
+    <div class="card" id="mallSqlSetupCard" style="display:none;border:2px solid #fde68a;background:#fffbeb;">
+      <div class="card-title" style="color:#92400e;"><i class="fas fa-database" style="color:#f59e0b;"></i> ⚠️ Mall Tables Not Found — Run Setup SQL</div>
+      <p style="font-size:0.85rem;color:#92400e;margin-bottom:1rem;line-height:1.6;">The <code>mall_products</code> table doesn't exist yet in your Supabase project. Copy the SQL below and run it in your <strong>Supabase → SQL Editor</strong>.</p>
+      <div style="position:relative;">
+        <pre id="mallSetupSqlPre" style="background:#1e2a3e;color:#e5e7eb;padding:1rem;border-radius:10px;font-size:0.78rem;overflow-x:auto;line-height:1.7;white-space:pre-wrap;word-break:break-all;">-- GERAMA Mall Tables Setup
+CREATE TABLE IF NOT EXISTS mall_products (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  category text NOT NULL,
+  price numeric NOT NULL,
+  original_price numeric,
+  description text,
+  image_url text,
+  seller_name text,
+  seller_whatsapp text,
+  seller_id text,
+  status text DEFAULT 'approved',
+  colours text DEFAULT '[]',
+  colour_names text DEFAULT '[]',
+  sizes text DEFAULT '[]',
+  stock integer DEFAULT 0,
+  verified boolean DEFAULT true,
+  featured boolean DEFAULT false,
+  badge text,
+  extra_images text DEFAULT '[]',
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE mall_products ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read mall_products" ON mall_products FOR SELECT USING (true);
+CREATE POLICY "Anon all mall_products" ON mall_products FOR ALL USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS mall_seller_requests (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  product_name text NOT NULL,
+  category text,
+  price numeric,
+  original_price numeric,
+  description text,
+  image_url text,
+  extra_images text,
+  seller_name text,
+  seller_whatsapp text,
+  seller_id text,
+  colours text,
+  sizes text,
+  stock integer DEFAULT 0,
+  status text DEFAULT 'pending',
+  submitted_at timestamptz DEFAULT now()
+);
+ALTER TABLE mall_seller_requests ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read mall_seller_requests" ON mall_seller_requests FOR SELECT USING (true);
+CREATE POLICY "Anon all mall_seller_requests" ON mall_seller_requests FOR ALL USING (true) WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS mall_orders (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  product_id text,
+  product_name text,
+  seller_id text,
+  seller_whatsapp text,
+  buyer_name text,
+  buyer_phone text,
+  colour text,
+  size text,
+  quantity integer DEFAULT 1,
+  total_price numeric,
+  delivery_location text,
+  delivery_timeframe text,
+  status text DEFAULT 'pending',
+  payment_confirmed boolean DEFAULT false,
+  item_delivered boolean DEFAULT false,
+  ordered_at timestamptz DEFAULT now()
+);
+ALTER TABLE mall_orders ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read mall_orders" ON mall_orders FOR SELECT USING (true);
+CREATE POLICY "Anon all mall_orders" ON mall_orders FOR ALL USING (true) WITH CHECK (true);
+
+-- T-Shirt interest registrations
+CREATE TABLE IF NOT EXISTS tshirt_interest (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_email text NOT NULL,
+  full_name text,
+  phone text,
+  size_preference text,
+  colour_preference text,
+  registered_at timestamptz DEFAULT now(),
+  UNIQUE(user_email)
+);
+ALTER TABLE tshirt_interest ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read tshirt_interest" ON tshirt_interest FOR SELECT USING (true);
+CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true) WITH CHECK (true);</pre>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('mallSetupSqlPre').textContent).then(function(){alert('✅ SQL copied! Paste it in Supabase → SQL Editor → Run.');})" style="position:absolute;top:0.5rem;right:0.5rem;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.3rem 0.7rem;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-copy"></i> Copy SQL</button>
+      </div>
+      <a href="https://app.supabase.com" target="_blank" style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:0.8rem;background:#1B5E20;color:white;padding:0.5rem 1.2rem;border-radius:20px;font-size:0.82rem;font-weight:700;text-decoration:none;"><i class="fas fa-external-link-alt"></i> Open Supabase Dashboard</a>
+    </div>
+
     <!-- Seller Requests -->
     <div class="card">
       <div class="card-title"><i class="fas fa-inbox" style="color:#FFC107;"></i> Seller Requests <span id="mallReqBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:0.5rem;display:none;"></span></div>
@@ -890,6 +987,36 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
       <div class="card-title"><i class="fas fa-shopping-bag"></i> Recent Orders</div>
       <div id="mallOrdersList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
     </div>
+
+    <!-- 👕 T-SHIRT INTEREST PANEL -->
+    <div class="card" style="border-top:4px solid #FFC107;">
+      <div class="card-title"><i class="fas fa-tshirt" style="color:#FFC107;"></i> GERAMA T-Shirt — Interest List <span id="tshirtBadge" style="background:#FFC107;color:#0a2f1f;border-radius:20px;padding:0.1rem 0.6rem;font-size:0.72rem;font-weight:800;margin-left:0.5rem;"></span></div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Members who registered interest in the GERAMA T-Shirt. You can also post an announcement about the T-Shirt below.</p>
+
+      <!-- Post T-shirt announcement -->
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:1.2rem;margin-bottom:1.2rem;">
+        <div style="font-size:0.88rem;font-weight:700;color:#92400e;margin-bottom:0.8rem;"><i class="fas fa-bullhorn"></i> Post T-Shirt Announcement</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin-bottom:0.7rem;">
+          <div style="grid-column:1/-1;"><label style="font-size:0.8rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Announcement Title *</label>
+          <input type="text" id="tshirtAnnTitle" placeholder="e.g. T-Shirt Pre-order Now Open!" style="width:100%;padding:0.6rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='#e5e7eb'"></div>
+          <div style="grid-column:1/-1;"><label style="font-size:0.8rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Message *</label>
+          <textarea id="tshirtAnnMsg" rows="3" placeholder="Write the announcement details here..." style="width:100%;padding:0.6rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;box-sizing:border-box;" onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='#e5e7eb'"></textarea></div>
+        </div>
+        <button onclick="window.postTshirtAnnouncement()" style="background:linear-gradient(135deg,#FFC107,#e6a800);color:#0a2f1f;border:none;padding:0.55rem 1.4rem;border-radius:20px;font-size:0.85rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-paper-plane"></i> Post Announcement</button>
+        <div id="tshirtAnnStatus" style="font-size:0.82rem;margin-top:0.5rem;min-height:1rem;"></div>
+      </div>
+
+      <!-- Interest registrations table -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.7rem;flex-wrap:wrap;gap:0.5rem;">
+        <div style="font-size:0.85rem;font-weight:700;color:#1e2a3e;">Registered Members</div>
+        <div style="display:flex;gap:0.5rem;">
+          <button onclick="window.loadTshirtInterest()" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-sync-alt"></i> Refresh</button>
+          <button onclick="window.downloadTshirtCSV()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-download"></i> Export CSV</button>
+        </div>
+      </div>
+      <div id="tshirtInterestList"><p style="color:#9ca3af;font-size:0.88rem;text-align:center;padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p></div>
+    </div>
+
   </div>
 
   <script>
@@ -906,6 +1033,17 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
     loadMallRequests();
     loadMallProducts();
     loadMallOrders();
+    window.loadTshirtInterest();
+    // Check if tables exist — show SQL card if not
+    try {
+      var r = await mallFetch('mall_products?select=id&limit=1');
+      var card = document.getElementById('mallSqlSetupCard');
+      if (!r.ok && card) card.style.display = 'block';
+      else if (card) card.style.display = 'none';
+    } catch(e) {
+      var card2 = document.getElementById('mallSqlSetupCard');
+      if (card2) card2.style.display = 'block';
+    }
   };
 
   async function loadMallRequests() {
@@ -1233,6 +1371,93 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
       if (name === 'mall') setTimeout(window.loadMallAdmin, 100);
     };
   })();
+
+  // ── T-SHIRT INTEREST ADMIN FUNCTIONS ──────────────────────
+
+  window.loadTshirtInterest = async function() {
+    var el = document.getElementById('tshirtInterestList');
+    var badge = document.getElementById('tshirtBadge');
+    if (!el) return;
+    try {
+      var r = await mallFetch('tshirt_interest?select=*&order=registered_at.asc');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var data = await r.json();
+      if (badge) badge.textContent = (data && data.length ? data.length : 0) + ' interested';
+      if (!data || !data.length) {
+        el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:1.5rem;font-size:0.88rem;">No members have registered interest yet. Once the homepage banner goes live, they will appear here.</p>';
+        return;
+      }
+      el.innerHTML =
+        '<div class="tbl-wrap"><table><thead><tr>' +
+          '<th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Size Pref.</th><th>Colour Pref.</th><th>Date</th>' +
+        '</tr></thead><tbody>' +
+        data.map(function(m, i) {
+          var dt = m.registered_at ? new Date(m.registered_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '—';
+          return '<tr>' +
+            '<td>' + (i+1) + '</td>' +
+            '<td><strong>' + window.escHtml(m.full_name||'—') + '</strong></td>' +
+            '<td style="font-size:0.8rem;color:#6b7280;">' + window.escHtml(m.user_email||'—') + '</td>' +
+            '<td>' + window.escHtml(m.phone||'—') + '</td>' +
+            '<td><span style="background:#fef3c7;color:#92400e;font-size:0.75rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">' + window.escHtml(m.size_preference||'—') + '</span></td>' +
+            '<td>' + window.escHtml(m.colour_preference||'—') + '</td>' +
+            '<td style="font-size:0.78rem;white-space:nowrap;">' + dt + '</td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody></table></div>';
+    } catch(e) {
+      el.innerHTML = '<p style="color:#dc2626;padding:1rem;font-size:0.85rem;">Could not load interest list. Make sure the <code>tshirt_interest</code> table exists (run Setup SQL above). Error: ' + e.message + '</p>';
+    }
+  };
+
+  window.downloadTshirtCSV = async function() {
+    try {
+      var r = await mallFetch('tshirt_interest?select=*&order=registered_at.asc');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      var data = await r.json();
+      if (!data || !data.length) { alert('No interest registrations yet.'); return; }
+      var headers = ['#','Full Name','Email','Phone','Size Preference','Colour Preference','Date Registered'];
+      var rows = data.map(function(m, i) {
+        var dt = m.registered_at ? new Date(m.registered_at).toLocaleDateString('en-GB') : '';
+        return [i+1, m.full_name||'', m.user_email||'', m.phone||'', m.size_preference||'', m.colour_preference||'', dt]
+          .map(function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; }).join(',');
+      });
+      var csv = [headers.join(',')].concat(rows).join('\n');
+      var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'GERAMA_TShirt_Interest_' + new Date().toISOString().split('T')[0] + '.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      window.logActivity('Downloaded T-Shirt interest CSV (' + data.length + ' registrations)');
+    } catch(e) { alert('Error: ' + e.message); }
+  };
+
+  window.postTshirtAnnouncement = async function() {
+    var title = (document.getElementById('tshirtAnnTitle').value || '').trim();
+    var msg   = (document.getElementById('tshirtAnnMsg').value || '').trim();
+    var statusEl = document.getElementById('tshirtAnnStatus');
+    function setAnnStatus(m, ok) { if(statusEl){ statusEl.textContent=m; statusEl.style.color=ok?'#059669':'#dc2626'; } }
+
+    if (!title || !msg) { setAnnStatus('Please fill in both title and message.', false); return; }
+    var sb = window.geramaSupabase; if (!sb) { setAnnStatus('Not connected to database.', false); return; }
+
+    try {
+      var {error} = await sb.from('announcements').insert({
+        title: '👕 ' + title,
+        message: msg,
+        date: new Date().toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'}),
+        priority: 'high',
+        tag: 'tshirt',
+        created_at: new Date().toISOString()
+      });
+      if (error) throw new Error(error.message);
+      setAnnStatus('✅ Announcement posted! Students will see it on the homepage.', true);
+      window.logActivity('Posted T-Shirt announcement: ' + title);
+      document.getElementById('tshirtAnnTitle').value = '';
+      document.getElementById('tshirtAnnMsg').value = '';
+    } catch(e) { setAnnStatus('❌ ' + e.message, false); }
+  };
+
   </script>
 
   <!-- ═══════════════════════════════════════

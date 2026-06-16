@@ -678,10 +678,11 @@ var selectedSize = '';
 
 // ── LOAD PRODUCTS ──────────────────────────────────────────
 async function loadProducts() {
-  // Load from Supabase first (DB products go at top), fallback to seed products
+  // Load from Supabase — fetch ALL products, filter approved client-side
+  // (avoids PostgREST column filter issues if status column has different type)
   var dbProducts = [];
   try {
-    var resp = await fetch(SUPA_URL + '/rest/v1/mall_products?select=*&status=eq.approved&order=created_at.desc', {
+    var resp = await fetch(SUPA_URL + '/rest/v1/mall_products?select=*&order=created_at.desc', {
       headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
     });
     if (resp.ok) {
@@ -692,9 +693,12 @@ async function loadProducts() {
           try { p.colour_names = typeof p.colour_names === 'string' ? JSON.parse(p.colour_names||'[]') : (p.colour_names||[]); } catch(e) { p.colour_names = []; }
           try { p.sizes = typeof p.sizes === 'string' ? JSON.parse(p.sizes||'[]') : (p.sizes||[]); } catch(e) { p.sizes = []; }
           try { p.extra_images = typeof p.extra_images === 'string' ? JSON.parse(p.extra_images||'[]') : (p.extra_images||[]); } catch(e) { p.extra_images = []; }
-          p.verified = true; // admin-posted = verified
+          p.verified = true;
         });
-        dbProducts = raw;
+        // Filter: show approved OR products with no status field set (legacy)
+        dbProducts = raw.filter(function(p){
+          return !p.status || p.status === 'approved';
+        });
       }
     }
   } catch(e) { console.warn('Mall products fetch error:', e); }
@@ -1277,7 +1281,7 @@ document.addEventListener('DOMContentLoaded', function() {
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'mall_products'},function(p){
         var row = p.new;
         if(!row) return;
-        // Only surface approved products
+        // Only surface approved products (or ones with no status = legacy)
         if(row.status && row.status !== 'approved') return;
         // Parse JSON fields
         try { row.colours = typeof row.colours==='string' ? JSON.parse(row.colours||'[]') : (row.colours||[]); } catch(e){ row.colours=[]; }

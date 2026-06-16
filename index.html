@@ -626,6 +626,47 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   <style>@keyframes oppPulseGreen{0%,100%{box-shadow:0 0 0 0 rgba(27,94,32,0.4);}50%{box-shadow:0 0 0 6px rgba(27,94,32,0);}}</style>
 </section>
 
+<!-- TSHIRT INTEREST BANNER — shown to logged-in users only -->
+<div id="tshirtBannerSection" style="display:none;background:linear-gradient(135deg,#0a2f1f 0%,#1B5E20 60%,#2E7D32 100%);padding:2.5rem 5%;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/svg%3E\");pointer-events:none;"></div>
+  <div style="max-width:800px;margin:0 auto;position:relative;z-index:1;">
+    <div style="display:flex;align-items:flex-start;gap:1.2rem;flex-wrap:wrap;">
+      <div style="font-size:3rem;line-height:1;flex-shrink:0;">👕</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);color:#FFC107;padding:0.3rem 1rem;border-radius:50px;font-size:0.78rem;font-weight:700;margin-bottom:0.7rem;letter-spacing:0.5px;">🔥 LIMITED TIME · GERAMA T-SHIRTS</div>
+        <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;color:white;margin-bottom:0.5rem;line-height:1.2;">GERAMA is Making Official T-Shirts!</h2>
+        <p style="font-size:0.92rem;color:rgba(255,255,255,0.85);line-height:1.7;margin-bottom:1rem;">Be part of the first batch — register your interest now so we know how many to make. Select your size and colour preference. No payment yet, just let us know you want one!</p>
+        <div id="tshirtBannerStatus" style="display:none;padding:0.6rem 1rem;border-radius:10px;font-size:0.85rem;font-weight:600;margin-bottom:0.8rem;"></div>
+        <div id="tshirtAlreadyRegistered" style="display:none;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);border-radius:14px;padding:0.9rem 1.2rem;color:#FFC107;font-size:0.88rem;font-weight:700;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-check-circle"></i> You're on the list! We'll contact you when T-shirts are ready.</div>
+        <div id="tshirtRegisterForm">
+          <div style="display:flex;gap:0.7rem;flex-wrap:wrap;margin-bottom:0.8rem;">
+            <select id="tshirtSizePref" style="flex:1;min-width:130px;padding:0.6rem 0.9rem;border:2px solid rgba(255,255,255,0.2);border-radius:12px;font-size:0.88rem;font-family:'Inter',sans-serif;outline:none;background:rgba(255,255,255,0.1);color:white;" onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
+              <option value="" style="color:#1e2a3e;">Size preference</option>
+              <option value="XS" style="color:#1e2a3e;">XS</option>
+              <option value="S" style="color:#1e2a3e;">S</option>
+              <option value="M" style="color:#1e2a3e;">M</option>
+              <option value="L" style="color:#1e2a3e;">L</option>
+              <option value="XL" style="color:#1e2a3e;">XL</option>
+              <option value="XXL" style="color:#1e2a3e;">XXL</option>
+              <option value="3XL" style="color:#1e2a3e;">3XL</option>
+            </select>
+            <select id="tshirtColourPref" style="flex:1;min-width:150px;padding:0.6rem 0.9rem;border:2px solid rgba(255,255,255,0.2);border-radius:12px;font-size:0.88rem;font-family:'Inter',sans-serif;outline:none;background:rgba(255,255,255,0.1);color:white;" onfocus="this.style.borderColor='#FFC107'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
+              <option value="" style="color:#1e2a3e;">Colour preference</option>
+              <option value="White" style="color:#1e2a3e;">White</option>
+              <option value="Black" style="color:#1e2a3e;">Black</option>
+              <option value="Green (GERAMA)" style="color:#1e2a3e;">Green (GERAMA)</option>
+              <option value="Navy Blue" style="color:#1e2a3e;">Navy Blue</option>
+              <option value="No preference" style="color:#1e2a3e;">No preference</option>
+            </select>
+            <button id="tshirtRegisterBtn" onclick="registerTshirtInterest()" style="background:linear-gradient(135deg,#FFC107,#e6a800);color:#0a2f1f;border:none;padding:0.6rem 1.4rem;border-radius:20px;font-size:0.88rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;display:inline-flex;align-items:center;gap:0.4rem;box-shadow:0 4px 16px rgba(255,193,7,0.4);"><i class="fas fa-hand-paper"></i> I'm Interested!</button>
+          </div>
+          <p style="font-size:0.75rem;color:rgba(255,255,255,0.6);">Only for logged-in GERAMA members. No payment required — just register your interest.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ANNOUNCEMENTS — shown first after hero/stats -->
 <section class="section-wrap alt" id="announcements-section">
   <div class="section-head">
@@ -1549,6 +1590,123 @@ if ('serviceWorker' in navigator) {
     hideBanner();
     deferredPrompt = null;
   });
+})();
+
+// ── T-SHIRT INTEREST BANNER ────────────────────────────────
+(function() {
+  var SUPA_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+
+  // Show banner only for logged-in users
+  function initTshirtBanner() {
+    if (typeof window.geramaSupabase === 'undefined') {
+      setTimeout(initTshirtBanner, 400);
+      return;
+    }
+    window.geramaSupabase.auth.getSession().then(function(res) {
+      var session = res && res.data && res.data.session;
+      if (!session) return; // guests don't see it
+
+      var banner = document.getElementById('tshirtBannerSection');
+      if (banner) banner.style.display = 'block';
+
+      // Check if already registered
+      var userEmail = session.user.email;
+      checkAlreadyRegistered(userEmail);
+    }).catch(function() {});
+  }
+
+  function checkAlreadyRegistered(email) {
+    fetch(SUPA_URL + '/rest/v1/tshirt_interest?user_email=eq.' + encodeURIComponent(email) + '&select=id', {
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data && data.length) {
+        // Already registered — show confirmation, hide form
+        var form = document.getElementById('tshirtRegisterForm');
+        var done = document.getElementById('tshirtAlreadyRegistered');
+        if (form) form.style.display = 'none';
+        if (done) done.style.display = 'flex';
+      }
+    }).catch(function() {});
+  }
+
+  window.registerTshirtInterest = async function() {
+    var btn = document.getElementById('tshirtRegisterBtn');
+    var statusEl = document.getElementById('tshirtBannerStatus');
+    var size = document.getElementById('tshirtSizePref').value;
+    var colour = document.getElementById('tshirtColourPref').value;
+
+    function setStatus(msg, ok) {
+      if (!statusEl) return;
+      statusEl.style.display = 'block';
+      statusEl.style.background = ok ? 'rgba(5,150,105,0.15)' : 'rgba(220,38,38,0.15)';
+      statusEl.style.color = ok ? '#6ee7b7' : '#fca5a5';
+      statusEl.style.padding = '0.5rem 1rem';
+      statusEl.style.borderRadius = '10px';
+      statusEl.textContent = msg;
+    }
+
+    if (!size) { setStatus('Please select your size preference.', false); return; }
+    if (!colour) { setStatus('Please select a colour preference.', false); return; }
+
+    if (!window.geramaSupabase) { setStatus('Not connected. Please refresh.', false); return; }
+
+    var sessionRes = await window.geramaSupabase.auth.getSession();
+    var session = sessionRes && sessionRes.data && sessionRes.data.session;
+    if (!session) { setStatus('Please log in first.', false); return; }
+
+    var userEmail = session.user.email;
+    var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
+    var fullName = profile.name || session.user.user_metadata && session.user.user_metadata.full_name || userEmail.split('@')[0];
+    var phone = profile.phone || '';
+
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering…'; }
+
+    try {
+      var resp = await fetch(SUPA_URL + '/rest/v1/tshirt_interest', {
+        method: 'POST',
+        headers: {
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          user_email: userEmail,
+          full_name: fullName,
+          phone: phone || null,
+          size_preference: size,
+          colour_preference: colour,
+          registered_at: new Date().toISOString()
+        })
+      });
+
+      if (resp.status === 409 || resp.status === 23505) {
+        // Already registered (unique constraint)
+        var form = document.getElementById('tshirtRegisterForm');
+        var done = document.getElementById('tshirtAlreadyRegistered');
+        if (form) form.style.display = 'none';
+        if (done) done.style.display = 'flex';
+        return;
+      }
+
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+
+      // Success — update dashboard marker and show confirmation
+      localStorage.setItem('gerama_tshirt_interest', JSON.stringify({ size: size, colour: colour, date: new Date().toISOString() }));
+
+      var form = document.getElementById('tshirtRegisterForm');
+      var done = document.getElementById('tshirtAlreadyRegistered');
+      if (form) form.style.display = 'none';
+      if (done) done.style.display = 'flex';
+
+    } catch(e) {
+      setStatus('Could not register. Please try again.', false);
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-hand-paper"></i> I\'m Interested!'; }
+    }
+  };
+
+  setTimeout(initTshirtBanner, 800);
 })();
 </script>
 </body>
