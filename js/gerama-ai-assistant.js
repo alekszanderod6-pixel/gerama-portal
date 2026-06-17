@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════
-// GERAMA AI Assistant — GERA v2
+// GERAMA AI Assistant — GERALEX v2
 // Calls /api/gera-chat (Vercel serverless → Groq Llama 3)
 // The API key never touches the browser. Fully secure.
 // ═══════════════════════════════════════════════════════════════════
@@ -22,6 +22,9 @@ var _sessionId = localStorage.getItem('gera_session') || (function () {
   localStorage.setItem('gera_session', id);
   return id;
 })();
+
+// ── AI name ───────────────────────────────────────────────────────
+var AI_NAME = 'GERALEX';
 
 // ── Offline / navigation-only KB (instant, no network needed) ────
 // Used ONLY when the API is completely unreachable (true offline)
@@ -183,8 +186,8 @@ function _injectUI() {
   // Floating button
   var btn = document.createElement('button');
   btn.id = 'geraAiBtn';
-  btn.setAttribute('aria-label', 'Open GERA AI Assistant');
-  btn.title = 'Ask GERA — AI assistant';
+  btn.setAttribute('aria-label', 'Open GERALEX AI Assistant');
+  btn.title = 'Ask GERALEX — AI assistant';
   btn.innerHTML = '🤖';
   btn.onclick = toggleGeraPanel;
   document.body.appendChild(btn);
@@ -192,7 +195,7 @@ function _injectUI() {
   // Fade-in label
   var lbl = document.createElement('div');
   lbl.id = 'geraLabel';
-  lbl.textContent = '✨ Ask GERA';
+  lbl.textContent = '✨ Ask GERALEX';
   document.body.appendChild(lbl);
   setTimeout(function () { if (lbl.parentNode) lbl.remove(); }, 5500);
 
@@ -200,12 +203,12 @@ function _injectUI() {
   var panel = document.createElement('div');
   panel.id = 'geraPanel';
   panel.setAttribute('role', 'dialog');
-  panel.setAttribute('aria-label', 'GERA AI Assistant');
+  panel.setAttribute('aria-label', 'GERALEX AI Assistant');
   panel.innerHTML =
     '<div id="geraHeader">' +
       '<div id="geraAvatar">🤖</div>' +
       '<div id="geraHeaderText">' +
-        '<div class="gt">GERA — AI Assistant</div>' +
+        '<div class="gt">GERALEX AI</div>' +
         '<div class="gs">Powered by Llama 3 · Platform guide &amp; study help</div>' +
       '</div>' +
       '<div class="gera-online-dot"></div>' +
@@ -216,13 +219,13 @@ function _injectUI() {
     '<div id="geraQuickBtns">' +
       '<button class="gera-qbtn" onclick="geraAsk(\'How do I join a class?\')">🖥️ Join class</button>' +
       '<button class="gera-qbtn" onclick="geraAsk(\'How do I see my grades?\')">⭐ Grades</button>' +
-      '<button class="gera-qbtn" onclick="geraAsk(\'Mark attendance\')">✅ Attendance</button>' +
-      '<button class="gera-qbtn" onclick="geraAsk(\'Order a T-shirt\')">👕 T-Shirt</button>' +
-      '<button class="gera-qbtn" onclick="geraAsk(\'Explain Ohm\'s law\')">⚡ Ohm\'s law</button>' +
-      '<button class="gera-qbtn" onclick="geraAsk(\'What is a Laplace transform?\')">📐 Laplace</button>' +
+      '<button class="gera-qbtn" onclick="geraAsk(\'Mark my attendance\')">✅ Attendance</button>' +
+      '<button class="gera-qbtn" onclick="geraAsk(\'How do I order the GERAMA T-shirt?\')">👕 T-Shirt</button>' +
+      '<button class="gera-qbtn" onclick="geraAsk(\'Explain Ohm\'s law in detail\')">⚡ Ohm\'s law</button>' +
+      '<button class="gera-qbtn" onclick="geraAsk(\'What is a Laplace transform and how is it used?\')">📐 Laplace</button>' +
     '</div>' +
     '<div id="geraInputRow">' +
-      '<textarea id="geraInput" placeholder="Ask anything — platform help or study questions…" rows="1" aria-label="Message GERA"></textarea>' +
+      '<textarea id="geraInput" placeholder="Ask GERALEX anything — platform help or study questions…" rows="1" aria-label="Message GERALEX"></textarea>' +
       '<button id="geraSend" aria-label="Send"><i class="fas fa-paper-plane"></i></button>' +
     '</div>';
   document.body.appendChild(panel);
@@ -241,10 +244,10 @@ function _injectUI() {
   // Welcome message
   setTimeout(function () {
     _addBotMsg(
-      'Hey! 👋 I\'m **GERA**, your AI assistant for GERAMA.\n\n' +
+      'Hey! 👋 I\'m **GERALEX**, your AI assistant for GERAMA.\n\n' +
       'I can help you with:\n' +
       '• **Navigating the platform** — classes, grades, assignments, mall, connect, and more\n' +
-      '• **Academic questions** — engineering, maths, physics, and science topics\n\n' +
+      '• **Academic questions** — engineering, maths, physics, science, and more\n\n' +
       'What do you need? 🎓'
     );
   }, 350);
@@ -355,18 +358,17 @@ async function _callAPI(userMessage) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       message: userMessage,
-      history: _history.slice(-8)   // send last 4 turns (8 messages) for context
+      history: _history.slice(-8)
     })
   });
 
-  if (!resp.ok) {
-    var errData = {};
-    try { errData = await resp.json(); } catch (e) {}
-    throw new Error(errData.error || 'Server error ' + resp.status);
-  }
+  var data;
+  try { data = await resp.json(); } catch (e) { throw new Error('Bad response from server (not JSON)'); }
 
-  var data = await resp.json();
-  if (!data.reply) throw new Error('Empty response');
+  if (!resp.ok) {
+    throw new Error(data.error || ('Server error ' + resp.status));
+  }
+  if (!data.reply) throw new Error('Empty AI response');
   return data.reply;
 }
 
@@ -409,18 +411,31 @@ async function geraSendMsg() {
   try {
     answer = await _callAPI(text);
   } catch (err) {
-    // API failed — try offline KB before giving up
-    var offlineAnswer = _offlineAnswer(text);
-    if (offlineAnswer) {
-      answer = offlineAnswer + '\n\n**(Offline mode — full AI answers available when connected)**';
-      source = 'offline_kb';
+    _removeTyping();
+    _isTyping = false;
+    if (sendBtn) sendBtn.disabled = false;
+
+    var errMsg = err.message || '';
+
+    // Only use offline KB for genuine network failures (fetch itself threw)
+    var isNetworkError = errMsg.indexOf('Failed to fetch') !== -1 ||
+                         errMsg.indexOf('NetworkError') !== -1 ||
+                         errMsg.indexOf('Load failed') !== -1;
+
+    if (isNetworkError) {
+      var offlineAnswer = _offlineAnswer(text);
+      if (offlineAnswer) {
+        _addBotMsg(offlineAnswer + '\n\n*(Offline mode — you\'re not connected to the internet)*');
+        _history.push({ role: 'user', content: text });
+        _history.push({ role: 'assistant', content: offlineAnswer });
+      } else {
+        _addErrorMsg('No internet connection detected. Please check your connection and try again.');
+      }
     } else {
-      _removeTyping();
-      _isTyping = false;
-      if (sendBtn) sendBtn.disabled = false;
-      _addErrorMsg('AI is temporarily unavailable. Check your connection or try the Help Center (❓ button).');
-      return;
+      // Server error — show the actual message
+      _addErrorMsg(errMsg || 'Something went wrong. Please try again.');
     }
+    return;
   }
 
   // Push to history for multi-turn context
