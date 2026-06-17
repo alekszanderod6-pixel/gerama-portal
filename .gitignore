@@ -12,3 +12,6 @@ materials/l200/semester-1/solid-state-electronics/books/solid-state-electronic-d
 # API keys — never commit to GitHub
 js/ai-config.js
 js/env-config.js
+.env
+.env.local
+.env*.local
