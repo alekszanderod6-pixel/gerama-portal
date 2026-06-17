@@ -1405,6 +1405,7 @@ window._renderSubmissions = function(data, el){
     '</div>'+
     '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">'+
       '<button onclick="window.loadSubmissionsTable()" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.45rem 0.9rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-sync-alt"></i> Refresh</button>'+
+      '<button onclick="window.syncAllGradesToPortal()" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Push all graded submissions into student_grades so students can see them"><i class="fas fa-upload"></i> Sync All to Portal</button>'+
       '<button onclick="downloadGradesSummary()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> Download All Grades</button>'+
     '</div>'+
   '</div>';
@@ -3890,16 +3891,31 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
         '</div>' : '')+
         // Members list
         (members.length ? memberRows : '<p style="color:#9ca3af;font-size:0.85rem;text-align:center;padding:1rem;">No members yet.</p>')+
-        // Add member form
-        (!isFull && addOptions
-          ? '<div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid #f1f5f9;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">'+
-              '<select id="addMember-'+group.id+'" style="flex:1;min-width:160px;padding:0.4rem 0.6rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;">'+
-                '<option value="">— Select member to add —</option>'+addOptions+
-              '</select>'+
-              '<button onclick="window.addMemberToGroup(\''+group.id+'\')" style="background:'+color+';color:white;border:none;padding:0.4rem 0.9rem;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-plus"></i> Add</button>'+
+        // Add member form — typeahead search from registered members
+        (!isFull
+          ? '<div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid #f1f5f9;">'+
+              '<div style="font-size:0.75rem;font-weight:700;color:#6b7280;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.04em;">Add Member</div>'+
+              '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:flex-start;">'+
+                '<div style="flex:1;min-width:180px;position:relative;">'+
+                  '<input type="text" id="addMemberSearch-'+group.id+'" placeholder="Type name to search…" autocomplete="off"'+
+                    ' oninput="window.filterMemberSearch(\''+group.id+'\')"'+
+                    ' onfocus="window.filterMemberSearch(\''+group.id+'\')"'+
+                    ' style="width:100%;padding:0.42rem 0.7rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;"'+
+                    ' onfocusin="this.style.borderColor=\''+color+'\'" onblur="setTimeout(function(){ var d=document.getElementById(\'addMemberDrop-'+group.id+'\'); if(d) d.style.display=\'none\'; },200)">'+
+                  '<div id="addMemberDrop-'+group.id+'" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:2px solid '+color+';border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);z-index:200;max-height:220px;overflow-y:auto;"></div>'+
+                '</div>'+
+                '<button onclick="window.addMemberToGroupSearch(\''+group.id+'\')" style="background:'+color+';color:white;border:none;padding:0.42rem 0.9rem;border-radius:8px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;white-space:nowrap;"><i class="fas fa-user-plus"></i> Add</button>'+
+                '<button onclick="window.openAttendanceAddModal(\''+window.escAttr(group.id)+'\',\''+window.escAttr(group.name)+'\')" style="background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;padding:0.42rem 0.7rem;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;white-space:nowrap;" title="Add members from another attendance session"><i class="fas fa-clipboard-check"></i> Attendance</button>'+
+                '<button onclick="window.openSubmissionAddModal(\''+window.escAttr(group.id)+'\',\''+window.escAttr(group.name)+'\')" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;padding:0.42rem 0.7rem;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;white-space:nowrap;" title="Add members from assignment or quiz submitters"><i class="fas fa-file-alt"></i> Submissions</button>'+
+              '</div>'+
             '</div>'
           : (isFull
-              ? '<div style="text-align:center;font-size:0.78rem;color:#92400e;background:#fef3c7;padding:0.4rem;border-radius:8px;margin-top:0.5rem;">Group is full (max '+GROUP_MAX+')</div>'
+              ? '<div style="margin-top:0.5rem;"><div style="text-align:center;font-size:0.78rem;color:#92400e;background:#fef3c7;padding:0.4rem;border-radius:8px;margin-bottom:0.4rem;">Group is full (max '+GROUP_MAX+')</div>'+
+                  '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.3rem;">'+
+                    '<button onclick="window.openAttendanceAddModal(\''+window.escAttr(group.id)+'\',\''+window.escAttr(group.name)+'\')" style="background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;padding:0.4rem 0.7rem;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-clipboard-check"></i> From Attendance</button>'+
+                    '<button onclick="window.openSubmissionAddModal(\''+window.escAttr(group.id)+'\',\''+window.escAttr(group.name)+'\')" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;padding:0.4rem 0.7rem;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-file-alt"></i> From Submissions</button>'+
+                  '</div>'+
+                '</div>'
               : '<div style="text-align:center;font-size:0.78rem;color:#9ca3af;padding:0.5rem;margin-top:0.5rem;">All registered users are already assigned.</div>'))+
       '</div>'+
     '</div>';
@@ -5441,11 +5457,11 @@ window.openIndexAssignModal = async function() {
             '</div>' +
             '<div style="background:#fef3c7;border-radius:12px;padding:0.9rem 1.1rem;margin-bottom:1rem;border:1px solid #fde68a;font-size:0.84rem;color:#92400e;line-height:1.6;">' +
                 '<strong>⚙️ Rules applied:</strong><br>' +
-                '• Only members <strong>already in a group</strong> receive index numbers.<br>' +
-                '• Protected tutor range <strong>UETG/ENG/26/001–012</strong> is never overwritten.<br>' +
-                '• Members who already have an index number are <strong>skipped</strong>.<br>' +
-                '• Numbers are assigned in <strong>random (shuffled) order</strong> per level.<br>' +
-                '• Sequences continue from the highest existing number for each level.' +
+                '• <strong>L100 only:</strong> all existing L100 index numbers (except tutor range 001–012) are <strong>cleared first</strong>.<br>' +
+                '• L100 members <strong>in a group</strong> get a new number from <strong>013 upwards</strong>, randomly shuffled.<br>' +
+                '• L100 members <strong>not in a group</strong> are left <strong>blank</strong>.<br>' +
+                '• Tutor range <strong>UETG/ENG/26/001–012</strong> is never touched.<br>' +
+                '• <strong>L200 / L300 / L400</strong> index numbers are never modified.' +
             '</div>' +
             '<div id="indexAssignPreviewArea" style="min-height:100px;margin-bottom:1rem;">' +
                 '<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-spinner fa-spin"></i> Analysing members…</p>' +
@@ -5478,118 +5494,133 @@ window.runIndexPreview = async function() {
     if (!sb) { area.innerHTML = '<p style="color:#dc2626;">Not connected.</p>'; return; }
 
     try {
-        // Fresh fetch
+        // Fresh fetch — include role from gerama_group_members to detect tutors
         var [profRes, gmRes] = await Promise.all([
             sb.from('user_profiles').select('email, full_name, level, index_number').eq('is_active', true),
-            sb.from('gerama_group_members').select('user_email, group_id')
+            sb.from('gerama_group_members').select('user_email, group_id, role')
         ]);
 
         var allProfiles = profRes.data || [];
         var allGM       = gmRes.data   || [];
 
-        // Build set of emails that are in a group
-        var inGroupSet = {};
-        allGM.forEach(function(m){ if (m.user_email) inGroupSet[m.user_email.toLowerCase().trim()] = true; });
-
-        // Separate into levels
-        var levels = ['L100', 'L200', 'L300', 'L400'];
-        var plan   = {}; // level → { toAssign: [], alreadyHave: [], protected: [] }
-
-        levels.forEach(function(lvl) {
-            plan[lvl] = { toAssign: [], alreadyHave: [], protected: [] };
+        // Build lookup maps
+        var inGroupSet = {}; // email → true if in any group
+        var isTutorSet = {}; // email → true if role=tutor
+        allGM.forEach(function(m) {
+            var k = (m.user_email || '').toLowerCase().trim();
+            if (!k) return;
+            inGroupSet[k] = true;
+            if (m.role === 'tutor') isTutorSet[k] = true;
         });
+
+        var yearCode = INDEX_YEAR_MAP['L100'] || '26'; // always '26' for L100
+
+        // ── Categorise every L100 profile ──
+        // protected  : tutor-range numbers (001-012) — never touch
+        // willClear  : L100 with a non-protected index who is NOT in a group → set null
+        // toAssign   : L100 in a group, no index yet (or will be cleared) → gets a new number
+        // noGroup    : L100 not in a group, currently blank → stays blank (no action needed)
+        var plan = {
+            protected:  [],  // tutors 001-012
+            toAssign:   [],  // in a group, will receive a new number
+            willClear:  [],  // has a non-protected index but NOT in a group → will be blanked
+            noGroup:    []   // no group, already blank → no action
+        };
 
         allProfiles.forEach(function(u) {
-            var lvl = (u.level || '').trim();
-            if (!plan[lvl]) return; // skip Graduate / Visitor / etc.
-            var inGroup = !!inGroupSet[(u.email || '').toLowerCase().trim()];
-            if (!inGroup) return; // not in any group — skip
+            if ((u.level || '').trim() !== 'L100') return; // L200+ never touched
+            var k       = (u.email || '').toLowerCase().trim();
+            var inGroup = !!inGroupSet[k];
 
-            if (u.index_number) {
-                if (_isProtectedIndex(u.index_number)) {
-                    plan[lvl].protected.push(u);
-                } else {
-                    plan[lvl].alreadyHave.push(u);
-                }
+            if (u.index_number && _isProtectedIndex(u.index_number)) {
+                plan.protected.push(u);  // tutor 001-012 — untouched
+                return;
+            }
+            if (inGroup) {
+                plan.toAssign.push(u);   // in group → will get a new number (old one cleared first)
+            } else if (u.index_number) {
+                plan.willClear.push(u);  // not in group but has a stale number → blank it
             } else {
-                plan[lvl].toAssign.push(u); // needs a new index number
+                plan.noGroup.push(u);    // not in group, already blank → nothing to do
             }
         });
 
-        // Generate the proposed assignments (random shuffle per level)
-        var proposed = {}; // email → proposed index number
-        var totalNew = 0;
-
-        levels.forEach(function(lvl) {
-            var toAssign = _shuffle(plan[lvl].toAssign);
-            if (!toAssign.length) return;
-            var yearCode = _detectYearCode(allProfiles, lvl);
-            var seq      = _highestSeq(allProfiles, lvl, yearCode);
-            // For L100: make sure we skip past protected range (1–12)
-            if (lvl === 'L100' && yearCode === '26' && seq < PROTECTED_TUTOR_RANGE.end) {
-                seq = PROTECTED_TUTOR_RANGE.end;
-            }
-            toAssign.forEach(function(u) {
-                seq++;
-                proposed[u.email] = 'UETG/ENG/' + yearCode + '/' + _fmtSeq(seq);
-                totalNew++;
-            });
+        // ── Propose new numbers for group members (random order, start at 013) ──
+        var proposed  = {}; // email → new index string
+        var toAssignShuffled = _shuffle(plan.toAssign);
+        var seq = PROTECTED_TUTOR_RANGE.end; // start at 12 so first ++ gives 13
+        toAssignShuffled.forEach(function(u) {
+            seq++;
+            proposed[u.email] = 'UETG/ENG/' + yearCode + '/' + _fmtSeq(seq);
         });
 
         window._indexAssignProposed = proposed;
         window._indexAssignPlan     = plan;
+        window._indexAssignWillClear = plan.willClear.map(function(u){ return u.email; });
 
-        // Render preview table
+
+        // â”€â”€ Render preview â”€â”€
         var html = '';
+        var totalNew = plan.toAssign.length;
 
-        levels.forEach(function(lvl) {
-            var p = plan[lvl];
-            var newOnes = p.toAssign;
-            if (!newOnes.length && !p.protected.length && !p.alreadyHave.length) return;
+        // Summary badges
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.5rem;margin-bottom:1rem;">' +
+          '<div style="background:#e8f5e9;color:#1B5E20;border-radius:10px;padding:0.45rem 0.7rem;font-size:0.78rem;font-weight:700;text-align:center;">' + plan.protected.length + ' protected tutors (001â€“012)</div>' +
+          '<div style="background:#dbeafe;color:#1d4ed8;border-radius:10px;padding:0.45rem 0.7rem;font-size:0.78rem;font-weight:700;text-align:center;">' + plan.toAssign.length + ' will get numbers (013+)</div>' +
+          '<div style="background:#fee2e2;color:#dc2626;border-radius:10px;padding:0.45rem 0.7rem;font-size:0.78rem;font-weight:700;text-align:center;">' + plan.willClear.length + ' stale numbers cleared</div>' +
+          '<div style="background:#f1f5f9;color:#6b7280;border-radius:10px;padding:0.45rem 0.7rem;font-size:0.78rem;font-weight:700;text-align:center;">' + plan.noGroup.length + ' no group â†’ stay blank</div>' +
+        '</div>';
 
-            var yearCode = _detectYearCode(allProfiles, lvl);
-            html +=
-                '<div style="margin-bottom:1.2rem;">' +
-                '<div style="font-size:0.9rem;font-weight:800;color:#1e2a3e;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.6rem;">' +
-                    '<span style="background:#e8f5e9;color:#1B5E20;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.8rem;">' + lvl + '</span>' +
-                    '<span style="color:#059669;font-size:0.8rem;font-weight:700;">' + newOnes.length + ' to assign</span>' +
-                    '<span style="color:#9ca3af;font-size:0.75rem;font-weight:500;">· ' + p.alreadyHave.length + ' already have · ' + p.protected.length + ' protected tutors</span>' +
-                    '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:10px;">Year code: ' + yearCode + '</span>' +
+        // New assignments table
+        if (plan.toAssign.length) {
+            html += '<div style="margin-bottom:1rem;">' +
+              '<div style="font-size:0.82rem;font-weight:700;color:#1B5E20;margin-bottom:0.4rem;"><i class="fas fa-user-check"></i> New assignments (randomly shuffled, starts at 013)</div>' +
+              '<div style="border:1px solid #e8f5e9;border-radius:12px;overflow:hidden;max-height:240px;overflow-y:auto;">' +
+              '<div style="display:grid;grid-template-columns:1fr 1fr;background:#f0fdf4;padding:0.4rem 0.8rem;font-size:0.74rem;font-weight:700;color:#374151;position:sticky;top:0;">' +
+                '<span>Member</span><span>Will be assigned</span>' +
+              '</div>';
+            plan.toAssign.forEach(function(u) {
+                var idx = proposed[u.email] || 'â€”';
+                html += '<div style="display:grid;grid-template-columns:1fr 1fr;padding:0.32rem 0.8rem;border-top:1px solid #f1f5f9;font-size:0.82rem;">' +
+                  '<span style="color:#1e2a3e;font-weight:600;">' + window.escHtml(u.full_name || u.email) + '</span>' +
+                  '<span style="color:#b45309;font-family:monospace;font-weight:700;">' + window.escHtml(idx) + '</span>' +
                 '</div>';
+            });
+            html += '</div></div>';
+        }
 
-            if (newOnes.length) {
-                html += '<div style="border:1px solid #e8f5e9;border-radius:12px;overflow:hidden;">' +
-                    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:#f0fdf4;padding:0.4rem 0.8rem;font-size:0.75rem;font-weight:700;color:#374151;">' +
-                        '<span>Member</span><span>Proposed Index No.</span>' +
-                    '</div>';
-                _shuffle(newOnes).forEach(function(u) {
-                    var idx = proposed[u.email] || '—';
-                    html += '<div style="display:grid;grid-template-columns:1fr 1fr;padding:0.35rem 0.8rem;border-top:1px solid #f1f5f9;font-size:0.82rem;">' +
-                        '<span style="color:#1e2a3e;font-weight:600;">' + window.escHtml(u.full_name || u.email) + '</span>' +
-                        '<span style="color:#b45309;font-family:monospace;font-weight:700;">' + window.escHtml(idx) + '</span>' +
-                    '</div>';
-                });
-                html += '</div>';
-            }
-
-            if (p.protected.length) {
-                html += '<div style="margin-top:0.4rem;font-size:0.78rem;color:#6b7280;padding:0.3rem 0.5rem;background:#f9fdf9;border-radius:8px;display:flex;align-items:center;gap:0.4rem;">' +
-                    '<i class="fas fa-shield-alt" style="color:#059669;"></i> Protected tutor slots: ' +
-                    p.protected.map(function(u){ return window.escHtml(u.full_name||u.email) + ' [' + u.index_number + ']'; }).join(', ') +
+        // Stale / clear table
+        if (plan.willClear.length) {
+            html += '<div style="margin-bottom:1rem;">' +
+              '<div style="font-size:0.82rem;font-weight:700;color:#dc2626;margin-bottom:0.4rem;"><i class="fas fa-eraser"></i> Stale numbers to clear (not in any group)</div>' +
+              '<div style="border:1px solid #fecaca;border-radius:12px;overflow:hidden;max-height:160px;overflow-y:auto;">' +
+              '<div style="display:grid;grid-template-columns:1fr 1fr;background:#fee2e2;padding:0.4rem 0.8rem;font-size:0.74rem;font-weight:700;color:#374151;position:sticky;top:0;">' +
+                '<span>Member</span><span>Current number (will be cleared)</span>' +
+              '</div>';
+            plan.willClear.forEach(function(u) {
+                html += '<div style="display:grid;grid-template-columns:1fr 1fr;padding:0.32rem 0.8rem;border-top:1px solid #f1f5f9;font-size:0.82rem;">' +
+                  '<span style="color:#1e2a3e;font-weight:600;">' + window.escHtml(u.full_name || u.email) + '</span>' +
+                  '<span style="color:#dc2626;font-family:monospace;text-decoration:line-through;">' + window.escHtml(u.index_number) + '</span>' +
                 '</div>';
-            }
-            html += '</div>';
-        });
+            });
+            html += '</div></div>';
+        }
 
-        if (!totalNew) {
-            html = '<div style="text-align:center;padding:2rem;background:#f0fdf4;border-radius:12px;color:#059669;font-weight:700;">' +
-                '<i class="fas fa-check-circle" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>' +
-                'All group members who need index numbers already have them!' +
+        // Protected tutors note
+        if (plan.protected.length) {
+            html += '<div style="font-size:0.78rem;color:#6b7280;padding:0.4rem 0.6rem;background:#f9fdf9;border-radius:8px;display:flex;align-items:flex-start;gap:0.4rem;">' +
+              '<i class="fas fa-shield-alt" style="color:#059669;margin-top:0.1rem;"></i>' +
+              '<span>Protected tutors (unchanged): ' +
+              plan.protected.map(function(u){ return window.escHtml(u.full_name||u.email) + ' [' + window.escHtml(u.index_number) + ']'; }).join(' Â· ') +
+              '</span>' +
             '</div>';
-        } else {
-            html = '<div style="background:#e8f5e9;border-radius:10px;padding:0.6rem 1rem;margin-bottom:1rem;font-size:0.85rem;color:#1B5E20;font-weight:700;">' +
-                '<i class="fas fa-hashtag"></i> ' + totalNew + ' new index number' + (totalNew !== 1 ? 's' : '') + ' will be assigned (randomly shuffled per level)' +
-            '</div>' + html;
+        }
+
+        if (!totalNew && !plan.willClear.length) {
+            html = '<div style="text-align:center;padding:2rem;background:#f0fdf4;border-radius:12px;color:#059669;font-weight:700;">' +
+              '<i class="fas fa-check-circle" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>' +
+              'Nothing to do â€” group members all have index numbers and no stale ones found.' +
+            '</div>';
         }
 
         area.innerHTML = html;
@@ -5599,79 +5630,694 @@ window.runIndexPreview = async function() {
     }
 };
 
-// ─── COMMIT ASSIGNMENT ────────────────────────────────────────────────────────
+// â”€â”€â”€ COMMIT ASSIGNMENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 window.commitIndexAssignment = async function() {
     var statusEl = document.getElementById('indexAssignStatus');
     function setStatus(msg, ok) { if (statusEl) { statusEl.textContent = msg; statusEl.style.color = ok ? '#059669' : '#dc2626'; } }
 
-    var proposed = window._indexAssignProposed;
-    if (!proposed || !Object.keys(proposed).length) {
-        setStatus('Run preview first — nothing to assign.', false);
+    var proposed   = window._indexAssignProposed;
+    var willClear  = window._indexAssignWillClear || [];
+
+    if ((!proposed || !Object.keys(proposed).length) && !willClear.length) {
+        setStatus('Run preview first â€” nothing to do.', false);
         return;
     }
 
     // Password gate
-    var pw = window.prompt('Enter admin password to commit index number assignments:');
+    var pw = window.prompt('Enter admin password to commit. This will:\nâ€¢ Clear all non-tutor L100 index numbers\nâ€¢ Reassign 013+ only to L100 group members\nâ€¢ Leave L200+ untouched');
     if (!pw) return;
     if (pw.trim() !== '2026GERAMA') {
-        alert('❌ Wrong password. Assignment cancelled.');
+        alert('âŒ Wrong password. Assignment cancelled.');
         return;
     }
 
     var sb = window.geramaSupabase;
     if (!sb) { setStatus('Not connected.', false); return; }
 
-    var emails = Object.keys(proposed);
-    setStatus('Assigning ' + emails.length + ' index numbers…', true);
+    var cleared = 0, assigned = 0, errors = 0;
 
-    var ok = 0, skipped = 0, errors = 0;
+    // â”€â”€ STEP 1: Clear stale L100 index numbers (not in any group) â”€â”€
+    setStatus('Step 1/2 â€” clearing stale index numbersâ€¦', true);
+    for (var i = 0; i < willClear.length; i++) {
+        try {
+            var { error: ce } = await sb.from('user_profiles')
+                .update({ index_number: null, updated_at: new Date().toISOString() })
+                .eq('email', willClear[i]);
+            if (!ce) cleared++; else errors++;
+        } catch(e) { errors++; }
+    }
 
-    for (var i = 0; i < emails.length; i++) {
-        var email  = emails[i];
+    // â”€â”€ STEP 2: Also clear any existing non-protected L100 index numbers
+    //    on group members (they will be re-assigned fresh from 013) â”€â”€
+    var toAssignEmails = Object.keys(proposed || {});
+    for (var j = 0; j < toAssignEmails.length; j++) {
+        try {
+            await sb.from('user_profiles')
+                .update({ index_number: null })
+                .eq('email', toAssignEmails[j])
+                .not('index_number', 'is', null);
+        } catch(e) {}
+    }
+
+    // â”€â”€ STEP 3: Assign new numbers from 013 â”€â”€
+    setStatus('Step 2/2 â€” assigning new index numbersâ€¦', true);
+    for (var k = 0; k < toAssignEmails.length; k++) {
+        var email  = toAssignEmails[k];
         var newIdx = proposed[email];
         try {
-            // Double-check: don't overwrite if user already has one now
-            var {data: cur} = await sb.from('user_profiles')
-                .select('index_number')
-                .eq('email', email)
-                .single();
-
-            if (cur && cur.index_number) {
-                // Protect tutor range or any existing number
-                if (_isProtectedIndex(cur.index_number) || cur.index_number.trim() !== '') {
-                    skipped++;
-                    continue;
-                }
-            }
-
-            // Check uniqueness before writing
-            var {data: clash} = await sb.from('user_profiles')
+            // Uniqueness check
+            var { data: clash } = await sb.from('user_profiles')
                 .select('email')
                 .eq('index_number', newIdx)
                 .neq('email', email)
                 .limit(1);
+            if (clash && clash.length) { errors++; continue; }
 
-            if (clash && clash.length) {
-                // Collision (shouldn't happen but safety net) — skip
-                skipped++;
-                continue;
-            }
-
-            var {error} = await sb.from('user_profiles')
+            var { error: ae } = await sb.from('user_profiles')
                 .update({ index_number: newIdx, updated_at: new Date().toISOString() })
                 .eq('email', email);
-
-            if (!error) ok++; else errors++;
+            if (!ae) assigned++; else errors++;
         } catch(e) { errors++; }
     }
 
-    window.logActivity('Auto-assigned ' + ok + ' index numbers to group members' + (skipped ? ' (' + skipped + ' skipped)' : '') + (errors ? ' (' + errors + ' errors)' : ''));
-    setStatus('✅ Done! ' + ok + ' index number' + (ok !== 1 ? 's' : '') + ' assigned.' + (skipped ? ' ' + skipped + ' skipped (already had one).' : '') + (errors ? ' ⚠️ ' + errors + ' errors.' : ''), true);
+    window.logActivity(
+        'Index numbers reset: ' + cleared + ' cleared (no group), ' + assigned + ' assigned (group members 013+)' +
+        (errors ? ', ' + errors + ' errors' : '')
+    );
+    setStatus(
+        'âœ… Done! ' + cleared + ' stale number' + (cleared !== 1 ? 's' : '') + ' cleared Â· ' +
+        assigned + ' new number' + (assigned !== 1 ? 's' : '') + ' assigned (013+).' +
+        (errors ? ' âš ï¸ ' + errors + ' errors.' : ''),
+        true
+    );
 
-    // Reload preview after 2 seconds
     setTimeout(function() {
         window.runIndexPreview();
-        // Also reload the Registered Members panel if visible
         if (typeof window.loadRegisteredUsers === 'function') window.loadRegisteredUsers();
     }, 2000);
+};
+    }, 2000);
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ADD MEMBERS — TYPEAHEAD SEARCH  (per-group inline search box)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Called on every keystroke in the per-group search box
+window.filterMemberSearch = function(groupId) {
+  var input = document.getElementById('addMemberSearch-' + groupId);
+  var drop  = document.getElementById('addMemberDrop-' + groupId);
+  if (!input || !drop) return;
+
+  var q = input.value.trim().toLowerCase();
+  drop.style.display = 'none';
+  if (q.length < 1) return;
+
+  var allUsers   = window._allUsers || [];
+  var allMembers = window._allGroupMembers || [];
+
+  // Emails already in this specific group
+  var inGroup = {};
+  allMembers.filter(function(m){ return m.group_id === groupId; })
+    .forEach(function(m){ if (m.user_email) inGroup[m.user_email.toLowerCase().trim()] = true; });
+
+  var matches = allUsers.filter(function(u) {
+    if (inGroup[(u.email || '').toLowerCase().trim()]) return false;
+    var name  = (u.full_name  || '').toLowerCase();
+    var email = (u.email      || '').toLowerCase();
+    var idx   = (u.index_number || '').toLowerCase();
+    return name.indexOf(q) !== -1 || email.indexOf(q) !== -1 || idx.indexOf(q) !== -1;
+  }).slice(0, 10);
+
+  if (!matches.length) {
+    drop.innerHTML = '<div style="padding:0.55rem 0.8rem;font-size:0.82rem;color:#9ca3af;">No matches found</div>';
+    drop.style.display = 'block';
+    return;
+  }
+
+  drop.innerHTML = matches.map(function(u) {
+    var lvlBadge = u.level
+      ? '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.68rem;font-weight:700;padding:0.1rem 0.35rem;border-radius:6px;margin-left:0.3rem;">' + window.escHtml(u.level) + '</span>'
+      : '';
+    var idxBadge = u.index_number
+      ? '<span style="font-size:0.7rem;color:#6b7280;margin-left:0.3rem;font-family:monospace;">' + window.escHtml(u.index_number) + '</span>'
+      : '';
+    return '<div data-email="' + window.escAttr(u.email) + '" data-name="' + window.escAttr(u.full_name || u.email) + '"' +
+      ' onmousedown="window.selectMemberSearch(\'' + groupId + '\',\'' + window.escAttr(u.email) + '\',\'' + window.escAttr(u.full_name || u.email) + '\')"' +
+      ' style="padding:0.5rem 0.8rem;cursor:pointer;font-size:0.83rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:0.3rem;"' +
+      ' onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'\'">' +
+      '<span style="font-weight:600;color:#1e2a3e;">' + window.escHtml(u.full_name || u.email) + '</span>' +
+      lvlBadge + idxBadge +
+    '</div>';
+  }).join('');
+  drop.style.display = 'block';
+};
+
+// Called when a suggestion row is clicked
+window.selectMemberSearch = function(groupId, email, name) {
+  var input = document.getElementById('addMemberSearch-' + groupId);
+  var drop  = document.getElementById('addMemberDrop-' + groupId);
+  if (input) { input.value = name; input.dataset.selectedEmail = email; }
+  if (drop)  drop.style.display = 'none';
+};
+
+// Called when the Add button next to the search box is clicked
+window.addMemberToGroupSearch = async function(groupId) {
+  var input = document.getElementById('addMemberSearch-' + groupId);
+  if (!input) return;
+
+  var email = (input.dataset.selectedEmail || '').trim();
+  var name  = (input.value || '').trim();
+
+  // Validate selection — must pick from dropdown, not freeform
+  if (!email) {
+    alert('Please select a member from the dropdown list first.');
+    input.focus();
+    return;
+  }
+
+  var sb = window.geramaSupabase; if (!sb) return;
+
+  // Admin password gate
+  var pw = window.prompt('Enter admin password to add a member manually:');
+  if (!pw) return;
+  if (pw.trim() !== '2026GERAMA') {
+    alert('❌ Wrong password. Only admin can manually add members to groups.');
+    return;
+  }
+
+  // Check group capacity
+  var { data: existing } = await sb.from('gerama_group_members').select('id').eq('group_id', groupId);
+  if (existing && existing.length >= GROUP_MAX) {
+    alert('This group is full (' + GROUP_MAX + ' members maximum).');
+    return;
+  }
+
+  // Check not already in any group
+  var { data: inGroup } = await sb.from('gerama_group_members').select('id, group_id').eq('user_email', email).maybeSingle();
+  if (inGroup) {
+    var g = (window._geramaGroups || []).find(function(g){ return g.id === inGroup.group_id; });
+    alert(name + ' is already in ' + (g ? g.name : 'a group') + '. Use the Move (⇄) button to change their group.');
+    return;
+  }
+
+  // Warn if not L100
+  var user = (window._allUsers || []).find(function(u){ return u.email === email; });
+  if (user && user.level && user.level !== 'L100') {
+    if (!confirm(name + ' is ' + user.level + ', not L100. Add anyway?')) return;
+  }
+
+  var { error } = await sb.from('gerama_group_members').insert({
+    group_id:    groupId,
+    user_email:  email,
+    user_name:   name,
+    role:        'member',
+    assigned_at: new Date().toISOString()
+  });
+  if (error) { alert('Error: ' + error.message); return; }
+
+  try {
+    var group = (window._geramaGroups || []).find(function(g){ return g.id === groupId; });
+    if (group) await sb.from('user_profiles').update({ group_name: group.name }).eq('email', email);
+  } catch(e) {}
+
+  window.logActivity('Admin added ' + name + ' to group via search');
+  if (input) { input.value = ''; delete input.dataset.selectedEmail; }
+  window.loadGroups();
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ADD MEMBERS FROM ATTENDANCE SESSION  (per-group, dedup-safe)
+// ─────────────────────────────────────────────────────────────────────────────
+
+window.openAttendanceAddModal = async function(groupId, groupName) {
+  var sb = window.geramaSupabase; if (!sb) { alert('Not connected.'); return; }
+  var existing = document.getElementById('attAddModal');
+  if (existing) existing.remove();
+
+  // Fetch last 50 attendance sessions
+  var { data: sessions } = await sb.from('attendance_sessions')
+    .select('id, class_title, code, created_at')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  sessions = sessions || [];
+
+  var sessionOptions = sessions.length
+    ? sessions.map(function(s) {
+        var dt = s.created_at ? new Date(s.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        return '<option value="' + window.escAttr(s.id) + '">' +
+          window.escHtml(s.class_title || 'Session') +
+          (dt ? ' · ' + dt : '') +
+          (s.code ? ' [' + s.code + ']' : '') +
+          '</option>';
+      }).join('')
+    : '<option value="">No sessions found</option>';
+
+  var modal = document.createElement('div');
+  modal.id = 'attAddModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:6000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);overflow-y:auto;';
+  modal.innerHTML =
+    '<div style="background:white;border-radius:22px;padding:2rem;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">' +
+        '<div style="font-size:1.05rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.6rem;">' +
+          '<i class="fas fa-clipboard-check" style="color:#6d28d9;font-size:1.2rem;"></i> Add from Attendance &rarr; ' +
+          '<span style="color:#6d28d9;">' + window.escHtml(groupName) + '</span>' +
+        '</div>' +
+        '<button onclick="document.getElementById(\'attAddModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">✕</button>' +
+      '</div>' +
+      '<p style="font-size:0.85rem;color:#6b7280;margin-bottom:1rem;line-height:1.6;">' +
+        'Select an attendance session. Students who signed it will be added to <strong>' + window.escHtml(groupName) + '</strong>. ' +
+        'Anyone already in a group is automatically skipped.' +
+      '</p>' +
+      '<div style="margin-bottom:0.9rem;">' +
+        '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.35rem;">Attendance Session</label>' +
+        '<select id="attAddSessionId" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:\'Inter\',sans-serif;" onfocus="this.style.borderColor=\'#6d28d9\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
+          sessionOptions +
+        '</select>' +
+      '</div>' +
+      '<button onclick="window.previewAttendanceAdd(\'' + window.escAttr(groupId) + '\')" style="background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;padding:0.55rem 1.1rem;border-radius:10px;font-weight:600;font-size:0.85rem;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.8rem;">' +
+        '<i class="fas fa-eye"></i> Preview' +
+      '</button>' +
+      '<div id="attAddPreview" style="margin-bottom:0.9rem;min-height:1rem;"></div>' +
+      '<div style="display:flex;gap:0.7rem;flex-wrap:wrap;">' +
+        '<button onclick="window.executeAttendanceAdd(\'' + window.escAttr(groupId) + '\',\'' + window.escAttr(groupName) + '\')" style="background:linear-gradient(135deg,#6d28d9,#7c3aed);color:white;border:none;padding:0.6rem 1.4rem;border-radius:10px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;flex:1;display:flex;align-items:center;justify-content:center;gap:0.4rem;">' +
+          '<i class="fas fa-user-plus"></i> Add to Group' +
+        '</button>' +
+        '<button onclick="document.getElementById(\'attAddModal\').remove()" style="background:#fee2e2;color:#dc2626;border:none;padding:0.6rem 1rem;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>' +
+      '</div>' +
+      '<div id="attAddStatus" style="margin-top:0.8rem;font-size:0.85rem;min-height:1rem;text-align:center;"></div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+  modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+  // Store target group for preview/execute
+  window._attAddGroupId = groupId;
+};
+
+window.previewAttendanceAdd = async function(groupId) {
+  var preview  = document.getElementById('attAddPreview');
+  var sessionId = document.getElementById('attAddSessionId') && document.getElementById('attAddSessionId').value;
+  if (!sessionId) { if (preview) preview.innerHTML = '<p style="color:#dc2626;font-size:0.85rem;">Please select a session.</p>'; return; }
+
+  var sb = window.geramaSupabase; if (!sb) return;
+  if (preview) preview.innerHTML = '<p style="color:#9ca3af;font-size:0.82rem;"><i class="fas fa-spinner fa-spin"></i> Fetching attendees…</p>';
+
+  var { data: records } = await sb.from('attendance_records')
+    .select('student_email, student_name')
+    .eq('session_id', sessionId);
+  records = records || [];
+
+  if (!records.length) {
+    preview.innerHTML = '<p style="color:#dc2626;font-size:0.85rem;">No attendance records found for this session.</p>';
+    return;
+  }
+
+  // Deduplicate by email within the session records themselves
+  var seen = {};
+  records = records.filter(function(r) {
+    var k = (r.student_email || '').toLowerCase().trim();
+    if (!k || seen[k]) return false;
+    seen[k] = true;
+    return true;
+  });
+
+  // Who is already in ANY group?
+  var allMembers = window._allGroupMembers || [];
+  var assignedSet = {};
+  allMembers.forEach(function(m) { if (m.user_email) assignedSet[m.user_email.toLowerCase().trim()] = true; });
+
+  var toAdd    = records.filter(function(r) { return !assignedSet[(r.student_email || '').toLowerCase().trim()]; });
+  var existing = records.filter(function(r) { return  assignedSet[(r.student_email || '').toLowerCase().trim()]; });
+
+  window._attAddCandidates = toAdd;
+
+  var html = '<div style="border:1px solid #ede9fe;border-radius:12px;padding:0.9rem;background:#faf5ff;">' +
+    '<div style="font-size:0.82rem;font-weight:700;color:#6d28d9;margin-bottom:0.6rem;">' +
+      '<i class="fas fa-user-plus"></i> ' + toAdd.length + ' will be added &nbsp;·&nbsp; ' +
+      '<span style="color:#9ca3af;">' + existing.length + ' already in a group (skipped)</span>' +
+    '</div>';
+
+  if (toAdd.length) {
+    html += '<div style="max-height:180px;overflow-y:auto;border:1px solid #ede9fe;border-radius:8px;">';
+    toAdd.forEach(function(r, i) {
+      html += '<div style="padding:0.3rem 0.7rem;font-size:0.81rem;border-bottom:1px solid #f5f3ff;display:flex;align-items:center;gap:0.4rem;">' +
+        '<span style="color:#9ca3af;min-width:18px;">' + (i + 1) + '</span>' +
+        '<span style="font-weight:600;color:#1e2a3e;">' + window.escHtml(r.student_name || r.student_email) + '</span>' +
+        '<span style="font-size:0.72rem;color:#9ca3af;">' + window.escHtml(r.student_email || '') + '</span>' +
+      '</div>';
+    });
+    html += '</div>';
+  } else {
+    html += '<p style="font-size:0.82rem;color:#9ca3af;margin:0;">All attendees from this session are already in a group.</p>';
+  }
+
+  if (existing.length) {
+    html += '<div style="margin-top:0.5rem;font-size:0.76rem;color:#9ca3af;padding:0.3rem 0.5rem;background:#f9f5ff;border-radius:8px;">' +
+      '<i class="fas fa-info-circle"></i> Skipped: ' +
+      existing.slice(0, 5).map(function(r) { return window.escHtml(r.student_name || r.student_email); }).join(', ') +
+      (existing.length > 5 ? '… and ' + (existing.length - 5) + ' more' : '') +
+    '</div>';
+  }
+
+  html += '</div>';
+  preview.innerHTML = html;
+};
+
+window.executeAttendanceAdd = async function(groupId, groupName) {
+  var statusEl = document.getElementById('attAddStatus');
+  function setStatus(msg, ok) { if (statusEl) { statusEl.textContent = msg; statusEl.style.color = ok ? '#059669' : '#dc2626'; } }
+
+  var candidates = window._attAddCandidates;
+  if (!candidates || !candidates.length) { setStatus('Run Preview first, or there is nobody new to add.', false); return; }
+
+  var sb = window.geramaSupabase; if (!sb) { setStatus('Not connected.', false); return; }
+
+  // Admin password gate
+  var pw = window.prompt('Enter admin password to add members from attendance:');
+  if (!pw) return;
+  if (pw.trim() !== '2026GERAMA') { setStatus('❌ Wrong password.', false); return; }
+
+  // Check capacity
+  var { data: curMems } = await sb.from('gerama_group_members').select('id').eq('group_id', groupId);
+  var curCount = (curMems || []).length;
+  var space = GROUP_MAX - curCount;
+  if (space <= 0) { setStatus('Group is full (' + GROUP_MAX + ' max).', false); return; }
+
+  var toAdd = candidates.slice(0, space); // respect cap
+  var capped = candidates.length > space;
+
+  setStatus('Adding members…', true);
+
+  var group = (window._geramaGroups || []).find(function(g) { return g.id === groupId; });
+  var added = 0, errors = 0;
+
+  for (var i = 0; i < toAdd.length; i++) {
+    var r = toAdd[i];
+    if (!r.student_email) { errors++; continue; }
+    try {
+      var userInfo = (window._allUsers || []).find(function(u) { return u.email === r.student_email; });
+      var name = r.student_name || (userInfo && userInfo.full_name) || r.student_email;
+      await sb.from('gerama_group_members').insert({
+        group_id:    groupId,
+        user_email:  r.student_email,
+        user_name:   name,
+        role:        'member',
+        assigned_at: new Date().toISOString()
+      });
+      if (group) {
+        try { await sb.from('user_profiles').update({ group_name: group.name }).eq('email', r.student_email); } catch(e) {}
+      }
+      added++;
+    } catch(e) { errors++; }
+  }
+
+  window.logActivity('Added ' + added + ' members to ' + groupName + ' from attendance' + (capped ? ' (capped at group max)' : ''));
+  setStatus('✅ ' + added + ' member' + (added !== 1 ? 's' : '') + ' added to ' + groupName + '.' +
+    (capped ? ' ⚠️ ' + (candidates.length - space) + ' skipped (group full).' : '') +
+    (errors ? ' ' + errors + ' errors.' : ''), true);
+  setTimeout(function() {
+    var m = document.getElementById('attAddModal'); if (m) m.remove();
+    window.loadGroups();
+  }, 2000);
+};
+
+window.openSubmissionAddModal = async function(groupId, groupName) {
+  var sb = window.geramaSupabase; if (!sb) { alert('Not connected.'); return; }
+  var existing = document.getElementById('subAddModal');
+  if (existing) existing.remove();
+
+  // Fetch assignments and quizzes in parallel
+  var [asgRes, qzRes] = await Promise.all([
+    sb.from('assignments').select('id, title, course').order('created_at', { ascending: false }).limit(60),
+    sb.from('quizzes').select('id, title').order('created_at', { ascending: false }).limit(60)
+  ]);
+  var assignments = asgRes.data || [];
+  var quizzes     = qzRes.data  || [];
+
+  var asgOptions = assignments.map(function(a) {
+    return '<option value="asg:' + window.escAttr(a.title) + '">' + window.escHtml(a.title) + (a.course ? ' (' + a.course + ')' : '') + '</option>';
+  }).join('');
+  var qzOptions = quizzes.map(function(q) {
+    return '<option value="qz:' + window.escAttr(q.title) + '">' + window.escHtml(q.title) + '</option>';
+  }).join('');
+
+  var allOptions = (asgOptions ? '<optgroup label="📝 Assignments">' + asgOptions + '</optgroup>' : '') +
+                   (qzOptions  ? '<optgroup label="🧠 Quizzes">'     + qzOptions  + '</optgroup>' : '');
+  if (!allOptions) allOptions = '<option value="">No assignments or quizzes found</option>';
+
+  var modal = document.createElement('div');
+  modal.id = 'subAddModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:5500;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);overflow-y:auto;';
+  modal.innerHTML =
+    '<div style="background:white;border-radius:22px;padding:2rem;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">' +
+        '<div style="font-size:1.05rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.5rem;">' +
+          '<i class="fas fa-file-alt" style="color:#c2410c;font-size:1.2rem;"></i>' +
+          'Add from Submissions &rarr; <span style="color:#c2410c;">' + window.escHtml(groupName) + '</span>' +
+        '</div>' +
+        '<button onclick="document.getElementById(\'subAddModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">✕</button>' +
+      '</div>' +
+      '<p style="font-size:0.84rem;color:#6b7280;margin-bottom:1rem;line-height:1.6;">' +
+        'Select an assignment or quiz. All students who submitted it will be added to <strong>' + window.escHtml(groupName) + '</strong>. Students already in any group are skipped.' +
+      '</p>' +
+      '<div style="margin-bottom:0.9rem;">' +
+        '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Select Assignment or Quiz</label>' +
+        '<select id="subAddSource" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:\'Inter\',sans-serif;" onfocus="this.style.borderColor=\'#c2410c\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
+          '<option value="">— Choose assignment or quiz —</option>' + allOptions +
+        '</select>' +
+      '</div>' +
+      '<button onclick="window.previewSubmissionAdd(\'' + window.escAttr(groupId) + '\')" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;padding:0.6rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.8rem;">' +
+        '<i class="fas fa-eye"></i> Preview' +
+      '</button>' +
+      '<div id="subAddPreview" style="margin-bottom:0.8rem;"></div>' +
+      '<div style="display:flex;gap:0.7rem;flex-wrap:wrap;">' +
+        '<button onclick="window.executeSubmissionAdd(\'' + window.escAttr(groupId) + '\',\'' + window.escAttr(groupName) + '\')" style="background:linear-gradient(135deg,#c2410c,#ea580c);color:white;border:none;padding:0.6rem 1.4rem;border-radius:10px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;flex:1;display:flex;align-items:center;justify-content:center;gap:0.4rem;">' +
+          '<i class="fas fa-user-plus"></i> Add Members' +
+        '</button>' +
+        '<button onclick="document.getElementById(\'subAddModal\').remove()" style="background:#fee2e2;color:#dc2626;border:none;padding:0.6rem 1rem;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>' +
+      '</div>' +
+      '<div id="subAddStatus" style="margin-top:0.8rem;font-size:0.85rem;min-height:1rem;text-align:center;"></div>' +
+    '</div>';
+  document.body.appendChild(modal);
+  modal.addEventListener('click', function(e){ if (e.target === modal) modal.remove(); });
+};
+
+window.previewSubmissionAdd = async function(groupId) {
+  var preview   = document.getElementById('subAddPreview');
+  var sourceVal = (document.getElementById('subAddSource') || {}).value || '';
+  if (!sourceVal) { if (preview) preview.innerHTML = '<p style="color:#dc2626;font-size:0.85rem;">Please select an assignment or quiz.</p>'; return; }
+
+  var sb = window.geramaSupabase; if (!sb) return;
+  if (preview) preview.innerHTML = '<p style="color:#9ca3af;font-size:0.82rem;"><i class="fas fa-spinner fa-spin"></i> Fetching submitters…</p>';
+
+  // Decode type:title
+  var colonIdx = sourceVal.indexOf(':');
+  var srcType  = sourceVal.substring(0, colonIdx);   // 'asg' or 'qz'
+  var srcTitle = sourceVal.substring(colonIdx + 1);  // the title
+
+  var submitters = [];
+  try {
+    if (srcType === 'asg') {
+      // assignment_submissions: student_email, student_name, assignment_title
+      var { data } = await sb.from('assignment_submissions')
+        .select('student_email, student_name')
+        .eq('assignment_title', srcTitle);
+      submitters = data || [];
+    } else {
+      // student_grades (quizzes use this table): student_email, student_name, assignment_title
+      var { data } = await sb.from('student_grades')
+        .select('student_email, student_name')
+        .eq('assignment_title', srcTitle);
+      submitters = data || [];
+    }
+  } catch(e) {
+    if (preview) preview.innerHTML = '<p style="color:#dc2626;font-size:0.85rem;">Error: ' + window.escHtml(e.message) + '</p>';
+    return;
+  }
+
+  if (!submitters.length) {
+    preview.innerHTML = '<p style="color:#92400e;background:#fef3c7;padding:0.7rem 1rem;border-radius:8px;font-size:0.85rem;">No submissions found for this ' + (srcType === 'asg' ? 'assignment' : 'quiz') + '.</p>';
+    return;
+  }
+
+  // Deduplicate by email
+  var seen = {};
+  var unique = [];
+  submitters.forEach(function(r) {
+    var key = (r.student_email || '').toLowerCase().trim();
+    if (!key || seen[key]) return;
+    seen[key] = true;
+    unique.push(r);
+  });
+
+  // Separate into: will be added vs already in a group
+  var allMembers  = window._allGroupMembers || [];
+  var assignedSet = {};
+  allMembers.forEach(function(m){ if (m.user_email) assignedSet[m.user_email.toLowerCase().trim()] = true; });
+
+  var toAdd     = unique.filter(function(r){ return !assignedSet[(r.student_email||'').toLowerCase().trim()]; });
+  var alreadyIn = unique.filter(function(r){ return  assignedSet[(r.student_email||'').toLowerCase().trim()]; });
+
+  window._subAddRecords = toAdd; // cache for execute step
+
+  var typeLabel = srcType === 'asg' ? 'assignment' : 'quiz';
+  var html = '<div style="border:1px solid #fed7aa;border-radius:12px;padding:0.9rem;background:#fff7ed;">';
+  html += '<div style="font-size:0.83rem;font-weight:700;color:#c2410c;margin-bottom:0.5rem;">' +
+    '<i class="fas fa-file-alt"></i> ' + unique.length + ' unique submitters for this ' + typeLabel + ' &nbsp;·&nbsp; ' +
+    '<span style="color:#059669;">' + toAdd.length + ' will be added</span>' +
+    (alreadyIn.length ? ' &nbsp;·&nbsp; <span style="color:#9ca3af;">' + alreadyIn.length + ' already in a group (skipped)</span>' : '') +
+  '</div>';
+
+  if (toAdd.length) {
+    html += '<div style="border:1px solid #fed7aa;border-radius:8px;overflow:hidden;max-height:220px;overflow-y:auto;margin-bottom:0.4rem;">';
+    html += '<div style="background:#ffedd5;padding:0.35rem 0.8rem;font-size:0.74rem;font-weight:700;color:#374151;position:sticky;top:0;">Will be added</div>';
+    toAdd.forEach(function(r) {
+      html += '<div style="padding:0.32rem 0.8rem;border-top:1px solid #f1f5f9;font-size:0.82rem;color:#1e2a3e;font-weight:500;">' +
+        '<i class="fas fa-user-check" style="color:#059669;margin-right:0.3rem;font-size:0.72rem;"></i>' +
+        window.escHtml(r.student_name || r.student_email) +
+        '<span style="color:#9ca3af;font-size:0.72rem;margin-left:0.4rem;">' + window.escHtml(r.student_email) + '</span>' +
+      '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (alreadyIn.length) {
+    html += '<div style="font-size:0.77rem;color:#9ca3af;padding:0.25rem 0.2rem;">' +
+      '<i class="fas fa-info-circle"></i> Already assigned: ' +
+      alreadyIn.map(function(r){ return window.escHtml(r.student_name || r.student_email); }).join(', ') +
+    '</div>';
+  }
+
+  html += '</div>';
+  if (preview) preview.innerHTML = html;
+};
+
+window.executeSubmissionAdd = async function(groupId, groupName) {
+  var statusEl = document.getElementById('subAddStatus');
+  function setStatus(msg, ok) { if (statusEl) { statusEl.textContent = msg; statusEl.style.color = ok ? '#059669' : '#dc2626'; } }
+
+  var toAdd = window._subAddRecords;
+  if (!toAdd || !toAdd.length) { setStatus('Run Preview first.', false); return; }
+
+  var sb = window.geramaSupabase; if (!sb) { setStatus('Not connected.', false); return; }
+
+  // Admin password gate
+  var pw = window.prompt('Enter admin password to add these members:');
+  if (!pw) return;
+  if (pw.trim() !== '2026GERAMA') { setStatus('❌ Wrong password.', false); return; }
+
+  setStatus('Adding members…', true);
+
+  // Re-fetch current members fresh to avoid races / catch any already added since preview
+  var { data: currentMembers } = await sb.from('gerama_group_members').select('user_email');
+  var assignedSet = {};
+  (currentMembers || []).forEach(function(m){ if (m.user_email) assignedSet[m.user_email.toLowerCase().trim()] = true; });
+
+  var group  = (window._geramaGroups || []).find(function(g){ return g.id === groupId; });
+  var added  = 0, skipped = 0, errors = 0;
+
+  for (var i = 0; i < toAdd.length; i++) {
+    var r     = toAdd[i];
+    var email = (r.student_email || '').trim();
+    var key   = email.toLowerCase();
+    if (!email || assignedSet[key]) { skipped++; continue; }
+
+    var user = (window._allUsers || []).find(function(u){ return u.email === email; });
+    var name = r.student_name || (user && user.full_name) || email;
+
+    try {
+      await sb.from('gerama_group_members').insert({
+        group_id:    groupId,
+        user_email:  email,
+        user_name:   name,
+        role:        'member',
+        assigned_at: new Date().toISOString()
+      });
+      if (group) {
+        try { await sb.from('user_profiles').update({ group_name: group.name }).eq('email', email); } catch(e) {}
+      }
+      assignedSet[key] = true;
+      added++;
+    } catch(e) { errors++; }
+  }
+
+  window.logActivity('Added ' + added + ' member(s) to ' + groupName + ' from submissions' + (skipped ? ' (' + skipped + ' skipped)' : ''));
+  setStatus('✅ Done! ' + added + ' member' + (added !== 1 ? 's' : '') + ' added.' + (skipped ? ' ' + skipped + ' skipped (already assigned).' : '') + (errors ? ' ⚠️ ' + errors + ' errors.' : ''), true);
+  setTimeout(function() {
+    var m = document.getElementById('subAddModal'); if (m) m.remove();
+    window.loadGroups();
+  }, 2000);
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SYNC ALL GRADED SUBMISSIONS → student_grades  (portal visibility fix)
+//  Reads every assignment_submissions row that has a score, then upserts it
+//  into student_grades so the student can see it in their portal.
+// ─────────────────────────────────────────────────────────────────────────────
+window.syncAllGradesToPortal = async function() {
+  var sb = window.geramaSupabase;
+  if (!sb) { alert('Not connected to database.'); return; }
+
+  if (!confirm(
+    'This will push ALL graded assignment submissions into student_grades so students can see their scores in the portal.\n\n' +
+    'Quiz scores imported via CSV are already in student_grades — only assignment submissions are synced here.\n\n' +
+    'Continue?'
+  )) return;
+
+  // Fetch all graded submissions
+  var { data: subs, error: subErr } = await sb
+    .from('assignment_submissions')
+    .select('id, assignment_title, assignment_id, student_email, student_name, score, graded_at, submitted_at')
+    .not('score', 'is', null)
+    .order('submitted_at', { ascending: false });
+
+  if (subErr) { alert('Error fetching submissions: ' + subErr.message); return; }
+  if (!subs || !subs.length) { alert('No graded submissions found yet.'); return; }
+
+  // Fetch all assignments for course + points enrichment
+  var { data: asgList } = await sb.from('assignments').select('id, title, course, points');
+  var asgMap = {};
+  (asgList || []).forEach(function(a) {
+    if (a.id)    asgMap[a.id]                         = a;
+    if (a.title) asgMap[a.title.toLowerCase().trim()] = a;
+  });
+
+  var ok = 0, skipped = 0, errors = 0;
+  var total = subs.length;
+
+  // Show a progress alert (can't update mid-operation without a modal, so just run)
+  for (var i = 0; i < subs.length; i++) {
+    var s = subs[i];
+    if (!s.student_email || s.score === null || s.score === undefined) { skipped++; continue; }
+
+    // Enrich with assignment metadata
+    var asgMeta = asgMap[s.assignment_id] || asgMap[(s.assignment_title || '').toLowerCase().trim()] || {};
+
+    try {
+      var { error: uErr } = await sb.from('student_grades').upsert({
+        student_email:    s.student_email.toLowerCase().trim(),
+        student_name:     s.student_name  || null,
+        assignment_title: s.assignment_title || 'Assignment',
+        course:           asgMeta.course  || null,
+        score:            s.score,
+        total_marks:      asgMeta.points  || null,
+        points:           asgMeta.points  || null,
+        submission_id:    s.id,
+        graded_at:        s.graded_at     || new Date().toISOString(),
+        participated_at:  s.submitted_at  || s.graded_at || new Date().toISOString()
+      }, { onConflict: 'student_email,assignment_title' });
+
+      if (uErr) { errors++; } else { ok++; }
+    } catch(e) { errors++; }
+  }
+
+  window.logActivity('Synced ' + ok + ' graded submissions to student_grades portal' + (errors ? ' (' + errors + ' errors)' : ''));
+  alert(
+    '✅ Sync complete!\n\n' +
+    '• ' + ok    + ' grade' + (ok !== 1 ? 's' : '')    + ' pushed to student portal\n' +
+    (skipped ? '• ' + skipped + ' skipped (no email or score)\n' : '') +
+    (errors  ? '• ' + errors  + ' failed (check console)\n'      : '') +
+    '\nStudents can now see their grades. If the table columns are missing, run SUPABASE-GRADES-FIX.sql first.'
+  );
+  window.loadSubmissionsTable();
 };

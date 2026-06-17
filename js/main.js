@@ -304,6 +304,8 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     <a href="mall.html" style="background:rgba(255,193,7,0.12);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-store" style="color:#FFC107;"></i> 🛍️ Urban Mall <span style="background:#FFC107;color:#0a2f1f;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;">NEW</span></a>
                     <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
                     <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
+                    <a href="contact.html#supportSection" style="background:rgba(255,193,7,0.13);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-heart" style="color:#FFC107;"></i> 💛 Support GERAMA</a>
+                    <a href="help.html" style="background:rgba(255,193,7,0.08);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-question-circle" style="color:#FFC107;"></i> ❓ Help & Tutorials</a>
                 </div>
                 <button id="editProfileDrawerBtn" style="background:#FFC107; color:#1B5E20; margin:1rem auto; width:90%; border:none; padding:0.6rem; border-radius:30px; display:block; font-weight:600; cursor:pointer;">✏️ Edit Profile</button>
                 <div style="display:flex;gap:0.5rem;margin:0 auto 0.5rem;width:90%;">
@@ -359,9 +361,11 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         });
         
         document.getElementById("drawerLogoutBtn").onclick = async () => {
+            if(typeof window.geramaLogoutOneSignal === 'function') await window.geramaLogoutOneSignal();
             if(typeof window.geramaSupabase !== 'undefined') await window.geramaSupabase.auth.signOut();
             sessionStorage.clear();
             localStorage.removeItem("gerama_profile");
+            localStorage.removeItem("gerama_loggedIn");
             window.location.href = "login.html";
         };
 
@@ -748,6 +752,62 @@ if(!document.getElementById('confettiStyle')) {
           })
           .subscribe();
     })();
+})();
+
+// ── GERA AI ASSISTANT ─────────────────────────────────────────────
+(function() {
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(skip.indexOf(page) !== -1) return;
+    // Load the AI assistant script
+    var s = document.createElement('script');
+    s.src = 'js/gerama-ai-assistant.js';
+    s.defer = true;
+    document.head.appendChild(s);
+})();
+
+// ── FLOATING HELP BUTTON ─────────────────────────────────────────
+(function() {
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html','help.html'];
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(skip.indexOf(page) !== -1) return;
+
+    var helpBtn = document.createElement('a');
+    helpBtn.href = 'help.html';
+    helpBtn.id = 'floatingHelpBtn';
+    helpBtn.setAttribute('aria-label', 'Help & Tutorials');
+    helpBtn.title = 'Help & Tutorials';
+    helpBtn.style.cssText = [
+        'position:fixed', 'bottom:140px', 'right:14px', 'z-index:7999',
+        'width:46px', 'height:46px', 'border-radius:50%',
+        'background:linear-gradient(135deg,#FFC107,#e6a800)',
+        'color:#0a2f1f', 'text-decoration:none',
+        'display:flex', 'align-items:center', 'justify-content:center',
+        'font-size:1.3rem', 'box-shadow:0 4px 16px rgba(255,193,7,0.5)',
+        'transition:transform 0.2s,box-shadow 0.2s',
+        'font-family:inherit'
+    ].join(';');
+    helpBtn.innerHTML = '❓';
+    helpBtn.addEventListener('mouseover', function(){ helpBtn.style.transform='scale(1.1)'; });
+    helpBtn.addEventListener('mouseout',  function(){ helpBtn.style.transform='scale(1)'; });
+
+    // Pulsing "new" dot for first-time visitors
+    var seenHelp = localStorage.getItem('gerama_help_seen');
+    if (!seenHelp) {
+        var dot = document.createElement('div');
+        dot.style.cssText = 'position:absolute;top:0;right:0;width:12px;height:12px;background:#dc2626;border-radius:50%;border:2px solid white;animation:helpPulse 1.5s infinite;';
+        helpBtn.style.position = 'fixed'; // ensure positioning context
+        helpBtn.appendChild(dot);
+        helpBtn.addEventListener('click', function(){ localStorage.setItem('gerama_help_seen','1'); });
+        if (!document.getElementById('helpPulseStyle')) {
+            var s = document.createElement('style');
+            s.id = 'helpPulseStyle';
+            s.textContent = '@keyframes helpPulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.4);opacity:0.6;}}';
+            document.head.appendChild(s);
+        }
+    }
+
+    document.body.appendChild(helpBtn);
 })();
 
 // ── SCROLL TO TOP BUTTON ─────────────────────────────────────────

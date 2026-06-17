@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Help & Tutorials | GERAMA</title>
+<link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B5E20">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- html2canvas for card download -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
+<script src="js/supabase-config.js"></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script src="js/onesignal-init.js" defer></script>
+<style>
+:root{--primary:#1B5E20;--primary-dark:#0a2f1f;--gold:#FFC107;--light:#f8fafc;--text:#1e2a3e;--muted:#6b7280;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);line-height:1.6;overflow-x:hidden;}
+
+/* ── HEADER ── */
+.site-header{position:sticky;top:0;z-index:1000;background:rgba(10,47,31,0.97);backdrop-filter:blur(12px);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:70px;box-shadow:0 2px 20px rgba(0,0,0,0.2);}
+.header-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.header-logo img{height:38px;border-radius:8px;}
+.header-logo span{color:white;font-weight:700;font-size:1rem;}
+.header-nav{display:flex;align-items:center;gap:0.3rem;}
+.header-nav a{color:rgba(255,255,255,0.85);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.9rem;transition:all 0.2s;}
+.header-nav a:hover,.header-nav a.active{color:var(--gold);background:rgba(255,193,7,0.1);}
+.menu-toggle-btn{display:flex;background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;margin-right:0.5rem;}
+.menu-toggle-btn:hover{background:rgba(255,255,255,0.1);}
+@media(max-width:640px){.header-nav{display:none;}}
+
+/* ── HERO ── */
+.help-hero{background:linear-gradient(135deg,#0a2f1f,#1B5E20);padding:3rem 5% 2.5rem;color:white;text-align:center;position:relative;overflow:hidden;}
+.help-hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
+.help-hero-inner{position:relative;z-index:1;max-width:700px;margin:0 auto;}
+.help-hero h1{font-size:2.2rem;font-weight:900;margin-bottom:0.5rem;}
+.help-hero p{font-size:1rem;opacity:0.85;margin-bottom:1.5rem;}
+.help-search-wrap{display:flex;gap:0.5rem;max-width:480px;margin:0 auto;}
+.help-search-wrap input{flex:1;padding:0.75rem 1.1rem;border-radius:30px;border:none;font-size:0.95rem;font-family:'Inter',sans-serif;outline:none;color:#1e2a3e;}
+.help-search-wrap button{background:#FFC107;color:#0a2f1f;border:none;padding:0.75rem 1.4rem;border-radius:30px;font-weight:800;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all 0.2s;}
+.help-search-wrap button:hover{background:#e6a800;transform:translateY(-1px);}
+
+/* ── FILTER TABS ── */
+.help-filters{display:flex;gap:0.5rem;padding:1.5rem 5% 0;flex-wrap:wrap;max-width:1100px;margin:0 auto;}
+.filter-tab{padding:0.45rem 1.1rem;border-radius:20px;font-size:0.82rem;font-weight:700;cursor:pointer;border:2px solid #e5e7eb;background:white;color:#374151;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.filter-tab:hover,.filter-tab.active{background:var(--primary);color:white;border-color:var(--primary);}
+
+/* ── TUTORIAL CARD ── */
+.tut-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.07);border:1px solid #e8f0e8;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;}
+.tut-card:hover{transform:translateY(-5px);box-shadow:0 12px 32px rgba(0,0,0,0.13);}
+.tut-card-thumb{height:145px;display:flex;align-items:center;justify-content:center;position:relative;}
+.tut-card-body{padding:1rem 1.1rem 1.2rem;}
+.tut-card-title{font-size:0.92rem;font-weight:800;color:#1e2a3e;margin-bottom:0.35rem;line-height:1.35;}
+.tut-card-desc{font-size:0.79rem;color:#6b7280;line-height:1.5;}
+.tut-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:0.7rem;gap:0.4rem;}
+
+/* ── STEP MODAL ── */
+.step-modal-bg{display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);align-items:flex-end;justify-content:center;padding:0;}
+.step-modal-bg.open{display:flex;}
+.step-modal{background:white;border-radius:24px 24px 0 0;max-width:560px;width:100%;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,0.4);}
+@media(min-width:600px){.step-modal-bg{align-items:center;padding:1rem;}.step-modal{border-radius:24px;max-height:88vh;}}
+.step-modal-header{background:linear-gradient(135deg,#0a2f1f,#1B5E20);padding:1.1rem 1.3rem;flex-shrink:0;}
+.step-modal-title{color:white;font-weight:900;font-size:1rem;margin-bottom:0.1rem;}
+.step-modal-meta{color:rgba(255,255,255,0.65);font-size:0.76rem;}
+.step-modal-body{flex:1;overflow-y:auto;padding:0;}
+
+/* ── THE CARD (picture format) ── */
+.guide-card-wrap{padding:1rem;background:#f8fafc;}
+.guide-card{border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.15);}
+.guide-card-top{padding:1.2rem 1.3rem 1rem;color:white;}
+.guide-card-top .card-label{font-size:0.68rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:0.8;margin-bottom:0.3rem;}
+.guide-card-top .card-title{font-size:1.1rem;font-weight:900;line-height:1.3;}
+.guide-card-steps{padding:0.8rem 1.2rem 1rem;background:white;}
+.guide-step{display:flex;gap:0.8rem;align-items:flex-start;padding:0.6rem 0;border-bottom:1px solid #f1f5f9;}
+.guide-step:last-child{border-bottom:none;padding-bottom:0;}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:900;color:white;flex-shrink:0;margin-top:0.05rem;}
+.step-content .step-action{font-size:0.85rem;font-weight:700;color:#1e2a3e;line-height:1.3;}
+.step-content .step-detail{font-size:0.75rem;color:#6b7280;line-height:1.4;margin-top:0.15rem;}
+.guide-card-footer{background:linear-gradient(135deg,#0a2f1f,#1B5E20);padding:0.7rem 1.2rem;display:flex;align-items:center;justify-content:space-between;}
+.guide-card-footer .brand{color:white;font-size:0.75rem;font-weight:800;display:flex;align-items:center;gap:0.4rem;}
+.guide-card-footer .tip{color:rgba(255,255,255,0.65);font-size:0.68rem;}
+
+/* ── MODAL ACTION BUTTONS ── */
+.step-modal-actions{padding:0.9rem 1rem;background:white;border-top:1px solid #f1f5f9;display:flex;gap:0.6rem;flex-shrink:0;flex-wrap:wrap;}
+.sma-btn{flex:1;min-width:0;padding:0.6rem 0.8rem;border-radius:20px;font-size:0.8rem;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.35rem;transition:all 0.2s;white-space:nowrap;}
+.sma-btn:hover{transform:translateY(-2px);}
+.sma-download{background:#1B5E20;color:white;}
+.sma-share{background:#fef3c7;color:#92400e;}
+.sma-loom{background:#f3e8ff;color:#6d28d9;}
+.sma-close{background:#f1f5f9;color:#374151;}
+
+/* ── LOOM SLOT ── */
+.loom-slot{margin:0.8rem 1rem;background:#faf5ff;border:2px dashed #c4b5fd;border-radius:16px;padding:1.2rem;text-align:center;}
+.loom-slot.has-video{border:2px solid #6d28d9;background:#f5f3ff;}
+.loom-slot-icon{font-size:2rem;margin-bottom:0.4rem;}
+.loom-slot-title{font-size:0.85rem;font-weight:800;color:#374151;margin-bottom:0.2rem;}
+.loom-slot-sub{font-size:0.75rem;color:#6b7280;}
+.loom-slot input{width:100%;margin-top:0.7rem;padding:0.5rem 0.8rem;border-radius:10px;border:1.5px solid #c4b5fd;font-size:0.82rem;font-family:'Inter',sans-serif;outline:none;}
+.loom-slot input:focus{border-color:#7c3aed;}
+.loom-save-btn{margin-top:0.5rem;background:#7c3aed;color:white;border:none;padding:0.4rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* ── NO RESULTS ── */
+.no-results{text-align:center;padding:3rem;color:#6b7280;}
+.no-results .nr-icon{font-size:3rem;margin-bottom:0.8rem;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <button class="menu-toggle-btn" id="menuToggle2" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+  <a href="index.html" class="header-logo">
+    <img src="images/geramalogo.jpg" alt="GERAMA Logo">
+    <span>GERAMA</span>
+  </a>
+  <nav class="header-nav">
+    <a href="index.html">Home</a>
+    <a href="classroom.html">Classroom</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="help.html" class="active" style="color:#FFC107;">Help</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="help-hero">
+  <div class="help-hero-inner">
+    <div style="font-size:2.8rem;margin-bottom:0.5rem;">🎓</div>
+    <h1>GERAMA Help Center</h1>
+    <p>Step-by-step visual guides for every feature. Download as a picture, share with classmates, or watch video tutorials when available.</p>
+    <div class="help-search-wrap">
+      <input type="search" id="helpSearch" placeholder="Search… e.g. 'join class', 'T-shirt', 'grades'" aria-label="Search tutorials">
+      <button onclick="searchTutorials()"><i class="fas fa-search"></i> Search</button>
+    </div>
+    <div style="margin-top:1rem;font-size:0.8rem;opacity:0.6;">
+      <i class="fas fa-download"></i> Each guide is a downloadable card &nbsp;·&nbsp;
+      <i class="fas fa-share-alt"></i> Shareable link &nbsp;·&nbsp;
+      <i class="fas fa-play-circle"></i> Add Loom video per guide
+    </div>
+  </div>
+</section>
+
+<!-- FILTER TABS -->
+<div class="help-filters" id="filterBar">
+  <button class="filter-tab active" data-cat="all">🌐 All Guides</button>
+  <button class="filter-tab" data-cat="getting-started">🚀 Getting Started</button>
+  <button class="filter-tab" data-cat="account">🔐 Account</button>
+  <button class="filter-tab" data-cat="classroom">🖥️ Classroom</button>
+  <button class="filter-tab" data-cat="dashboard">📊 Dashboard</button>
+  <button class="filter-tab" data-cat="resources">📚 Resources</button>
+  <button class="filter-tab" data-cat="mall">🛍️ Mall</button>
+  <button class="filter-tab" data-cat="connect">📡 Connect</button>
+  <button class="filter-tab" data-cat="tips">💡 Pro Tips</button>
+</div>
+
+<!-- GRID -->
+<main style="max-width:1100px;margin:0 auto;padding:1.5rem 5% 5rem;">
+  <div id="tutorialGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1.1rem;margin-top:0.5rem;"></div>
+  <div id="noResults" class="no-results" style="display:none;">
+    <div class="nr-icon">🔍</div>
+    <div style="font-weight:700;font-size:1rem;margin-bottom:0.4rem;">No guides found</div>
+    <div style="font-size:0.88rem;">Try a different keyword or filter.</div>
+  </div>
+</main>
+
+<!-- STEP GUIDE MODAL -->
+<div class="step-modal-bg" id="stepModal" role="dialog" aria-modal="true">
+  <div class="step-modal">
+    <div class="step-modal-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="step-modal-title" id="smTitle">Guide</div>
+          <div class="step-modal-meta" id="smMeta">Step-by-step visual guide</div>
+        </div>
+        <button onclick="closeStepModal()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="step-modal-body">
+      <!-- Loom video slot -->
+      <div class="loom-slot" id="loomSlot">
+        <div class="loom-slot-icon">🎬</div>
+        <div class="loom-slot-title">Video Tutorial Slot</div>
+        <div class="loom-slot-sub">Paste your Loom link below to attach a video to this guide</div>
+        <input type="url" id="loomInput" placeholder="https://www.loom.com/share/..." aria-label="Loom video URL">
+        <button class="loom-save-btn" onclick="saveLoomUrl()">Save Video Link</button>
+      </div>
+      <!-- The downloadable guide card -->
+      <div class="guide-card-wrap">
+        <div class="guide-card" id="guideCard">
+          <div class="guide-card-top" id="gcTop">
+            <div class="card-label">GERAMA GUIDE</div>
+            <div class="card-title" id="gcTitle">Guide Title</div>
+          </div>
+          <div class="guide-card-steps" id="gcSteps"></div>
+          <div class="guide-card-footer">
+            <div class="brand"><span>⚙️</span> GERAMA Portal · UENR</div>
+            <div class="tip" id="gcTip"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="step-modal-actions">
+      <button class="sma-btn sma-download" onclick="downloadCard()" id="dlBtn">
+        <i class="fas fa-download"></i> Save as Image
+      </button>
+      <button class="sma-btn sma-share" onclick="shareGuide()">
+        <i class="fas fa-share-alt"></i> Share Link
+      </button>
+      <button class="sma-btn sma-loom" onclick="document.getElementById('loomInput').focus()">
+        <i class="fas fa-video"></i> Add Loom
+      </button>
+      <button class="sma-btn sma-close" onclick="closeStepModal()">
+        <i class="fas fa-times"></i> Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer style="background:linear-gradient(180deg,#0a2f1f,#071a12);color:white;padding:1.5rem 5%;text-align:center;">
+  <p style="font-size:0.82rem;opacity:0.5;margin:0;">© 2025 GERAMA · University of Energy and Natural Resources · Engineering Resources &amp; Academic Management Association</p>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/ai-config.js" onerror="console.warn('ai-config.js not found')"></script>
+<script src="js/gerama-ai-assistant.js" defer></script>
+<script>
+// ════════════════════════════════════════════════════════════════════
+// GERAMA Help Center — Tutorial Data (22 guides)
+// Each guide has: id, cat, title, desc, icon, color, tip, steps[]
+// steps[]: { action, detail }
+// ════════════════════════════════════════════════════════════════════
+
+var GUIDES = [
+// ── GETTING STARTED ─────────────────────────────────────────────
+{
+  id:'signup', cat:'getting-started', icon:'👤', color:'#1B5E20',
+  title:'How to Create Your GERAMA Account',
+  desc:'Join GERAMA in under 2 minutes. Set up your account and access everything.',
+  tip:'💡 Keep your secret code safe — you need it every time you sign in.',
+  tags:['sign up','register','join','create account','new student'],
+  steps:[
+    {action:'Go to gerama.vercel.app', detail:'Open your browser and visit the GERAMA portal. Tap "Join Free →" at the bottom of the screen.'},
+    {action:'Click "Join GERAMA" on the login page', detail:'You\'ll see a link under the Sign In button that says "Join GERAMA". Tap it.'},
+    {action:'Enter your student email', detail:'Use your UENR student email or personal email. This will be your login identity.'},
+    {action:'Create a strong password', detail:'At least 8 characters. Mix letters and numbers for security.'},
+    {action:'Get your GERAMA Secret Code', detail:'Contact your GERAMA rep or check the WhatsApp group for the current secret code.'},
+    {action:'Tap "Create Account"', detail:'Your account is created instantly. You\'ll be redirected to the home page.'},
+    {action:'Complete your profile', detail:'Go to Dashboard → My Profile and fill in your name, program, and level.'}
+  ]
+},
+{
+  id:'login', cat:'getting-started', icon:'🔐', color:'#0a2f1f',
+  title:'How to Sign In to GERAMA',
+  desc:'Access your account with your email, password, and secret code.',
+  tip:'💡 The secret code is shared by GERAMA reps — ask on the WhatsApp group if you don\'t have it.',
+  tags:['sign in','login','access','enter','secret code'],
+  steps:[
+    {action:'Open GERAMA and tap "Sign In"', detail:'Go to the portal and click the Sign In button or visit login.html directly.'},
+    {action:'Enter your email address', detail:'Type the email you registered with.'},
+    {action:'Enter your password', detail:'Use the 👁 button to show/hide your password as you type.'},
+    {action:'Enter the Secret Code', detail:'This is the shared GERAMA code. Tap the 👁 button to see it as you type.'},
+    {action:'Tap "Sign In"', detail:'You\'ll be logged in and redirected to the homepage.'},
+    {action:'If it shakes — code is wrong', detail:'A shaking animation means the secret code is incorrect. Double-check it.'}
+  ]
+},
+{
+  id:'forgot-pw', cat:'account', icon:'🔑', color:'#dc2626',
+  title:'Forgot Password — How to Reset It',
+  desc:'Locked out? Reset your password in 3 easy steps.',
+  tip:'💡 Check your spam/junk folder if you don\'t see the reset email.',
+  tags:['forgot password','reset','locked out','can\'t login'],
+  steps:[
+    {action:'Go to the login page', detail:'Visit the GERAMA portal and go to login.html.'},
+    {action:'Tap "Forgot Password?"', detail:'You\'ll find this link below the Sign In button.'},
+    {action:'Enter your registered email', detail:'Type the email you used when creating your GERAMA account.'},
+    {action:'Check your email inbox', detail:'Look for a "Reset your GERAMA password" email from GERAMA/Supabase.'},
+    {action:'Click the reset link in the email', detail:'This brings you back to the portal with a new password form.'},
+    {action:'Enter and save your new password', detail:'Choose something strong and easy to remember. You\'re back in!'}
+  ]
+},
+// ── DASHBOARD ──────────────────────────────────────────────────
+{
+  id:'dashboard', cat:'dashboard', icon:'📊', color:'#6d28d9',
+  title:'How to Use Your Dashboard',
+  desc:'Your personal hub — grades, stats, profile, quick links all in one place.',
+  tip:'💡 Your 🔥 streak increases every day you visit the portal. Keep it going!',
+  tags:['dashboard','profile','stats','streak','overview'],
+  steps:[
+    {action:'Tap the menu icon (☰) in the top-left', detail:'This opens the side drawer from any page.'},
+    {action:'Tap "My Dashboard" in the menu', detail:'Or go directly to dashboard.html.'},
+    {action:'See your stats at a glance', detail:'The hero section shows your name, program, level, and day streak 🔥.'},
+    {action:'Use Quick Access buttons', detail:'"📖 Resources", "✅ Assignments", "🧠 Quizzes", "⭐ My Grades", "📡 Connect", "🌍 Opportunities Hub".'},
+    {action:'Check My Stats card', detail:'See total grades received, quizzes done, classes attended, and your study streak.'},
+    {action:'View your grade list', detail:'Scroll to the "⭐ My Grades" card for a full list of scored assessments.'}
+  ]
+},
+{
+  id:'profile', cat:'dashboard', icon:'✏️', color:'#7c3aed',
+  title:'How to Update Your Profile',
+  desc:'Add your photo, program, level, and phone number to your GERAMA profile.',
+  tip:'💡 Keeping your profile complete helps lecturers identify you in attendance records.',
+  tags:['profile','photo','name','program','level','edit'],
+  steps:[
+    {action:'Go to Dashboard', detail:'Tap the ☰ menu and select "My Dashboard".'},
+    {action:'Find the "My Profile" card on the left', detail:'Scroll down a bit after the Quick Access section.'},
+    {action:'Tap your photo circle to upload a photo', detail:'Tap the avatar circle → select a photo from your device. It uploads automatically.'},
+    {action:'Fill in your Full Name', detail:'Enter your full name as it appears in your student records.'},
+    {action:'Select your Engineering Program', detail:'Pick from: Mechanical, Electrical, Computer, Agricultural, Petroleum, Renewable Energy, Civil, or Environmental Engineering.'},
+    {action:'Select your Academic Level', detail:'Choose L100, L200, L300, L400, Graduate, or Visitor.'},
+    {action:'Add your phone number', detail:'Enter your Ghana number e.g. 0551234567.'},
+    {action:'Tap "💾 Save Profile"', detail:'Your info syncs to all your devices instantly.'}
+  ]
+},
+{
+  id:'grades', cat:'dashboard', icon:'⭐', color:'#d97706',
+  title:'How to See Your Grades',
+  desc:'Find all your grade records, scores, and average in one place.',
+  tip:'💡 The sparkline trend arrow shows if your grades are improving 📈 or dropping 📉.',
+  tags:['grades','marks','score','results','GPA','performance'],
+  steps:[
+    {action:'Open your Dashboard', detail:'Go to dashboard.html or tap ☰ → "My Dashboard".'},
+    {action:'Scroll to "⭐ My Grades" card', detail:'It\'s in the right column of your dashboard.'},
+    {action:'See your grade list', detail:'Each entry shows course name, score, and date.'},
+    {action:'Check the grade summary line', detail:'A coloured bar shows your average % — green (70%+), orange (50–69%), red (below 50%).'},
+    {action:'Click "View all →"', detail:'Opens the full grade history.'},
+    {action:'Or go to Classroom → My Grades tab', detail:'The "⭐ My Grades" tab in Classroom shows a detailed breakdown.'}
+  ]
+},
+// ── CLASSROOM ──────────────────────────────────────────────────
+{
+  id:'join-class', cat:'classroom', icon:'🖥️', color:'#1B5E20',
+  title:'How to Join a Live Online Class',
+  desc:'Find your class in the Classroom tab and join with one tap.',
+  tip:'💡 Classes show a "LIVE 🔴" badge when they\'re active. Tap "Join Class" immediately!',
+  tags:['join class','live class','online class','zoom','google meet','classroom'],
+  steps:[
+    {action:'Tap "Classroom" in the bottom nav or menu', detail:'Look for the chalkboard icon 📋 in the bottom navigation bar (mobile) or the sidebar menu.'},
+    {action:'You\'re on the "Classes" tab by default', detail:'This shows all upcoming, live, and past classes.'},
+    {action:'Find a class with "LIVE 🔴" or "Upcoming" badge', detail:'Live classes show in green. Upcoming shows countdown timer.'},
+    {action:'Tap the green "Join Class" button', detail:'This opens the meeting link — Zoom, Google Meet, or any link your lecturer set.'},
+    {action:'The meeting opens in your browser or app', detail:'Allow camera/microphone when prompted.'},
+    {action:'Set a reminder for upcoming classes', detail:'Tap "🔔 Remind me" on any upcoming class card to get a 15-minute alert.'}
+  ]
+},
+{
+  id:'attendance', cat:'classroom', icon:'✅', color:'#059669',
+  title:'How to Mark Your Attendance',
+  desc:'Use the 8-character code your lecturer gives to mark yourself present.',
+  tip:'💡 Attendance codes expire! Mark present as soon as your lecturer shares the code.',
+  tags:['attendance','mark present','attendance code','class code','present'],
+  steps:[
+    {action:'Go to Classroom tab', detail:'Tap Classroom in the nav bar.'},
+    {action:'Tap the "Attendance" tab', detail:'It\'s the 5th tab in the classroom tab bar: ✅ Attendance.'},
+    {action:'Get the code from your lecturer', detail:'Your lecturer will share an 8-character code during class (e.g. "EE3021A").'},
+    {action:'Type the code in the input box', detail:'The box says "Enter class code…". It auto-capitalises.'},
+    {action:'Tap "✓ Mark Present"', detail:'The gold button submits your attendance. You\'ll see a success confirmation.'},
+    {action:'Check your attendance count', detail:'The attendance count and points update immediately on screen.'}
+  ]
+},
+{
+  id:'assignments', cat:'classroom', icon:'📋', color:'#b45309',
+  title:'How to Submit an Assignment',
+  desc:'Find active assignments and submit your work before the deadline.',
+  tip:'💡 Watch the deadline badge — it turns red when less than 24 hours remain!',
+  tags:['assignment','submit','deadline','homework','work'],
+  steps:[
+    {action:'Go to Classroom → "Assignments" tab', detail:'Tap the ✅ Tasks tab (second tab in the Classroom tab bar).'},
+    {action:'Find your active assignment', detail:'Assignment cards show the title, course, deadline badge (green/yellow/red), and brief.'},
+    {action:'Read the assignment brief', detail:'Expand the card to see full instructions from your lecturer.'},
+    {action:'Tap "Submit Assignment"', detail:'A form slides up asking for your name, answer/work, and optional file upload.'},
+    {action:'Type or upload your work', detail:'You can type your answer directly, or drag-and-drop a file (PDF, Word, image).'},
+    {action:'Tap "Submit Assignment" in the form', detail:'Your submission goes to the lecturer immediately. You\'ll see a confirmation.'}
+  ]
+},
+{
+  id:'quizzes', cat:'classroom', icon:'🧠', color:'#6d28d9',
+  title:'How to Take a Quiz',
+  desc:'Access live quizzes, answer all questions, and see your score instantly.',
+  tip:'💡 Quizzes are timed! Answer quickly — you can\'t go back after submitting.',
+  tags:['quiz','test','mcq','exam','questions','answers'],
+  steps:[
+    {action:'Go to Classroom → "Quizzes" tab', detail:'Tap the 🧠 Quizzes tab (third tab in Classroom).'},
+    {action:'Check the stats bar', detail:'See: Total quizzes · Open Now · You\'ve Taken · Closing Soon.'},
+    {action:'Find an "Open Now" quiz card', detail:'Active quizzes have a coloured badge and "Take Quiz" button.'},
+    {action:'Tap "Take Quiz"', detail:'The quiz opens with all questions displayed.'},
+    {action:'Select your answers', detail:'Tap your chosen option for each question.'},
+    {action:'Submit when done', detail:'Tap Submit — your score appears immediately with correct answers highlighted.'}
+  ]
+},
+{
+  id:'planner', cat:'classroom', icon:'📅', color:'#0369a1',
+  title:'How to Use the Study Planner',
+  desc:'Plan your week, set study goals, and get deadline reminders automatically.',
+  tip:'💡 The planner reads your assignments and quizzes and auto-suggests study blocks!',
+  tags:['planner','schedule','study plan','calendar','deadline'],
+  steps:[
+    {action:'Go to Classroom → "Planner" tab', detail:'Tap the 📅 Planner tab in the Classroom tab bar.'},
+    {action:'View your current week', detail:'See all your upcoming assignments, quizzes, and classes in a timeline.'},
+    {action:'Add a study block', detail:'Tap "+ Add Study Session" to block time for a specific course.'},
+    {action:'Set reminders', detail:'Toggle the bell on any planner item to get a notification before the deadline.'},
+    {action:'Check the badge count', detail:'The yellow ! badge on the Planner tab means something needs your attention.'}
+  ]
+},
+{
+  id:'gethelp', cat:'classroom', icon:'🎓', color:'#065f46',
+  title:'How to Request Academic Help',
+  desc:'Struggling with a topic? Submit a help request directly to GERAMA.',
+  tip:'💡 Be specific about your course and what you don\'t understand — you\'ll get better help.',
+  tags:['help','academic','assistance','struggling','tutor','request'],
+  steps:[
+    {action:'Go to Classroom → "Get Help" tab', detail:'Tap the 🎓 Get Help tab in the Classroom tab bar.'},
+    {action:'Select your Academic Level', detail:'Choose L100, L200, etc. from the dropdown.'},
+    {action:'Select your Engineering Program', detail:'Pick your specific programme.'},
+    {action:'Enter the Course Name', detail:'e.g. "Engineering Mathematics 1" or "Applied Electricity".'},
+    {action:'Describe what you need help with', detail:'Be specific: "I don\'t understand Laplace Transforms in Chapter 3".'},
+    {action:'Enter your email and tap "✈ Request Assistance"', detail:'A GERAMA rep will follow up via email or Connect.'}
+  ]
+},
+{
+  id:'qa', cat:'classroom', icon:'💬', color:'#0891b2',
+  title:'How to Use the Q&A Board',
+  desc:'Ask course questions, get answers from peers and lecturers.',
+  tip:'💡 Browse existing questions first — your question may already be answered!',
+  tags:['Q&A','questions','ask','answers','discussion','board'],
+  steps:[
+    {action:'Go to Classroom → "Q&A" tab', detail:'Tap the 💬 Q&A tab (second to last in Classroom).'},
+    {action:'Browse existing questions', detail:'Scroll through the board to find answers others have already posted.'},
+    {action:'Tap any question to expand it', detail:'See all replies and upvotes on that thread.'},
+    {action:'Post a new question', detail:'Tap "+ Ask a Question" and type your question. Add course name for better reach.'},
+    {action:'Reply to others', detail:'Tap "Reply" on any question to share what you know.'}
+  ]
+},
+// ── RESOURCES ──────────────────────────────────────────────────
+{
+  id:'resources', cat:'resources', icon:'📚', color:'#1e40af',
+  title:'How to Find & Download Study Materials',
+  desc:'Browse slides, past questions, books and videos by level and course.',
+  tip:'💡 Filter by your level (L100, L200…) first — it saves a lot of scrolling.',
+  tags:['resources','materials','slides','past questions','books','download','study'],
+  steps:[
+    {action:'Tap "Resources" in the sidebar menu', detail:'Open the ☰ menu and tap "📖 Resources".'},
+    {action:'Select your Level filter', detail:'Tap L100, L200, L300, or L400 to narrow results to your year.'},
+    {action:'Select your Course', detail:'Use the course filter or search bar to find a specific subject.'},
+    {action:'Filter by material type', detail:'Tap "Slides", "Books", "Past Questions", or "Videos" to filter what you need.'},
+    {action:'Tap a material to preview or download', detail:'PDF and PPT files open in your browser. Tap the download icon to save to your device.'},
+    {action:'Upload your own materials', detail:'Tap "+ Upload Material" to share notes or past questions with your classmates. Goes for admin review.'}
+  ]
+},
+// ── MALL ───────────────────────────────────────────────────────
+{
+  id:'tshirt', cat:'mall', icon:'👕', color:'#0a2f1f',
+  title:'How to Order the GERAMA T-Shirt',
+  desc:'Register your interest and order the official GERAMA round neck t-shirt.',
+  tip:'💡 Sizes sell out fast — order early! Check the delivery timeline (3–10 days).',
+  tags:['t-shirt','tshirt','shirt','order','register','fashion','mall'],
+  steps:[
+    {action:'Go to the Mall page', detail:'Tap "🛍️ Urban Mall" in the sidebar menu or bottom nav.'},
+    {action:'Tap "👕 Fashion" in the category pills', detail:'Filter to fashion items to find the GERAMA T-Shirt quickly.'},
+    {action:'Find "GERAMA Round Neck T-Shirt"', detail:'Tap the product card to open it.'},
+    {action:'Tap "Order"', detail:'A modal opens: "Place Your Order".'},
+    {action:'Select your colour and size', detail:'Tap your preferred colour swatch, then select S / M / L / XL / XXL.'},
+    {action:'Set quantity and enter delivery location', detail:'Use the − / + buttons. Enter where on campus to deliver.'},
+    {action:'Enter your name and phone number', detail:'So the seller can identify your order.'},
+    {action:'Tap "📲 Order via WhatsApp"', detail:'Opens WhatsApp with all your order details pre-filled. Just tap Send!'}
+  ]
+},
+{
+  id:'mall-buy', cat:'mall', icon:'🛒', color:'#b45309',
+  title:'How to Buy Items on the Mall',
+  desc:'Browse products, add to cart, and contact sellers directly on the Urban Mall.',
+  tip:'💡 All sellers are verified GERAMA community members — 100% trusted.',
+  tags:['buy','mall','shop','product','cart','order','urban mall'],
+  steps:[
+    {action:'Go to Urban Mall', detail:'Tap "🛍️ Urban Mall" in the sidebar menu or from the home page.'},
+    {action:'Browse by category', detail:'Use the pill filters: All · Fashion · Food & Drinks · Electronics · Books · Beauty · Health · Home & Living · Accessories · Services · Others.'},
+    {action:'Search for specific items', detail:'Type in the search bar at the top of the mall.'},
+    {action:'Tap a product card', detail:'See full details: description, price, seller, delivery info.'},
+    {action:'Tap ❤️ to wishlist', detail:'Save items for later. View your wishlist via the heart icon in the toolbar.'},
+    {action:'Tap "Order"', detail:'Select options (colour, size, qty, location) and order via WhatsApp or call the seller.'},
+    {action:'Add to cart for bulk checkout', detail:'Tap "+ Cart" on multiple items, then tap the 🛒 cart icon → "⚡ Checkout All Items".'}
+  ]
+},
+{
+  id:'mall-sell', cat:'mall', icon:'💰', color:'#059669',
+  title:'How to Sell Your Items on the Mall',
+  desc:'List your products and reach every GERAMA student instantly.',
+  tip:'💡 Add 3 clear photos from different angles — more photos = more sales!',
+  tags:['sell','list item','product','seller','marketplace','campus sell'],
+  steps:[
+    {action:'Go to Urban Mall', detail:'Tap "🛍️ Urban Mall" from the sidebar or home page.'},
+    {action:'Tap the gold "+ Sell Here" button', detail:'Found in the toolbar at the top of the mall page.'},
+    {action:'Enter Product Name and Category', detail:'Name it clearly. Choose the right category (e.g. Fashion for clothes).'},
+    {action:'Set your Price', detail:'Enter price in GHS. Optionally add an original price to show a discount.'},
+    {action:'Add up to 3 photos', detail:'Drag-and-drop or click to upload. Clear photos dramatically increase orders.'},
+    {action:'Add your WhatsApp number', detail:'Buyers will contact you directly on WhatsApp.'},
+    {action:'Tap "✈ Submit for Review"', detail:'Admin reviews within 24 hours. Once approved, your product is live!'}
+  ]
+},
+// ── CONNECT ────────────────────────────────────────────────────
+{
+  id:'connect-dm', cat:'connect', icon:'📡', color:'#0ea5e9',
+  title:'How to Message a Classmate (DMs)',
+  desc:'Send private messages to any GERAMA member using Connect.',
+  tip:'💡 You can react to messages with emoji — hover or long-press a message to react.',
+  tags:['connect','message','DM','chat','classmate','private'],
+  steps:[
+    {action:'Tap "GERAMA Connect" in the menu', detail:'It has the satellite dish icon 📡. Or tap Connect in the bottom nav.'},
+    {action:'You\'re on the "Members" tab by default', detail:'Browse all GERAMA members here.'},
+    {action:'Find the person you want to message', detail:'Search by name or scroll through the members list.'},
+    {action:'Tap the "💬 Message" button on their card', detail:'This opens a direct message conversation.'},
+    {action:'Type your message and tap the arrow button →', detail:'Messages are delivered instantly.'},
+    {action:'Send files or media', detail:'Tap the 📎 attachment icon to send images or files.'},
+    {action:'React to messages', detail:'Hover (desktop) or long-press (mobile) any message to see the emoji reaction bar 😊.'}
+  ]
+},
+{
+  id:'connect-groups', cat:'connect', icon:'👥', color:'#7c3aed',
+  title:'How to Join a Study Group',
+  desc:'Find your L100–L400 study group and connect with your cohort.',
+  tip:'💡 You\'re automatically added to your level\'s group. Look for it in the Groups tab.',
+  tags:['study group','group','connect','classmates','level','cohort'],
+  steps:[
+    {action:'Go to GERAMA Connect', detail:'Tap "📡 GERAMA Connect" in the sidebar.'},
+    {action:'Tap the "Groups" tab', detail:'Third tab in the Connect tab bar. Shows all available study groups.'},
+    {action:'Find your group', detail:'Groups are organised by academic level (L100, L200, etc.).'},
+    {action:'Tap "→ View" on your group card', detail:'Opens your group\'s dedicated chat.'},
+    {action:'Message your study group', detail:'Post questions, share notes, or just chat with your cohort.'},
+    {action:'Start a group call', detail:'Tap "📹 Start Group Call" to video call everyone in the group.'}
+  ]
+},
+{
+  id:'statuses', cat:'connect', icon:'📸', color:'#0369a1',
+  title:'How to Post and View Statuses',
+  desc:'Share moments, notes, or announcements as 24-hour status updates.',
+  tip:'💡 Statuses disappear after 24 hours — perfect for quick announcements or exam reminders.',
+  tags:['status','stories','post','share','moments','24 hours'],
+  steps:[
+    {action:'Go to GERAMA Connect', detail:'Tap "📡 GERAMA Connect".'},
+    {action:'See the statuses bar at the top', detail:'Circular avatars with a gold/grey ring. Gold = unseen, grey = seen.'},
+    {action:'Tap any ring to view that person\'s status', detail:'It opens fullscreen with a progress bar at the top.'},
+    {action:'Swipe left/right to navigate', detail:'Move between different people\'s statuses.'},
+    {action:'Reply to a status', detail:'Type in the reply input at the bottom and send.'},
+    {action:'To post your own status', detail:'Tap the "+ Add Status" circle (first in the row) or the text area above the tabs.'},
+    {action:'Add text, photo, or video', detail:'Tap 📷 for photo, 🎨 to change background colour, 😊 for emoji. Tap "Post" to publish.'}
+  ]
+},
+// ── PRO TIPS ───────────────────────────────────────────────────
+{
+  id:'notifications-tip', cat:'tips', icon:'🔔', color:'#dc2626',
+  title:'How to Enable Push Notifications',
+  desc:'Get instant GERAMA alerts even when the app is closed.',
+  tip:'💡 On iPhone, add GERAMA to your home screen first (tap Share → "Add to Home Screen") before enabling notifications.',
+  tags:['notifications','alerts','push','subscribe','bell'],
+  steps:[
+    {action:'Look for the 🔔 bell button on any page', detail:'It\'s fixed at the bottom-right corner of every GERAMA page.'},
+    {action:'Tap the bell button', detail:'If you\'re not subscribed, it asks for permission.'},
+    {action:'Tap "Allow" when the browser asks', detail:'This is the browser\'s native permission prompt. You must Allow to receive push notifications.'},
+    {action:'Bell turns green = you\'re subscribed ✓', detail:'You\'ll now receive alerts for new assignments, announcements, grades, and more.'},
+    {action:'To unsubscribe: tap bell again → tap OK to confirm', detail:'The bell turns grey. You won\'t get push notifications anymore.'},
+    {action:'iPhone users: add to home screen first', detail:'Tap the Share button ⬆️ in Safari → "Add to Home Screen" → Open from home screen → then enable notifications.'}
+  ]
+},
+{
+  id:'dark-mode', cat:'tips', icon:'🌙', color:'#374151',
+  title:'How to Switch to Dark Mode',
+  desc:'Save your eyes at night — enable dark mode from the sidebar.',
+  tip:'💡 Dark mode preference is saved. It stays on even after you close and reopen GERAMA.',
+  tags:['dark mode','night mode','theme','eyes','light','dark'],
+  steps:[
+    {action:'Tap the ☰ menu icon', detail:'Open the sidebar drawer from any page.'},
+    {action:'Find the "🌙 Dark" button at the bottom', detail:'It\'s in the drawer, above the logout button.'},
+    {action:'Tap "🌙 Dark"', detail:'The entire portal switches to dark mode instantly.'},
+    {action:'To go back to light mode', detail:'Open the menu again — the button now says "☀️ Light". Tap it to switch back.'}
+  ]
+},
+{
+  id:'pwa-install', cat:'tips', icon:'📲', color:'#0369a1',
+  title:'Install GERAMA as a Phone App (PWA)',
+  desc:'Add GERAMA to your home screen for instant access like a real app.',
+  tip:'💡 The PWA works offline for basic browsing and is much faster than opening a browser.',
+  tags:['install','PWA','app','home screen','android','iphone','offline'],
+  steps:[
+    {action:'Android: tap the "⬇ Install App" button', detail:'A banner appears at the top of the home page. Tap "Install App" or look for the install icon in Chrome\'s address bar.'},
+    {action:'Or open Chrome menu (⋮) → "Add to Home Screen"', detail:'Chrome shows this option in the 3-dot menu.'},
+    {action:'iPhone: tap the Share button ⬆️ in Safari', detail:'The Share button is at the bottom of the Safari browser.'},
+    {action:'Scroll down and tap "Add to Home Screen"', detail:'You\'ll see the GERAMA logo with the option to name it.'},
+    {action:'Tap "Add"', detail:'GERAMA appears on your home screen like a regular app.'},
+    {action:'Open it from your home screen', detail:'It launches fullscreen without the browser bar. Faster, cleaner, and works offline for saved pages.'}
+  ]
+},
+{
+  id:'opportunities', cat:'tips', icon:'🌍', color:'#0891b2',
+  title:'How to Find Internships & Scholarships',
+  desc:'Discover opportunities curated for UENR engineering students.',
+  tip:'💡 Check the Opportunities Hub weekly — new listings are added regularly!',
+  tags:['internship','scholarship','NSS','job','opportunity','career'],
+  steps:[
+    {action:'Go to Dashboard → "🌍 Opportunities Hub"', detail:'Tap the full-width green button with the NEW pulse badge on your dashboard.'},
+    {action:'Or go to Classroom → "Opportunities" tab', detail:'The last tab in the Classroom tab bar: 💼 Opportunities.'},
+    {action:'Filter by type', detail:'Tap: All · Internship · NSS · Scholarship · Job'},
+    {action:'Read the full listing', detail:'Each card shows type, organisation, description, deadline, and how to apply.'},
+    {action:'Tap "Apply"', detail:'Redirects to the official application page or contact.'}
+  ]
+}
+];
+
+// ════════════════════════════════════════════════════════════════════
+// RENDERING & INTERACTION
+// ════════════════════════════════════════════════════════════════════
+
+var _activeFilter = 'all';
+var _currentGuide = null;
+var _loomStore = JSON.parse(localStorage.getItem('gerama_loom_links') || '{}');
+
+function getFiltered() {
+  var q = (document.getElementById('helpSearch').value || '').trim().toLowerCase();
+  return GUIDES.filter(function(g) {
+    var catMatch = _activeFilter === 'all' || g.cat === _activeFilter;
+    if (!catMatch) return false;
+    if (!q) return true;
+    var searchable = (g.title + ' ' + g.desc + ' ' + (g.tags || []).join(' ')).toLowerCase();
+    return searchable.indexOf(q) !== -1;
+  });
+}
+
+function searchTutorials() { renderGuides(getFiltered()); }
+
+function renderGuides(list) {
+  var grid = document.getElementById('tutorialGrid');
+  var noRes = document.getElementById('noResults');
+  if (!list.length) { grid.innerHTML = ''; noRes.style.display = 'block'; return; }
+  noRes.style.display = 'none';
+
+  grid.innerHTML = list.map(function(g) {
+    var hasLoom = !!_loomStore[g.id];
+    var badge = hasLoom
+      ? '<span style="background:#ede9fe;color:#6d28d9;font-size:0.67rem;font-weight:800;padding:0.15rem 0.5rem;border-radius:20px;display:flex;align-items:center;gap:0.25rem;"><i class="fas fa-play-circle"></i> Video</span>'
+      : '<span style="background:#d1fae5;color:#065f46;font-size:0.67rem;font-weight:800;padding:0.15rem 0.5rem;border-radius:20px;display:flex;align-items:center;gap:0.25rem;"><i class="fas fa-list-ol"></i> Steps</span>';
+    var stepCount = g.steps.length;
+    return '<div class="tut-card" data-id="'+g.id+'" onclick="openGuide(\''+g.id+'\')" tabindex="0" role="button" onkeydown="if(event.key===\'Enter\')openGuide(\''+g.id+'\')" aria-label="Open guide: '+g.title+'">' +
+      '<div class="tut-card-thumb" style="background:linear-gradient(135deg,'+g.color+','+g.color+'cc);">' +
+        '<div style="font-size:3.2rem;">'+g.icon+'</div>' +
+        '<div style="position:absolute;top:0.7rem;right:0.7rem;">'+badge+'</div>' +
+        '<div style="position:absolute;bottom:0.6rem;right:0.7rem;background:rgba(0,0,0,0.4);color:white;font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+stepCount+' steps</div>' +
+      '</div>' +
+      '<div class="tut-card-body">' +
+        '<div class="tut-card-title">'+g.title+'</div>' +
+        '<div class="tut-card-desc">'+g.desc+'</div>' +
+        '<div class="tut-card-footer">' +
+          '<span style="font-size:0.72rem;color:#9ca3af;text-transform:uppercase;font-weight:700;letter-spacing:0.5px;">'+catLabel(g.cat)+'</span>' +
+          '<div style="display:flex;gap:0.35rem;">' +
+            '<span style="background:#f1f5f9;color:#374151;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;cursor:pointer;" onclick="event.stopPropagation();quickDownload(\''+g.id+'\')"><i class="fas fa-download"></i></span>' +
+            '<span style="background:#f1f5f9;color:#374151;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;cursor:pointer;" onclick="event.stopPropagation();quickShare(\''+g.id+'\')"><i class="fas fa-share-alt"></i></span>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function catLabel(cat) {
+  var m = {'getting-started':'Getting Started','account':'Account','classroom':'Classroom','dashboard':'Dashboard','resources':'Resources','mall':'Mall','connect':'Connect','tips':'Pro Tips'};
+  return m[cat] || cat;
+}
+
+// ── Filter tabs ──
+document.getElementById('filterBar').addEventListener('click', function(e) {
+  var btn = e.target.closest('.filter-tab');
+  if (!btn) return;
+  document.querySelectorAll('.filter-tab').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  _activeFilter = btn.dataset.cat;
+  renderGuides(getFiltered());
+});
+
+document.getElementById('helpSearch').addEventListener('input', searchTutorials);
+document.getElementById('helpSearch').addEventListener('keydown', function(e){ if(e.key==='Enter') searchTutorials(); });
+
+// ── Open guide modal ──
+function openGuide(id) {
+  var g = GUIDES.find(function(x){ return x.id === id; });
+  if (!g) return;
+  _currentGuide = g;
+
+  document.getElementById('smTitle').textContent = g.title;
+  document.getElementById('smMeta').textContent = g.steps.length + ' steps · ' + catLabel(g.cat);
+
+  // Guide card
+  var gcTop = document.getElementById('gcTop');
+  gcTop.style.background = 'linear-gradient(135deg,' + g.color + ',' + g.color + 'cc)';
+  document.getElementById('gcTitle').textContent = g.title;
+  document.getElementById('gcTip').textContent = g.tip;
+
+  var stepsHtml = g.steps.map(function(s, i) {
+    return '<div class="guide-step">' +
+      '<div class="step-num" style="background:'+g.color+';">'+(i+1)+'</div>' +
+      '<div class="step-content">' +
+        '<div class="step-action">'+s.action+'</div>' +
+        '<div class="step-detail">'+s.detail+'</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('gcSteps').innerHTML = stepsHtml;
+
+  // Loom slot
+  var savedLoom = _loomStore[id] || '';
+  var loomSlot = document.getElementById('loomSlot');
+  document.getElementById('loomInput').value = savedLoom;
+  if (savedLoom) {
+    // Show embedded loom
+    var loomId = _extractLoomId(savedLoom);
+    if (loomId) {
+      loomSlot.className = 'loom-slot has-video';
+      loomSlot.innerHTML = '<div style="position:relative;padding-bottom:56.25%;height:0;">' +
+        '<iframe src="https://www.loom.com/embed/'+loomId+'" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:12px;" frameborder="0" allowfullscreen></iframe>' +
+        '</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.6rem;">' +
+          '<span style="font-size:0.75rem;color:#6d28d9;font-weight:700;">🎬 Video attached</span>' +
+          '<button onclick="removeLoom(\''+id+'\')" style="background:none;border:none;color:#dc2626;font-size:0.75rem;cursor:pointer;font-family:Inter,sans-serif;">✕ Remove</button>' +
+        '</div>';
+    }
+  } else {
+    loomSlot.className = 'loom-slot';
+    loomSlot.innerHTML = '<div class="loom-slot-icon">🎬</div>' +
+      '<div class="loom-slot-title">Add a Video Tutorial</div>' +
+      '<div class="loom-slot-sub">Record on Loom, paste the link below</div>' +
+      '<input type="url" id="loomInput" placeholder="https://www.loom.com/share/..." aria-label="Loom URL">' +
+      '<button class="loom-save-btn" onclick="saveLoomUrl()">Save Video Link</button>';
+  }
+
+  var modal = document.getElementById('stepModal');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Update URL and track view
+  history.replaceState(null, '', '?t=' + id);
+  _trackGuideView(id);
+}
+
+function closeStepModal() {
+  document.getElementById('stepModal').classList.remove('open');
+  document.body.style.overflow = '';
+  _currentGuide = null;
+  history.replaceState(null, '', window.location.pathname);
+}
+
+document.getElementById('stepModal').addEventListener('click', function(e){
+  if (e.target === this) closeStepModal();
+});
+
+// ── Loom helpers ──
+function _extractLoomId(url) {
+  var m = url.match(/loom\.com\/share\/([a-f0-9]+)/i);
+  return m ? m[1] : null;
+}
+
+function saveLoomUrl() {
+  if (!_currentGuide) return;
+  var input = document.getElementById('loomInput');
+  var url = (input ? input.value : '').trim();
+  if (!url || !url.includes('loom.com')) {
+    alert('Please enter a valid Loom link (https://www.loom.com/share/...)');
+    return;
+  }
+  _loomStore[_currentGuide.id] = url;
+  localStorage.setItem('gerama_loom_links', JSON.stringify(_loomStore));
+  // Also save to Supabase so all students see the video
+  try {
+    if (typeof window.geramaSupabase !== 'undefined') {
+      window.geramaSupabase.from('help_guide_videos').upsert({
+        guide_id: _currentGuide.id,
+        loom_url: url,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'guide_id' }).then(function(){}).catch(function(){});
+    }
+  } catch(e) {}
+  openGuide(_currentGuide.id); // re-render
+}
+
+function removeLoom(id) {
+  delete _loomStore[id];
+  localStorage.setItem('gerama_loom_links', JSON.stringify(_loomStore));
+  openGuide(id);
+}
+
+// ── Download card as image (html2canvas) ──
+function downloadCard() {
+  if (!_currentGuide) return;
+  var btn = document.getElementById('dlBtn');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating…';
+  btn.disabled = true;
+
+  var card = document.getElementById('guideCard');
+  html2canvas(card, {
+    scale: 2.5,
+    backgroundColor: '#ffffff',
+    useCORS: true,
+    logging: false
+  }).then(function(canvas) {
+    var link = document.createElement('a');
+    link.download = 'GERAMA-Guide-' + _currentGuide.id + '.png';
+    link.href = canvas.toDataURL('image/png', 1.0);
+    link.click();
+    btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+    setTimeout(function(){
+      btn.innerHTML = '<i class="fas fa-download"></i> Save as Image';
+      btn.disabled = false;
+    }, 2500);
+  }).catch(function() {
+    btn.innerHTML = '<i class="fas fa-download"></i> Save as Image';
+    btn.disabled = false;
+    alert('Could not generate image. Try again.');
+  });
+}
+
+// Quick download from card grid (without opening modal)
+function quickDownload(id) {
+  openGuide(id);
+  setTimeout(downloadCard, 800);
+}
+
+// ── Share guide ──
+function shareGuide() {
+  if (!_currentGuide) return;
+  var url = window.location.origin + window.location.pathname + '?t=' + _currentGuide.id;
+  var text = 'GERAMA Guide: ' + _currentGuide.title + '\n' + url;
+  if (navigator.share) {
+    navigator.share({ title: _currentGuide.title + ' — GERAMA Guide', text: text, url: url }).catch(function(){});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function() {
+      window.showToast && window.showToast('🔗 Link copied to clipboard!', 2500);
+    });
+  }
+}
+
+function quickShare(id) {
+  var g = GUIDES.find(function(x){ return x.id === id; });
+  if (!g) return;
+  var url = window.location.origin + window.location.pathname + '?t=' + id;
+  if (navigator.share) {
+    navigator.share({ title: g.title + ' — GERAMA Guide', url: url }).catch(function(){});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(function(){
+      window.showToast && window.showToast('🔗 Link copied!', 2000);
+    });
+  }
+}
+
+// ── Deep-link on load ──
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var tid = params.get('t');
+  if (tid) setTimeout(function(){ openGuide(tid); }, 500);
+})();
+
+// ── Load Loom links from Supabase (merges with localStorage) ──
+(function loadLoomsFromDB(){
+  function attempt(tries) {
+    if (typeof window.geramaSupabase !== 'undefined') {
+      window.geramaSupabase.from('help_guide_videos').select('guide_id,loom_url')
+        .then(function(res) {
+          if (res && res.data && res.data.length) {
+            res.data.forEach(function(row) {
+              _loomStore[row.guide_id] = row.loom_url;
+            });
+            localStorage.setItem('gerama_loom_links', JSON.stringify(_loomStore));
+            renderGuides(getFiltered()); // re-render with videos
+          }
+        }).catch(function(){});
+    } else if (tries > 0) {
+      setTimeout(function(){ attempt(tries - 1); }, 600);
+    }
+  }
+  attempt(10);
+})();
+
+// ── Track guide view in Supabase ──
+function _trackGuideView(guideId) {
+  try {
+    if (typeof window.geramaSupabase === 'undefined') return;
+    window.geramaSupabase.from('help_guide_views').insert({
+      guide_id: guideId,
+      page_ref: document.referrer || 'direct'
+    }).then(function(){}).catch(function(){});
+  } catch(e) {}
+}
+
+// ── Initial render ──
+renderGuides(GUIDES);
+</script>
+</body>
+</html>
