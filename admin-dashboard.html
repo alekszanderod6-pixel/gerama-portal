@@ -1354,14 +1354,14 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     }
   };
 
-  // Hook into switchPanel
-  (function(){
+  // Hook into switchPanel — deferred until admin-dashboard.js has loaded
+  document.addEventListener('DOMContentLoaded', function(){
     var _o = window.switchPanel;
     window.switchPanel = function(name) {
-      if (_o) _o(name);
-      if (name === 'mall') setTimeout(window.loadMallAdmin, 100);
+      if (typeof _o === 'function') _o(name);
+      if (name === 'mall') setTimeout(function(){ if(window.loadMallAdmin) window.loadMallAdmin(); }, 100);
     };
-  })();
+  });
 
   // ── T-SHIRT INTEREST ADMIN FUNCTIONS ──────────────────────
 
