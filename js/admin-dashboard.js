@@ -1,4 +1,4 @@
-﻿/* GERAMA Admin Dashboard — extracted JS — v2 */
+﻿/* GERAMA Admin Dashboard — extracted JS — v2026.06.20 */
 
 (function(){
   'use strict';
