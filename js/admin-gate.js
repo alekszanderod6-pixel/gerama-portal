@@ -197,15 +197,16 @@
         // so give it 1 second then call it again for the stat boxes
         setTimeout(function(){
           if(typeof window.loadOverviewStats === 'function') window.loadOverviewStats();
-          // Also pre-load assignments and grades so they're ready when admin navigates there
+          // Pre-load assignments list so it's ready when admin navigates there
           if(typeof window.loadAsgList === 'function') window.loadAsgList();
-          if(typeof window.loadGradesPanel === 'function') window.loadGradesPanel();
+          // NOTE: do NOT pre-call loadGradesPanel here — it has an 8s await loop
+          // and will be called by switchPanel when the admin clicks Grades.
         }, 1000);
       } else if(_reloadAttempts < 30){
         setTimeout(_reloadData, 400); // retry every 400ms up to 12 seconds
       }
     }
-    setTimeout(_reloadData, 200);
+    setTimeout(_reloadData, 600);
   }
 
   window.agLogout = function(){
