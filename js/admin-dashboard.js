@@ -83,6 +83,9 @@
     if(name === 'connect') setTimeout(function(){ if(window.loadConnectStats) window.loadConnectStats(); }, 150);
     if(name === 'opportunities') setTimeout(function(){ if(window.loadAdminOpportunities) window.loadAdminOpportunities(); }, 150);
     if(name === 'diyk') setTimeout(function(){ if(window.loadDiykAdmin) window.loadDiykAdmin(); }, 150);
+    if(name === 'mall') setTimeout(function(){ if(window.loadMallAdmin) window.loadMallAdmin(); }, 150);
+    if(name === 'review') setTimeout(function(){ if(typeof window.renderSubmissions === 'function') window.renderSubmissions(); }, 150);
+    if(name === 'history') setTimeout(function(){ if(window.loadData) window.loadData(); }, 150);
   };
 
   window.showStatus = function(id, msg, type){
@@ -3267,12 +3270,11 @@ window.toggleMCOptions = function(sel) {
 };
 
 // ─── ADMIN PROFILES ──────────────────────────────────────────────
-window.switchPanel_old = window.switchPanel;
 // Add adminprofiles to switchPanel
 (function(){
   var _orig = window.switchPanel;
   window.switchPanel = function(name){
-    if(_orig) _orig(name);
+    if(typeof _orig === 'function') _orig(name);
     if(name==='adminprofiles') setTimeout(loadAdminProfiles, 150);
     if(name==='quizzes') setTimeout(function(){
       // Pre-fill import quiz select
@@ -4893,7 +4895,7 @@ window.quickMemberLookup = async function(q) {
 (function() {
   var _origSw = window.switchPanel;
   window.switchPanel = function(name) {
-    if (_origSw) _origSw(name);
+    if (typeof _origSw === 'function') _origSw(name);
     if (name === 'overview') {
       // Clear quick search results when returning to overview
       var el = document.getElementById('quickMemberResults');
