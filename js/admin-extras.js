@@ -770,7 +770,7 @@
   document.addEventListener('DOMContentLoaded', function(){
     var origSw = window.switchPanel;
     window.switchPanel = function(name){
-      if(origSw) origSw(name);
+      if(typeof origSw === 'function') origSw(name);
       if(name === 'quotes') setTimeout(loadQotdList, 150);
     };
 
