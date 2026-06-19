@@ -38,7 +38,7 @@
   document.addEventListener('DOMContentLoaded', function(){
     var origSwitch = window.switchPanel;
     window.switchPanel = function(name){
-      if(origSwitch) origSwitch(name);
+      if(typeof origSwitch === 'function') origSwitch(name);
       if(name === 'team') setTimeout(function(){ loadTeamList('all'); }, 150);
     };
 
