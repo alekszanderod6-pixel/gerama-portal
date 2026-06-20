@@ -754,18 +754,6 @@ if(!document.getElementById('confettiStyle')) {
     })();
 })();
 
-// ── GERA AI ASSISTANT ─────────────────────────────────────────────
-(function() {
-    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
-    var page = window.location.pathname.split('/').pop() || 'index.html';
-    if(skip.indexOf(page) !== -1) return;
-    // Load the AI assistant script
-    var s = document.createElement('script');
-    s.src = 'js/gerama-ai-assistant.js';
-    s.defer = true;
-    document.head.appendChild(s);
-})();
-
 // ── FLOATING HELP BUTTON ─────────────────────────────────────────
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html','help.html'];
