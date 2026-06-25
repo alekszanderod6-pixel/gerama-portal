@@ -6,9 +6,8 @@
 (function(){
   'use strict';
 
-  // Use centralized Supabase config from supabase-config.js
-  var SUPA_URL    = window.__SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
-  var SUPA_KEY    = window.__SUPABASE_KEY || '';
+  var SUPA_URL    = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var SUPA_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
   var SESSION_KEY = 'gerama_admin_session';
   var MASTER_PASS = '2026GERAMA';
   var INVITE_CODE = 'admin2026';
@@ -198,15 +197,16 @@
         // so give it 1 second then call it again for the stat boxes
         setTimeout(function(){
           if(typeof window.loadOverviewStats === 'function') window.loadOverviewStats();
-          // Also pre-load assignments and grades so they're ready when admin navigates there
+          // Pre-load assignments list so it's ready when admin navigates there
           if(typeof window.loadAsgList === 'function') window.loadAsgList();
-          if(typeof window.loadGradesPanel === 'function') window.loadGradesPanel();
+          // NOTE: do NOT pre-call loadGradesPanel here — it has an 8s await loop
+          // and will be called by switchPanel when the admin clicks Grades.
         }, 1000);
       } else if(_reloadAttempts < 30){
         setTimeout(_reloadData, 400); // retry every 400ms up to 12 seconds
       }
     }
-    setTimeout(_reloadData, 200);
+    setTimeout(_reloadData, 600);
   }
 
   window.agLogout = function(){
@@ -291,7 +291,7 @@
   // Mall order tracking helpers
   window.mallToggleOrder = async function(id, field, val){
     var body = {}; body[field] = val;
-    var KEY = window.__SUPABASE_KEY || '';
+    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
     try{
       await fetch(SUPA_URL+'/rest/v1/mall_orders?id=eq.'+encodeURIComponent(id),{
         method:'PATCH',
@@ -304,7 +304,7 @@
 
   window.mallDeleteOrder = async function(id){
     if(!confirm('Delete this order?')) return;
-    var KEY = window.__SUPABASE_KEY || '';
+    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
     await fetch(SUPA_URL+'/rest/v1/mall_orders?id=eq.'+encodeURIComponent(id),{
       method:'DELETE', headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
     });

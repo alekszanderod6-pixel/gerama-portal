@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GERAMA Admin Dashboard</title>
+<!-- v2026.06.20 -->
 <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -249,33 +250,33 @@ tr:hover td{background:#fafcfa;}
     <button onclick="agLogout()" title="Log out" style="color:rgba(255,193,7,0.7);background:none;border:none;font-size:0.8rem;cursor:pointer;font-family:'Inter',sans-serif;padding:0.2rem 0.4rem;" title="Sign out"><i class="fas fa-sign-out-alt"></i></button>
   </div>
   <nav class="sidebar-nav">
-    <div class="nav-item active" data-panel="overview"><i class="fas fa-tachometer-alt"></i> Overview</div>
-    <div class="nav-item" data-panel="upload"><i class="fas fa-upload"></i> Upload Materials</div>
-    <div class="nav-item" data-panel="software"><i class="fas fa-laptop-code"></i> Upload Software</div>
-    <div class="nav-item" data-panel="history"><i class="fas fa-history"></i> Materials History</div>
-    <div class="nav-item" data-panel="review"><i class="fas fa-inbox"></i> Review Submissions <span id="subBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
-    <div class="nav-item" data-panel="announcements"><i class="fas fa-bullhorn"></i> Announcements</div>
-    <div class="nav-item" data-panel="assignments"><i class="fas fa-tasks"></i> Assignments</div>
-    <div class="nav-item" data-panel="grades"><i class="fas fa-graduation-cap" style="color:#FFC107;"></i> Submissions &amp; Grades</div>
-    <div class="nav-item" data-panel="quizzes"><i class="fas fa-question-circle"></i> Quizzes</div>
-    <div class="nav-item" data-panel="quizrequests"><i class="fas fa-inbox" style="color:#6366f1;"></i> Quiz Requests <span id="quizReqBadge" style="background:#6366f1;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
-    <div class="nav-item" data-panel="classes"><i class="fas fa-video"></i> Schedule Class</div>
-    <div class="nav-item" data-panel="attendance"><i class="fas fa-clipboard-check" style="color:#4ade80;"></i> Attendance</div>
-    <div class="nav-item" data-panel="classrequests"><i class="fas fa-hand-paper"></i> Class Requests <span id="reqBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
-    <div class="nav-item" data-panel="visitors"><i class="fas fa-chart-line"></i> Visitor Stats</div>
-    <div class="nav-item" data-panel="messages"><i class="fas fa-envelope" style="color:#3b82f6;"></i> Contact Messages <span id="msgBadge" style="background:#3b82f6;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
-    <div class="nav-item" data-panel="users"><i class="fas fa-users"></i> Registered Users</div>
-    <div class="nav-item" data-panel="groups"><i class="fas fa-layer-group" style="color:#FFC107;"></i> Study Groups</div>
-    <div class="nav-item" data-panel="potw"><i class="fas fa-star"></i> Personality of Week</div>
-    <div class="nav-item" data-panel="reels"><i class="fas fa-film"></i> Manage Reels</div>
-    <div class="nav-item" data-panel="connect"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> Manage Connect</div>
-    <div class="nav-item" data-panel="adminprofiles"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> Admin Profiles</div>
-    <div class="nav-item" data-panel="team"><i class="fas fa-users-cog" style="color:#34d399;"></i> Manage Team</div>
-    <div class="nav-item" data-panel="quotes"><i class="fas fa-quote-right" style="color:#f59e0b;"></i> Quote of the Day</div>
-    <div class="nav-item" data-panel="diyk"><i class="fas fa-lightbulb" style="color:#0ea5e9;"></i> Did You Know</div>
-    <div class="nav-item" data-panel="opportunities"><i class="fas fa-briefcase" style="color:#6366f1;"></i> Opportunities <span id="oppPendingBadge" style="background:#6366f1;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
-    <div class="nav-item" data-panel="mall"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</div>
-    <div class="nav-item" data-panel="settings"><i class="fas fa-cog"></i> Settings</div>
+    <div class="nav-item active" data-panel="overview" onclick="switchPanel('overview')"><i class="fas fa-tachometer-alt"></i> Overview</div>
+    <div class="nav-item" data-panel="upload" onclick="switchPanel('upload')"><i class="fas fa-upload"></i> Upload Materials</div>
+    <div class="nav-item" data-panel="software" onclick="switchPanel('software')"><i class="fas fa-laptop-code"></i> Upload Software</div>
+    <div class="nav-item" data-panel="history" onclick="switchPanel('history')"><i class="fas fa-history"></i> Materials History</div>
+    <div class="nav-item" data-panel="review" onclick="switchPanel('review')"><i class="fas fa-inbox"></i> Review Submissions <span id="subBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
+    <div class="nav-item" data-panel="announcements" onclick="switchPanel('announcements')"><i class="fas fa-bullhorn"></i> Announcements</div>
+    <div class="nav-item" data-panel="assignments" onclick="switchPanel('assignments')"><i class="fas fa-tasks"></i> Assignments</div>
+    <div class="nav-item" data-panel="grades" onclick="switchPanel('grades')"><i class="fas fa-graduation-cap" style="color:#FFC107;"></i> Submissions &amp; Grades</div>
+    <div class="nav-item" data-panel="quizzes" onclick="switchPanel('quizzes')"><i class="fas fa-question-circle"></i> Quizzes</div>
+    <div class="nav-item" data-panel="quizrequests" onclick="switchPanel('quizrequests')"><i class="fas fa-inbox" style="color:#6366f1;"></i> Quiz Requests <span id="quizReqBadge" style="background:#6366f1;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
+    <div class="nav-item" data-panel="classes" onclick="switchPanel('classes')"><i class="fas fa-video"></i> Schedule Class</div>
+    <div class="nav-item" data-panel="attendance" onclick="switchPanel('attendance')"><i class="fas fa-clipboard-check" style="color:#4ade80;"></i> Attendance</div>
+    <div class="nav-item" data-panel="classrequests" onclick="switchPanel('classrequests')"><i class="fas fa-hand-paper"></i> Class Requests <span id="reqBadge" style="background:#dc2626;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
+    <div class="nav-item" data-panel="visitors" onclick="switchPanel('visitors')"><i class="fas fa-chart-line"></i> Visitor Stats</div>
+    <div class="nav-item" data-panel="messages" onclick="switchPanel('messages')"><i class="fas fa-envelope" style="color:#3b82f6;"></i> Contact Messages <span id="msgBadge" style="background:#3b82f6;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
+    <div class="nav-item" data-panel="users" onclick="switchPanel('users')"><i class="fas fa-users"></i> Registered Users</div>
+    <div class="nav-item" data-panel="groups" onclick="switchPanel('groups')"><i class="fas fa-layer-group" style="color:#FFC107;"></i> Study Groups</div>
+    <div class="nav-item" data-panel="potw" onclick="switchPanel('potw')"><i class="fas fa-star"></i> Personality of Week</div>
+    <div class="nav-item" data-panel="reels" onclick="switchPanel('reels')"><i class="fas fa-film"></i> Manage Reels</div>
+    <div class="nav-item" data-panel="connect" onclick="switchPanel('connect')"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> Manage Connect</div>
+    <div class="nav-item" data-panel="adminprofiles" onclick="switchPanel('adminprofiles')"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> Admin Profiles</div>
+    <div class="nav-item" data-panel="team" onclick="switchPanel('team')"><i class="fas fa-users-cog" style="color:#34d399;"></i> Manage Team</div>
+    <div class="nav-item" data-panel="quotes" onclick="switchPanel('quotes')"><i class="fas fa-quote-right" style="color:#f59e0b;"></i> Quote of the Day</div>
+    <div class="nav-item" data-panel="diyk" onclick="switchPanel('diyk')"><i class="fas fa-lightbulb" style="color:#0ea5e9;"></i> Did You Know</div>
+    <div class="nav-item" data-panel="opportunities" onclick="switchPanel('opportunities')"><i class="fas fa-briefcase" style="color:#6366f1;"></i> Opportunities <span id="oppPendingBadge" style="background:#6366f1;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
+    <div class="nav-item" data-panel="mall" onclick="switchPanel('mall')"><i class="fas fa-store" style="color:#FFC107;"></i> Urban Mall</div>
+    <div class="nav-item" data-panel="settings" onclick="switchPanel('settings')"><i class="fas fa-cog"></i> Settings</div>
   </nav>
   <div class="sidebar-footer">
     <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Site</a>
@@ -724,18 +725,9 @@ tr:hover td{background:#fafcfa;}
         } catch(e) { alert('Download failed: ' + e.message); }
       };
 
-      // Auto-load when the grades panel is switched to
-      (function hookGradesPanel() {
-        if (typeof window.switchPanel === 'function') {
-          var _orig = window.switchPanel;
-          window.switchPanel = function(name) {
-            _orig(name);
-            if (name === 'grades') setTimeout(loadGradesPanel, 150);
-          };
-        } else {
-          setTimeout(hookGradesPanel, 300);
-        }
-      })();
+      // NOTE: grades panel auto-load on switchPanel('grades') is already
+      // handled by the core switchPanel function in admin-dashboard.js.
+      // No additional hook needed here.
     })();
     </script>
   </div>
@@ -1021,9 +1013,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
 
   <script>
   // ── MALL ADMIN ──────────────────────────────────────────
-  // Use centralized Supabase config from supabase-config.js
-  var MALL_URL = window.__SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
-  var MALL_KEY = window.__SUPABASE_KEY || '';
+  var MALL_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var MALL_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
 
   async function mallFetch(path, opts) {
     var headers = Object.assign({'apikey':MALL_KEY,'Authorization':'Bearer '+MALL_KEY}, opts&&opts.headers||{});
@@ -1364,14 +1355,14 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     }
   };
 
-  // Hook into switchPanel
-  (function(){
+  // Hook into switchPanel — deferred until admin-dashboard.js has loaded
+  document.addEventListener('DOMContentLoaded', function(){
     var _o = window.switchPanel;
     window.switchPanel = function(name) {
-      if (_o) _o(name);
-      if (name === 'mall') setTimeout(window.loadMallAdmin, 100);
+      if (typeof _o === 'function') _o(name);
+      if (name === 'mall') setTimeout(function(){ if(window.loadMallAdmin) window.loadMallAdmin(); }, 100);
     };
-  })();
+  });
 
   // ── T-SHIRT INTEREST ADMIN FUNCTIONS ──────────────────────
 
@@ -2134,16 +2125,15 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
 (function(){
   var _origSw = window.switchPanel;
   window.switchPanel = function(name){
-    if(_origSw) _origSw(name);
+    if(typeof _origSw === 'function') _origSw(name);
     if(name === 'quotes' && window.loadQotdList) setTimeout(window.loadQotdList, 150);
   };
 })();
 
 // ── Admin Notification Bell + Pending Submissions Badge ──
 (function(){
-  // Use centralized Supabase config from supabase-config.js
-  var SUPA = window.__SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
-  var KEY  = window.__SUPABASE_KEY || '';
+  var SUPA = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
   var _notifs = JSON.parse(localStorage.getItem('gerama_admin_notifs')||'[]');
 
   function pushNotif(icon, title, msg, action){
@@ -2292,8 +2282,8 @@ window.quickBroadcast = async function(){
   if(!title){ if(statusEl){statusEl.textContent='Please enter a title.';statusEl.style.color='#dc2626';} return; }
   if(!msg)  { if(statusEl){statusEl.textContent='Please enter a message.';statusEl.style.color='#dc2626';} return; }
 
-  var SUPA = window.__SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
-  var KEY  = window.__SUPABASE_KEY || '';
+  var SUPA = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
 
   if(statusEl){statusEl.textContent='Broadcasting…';statusEl.style.color='#6b7280';}
 
