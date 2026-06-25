@@ -88,7 +88,7 @@ In **Project Settings → Environment Variables**, add:
 
 | Variable | Value | Scope |
 |---|---|---|
-| `SUPABASE_URL` | `https://hdrnnvvrtbwjsxtrxzfj.supabase.co` | Production, Preview, Development |
+| `SUPABASE_URL` | Your Supabase project URL | Production, Preview, Development |
 | `SUPABASE_KEY` | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI` | Production, Preview, Development |
 | `GERAMA_CODE` | `GERAMA2026` | Production, Preview, Development |
 
@@ -128,8 +128,8 @@ Create `js/env-config.js` (NOT tracked in git):
 
 ```javascript
 // Copy from js/env-config.example.js and fill in values
-window.__SUPABASE_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-window.__SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+window.__SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+window.__SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
 window.__GERAMA_CODE = 'GERAMA2026';
 window.__GEMINI_KEY__ = '';  // Optional, only if testing AI features
 window.__GROQ_KEY__ = '';    // Optional, only if testing AI features
@@ -156,8 +156,8 @@ Or use VS Code **Live Server** extension:
 
 ### Supabase
 
-- **URL**: `https://hdrnnvvrtbwjsxtrxzfj.supabase.co`
-- **Anon Key**: (see above) — This is PUBLIC by design
+- **URL**: Your Supabase project URL
+- **Anon Key**: Your Supabase anon key — This is PUBLIC by design
 - **Why public?**: Supabase uses Row Level Security (RLS) to secure data at database level
 - **Storage bucket:** `gerama-materials` (must be public for student downloads)
 

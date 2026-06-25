@@ -6,8 +6,9 @@
 (function(){
   'use strict';
 
-  var SUPA_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  // Use centralized Supabase config from supabase-config.js
+  var SUPA_URL = window.__SUPABASE_URL || 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var SUPA_KEY = window.__SUPABASE_KEY || '';
   var SENSITIVE_CODE = '2026GERAMA';
   var SUPER_ADMIN_CODE = 'adminGERAMA2026';
   var BUCKET = 'gerama-materials';
@@ -760,8 +761,9 @@
 // ═══════════════════════════════════════════════════════════════
 
 (function(){
-  var SUPA_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  // Use centralized Supabase config from supabase-config.js
+  var SUPA_URL = window.__SUPABASE_URL || 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var SUPA_KEY = window.__SUPABASE_KEY || '';
   var BUCKET = 'gerama-materials';
 
   function getSB(){ return window.geramaSupabase || null; }

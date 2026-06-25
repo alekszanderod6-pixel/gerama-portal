@@ -66,7 +66,7 @@ gerama/
 
 ### Authentication Setup
 The application uses Supabase for authentication with the following configuration:
-- **Project URL**: `https://hdrnnvvrtbwjsxtrxzfj.supabase.co`
+- **Project URL**: Your Supabase project URL
 - **Secret Code**: `GERAMA2026`
 
 ## Usage

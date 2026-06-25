@@ -2,7 +2,7 @@
 
 ## 1. Authentication Settings
 
-### Go to your Supabase project: https://hdrnnvvrtbwjsxtrxzfj.supabase.co
+### Go to your Supabase project: YOUR_SUPABASE_PROJECT_URL
 
 ### Configure Authentication:
 1. Go to **Authentication** > **Settings**
@@ -52,8 +52,8 @@ CREATE POLICY "Users can update their own profile"
 ## 3. Environment Variables
 
 Your current configuration:
-- Project URL: https://hdrnnvvrtbwjsxtrxzfj.supabase.co
-- Publishable Key: sb_publishable_EabJTURfeOC_5XOdGA0gfA_o_Tsh1lb
+- Project URL: YOUR_SUPABASE_PROJECT_URL
+- Publishable Key: YOUR_SUPABASE_ANON_KEY
 
 ## 4. Testing Steps
 

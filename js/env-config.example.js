@@ -14,9 +14,10 @@
 // On Vercel, these globals will be injected server-side or via build-time variables
 // ═════════════════════════════════════════════════════════════════
 
-// Supabase Configuration (leave as-is, supabase-config.js has a fallback)
-window.__SUPABASE_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-window.__SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+// Supabase Configuration
+// Get these from your Supabase project: https://app.supabase.com/project/_/settings/api
+window.__SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+window.__SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
 
 // Secret Code (change this for production)
 window.__GERAMA_CODE = 'GERAMA2026';

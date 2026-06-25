@@ -6,8 +6,9 @@
 (function(){
   'use strict';
 
-  var SUPA_URL    = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-  var SUPA_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  // Use centralized Supabase config from supabase-config.js
+  var SUPA_URL    = window.__SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
+  var SUPA_KEY    = window.__SUPABASE_KEY || '';
   var SESSION_KEY = 'gerama_admin_session';
   var MASTER_PASS = '2026GERAMA';
   var INVITE_CODE = 'admin2026';
@@ -290,7 +291,7 @@
   // Mall order tracking helpers
   window.mallToggleOrder = async function(id, field, val){
     var body = {}; body[field] = val;
-    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+    var KEY = window.__SUPABASE_KEY || '';
     try{
       await fetch(SUPA_URL+'/rest/v1/mall_orders?id=eq.'+encodeURIComponent(id),{
         method:'PATCH',
@@ -303,7 +304,7 @@
 
   window.mallDeleteOrder = async function(id){
     if(!confirm('Delete this order?')) return;
-    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+    var KEY = window.__SUPABASE_KEY || '';
     await fetch(SUPA_URL+'/rest/v1/mall_orders?id=eq.'+encodeURIComponent(id),{
       method:'DELETE', headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
     });
