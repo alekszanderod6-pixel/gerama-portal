@@ -873,8 +873,12 @@
     var uploadMatBtn = document.getElementById('uploadMatBtn');
     if(uploadMatBtn) uploadMatBtn.addEventListener('click', window.uploadMaterial);
 
-    // Load main content
-    window.loadData();
+    // Load main content ONLY if admin gate is NOT present (already logged in)
+    // If gate is present, admin-gate.js will call loadData after successful login
+    var adminGate = document.getElementById('geramaAdminGate');
+    if(!adminGate || adminGate.style.display === 'none'){
+      window.loadData();
+    }
     // Wait for Supabase then load live stats (retry up to 10s)
     (function tryStats(attempts){
       if(typeof window.geramaSupabase !== 'undefined'){
