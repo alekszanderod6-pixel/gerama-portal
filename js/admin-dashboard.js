@@ -43,6 +43,7 @@
   };
 
   window.switchPanel = function(name){
+    console.log('[switchPanel] Switching to panel:', name);
     var items = document.querySelectorAll('.nav-item');
     for(var i=0;i<items.length;i++) items[i].classList.remove('active');
 
@@ -53,7 +54,9 @@
     if(navEl) navEl.classList.add('active');
 
     var panelEl = document.getElementById('panel-'+name);
+    console.log('[switchPanel] Panel element found:', panelEl ? 'YES' : 'NO', 'ID: panel-'+name);
     if(panelEl) panelEl.classList.add('active');
+    else console.warn('[switchPanel] Panel not found: panel-'+name);
 
     var bnavItems = document.querySelectorAll('.bnav-item');
     for(var k=0;k<bnavItems.length;k++){
