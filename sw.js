@@ -69,7 +69,9 @@ self.addEventListener('fetch', function(event) {
         }
         return response;
       }).catch(function() { return cached; });
-      return cached || networkFetch;
+      return networkFetch.catch(function() {
+        return cached || fetch(event.request);
+      });
     })
   );
 });
