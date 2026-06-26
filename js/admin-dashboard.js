@@ -652,14 +652,17 @@
 
   // --- Load dashboard data (history + announcements) ---
   window.loadData = async function(){
+    console.log('[loadData] Starting to load data...');
     materialsHistory = JSON.parse(localStorage.getItem('gerama_mat_history')||'[]');
     announcements    = JSON.parse(localStorage.getItem('gerama_announcements')||'[]');
 
     // Supabase source of truth (best effort)
     try{
       var sb = window.geramaSupabase;
+      console.log('[loadData] Supabase client:', sb ? 'available' : 'NOT available');
       if(sb){
         var { data } = await sb.from('materials').select('*').order('created_at',{ascending:false}).limit(200);
+        console.log('[loadData] Materials data:', data ? data.length + ' items' : 'null');
         if(data && data.length){
           materialsHistory = data.map(function(r){
             return { level:r.level, sem:r.semester, course:r.course, type:r.type, name:r.name,
@@ -668,12 +671,15 @@
           });
         }
       }
-    }catch(e){}
+    }catch(e){
+      console.error('[loadData] Error loading materials:', e);
+    }
 
     try{
       var sb2 = window.geramaSupabase;
       if(sb2){
         var { data: annData } = await sb2.from('announcements').select('*').order('created_at',{ascending:false}).limit(50);
+        console.log('[loadData] Announcements data:', annData ? annData.length + ' items' : 'null');
         if(annData && annData.length){
           announcements = annData.map(function(r){
             return { id:r.id, title:r.title, message:r.message, priority:r.priority||'normal',
@@ -682,8 +688,11 @@
           localStorage.setItem('gerama_announcements', JSON.stringify(announcements));
         }
       }
-    }catch(e){}
+    }catch(e){
+      console.error('[loadData] Error loading announcements:', e);
+    }
 
+    console.log('[loadData] Calling render functions...');
     renderHistory();
     renderSubmissions();
     renderAnnouncements();
@@ -692,6 +701,7 @@
 
     // Load live visitor + content stats for overview
     loadOverviewStats();
+    console.log('[loadData] Data load complete');
   };
 
   async function loadOverviewStats(){
