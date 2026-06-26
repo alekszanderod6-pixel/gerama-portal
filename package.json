@@ -4,5 +4,8 @@
   "description": "GERAMA academic portal for UENR engineering students",
   "engines": {
     "node": ">=18.x"
+  },
+  "scripts": {
+    "build": "node build-env-config.js"
   }
 }
