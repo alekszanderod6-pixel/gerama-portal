@@ -5732,8 +5732,6 @@ window.commitIndexAssignment = async function() {
         if (typeof window.loadRegisteredUsers === 'function') window.loadRegisteredUsers();
     }, 2000);
 };
-    }, 2000);
-};
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  ADD MEMBERS — TYPEAHEAD SEARCH  (per-group inline search box)
