@@ -3,11 +3,13 @@
   'use strict';
 
   var STORAGE_KEY = 'gerama_study_timer';
+  var COLLAPSE_KEY = 'gerama_study_timer_collapsed';
   var state = {
     isRunning: false,
     seconds: 0,
     sessionCount: 0,
-    totalMinutes: 0
+    totalMinutes: 0,
+    isCollapsed: false
   };
 
   function loadState() {
@@ -17,11 +19,21 @@
         var parsed = JSON.parse(saved);
         state = Object.assign(state, parsed);
       }
+      var collapsed = localStorage.getItem(COLLAPSE_KEY);
+      if (collapsed === 'true') {
+        state.isCollapsed = true;
+      }
     } catch (e) {}
   }
 
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(COLLAPSE_KEY, state.isCollapsed ? 'true' : 'false');
+  }
+
+  function shouldShowWidget() {
+    var hour = new Date().getHours();
+    return hour >= 18 || hour < 6; // Show after 6pm or before 6am
   }
 
   function formatTime(totalSeconds) {
@@ -70,6 +82,24 @@
     updateDisplay();
   }
 
+  function toggleCollapse() {
+    state.isCollapsed = !state.isCollapsed;
+    var widget = document.getElementById('studyTimerWidget');
+    var content = document.getElementById('studyTimerContent');
+    var collapseBtn = document.getElementById('studyTimerCollapse');
+    
+    if (widget && content && collapseBtn) {
+      if (state.isCollapsed) {
+        content.style.display = 'none';
+        collapseBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+      } else {
+        content.style.display = 'block';
+        collapseBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+      }
+    }
+    saveState();
+  }
+
   function tick() {
     if (state.isRunning) {
       state.seconds++;
@@ -81,11 +111,20 @@
   function buildWidget() {
     if (document.getElementById('studyTimerWidget')) return;
 
+    // Only show widget after 6pm or before 6am
+    if (!shouldShowWidget()) return;
+
     var style = document.createElement('style');
     style.id = 'studyTimerStyle';
     style.textContent = [
-      '#studyTimerWidget{position:fixed;right:14px;bottom:80px;z-index:8090;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;padding:1rem;border-radius:18px;box-shadow:0 12px 35px rgba(27,94,32,0.3);min-width:200px;font-family:"Inter",sans-serif;}',
-      '#studyTimerWidget h4{margin:0 0 0.5rem 0;font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:0.4rem;}',
+      '#studyTimerWidget{position:fixed;right:14px;bottom:80px;z-index:8090;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;padding:1rem;border-radius:18px;box-shadow:0 12px 35px rgba(27,94,32,0.3);min-width:200px;font-family:"Inter",sans-serif;transition:all 0.3s;}',
+      '#studyTimerWidget.collapsed{min-width:auto;padding:0.6rem 0.8rem;}',
+      '#studyTimerHeader{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;}',
+      '#studyTimerWidget h4{margin:0;font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:0.4rem;}',
+      '#studyTimerCollapse{border:none;background:rgba(255,255,255,0.2);color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;}',
+      '#studyTimerCollapse:hover{background:rgba(255,255,255,0.3);}',
+      '#studyTimerContent{transition:all 0.3s;}',
+      '#studyTimerContent.hidden{display:none;}',
       '#studyTimerDisplay{font-size:2rem;font-weight:800;text-align:center;margin:0.5rem 0;font-family:monospace;letter-spacing:2px;}',
       '#studyTimerStats{display:flex;justify-content:space-between;font-size:0.7rem;opacity:0.9;margin-bottom:0.7rem;}',
       '#studyTimerActions{display:flex;gap:0.5rem;}',
@@ -100,27 +139,38 @@
     var widget = document.createElement('div');
     widget.id = 'studyTimerWidget';
     widget.innerHTML = '' +
-      '<h4><i class="fas fa-clock"></i> Study Timer</h4>' +
-      '<div id="studyTimerDisplay">00:00</div>' +
-      '<div id="studyTimerStats">' +
-        '<span id="studyTimerSessions">0 sessions</span>' +
-        '<span id="studyTimerTotal">0 min total</span>' +
+      '<div id="studyTimerHeader">' +
+        '<h4><i class="fas fa-clock"></i> Study Timer</h4>' +
+        '<button id="studyTimerCollapse" title="Collapse/Expand"><i class="fas fa-chevron-down"></i></button>' +
       '</div>' +
-      '<div id="studyTimerActions">' +
-        '<button id="studyTimerToggle"><i class="fas fa-play"></i> Start</button>' +
-        '<button id="studyTimerReset"><i class="fas fa-redo"></i></button>' +
+      '<div id="studyTimerContent">' +
+        '<div id="studyTimerDisplay">00:00</div>' +
+        '<div id="studyTimerStats">' +
+          '<span id="studyTimerSessions">0 sessions</span>' +
+          '<span id="studyTimerTotal">0 min total</span>' +
+        '</div>' +
+        '<div id="studyTimerActions">' +
+          '<button id="studyTimerToggle"><i class="fas fa-play"></i> Start</button>' +
+          '<button id="studyTimerReset"><i class="fas fa-redo"></i></button>' +
+        '</div>' +
       '</div>';
 
     document.body.appendChild(widget);
 
     document.getElementById('studyTimerToggle').addEventListener('click', toggleTimer);
     document.getElementById('studyTimerReset').addEventListener('click', resetTimer);
+    document.getElementById('studyTimerCollapse').addEventListener('click', toggleCollapse);
   }
 
   function init() {
     loadState();
     buildWidget();
-    updateDisplay();
+    if (document.getElementById('studyTimerWidget')) {
+      updateDisplay();
+      if (state.isCollapsed) {
+        toggleCollapse();
+      }
+    }
     setInterval(tick, 1000);
   }
 
