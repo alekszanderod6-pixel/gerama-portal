@@ -1752,6 +1752,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         <div style="display:flex;gap:0.8rem;justify-content:center;margin-top:1rem;flex-wrap:wrap;">
           <button onclick="copyAttCode()" style="background:#FFC107;color:#0a2f1f;border:none;padding:0.5rem 1.2rem;border-radius:30px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-copy"></i> Copy Code</button>
           <button onclick="closeAttSession()" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);padding:0.5rem 1.2rem;border-radius:30px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-stop"></i> Close Session</button>
+          <button id="extendAttBtn" onclick="extendAttendanceSession()" style="background:#3b82f6;color:white;border:none;padding:0.5rem 1.2rem;border-radius:30px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:none;"><i class="fas fa-clock"></i> Extend +15min</button>
         </div>
       </div>
       <div class="status-msg" id="attStatus"></div>
@@ -2009,7 +2010,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         <div class="form-field"><label>Points / Marks</label><input type="text" id="qzPoints" placeholder="e.g. 20"></div>
         <div class="form-field"><label>Tutor / Posted By</label><input type="text" id="qzTutor" placeholder="e.g. Edem H.K Prince"></div>
         <div class="form-field"><label>Deadline *</label><input type="datetime-local" id="qzDeadline"></div>
-        <div class="form-field full"><label>Description / Instructions</label><textarea id="qzDesc" rows="2" placeholder="e.g. Answer all questions. No calculators. 30 minutes."></textarea></div>
+        <div class="form-field"><label>Target Group (Optional)</label><select id="qzGroup"><option value="">-- General / All Students --</option><option value="group1">Group 1</option><option value="group2">Group 2</option><option value="group3">Group 3</option><option value="group4">Group 4</option></select></div>`n        <div class="form-field full"><label>Description / Instructions</label><textarea id="qzDesc" rows="2" placeholder="e.g. Answer all questions. No calculators. 30 minutes."></textarea></div>
       </div>
 
       <!-- LINK MODE -->
@@ -2375,4 +2376,8 @@ window.quickBroadcast = async function(){
         </select>
         <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Leave blank to make this class available to all students.</small>
       </div>
+
+
+
+
 

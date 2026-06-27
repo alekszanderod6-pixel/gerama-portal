@@ -1386,6 +1386,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── LOAD CLASSES ──────────────────────────────────────────────────
 function loadClasses() {
+  // Reset filter when loading all classes
+  var filter = document.getElementById('sessionTypeFilter');
+  if(filter) filter.value = 'all';
   var sb = window.geramaSupabase;
   if(!sb){ renderClasses([]); return; }
   sb.from('classes').select('*').order('scheduled_at',{ascending:true}).then(function(res){
@@ -4369,3 +4372,25 @@ function initAssistanceForm() {
 </script>
 </body>
 </html>
+
+
+
+window.filterClassesByType = function(){
+  var filter = document.getElementById('sessionTypeFilter').value;
+  var sb = window.geramaSupabase;
+  if(!sb){ renderClasses([]); return; }
+  
+  var query = sb.from('classes').select('*').order('scheduled_at',{ascending:true});
+  
+  if(filter === 'classroom'){
+    query = query.eq('session_type', 'classroom');
+  } else if(filter === 'mentorship'){
+    query = query.eq('session_type', 'mentorship');
+  }
+  // 'all' shows everything
+  
+  query.then(function(res){
+    renderClasses(res.data || []);
+  }).catch(function(){ renderClasses([]); });
+};
+

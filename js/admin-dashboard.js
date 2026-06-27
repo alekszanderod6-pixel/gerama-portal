@@ -1362,7 +1362,7 @@ async function publishQuiz(){
     window.showStatus('quizStatus','✅ Quiz published! Students can now '+(isPaper?'open the question paper':isPdf?'download the PDF':'take it')+' on the Classroom page.','ok');
 
     // Clear form
-    ['qzTitle','qzCourse','qzDuration','qzPoints','qzTutor','qzDeadline','qzDesc','qzUrl1','qzUrl2','qzUrl3'].forEach(function(id){
+    ['qzTitle','qzCourse','qzDuration','qzPoints','qzTutor','qzDeadline','qzDesc','qzUrl1','qzUrl2','qzUrl3','qzGroup'].forEach(function(id){
       var el = document.getElementById(id); if(el) el.value = id==='qzDuration'?'0':'';
     });
     _qzPdfFile = null;
@@ -1791,6 +1791,14 @@ window.deleteAssignment = async function(id){
 };
 
 // ─── SCHEDULE CLASS ───────────────────────────────────────
+window.toggleClsSessionType = function(){
+  var isMentorship = document.getElementById('clsSessionMentorship') && document.getElementById('clsSessionMentorship').checked;
+  var classroomLabel = document.getElementById('clsSessionClassroomLabel');
+  var mentorshipLabel = document.getElementById('clsSessionMentorshipLabel');
+  if(classroomLabel) classroomLabel.style.borderColor = isMentorship ? '#e5e7eb' : '#1B5E20';
+  if(mentorshipLabel) mentorshipLabel.style.borderColor = isMentorship ? '#FFC107' : '#e5e7eb';
+};
+
 window.toggleClsType = function(){
   var val = document.querySelector('input[name="clsType"]:checked').value;
   var isVirtual = val === 'virtual';
@@ -1849,6 +1857,8 @@ window.scheduleClass = async function(){
   var clsType = document.querySelector('input[name="clsType"]:checked').value;
   var venue  = clsType === 'inperson' ? (document.getElementById('clsVenue').value.trim()) : '';
   var mapLink= clsType === 'inperson' ? (document.getElementById('clsMapLink').value.trim()) : '';
+  var targetGroup = (document.getElementById('clsGroup')||{}).value.trim() || null;
+  var sessionType = (document.querySelector('input[name="clsSessionType"]:checked')||{}).value || 'classroom';
 
   if(!course||!topic||!dt){ window.showStatus('clsStatus','Please fill in Course, Topic and Date/Time.','err'); return; }
   if(clsType === 'inperson' && !venue){ window.showStatus('clsStatus','Please enter the venue/location.','err'); return; }
@@ -1897,7 +1907,7 @@ window.scheduleClass = async function(){
     }
     window.logActivity('Scheduled '+(clsType==='inperson'?'in-person':(platform==='google'?'Google Meet':'Jitsi'))+' class: '+course+' – '+topic);
     window.showStatus('clsStatus','✅ Class scheduled! '+(clsType==='inperson'?'Venue: '+venue:'Share the link with students.'),'ok');
-    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime','clsVenue','clsMapLink','clsGoogleMeetLink'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime','clsVenue','clsMapLink','clsGoogleMeetLink','clsGroup'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
     window.loadClsList();
   }catch(e){ window.showStatus('clsStatus','❌ '+e.message,'err'); }
   btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish';
@@ -6489,3 +6499,90 @@ window.syncAllGradesToPortal = async function() {
   );
   window.loadSubmissionsTable();
 };
+
+
+
+
+
+
+
+
+
+
+
+window.handleAttClassSelect = async function(){
+  var select = document.getElementById('attClassSelect');
+  var titleInput = document.getElementById('attClassTitle');
+  if(!select || !titleInput) return;
+  if(select.value){
+    titleInput.value = select.value;
+  }
+};
+
+window.loadAttClassDropdown = async function(){
+  var select = document.getElementById('attClassSelect');
+  if(!select) return;
+  var sb = window.geramaSupabase; if(!sb) return;
+  try{
+    var now = new Date().toISOString();
+    var {data} = await sb.from('classes').select('course,topic').gte('scheduled_at', now).order('scheduled_at', {ascending: true}).limit(20);
+    if(data && data.length){
+      select.innerHTML = '<option value="">-- Or type class title manually --</option>';
+      data.forEach(function(c){
+        var title = (c.course + ' - ' + c.topic).trim();
+        select.innerHTML += '<option value="' + title + '">' + title + '</option>';
+      });
+    }
+  }catch(e){ console.error('Failed to load class dropdown:', e); }
+};
+
+document.addEventListener('DOMContentLoaded', function(){
+  window.loadAttClassDropdown();
+});
+
+
+window.extendAttendanceSession = async function(){
+  var sb = window.geramaSupabase; if(!sb) return;
+  try{
+    var {data: session} = await sb.from('attendance_sessions').select('*').eq('is_active',true).single();
+    if(!session) return;
+    
+    var extensionCount = session.extension_count || 0;
+    var expiresAt = new Date(session.expires_at);
+    var now = new Date();
+    var hoursSinceExpiry = (now - expiresAt) / (1000 * 60 * 60);
+    
+    if(extensionCount >= 2){
+      alert('This session has already been extended the maximum of 2 times.');
+      return;
+    }
+    
+    if(hoursSinceExpiry > 1){
+      alert('Attendance can only be extended within 1 hour of expiry.');
+      return;
+    }
+    
+    var newExpiry = new Date(Math.max(now.getTime(), expiresAt.getTime()) + 15 * 60 * 1000);
+    
+    var {error} = await sb.from('attendance_sessions').update({
+      expires_at: newExpiry.toISOString(),
+      extension_count: extensionCount + 1
+    }).eq('id', session.id);
+    
+    if(error) throw error;
+    
+    alert('Attendance extended by 15 minutes!');
+    window.loadAttSessions();
+  }catch(e){
+    alert('Error extending attendance: ' + e.message);
+  }
+};
+
+
+
+
+
+
+
+
+
