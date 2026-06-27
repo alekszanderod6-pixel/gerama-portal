@@ -768,10 +768,67 @@
     try {
       var diykPendRes = await safe(function(){ return sb.from('did_you_know').select('id',{count:'exact',head:true}).eq('status','pending'); });
     } catch(e) {}
+
+    renderAdminCommandCenter({
+      visitsToday: todayRes.count || 0,
+      visitsWeek: weekRes.count || 0,
+      quizzes: quizRes.count || 0,
+      assignments: asgRes.count || 0,
+      classes: clsRes.count || 0,
+      classRequests: clsReqRes.count || 0,
+      quizRequests: qrRes.count || 0,
+      submissions: subRes.count || 0,
+      materials: matRes.count || 0,
+      announcements: annRes.count || 0,
+      ungraded: ungradedCount
+    });
   }
 
   // Expose so admin-gate.js _applySession can call it after login
   window.loadOverviewStats = loadOverviewStats;
+
+  function commandLine(text, tone) {
+    var color = tone || 'rgba(255,255,255,0.9)';
+    return '<div style="display:flex;align-items:flex-start;gap:0.55rem;">' +
+      '<span style="width:8px;height:8px;border-radius:50%;background:' + color + ';margin-top:0.42rem;flex-shrink:0;"></span>' +
+      '<span>' + window.escHtml(text) + '</span>' +
+    '</div>';
+  }
+
+  function renderAdminCommandCenter(stats) {
+    var pulseEl = document.getElementById('adminPulseSummary');
+    var priorityEl = document.getElementById('adminPriorityList');
+    var momentumEl = document.getElementById('adminMomentumList');
+    if (!pulseEl || !priorityEl || !momentumEl) return;
+
+    var pulseText = 'Today the portal has ' + stats.visitsToday + ' visits, ' + stats.materials + ' live materials, and ' + stats.announcements + ' announcements active for students.';
+    if (stats.ungraded > 0) {
+      pulseText += ' There are ' + stats.ungraded + ' ungraded submissions needing attention.';
+    } else {
+      pulseText += ' Grading is currently under control.';
+    }
+    pulseEl.textContent = pulseText;
+
+    var priorities = [];
+    if (stats.ungraded > 0) priorities.push('Grade ' + stats.ungraded + ' pending submissions before student pressure builds.');
+    if (stats.classRequests > 0) priorities.push('Review ' + stats.classRequests + ' class request' + (stats.classRequests !== 1 ? 's' : '') + ' from students.');
+    if (stats.quizRequests > 0) priorities.push('Check ' + stats.quizRequests + ' quiz request' + (stats.quizRequests !== 1 ? 's' : '') + ' waiting in the queue.');
+    if (!priorities.length) priorities.push('No urgent queue pressure right now. This is a good window to publish fresh content.');
+    priorityEl.innerHTML = priorities.slice(0, 3).map(function(text, index) {
+      var tone = index === 0 ? '#fbbf24' : (index === 1 ? '#34d399' : '#93c5fd');
+      return commandLine(text, tone);
+    }).join('');
+
+    var momentum = [
+      'Students have made ' + stats.submissions + ' total submissions so far.',
+      stats.quizzes + ' active quiz' + (stats.quizzes !== 1 ? 'zes are' : ' is') + ' currently shaping study engagement.',
+      stats.classes + ' class session' + (stats.classes !== 1 ? 's have' : ' has') + ' been scheduled across the portal this cycle.'
+    ];
+    momentumEl.innerHTML = momentum.map(function(text, index) {
+      var tone = index === 0 ? '#93c5fd' : (index === 1 ? '#c4b5fd' : '#fca5a5');
+      return commandLine(text, tone);
+    }).join('');
+  }
 
   // --- App boot ---
   document.addEventListener('DOMContentLoaded', function(){

@@ -9,6 +9,7 @@
   var SESSION_KEY = 'geralex_session_id';
   var MAX_HISTORY_ITEMS = 10;
   var MAX_FILE_SIZE_BYTES = 8 * 1024 * 1024;
+  var REQUEST_TIMEOUT_MS = 20000;
   var ALLOWED_MIME_TYPES = {
     'application/pdf': true,
     'image/png': true,
@@ -61,6 +62,19 @@
 
   function getPageLabel() {
     return currentPage.replace('.html', '') || 'home';
+  }
+
+  function getPageTone() {
+    var tones = {
+      'index.html': 'Portal Guide',
+      'resources.html': 'Study Finder',
+      'classroom.html': 'Study Coach',
+      'dashboard.html': 'Personal Coach',
+      'connect.html': 'Community Helper',
+      'mall.html': 'Marketplace Guide',
+      'help.html': 'Support Expert'
+    };
+    return tones[currentPage] || 'Study Assistant';
   }
 
   function getSuggestedPrompts() {
@@ -143,33 +157,52 @@
     var style = document.createElement('style');
     style.id = 'geralexWidgetStyle';
     style.textContent = [
-      '#geralexLauncher{position:fixed;right:14px;bottom:196px;z-index:8100;border:none;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;box-shadow:0 12px 32px rgba(27,94,32,0.35);cursor:pointer;font-size:1.3rem;font-weight:800;}',
-      '#geralexWidget{position:fixed;right:14px;bottom:264px;z-index:8101;width:min(380px,calc(100vw - 24px));max-height:min(72vh,640px);display:none;flex-direction:column;background:#fff;border:1px solid rgba(15,23,42,0.08);border-radius:24px;box-shadow:0 24px 60px rgba(15,23,42,0.22);overflow:hidden;}',
-      '#geralexWidget.open{display:flex;}',
-      '.geralex-head{padding:1rem 1rem 0.8rem;background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:#fff;}',
+      '#geralexLauncher{position:fixed;right:14px;bottom:196px;z-index:8100;border:none;min-width:64px;height:58px;border-radius:999px;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;box-shadow:0 14px 40px rgba(27,94,32,0.35);cursor:pointer;font-size:0.96rem;font-weight:800;padding:0 1rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}',
+      '#geralexLauncher::before{content:"";width:9px;height:9px;border-radius:50%;background:#FFC107;box-shadow:0 0 0 6px rgba(255,193,7,0.18);flex-shrink:0;}',
+      '#geralexWidget{position:fixed;right:14px;bottom:264px;z-index:8101;width:min(410px,calc(100vw - 24px));height:min(76vh,680px);display:none;grid-template-rows:auto auto minmax(0,1fr) auto;background:#fff;border:1px solid rgba(15,23,42,0.08);border-radius:26px;box-shadow:0 24px 60px rgba(15,23,42,0.22);overflow:hidden;}',
+      '#geralexWidget.open{display:grid;}',
+      '.geralex-head{padding:1rem 1rem 0.9rem;background:linear-gradient(135deg,#071a12,#0a2f1f 40%,#1B5E20);color:#fff;}',
       '.geralex-title{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;}',
       '.geralex-title h3{margin:0;font-size:1rem;font-weight:800;}',
       '.geralex-title button{border:none;background:rgba(255,255,255,0.14);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;}',
       '.geralex-sub{margin-top:0.45rem;font-size:0.8rem;line-height:1.45;color:rgba(255,255,255,0.84);}',
-      '.geralex-prompts{display:flex;gap:0.45rem;overflow:auto;padding:0.75rem 1rem;background:#f8fafc;border-bottom:1px solid #e5e7eb;}',
+      '.geralex-topline{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-top:0.75rem;}',
+      '.geralex-chip{display:inline-flex;align-items:center;gap:0.35rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.16);padding:0.38rem 0.7rem;border-radius:999px;font-size:0.72rem;color:#ecfdf5;font-weight:700;}',
+      '.geralex-headnote{font-size:0.72rem;color:rgba(255,255,255,0.72);text-align:right;}',
+      '.geralex-prompts{display:flex;gap:0.45rem;overflow:auto;padding:0.75rem 1rem;background:#f8fafc;border-bottom:1px solid #e5e7eb;scrollbar-width:none;}',
+      '.geralex-prompts::-webkit-scrollbar{display:none;}',
       '.geralex-prompt{border:none;background:#fff;color:#1f2937;padding:0.55rem 0.8rem;border-radius:999px;font-size:0.76rem;white-space:nowrap;cursor:pointer;border:1px solid #e5e7eb;}',
-      '.geralex-feed{padding:1rem;overflow:auto;background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);display:flex;flex-direction:column;gap:0.7rem;min-height:220px;}',
+      '.geralex-feed{padding:1rem;overflow:auto;background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);display:flex;flex-direction:column;gap:0.7rem;min-height:0;scroll-behavior:smooth;}',
       '.geralex-msg{max-width:88%;padding:0.8rem 0.9rem;border-radius:18px;font-size:0.9rem;line-height:1.5;word-break:break-word;}',
       '.geralex-msg.user{align-self:flex-end;background:#1B5E20;color:#fff;border-bottom-right-radius:6px;}',
       '.geralex-msg.ai{align-self:flex-start;background:#fff;color:#1f2937;border:1px solid #e5e7eb;border-bottom-left-radius:6px;}',
+      '.geralex-msg-meta{display:block;font-size:0.68rem;opacity:0.75;margin-bottom:0.2rem;font-weight:700;letter-spacing:0.02em;}',
+      '.geralex-empty{background:#f8fafc;border:1px dashed #d1d5db;border-radius:18px;padding:0.95rem 1rem;color:#475569;font-size:0.84rem;line-height:1.55;}',
       '.geralex-status{padding:0 1rem 0.7rem;font-size:0.78rem;color:#6b7280;background:#fff;}',
-      '.geralex-attachment{display:none;align-items:center;justify-content:space-between;gap:0.6rem;margin:0 1rem 0.7rem;padding:0.65rem 0.8rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;font-size:0.8rem;color:#1e3a8a;}',
+      '.geralex-status.error{color:#b91c1c;}',
+      '.geralex-status.ok{color:#166534;}',
+      '.geralex-typing{display:none;align-self:flex-start;background:#fff;color:#334155;border:1px solid #e5e7eb;border-radius:18px;border-bottom-left-radius:6px;padding:0.8rem 0.9rem;font-size:0.84rem;}',
+      '.geralex-typing.show{display:block;}',
+      '.geralex-typing-dots{display:inline-flex;align-items:center;gap:0.25rem;margin-left:0.35rem;}',
+      '.geralex-typing-dots span{width:6px;height:6px;border-radius:50%;background:#16a34a;display:block;animation:geralexDots 1.2s infinite ease-in-out;}',
+      '.geralex-typing-dots span:nth-child(2){animation-delay:0.15s;}',
+      '.geralex-typing-dots span:nth-child(3){animation-delay:0.3s;}',
+      '@keyframes geralexDots{0%,80%,100%{transform:scale(0.7);opacity:0.45;}40%{transform:scale(1);opacity:1;}}',
+      '.geralex-footer{display:flex;flex-direction:column;gap:0.7rem;padding:0.85rem 1rem 1rem;background:#fff;border-top:1px solid #e5e7eb;}',
+      '.geralex-attachment{display:none;align-items:center;justify-content:space-between;gap:0.6rem;padding:0.65rem 0.8rem;background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;font-size:0.8rem;color:#1e3a8a;}',
       '.geralex-attachment.show{display:flex;}',
       '.geralex-attachment button{border:none;background:transparent;color:#1d4ed8;cursor:pointer;font-weight:700;}',
-      '.geralex-form{padding:0 1rem 1rem;background:#fff;}',
+      '.geralex-form{background:#fff;}',
       '.geralex-input-wrap{border:1px solid #d1d5db;border-radius:18px;padding:0.6rem;background:#fff;}',
       '.geralex-input-wrap textarea{width:100%;min-height:74px;max-height:160px;resize:vertical;border:none;outline:none;font:inherit;color:#111827;background:transparent;}',
       '.geralex-actions{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-top:0.7rem;}',
       '.geralex-left-actions{display:flex;align-items:center;gap:0.55rem;font-size:0.76rem;color:#6b7280;}',
       '.geralex-file-btn{display:inline-flex;align-items:center;gap:0.35rem;border:none;background:#f3f4f6;color:#111827;border-radius:999px;padding:0.55rem 0.8rem;cursor:pointer;font-weight:700;}',
-      '.geralex-send-btn{border:none;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;border-radius:999px;padding:0.7rem 1rem;cursor:pointer;font-weight:800;min-width:90px;}',
-      '.geralex-note{margin-top:0.55rem;font-size:0.72rem;color:#6b7280;line-height:1.4;}',
-      '@media (max-width:640px){#geralexLauncher{bottom:132px;right:12px;width:54px;height:54px;}#geralexWidget{right:12px;left:12px;bottom:194px;width:auto;max-height:68vh;}}'
+      '.geralex-send-btn{border:none;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;border-radius:999px;padding:0.78rem 1.05rem;cursor:pointer;font-weight:800;min-width:104px;display:inline-flex;align-items:center;justify-content:center;gap:0.35rem;box-shadow:0 10px 24px rgba(27,94,32,0.2);}',
+      '.geralex-send-btn[disabled]{opacity:0.7;cursor:not-allowed;}',
+      '.geralex-note{margin-top:0.55rem;font-size:0.72rem;color:#6b7280;line-height:1.4;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;}',
+      '.geralex-note strong{color:#0f172a;}',
+      '@media (max-width:640px){#geralexLauncher{bottom:132px;right:12px;height:54px;padding:0 0.95rem;font-size:0.9rem;}#geralexWidget{right:12px;left:12px;bottom:194px;width:auto;height:min(70vh,660px);} .geralex-actions{flex-wrap:wrap;} .geralex-send-btn{width:100%;}}'
     ].join('');
     document.head.appendChild(style);
 
@@ -179,7 +212,7 @@
 
     var shell = document.createElement('div');
     shell.innerHTML = '' +
-      '<button id="geralexLauncher" aria-label="Open GERALEX" title="Ask GERALEX">AI</button>' +
+      '<button id="geralexLauncher" aria-label="Open GERALEX" title="Ask GERALEX">GERALEX</button>' +
       '<section id="geralexWidget" aria-label="GERALEX assistant">' +
       '  <div class="geralex-head">' +
       '    <div class="geralex-title">' +
@@ -187,27 +220,34 @@
       '      <button type="button" id="geralexCloseBtn" aria-label="Close GERALEX">x</button>' +
       '    </div>' +
       '    <div class="geralex-sub">Ask about the portal, study topics, or upload one image/PDF question. Private admin details stay protected.</div>' +
+      '    <div class="geralex-topline">' +
+      '      <span class="geralex-chip">Live ' + escapeHtml(getPageTone()) + '</span>' +
+      '      <span class="geralex-headnote">Enter to send, Shift+Enter for a new line</span>' +
+      '    </div>' +
       '  </div>' +
       '  <div class="geralex-prompts">' + prompts + '</div>' +
       '  <div class="geralex-feed" id="geralexFeed"></div>' +
-      '  <div class="geralex-status" id="geralexStatus">GERALEX is ready.</div>' +
-      '  <div class="geralex-attachment" id="geralexAttachmentBox">' +
-      '    <span id="geralexAttachmentName"></span>' +
-      '    <button type="button" id="geralexRemoveAttachment">Remove</button>' +
-      '  </div>' +
-      '  <form class="geralex-form" id="geralexForm">' +
-      '    <div class="geralex-input-wrap">' +
-      '      <textarea id="geralexInput" placeholder="Ask GERALEX anything about GERAMA or your study problem..."></textarea>' +
+      '  <div class="geralex-typing" id="geralexTyping">GERALEX is thinking <span class="geralex-typing-dots"><span></span><span></span><span></span></span></div>' +
+      '  <div class="geralex-footer">' +
+      '    <div class="geralex-status" id="geralexStatus">GERALEX is ready.</div>' +
+      '    <div class="geralex-attachment" id="geralexAttachmentBox">' +
+      '      <span id="geralexAttachmentName"></span>' +
+      '      <button type="button" id="geralexRemoveAttachment">Remove</button>' +
       '    </div>' +
-      '    <div class="geralex-actions">' +
-      '      <div class="geralex-left-actions">' +
-      '        <label class="geralex-file-btn" for="geralexFileInput">Attach PDF/Image</label>' +
-      '        <input id="geralexFileInput" type="file" accept="application/pdf,image/*" hidden>' +
+      '    <form class="geralex-form" id="geralexForm">' +
+      '      <div class="geralex-input-wrap">' +
+      '        <textarea id="geralexInput" placeholder="Ask GERALEX anything about GERAMA or your study problem..."></textarea>' +
       '      </div>' +
-      '      <button type="submit" class="geralex-send-btn" id="geralexSendBtn">Send</button>' +
-      '    </div>' +
-      '    <div class="geralex-note">Supports one image or PDF per question. Avoid uploading private or sensitive files.</div>' +
-      '  </form>' +
+      '      <div class="geralex-actions">' +
+      '        <div class="geralex-left-actions">' +
+      '          <label class="geralex-file-btn" for="geralexFileInput">Attach PDF/Image</label>' +
+      '          <input id="geralexFileInput" type="file" accept="application/pdf,image/*" hidden>' +
+      '        </div>' +
+      '        <button type="submit" class="geralex-send-btn" id="geralexSendBtn">Send</button>' +
+      '      </div>' +
+      '      <div class="geralex-note"><span>Supports one image or PDF per question.</span><strong>Safe for public/student help only.</strong></div>' +
+      '    </form>' +
+      '  </div>' +
       '</section>';
 
     while (shell.firstChild) {
@@ -220,7 +260,8 @@
     if (!feed) return;
     var item = document.createElement('div');
     item.className = 'geralex-msg ' + (role === 'user' ? 'user' : 'ai');
-    item.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+    item.innerHTML = '<span class="geralex-msg-meta">' + (role === 'user' ? 'You' : 'GERALEX') + '</span>' +
+      escapeHtml(text).replace(/\n/g, '<br>');
     feed.appendChild(item);
     feed.scrollTop = feed.scrollHeight;
 
@@ -235,7 +276,7 @@
     var status = document.getElementById('geralexStatus');
     if (!status) return;
     status.textContent = text || '';
-    status.style.color = type === 'error' ? '#b91c1c' : (type === 'ok' ? '#166534' : '#6b7280');
+    status.className = 'geralex-status' + (type === 'error' ? ' error' : (type === 'ok' ? ' ok' : ''));
   }
 
   function renderHistory() {
@@ -244,6 +285,11 @@
     feed.innerHTML = '';
 
     if (!state.history.length) {
+      var empty = document.createElement('div');
+      empty.className = 'geralex-empty';
+      empty.innerHTML = '<strong style="display:block;margin-bottom:0.3rem;color:#0f172a;">Welcome to GERALEX.</strong>' +
+        'I can explain this page, answer study questions, and work through one uploaded image or PDF question at a time.';
+      feed.appendChild(empty);
       addMessage('ai', 'Hello, I am GERALEX. I can guide you through GERAMA, help with study questions, and review one uploaded image or PDF at a time.', true);
       return;
     }
@@ -298,6 +344,52 @@
     var input = document.getElementById('geralexFileInput');
     if (input) input.value = '';
     updateAttachmentUi();
+  }
+
+  function setTyping(visible) {
+    var typing = document.getElementById('geralexTyping');
+    if (!typing) return;
+    typing.classList.toggle('show', !!visible);
+    if (visible) {
+      var feed = document.getElementById('geralexFeed');
+      if (feed) feed.scrollTop = feed.scrollHeight;
+    }
+  }
+
+  function withTimeout(promise, timeoutMs, message) {
+    return Promise.race([
+      promise,
+      new Promise(function(_, reject) {
+        setTimeout(function() {
+          reject(new Error(message));
+        }, timeoutMs);
+      })
+    ]);
+  }
+
+  async function invokeDirect(payload) {
+    var url = String(window.__SUPABASE_URL || '').replace(/\/$/, '') + '/functions/v1/geralex-chat';
+    var anonKey = window.__SUPABASE_KEY || '';
+    if (!url || !anonKey) throw new Error('Supabase configuration is missing on this page.');
+
+    var response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': anonKey,
+        'Authorization': 'Bearer ' + anonKey
+      },
+      body: JSON.stringify(payload)
+    });
+
+    var data = await response.json().catch(function() { return {}; });
+    if (!response.ok) {
+      throw new Error(data && (data.error || data.detail) ? String(data.error || data.detail) : 'Direct request failed.');
+    }
+    if (!data || !data.reply) {
+      throw new Error('GERALEX returned an empty response.');
+    }
+    return data.reply;
   }
 
   function readFileAsBase64(file) {
@@ -362,14 +454,30 @@
       } : null
     };
 
-    var result = await sb.functions.invoke('geralex-chat', { body: payload });
-    if (result.error) {
-      throw new Error(result.error.message || 'Function invocation failed.');
+    try {
+      var result = await withTimeout(
+        sb.functions.invoke('geralex-chat', { body: payload }),
+        REQUEST_TIMEOUT_MS,
+        'GERALEX took too long to respond. Please try again.'
+      );
+      if (result.error) {
+        throw new Error(result.error.message || 'Function invocation failed.');
+      }
+      if (!result.data || !result.data.reply) {
+        throw new Error('GERALEX did not return a reply.');
+      }
+      return result.data.reply;
+    } catch (primaryErr) {
+      try {
+        return await withTimeout(
+          invokeDirect(payload),
+          REQUEST_TIMEOUT_MS,
+          'GERALEX is still taking too long. Check your Gemini setup and try again.'
+        );
+      } catch (directErr) {
+        throw new Error((directErr && directErr.message) || (primaryErr && primaryErr.message) || 'GERALEX request failed.');
+      }
     }
-    if (!result.data || !result.data.reply) {
-      throw new Error('GERALEX did not return a reply.');
-    }
-    return result.data.reply;
   }
 
   async function onSubmit(event) {
@@ -394,6 +502,7 @@
     input.disabled = true;
     sendBtn.disabled = true;
     sendBtn.textContent = 'Sending...';
+    setTyping(true);
 
     var priorHistory = state.history.slice(-6);
     addMessage('user', message);
@@ -413,6 +522,7 @@
       addMessage('ai', 'I could not respond just now. Please try again in a moment.');
       setStatus(err && err.message ? err.message : 'GERALEX request failed.', 'error');
     } finally {
+      setTyping(false);
       state.sending = false;
       input.disabled = false;
       sendBtn.disabled = false;
@@ -453,6 +563,19 @@
         }
       });
     });
+
+    var input = document.getElementById('geralexInput');
+    if (input) {
+      input.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          var formEl = document.getElementById('geralexForm');
+          if (formEl && !state.sending) {
+            formEl.requestSubmit ? formEl.requestSubmit() : formEl.dispatchEvent(new Event('submit', { cancelable: true }));
+          }
+        }
+      });
+    }
   }
 
   function init() {
