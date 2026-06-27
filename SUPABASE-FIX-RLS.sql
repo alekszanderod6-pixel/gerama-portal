@@ -118,9 +118,22 @@ ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS storage_path text;
 ALTER TABLE assignment_submissions ADD COLUMN IF NOT EXISTS status text DEFAULT 'submitted';
 
 -- Also fix missing columns on classes
+ALTER TABLE classes ADD COLUMN IF NOT EXISTS meet_link text;
 ALTER TABLE classes ADD COLUMN IF NOT EXISTS class_type text DEFAULT 'virtual';
+ALTER TABLE classes ADD COLUMN IF NOT EXISTS meet_platform text DEFAULT 'jitsi';
 ALTER TABLE classes ADD COLUMN IF NOT EXISTS venue text;
 ALTER TABLE classes ADD COLUMN IF NOT EXISTS map_link text;
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'classes' AND column_name = 'meeting_link'
+  ) THEN
+    EXECUTE 'UPDATE classes SET meet_link = meeting_link WHERE meet_link IS NULL AND meeting_link IS NOT NULL';
+  END IF;
+END $$;
 
 -- Also fix missing columns on announcements
 ALTER TABLE announcements ADD COLUMN IF NOT EXISTS images text;

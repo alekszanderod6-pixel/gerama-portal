@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1013,8 +1013,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
 
   <script>
   // ── MALL ADMIN ──────────────────────────────────────────
-  var MALL_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-  var MALL_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  var MALL_URL = window.__SUPABASE_URL || 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+  var MALL_KEY = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
 
   async function mallFetch(path, opts) {
     var headers = Object.assign({'apikey':MALL_KEY,'Authorization':'Bearer '+MALL_KEY}, opts&&opts.headers||{});
@@ -1800,6 +1800,19 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         </label>
       </div>
 
+      <!-- Meeting platform selection (shown only for virtual) -->
+      <div id="clsPlatformSection" style="margin-bottom:1.2rem;">
+        <label style="font-size:0.85rem;font-weight:600;color:#374151;display:block;margin-bottom:0.5rem;">Meeting Platform</label>
+        <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;padding:0.5rem 1rem;border-radius:8px;border:2px solid #e5e7eb;transition:all 0.2s;font-size:0.85rem;" id="clsPlatformJitsiLabel">
+            <input type="radio" name="clsPlatform" value="jitsi" id="clsPlatformJitsi" checked onchange="toggleClsPlatform()"> <i class="fas fa-video" style="color:#1d4ed8;"></i> Jitsi Meet (Auto-generated)
+          </label>
+          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;padding:0.5rem 1rem;border-radius:8px;border:2px solid #e5e7eb;transition:all 0.2s;font-size:0.85rem;" id="clsPlatformGoogleLabel">
+            <input type="radio" name="clsPlatform" value="google" id="clsPlatformGoogle" onchange="toggleClsPlatform()"> <i class="fab fa-google" style="color:#4285F4;"></i> Google Meet (Custom Link)
+          </label>
+        </div>
+      </div>
+
       <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#92400e;" id="clsHintBox">
         <strong><i class="fas fa-video"></i> Powered by Jitsi Meet — free, no account needed.</strong> A unique meeting link is generated automatically.
       </div>
@@ -1814,6 +1827,13 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         <!-- Virtual: auto-generated link (shown by default) -->
         <div class="form-field full" id="clsVirtualInfo" style="background:#dbeafe;border-radius:10px;padding:0.8rem 1rem;font-size:0.85rem;color:#1e40af;">
           <i class="fas fa-info-circle"></i> A Jitsi Meet link will be generated automatically when you schedule.
+        </div>
+
+        <!-- Google Meet custom link input -->
+        <div class="form-field full" id="clsGoogleMeetField" style="display:none;">
+          <label>Google Meet Link *</label>
+          <input type="url" id="clsGoogleMeetLink" placeholder="https://meet.google.com/xxx-yyyy-zzz">
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Paste your Google Meet link here. Create a meeting in Google Calendar and copy the link.</small>
         </div>
 
         <!-- In-person: venue fields -->

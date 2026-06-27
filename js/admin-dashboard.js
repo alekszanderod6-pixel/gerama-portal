@@ -1,4 +1,4 @@
-﻿/* GERAMA Admin Dashboard — extracted JS — v2026.06.20 */
+/* GERAMA Admin Dashboard — extracted JS — v2026.06.20 */
 
 (function(){
   'use strict';
@@ -1741,9 +1741,46 @@ window.toggleClsType = function(){
   document.getElementById('clsVenueField').style.display   = isVirtual ? 'none'  : 'block';
   document.getElementById('clsMapField').style.display     = isVirtual ? 'none'  : 'block';
   document.getElementById('clsHintBox').style.display      = isVirtual ? 'block' : 'none';
+  var platformSection = document.getElementById('clsPlatformSection');
+  var googleMeetField = document.getElementById('clsGoogleMeetField');
+  if(platformSection) platformSection.style.display = isVirtual ? 'block' : 'none';
+  if(googleMeetField) googleMeetField.style.display = 'none';
+  if(isVirtual) window.toggleClsPlatform();
   // Highlight active label
   document.getElementById('clsTypeVirtualLabel').style.borderColor  = isVirtual ? '#1d4ed8' : '#e5e7eb';
   document.getElementById('clsTypeInPersonLabel').style.borderColor = isVirtual ? '#e5e7eb' : '#dc2626';
+};
+
+window.toggleClsPlatform = function(){
+  var isGoogle = document.getElementById('clsPlatformGoogle') && document.getElementById('clsPlatformGoogle').checked;
+  var virtualInfo = document.getElementById('clsVirtualInfo');
+  var googleMeetField = document.getElementById('clsGoogleMeetField');
+  var hintBox = document.getElementById('clsHintBox');
+  
+  if(isGoogle){
+    if(virtualInfo) virtualInfo.style.display = 'none';
+    if(googleMeetField) googleMeetField.style.display = 'block';
+    if(hintBox){
+      hintBox.innerHTML = '<strong><i class="fab fa-google"></i> Google Meet — reliable video conferencing.</strong> Paste your custom Google Meet link.';
+      hintBox.style.background = '#e8f0fe';
+      hintBox.style.borderColor = '#4285F4';
+      hintBox.style.color = '#1967d2';
+    }
+  } else {
+    if(virtualInfo) virtualInfo.style.display = 'block';
+    if(googleMeetField) googleMeetField.style.display = 'none';
+    if(hintBox){
+      hintBox.innerHTML = '<strong><i class="fas fa-video"></i> Powered by Jitsi Meet — free, no account needed.</strong> A unique meeting link is generated automatically.';
+      hintBox.style.background = '#fffbeb';
+      hintBox.style.borderColor = '#fcd34d';
+      hintBox.style.color = '#92400e';
+    }
+  }
+  
+  var jitsiLabel = document.getElementById('clsPlatformJitsiLabel');
+  var googleLabel = document.getElementById('clsPlatformGoogleLabel');
+  if(jitsiLabel) jitsiLabel.style.borderColor = isGoogle ? '#e5e7eb' : '#dc2626';
+  if(googleLabel) googleLabel.style.borderColor = isGoogle ? '#dc2626' : '#e5e7eb';
 };
 
 window.scheduleClass = async function(){
@@ -1764,10 +1801,24 @@ window.scheduleClass = async function(){
   try{
     var sb = window.geramaSupabase; if(!sb) throw new Error('Not connected.');
     var meetLink = null;
+    var platform = 'jitsi';
 
     if(clsType === 'virtual'){
-      var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
-      meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
+      var platformInput = document.querySelector('input[name="clsPlatform"]:checked');
+      if(platformInput) platform = platformInput.value;
+      
+      if(platform === 'google'){
+        meetLink = (document.getElementById('clsGoogleMeetLink')||{}).value.trim();
+        if(!meetLink){ window.showStatus('clsStatus','Please enter a Google Meet link.','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish'; return; }
+        if(meetLink.toLowerCase().indexOf('meet.google.com') === -1){
+          window.showStatus('clsStatus','Please paste a valid Google Meet link.','err');
+          btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish';
+          return;
+        }
+      } else {
+        var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
+        meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
+      }
     }
 
     var {error} = await sb.from('classes').insert({
@@ -1777,6 +1828,7 @@ window.scheduleClass = async function(){
       class_type: clsType,
       venue: venue||null,
       map_link: mapLink||null,
+      meet_platform: clsType === 'virtual' ? platform : null,
       status:'upcoming', created_at:new Date().toISOString()
     });
     if(error) throw new Error(error.message);
@@ -1786,9 +1838,9 @@ window.scheduleClass = async function(){
       document.getElementById('clsLinkOpen').href = meetLink;
       document.getElementById('clsLinkBox').style.display = 'block';
     }
-    window.logActivity('Scheduled '+(clsType==='inperson'?'in-person':'virtual')+' class: '+course+' – '+topic);
+    window.logActivity('Scheduled '+(clsType==='inperson'?'in-person':(platform==='google'?'Google Meet':'Jitsi'))+' class: '+course+' – '+topic);
     window.showStatus('clsStatus','✅ Class scheduled! '+(clsType==='inperson'?'Venue: '+venue:'Share the link with students.'),'ok');
-    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime','clsVenue','clsMapLink'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime','clsVenue','clsMapLink','clsGoogleMeetLink'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
     window.loadClsList();
   }catch(e){ window.showStatus('clsStatus','❌ '+e.message,'err'); }
   btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish';
@@ -1799,6 +1851,19 @@ window.copyClsLink = function(){
   if(navigator.clipboard) navigator.clipboard.writeText(val);
   else { var t=document.createElement('textarea'); t.value=val; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
   alert('Link copied!');
+};
+
+window.getClassMeetLink = function(c){
+  return c ? (c.meet_link || c.meeting_link || null) : null;
+};
+
+window.getClassMeetPlatform = function(c){
+  if(!c || c.class_type === 'inperson') return null;
+  if(c.meet_platform) return c.meet_platform;
+  var meetLink = (window.getClassMeetLink(c) || '').toLowerCase();
+  if(meetLink.indexOf('meet.google.com') !== -1) return 'google';
+  if(meetLink.indexOf('meet.jit.si') !== -1 || meetLink.indexOf('8x8.vc') !== -1) return 'jitsi';
+  return 'virtual';
 };
 
 window.loadClsList = async function(){
@@ -1828,6 +1893,8 @@ window.loadClsList = async function(){
     var isEnded  = c.status === 'ended';
     var isPast   = new Date(c.scheduled_at).getTime() < now;
     var isInPerson = c.class_type === 'inperson';
+    var meetLink = window.getClassMeetLink(c);
+    var meetPlatform = window.getClassMeetPlatform(c);
 
     var badge = isLive
       ? '<span style="background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;animation:pulse 2s infinite;">🔴 LIVE NOW</span>'
@@ -1839,7 +1906,7 @@ window.loadClsList = async function(){
 
     var typeBadge = isInPerson
       ? '<span style="background:#fce7f3;color:#9d174d;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.4rem;"><i class="fas fa-map-marker-alt"></i> In-Person</span>'
-      : '<span style="background:#dbeafe;color:#1e40af;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.4rem;"><i class="fas fa-video"></i> Virtual</span>';
+      : '<span style="background:#dbeafe;color:#1e40af;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.4rem;"><i class="fas fa-video"></i> '+(meetPlatform==='google'?'<i class="fab fa-google"></i> Google Meet':'Jitsi')+'</span>';
 
     var goLiveBtn = (!isLive&&!isEnded)?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'live\')"><i class="fas fa-broadcast-tower"></i> Go Live</button>':'';
     var endBtn    = isLive?'<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:#dc2626;" onclick="setClassStatus(\''+c.id+'\',\'ended\')"><i class="fas fa-stop-circle"></i> End Class</button>':'';
@@ -1850,7 +1917,7 @@ window.loadClsList = async function(){
     var locationInfo = isInPerson
       ? '<br><i class="fas fa-map-marker-alt" style="color:#dc2626;margin-right:0.3rem;"></i><strong>Venue:</strong> '+window.escHtml(c.venue||'—')+
         (c.map_link?'&nbsp;<a href="'+window.escAttr(c.map_link)+'" target="_blank" style="color:#4285F4;font-size:0.8rem;"><i class="fab fa-google"></i> View Map</a>':'')
-      : (c.meet_link?'<br><a href="'+window.escAttr(c.meet_link)+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;"><i class="fas fa-link"></i> '+window.escHtml(c.meet_link.substring(0,55))+'</a>':'');
+      : (meetLink?'<br><a href="'+window.escAttr(meetLink)+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;"><i class="fas fa-link"></i> '+window.escHtml(meetLink.substring(0,55))+'</a>':'');
 
     return '<div class="sub-card" style="'+(isLive?'border-left:4px solid #dc2626;background:linear-gradient(135deg,#fff5f5,#fff);':'')+'">'+
       '<div class="sub-info">'+
@@ -1910,6 +1977,8 @@ window.openEditClassModal = function(classDataStr) {
   if (existing) existing.remove();
 
   var isInPerson = c.class_type === 'inperson';
+  var meetLink = window.getClassMeetLink(c);
+  var meetPlatform = window.getClassMeetPlatform(c);
 
   // Format datetime-local value (YYYY-MM-DDTHH:MM)
   var dtVal = '';
@@ -1941,10 +2010,10 @@ window.openEditClassModal = function(classDataStr) {
       '</div>' +
 
       // Meeting link shown for reference, not editable
-      (c.meet_link ?
+      (meetLink ?
         '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:0.9rem 1.1rem;margin-bottom:1.2rem;">' +
-          '<div style="font-size:0.78rem;font-weight:700;color:#1d4ed8;margin-bottom:0.3rem;"><i class="fas fa-link" style="margin-right:0.3rem;"></i>Meeting Link (unchanged)</div>' +
-          '<div style="font-size:0.8rem;color:#374151;word-break:break-all;font-family:monospace;">' + window.escHtml(c.meet_link) + '</div>' +
+          '<div style="font-size:0.78rem;font-weight:700;color:#1d4ed8;margin-bottom:0.3rem;"><i class="fas fa-link" style="margin-right:0.3rem;"></i>' + (meetPlatform === 'google' ? 'Google Meet Link' : 'Meeting Link') + ' (unchanged)</div>' +
+          '<div style="font-size:0.8rem;color:#374151;word-break:break-all;font-family:monospace;">' + window.escHtml(meetLink) + '</div>' +
         '</div>'
       : '') +
 
@@ -2057,7 +2126,17 @@ window.approveClassRequest = async function(id, course, topic, scheduledAt, emai
   var sb = window.geramaSupabase; if(!sb) return;
   var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
   var meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
-  await sb.from('classes').insert({ course:course, topic:topic, scheduled_at:scheduledAt, meet_link:meetLink, status:'upcoming', requester_email:email, created_at:new Date().toISOString() });
+  await sb.from('classes').insert({
+    course:course,
+    topic:topic,
+    scheduled_at:scheduledAt,
+    meet_link:meetLink,
+    class_type:'virtual',
+    meet_platform:'jitsi',
+    status:'upcoming',
+    requester_email:email,
+    created_at:new Date().toISOString()
+  });
   await sb.from('class_requests').update({status:'approved'}).eq('id',id);
   window.logActivity('Approved class request: '+course+' – '+topic);
   alert('✅ Approved! Class is now live. Link: '+meetLink);
@@ -2856,7 +2935,7 @@ function renderUsersTable(data){
 }
 
 // ─── MANUAL ATTENDANCE ENTRY ─────────────────────────────────────
-var _ATTENDANCE_SECRET = '2026GERAMA';
+var _ATTENDANCE_SECRET = 'adminGERAMA2026';
 
 window.showAddAttendanceRow = function(){
   var row = document.getElementById('addAttRow');
@@ -2955,9 +3034,24 @@ window.submitManualAttendance = async function(){
   function setS(msg, type){ if(statusEl){ statusEl.textContent=msg; statusEl.className='status-msg status-'+type; statusEl.style.display='block'; } }
 
   if(!name.trim() || !email.trim() || !cls.trim()){ setS('Please fill in Name, Email and Class Title.','err'); return; }
-  if(secret !== _ATTENDANCE_SECRET){ setS('❌ Wrong secret code (2026GERAMA). Access denied.','err'); return; }
+  if(secret !== _ATTENDANCE_SECRET){ setS('❌ Wrong admin password. Access denied.','err'); return; }
 
   var sb = window.geramaSupabase; if(!sb){ setS('Not connected.','err'); return; }
+  setS('Validating...','info');
+
+  // Check if session is within 10 days if adding to a specific session
+  if(sessionId){
+    var {data: sessionData, error: sessionError} = await sb.from('attendance_sessions').select('created_at').eq('id', sessionId).single();
+    if(sessionError || !sessionData){
+      setS('❌ Session not found.','err'); return;
+    }
+    var sessionDate = new Date(sessionData.created_at);
+    var daysSinceSession = (Date.now() - sessionDate.getTime()) / (1000 * 60 * 60 * 24);
+    if(daysSinceSession > 10){
+      setS('❌ Cannot add attendance. Session is more than 10 days old ('+Math.floor(daysSinceSession)+' days).','err'); return;
+    }
+  }
+
   setS('Adding...','info');
 
   var record = {
@@ -2993,11 +3087,11 @@ window.submitManualAttendance = async function(){
   }, 1500);
 };
 
-// Remove attendance record (with secret code)
+// Remove attendance record (with admin password)
 window.removeAttRecord = async function(id, name){
-  var secret = prompt('Enter admin secret code to remove this attendance record for '+name+':');
+  var secret = prompt('Enter admin password to remove this attendance record for '+name+':');
   if(!secret) return;
-  if(secret !== _ATTENDANCE_SECRET){ alert('❌ Wrong secret code. Access denied.'); return; }
+  if(secret !== _ATTENDANCE_SECRET){ alert('❌ Wrong admin password. Access denied.'); return; }
   var sb = window.geramaSupabase; if(!sb) return;
   var {error} = await sb.from('attendance_records').delete().eq('id', id);
   if(error){ alert('Error: '+error.message); return; }
@@ -3005,11 +3099,11 @@ window.removeAttRecord = async function(id, name){
   window.loadAttRecords();
 };
 
-// Delete an entire attendance session and ALL its records (with secret code)
+// Delete an entire attendance session and ALL its records (with admin password)
 window.deleteEntireSession = async function(sessionId, sessionTitle){
-  var secret = prompt('⚠️ This will delete ALL attendance records for "'+sessionTitle+'".\n\nEnter admin code to confirm:');
+  var secret = prompt('⚠️ This will delete ALL attendance records for "'+sessionTitle+'".\n\nEnter admin password to confirm:');
   if(!secret) return;
-  if(secret !== _ATTENDANCE_SECRET){ alert('❌ Wrong code. Access denied.'); return; }
+  if(secret !== _ATTENDANCE_SECRET){ alert('❌ Wrong admin password. Access denied.'); return; }
 
   var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
 

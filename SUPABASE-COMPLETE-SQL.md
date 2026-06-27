@@ -67,8 +67,9 @@ CREATE TABLE IF NOT EXISTS classes (
   description text,
   scheduled_at timestamptz,
   status text DEFAULT 'upcoming',
-  meeting_link text,
+  meet_link text,
   class_type text DEFAULT 'virtual',
+  meet_platform text DEFAULT 'jitsi',
   venue text,
   map_link text,
   created_at timestamptz DEFAULT now()

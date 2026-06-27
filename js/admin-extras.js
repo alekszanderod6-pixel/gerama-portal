@@ -513,21 +513,30 @@
 
     try{
       var mallUrl = SUPA_URL + '/rest/v1/mall_products';
-      var r = await fetch(mallUrl, {
+      var payload = {
+        name:name, category:cat, price:price, original_price:origPrice,
+        description:desc, image_url:imgUrls[0]||null,
+        extra_images: imgUrls.length > 1 ? JSON.stringify(imgUrls.slice(1)) : null,
+        seller_name:seller, seller_whatsapp:wa||'0555749497',
+        seller_id:sellerId, status:'approved',
+        colours:colours, colour_names:colourNames, sizes:sizes,
+        stock:stock, verified:true, featured:true, badge:badge||null,
+        created_at:new Date().toISOString()
+      };
+      var reqOpts = {
         method:'POST',
-        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-        body:JSON.stringify({
-          name:name, category:cat, price:price, original_price:origPrice,
-          description:desc, image_url:imgUrls[0]||null,
-          extra_images: imgUrls.length > 1 ? JSON.stringify(imgUrls.slice(1)) : null,
-          seller_name:seller, seller_whatsapp:wa||'0555749497',
-          seller_id:sellerId, status:'approved',
-          colours:colours, colour_names:colourNames, sizes:sizes,
-          stock:stock, verified:true, featured:true, badge:badge||null,
-          created_at:new Date().toISOString()
-        })
-      });
-      if(!r.ok) throw new Error('HTTP '+r.status);
+        headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'}
+      };
+      var r = await fetch(mallUrl, Object.assign({}, reqOpts, { body: JSON.stringify(payload) }));
+      if(!r.ok){
+        var errText = '';
+        try { errText = await r.text(); } catch(_e) {}
+        if (payload.extra_images != null && /extra_images|column/i.test(errText || '')) {
+          delete payload.extra_images;
+          r = await fetch(mallUrl, Object.assign({}, reqOpts, { body: JSON.stringify(payload) }));
+        }
+        if(!r.ok) throw new Error('HTTP '+r.status);
+      }
       window.showStatus('mallPostStatus','✅ Product posted with '+imgUrls.length+' image(s)! Seller ID: '+sellerId,'ok');
       if(window.logActivity) window.logActivity('Posted mall product: '+name+' ('+imgUrls.length+' images, '+sellerId+')');
       ['mallProdName','mallProdPrice','mallProdOrigPrice','mallProdSeller','mallProdWA','mallProdDesc'].forEach(function(id){

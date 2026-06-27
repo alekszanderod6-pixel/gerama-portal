@@ -798,6 +798,20 @@ if(!document.getElementById('confettiStyle')) {
     document.body.appendChild(helpBtn);
 })();
 
+// ── LOAD GERALEX ASSISTANT ───────────────────────────────────────
+(function() {
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
+    if (skip.indexOf(page) !== -1) return;
+    if (document.getElementById('geralexGlobalScript')) return;
+
+    var script = document.createElement('script');
+    script.id = 'geralexGlobalScript';
+    script.src = 'js/geralex-global.js';
+    script.defer = true;
+    document.body.appendChild(script);
+})();
+
 // ── SCROLL TO TOP BUTTON ─────────────────────────────────────────
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];

@@ -19,8 +19,12 @@
 
             // Priority: env-config.js globals → hardcoded fallback (safe anon key)
             // Supabase anon key is public by design — security is enforced via Row Level Security (RLS) in database
-            var url = window.__SUPABASE_URL  || 'YOUR_SUPABASE_PROJECT_URL';
-            var key = window.__SUPABASE_KEY  || 'YOUR_SUPABASE_ANON_KEY';
+            var url = window.__SUPABASE_URL  || 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
+            var key = window.__SUPABASE_KEY  || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+
+            // Normalize globals so inline page scripts read the same config.
+            window.__SUPABASE_URL = url;
+            window.__SUPABASE_KEY = key;
 
             const geramaSupabaseClient = createClient(url, key);
             window.geramaSupabase    = geramaSupabaseClient;

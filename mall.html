@@ -677,32 +677,79 @@ var currentQty = 1;
 var selectedColour = '';
 var selectedSize = '';
 
+function getMallSupabaseConfig() {
+  return {
+    url: window.__SUPABASE_URL || SUPA_URL,
+    key: window.__SUPABASE_KEY || SUPA_KEY,
+    client: window.geramaSupabase || null
+  };
+}
+
+function setMallDataNotice(message, kind) {
+  var grid = document.getElementById('productsGrid');
+  if (!grid || !grid.parentNode) return;
+  var notice = document.getElementById('mallDataNotice');
+  if (!message) {
+    if (notice) notice.remove();
+    return;
+  }
+  if (!notice) {
+    notice = document.createElement('div');
+    notice.id = 'mallDataNotice';
+    notice.style.margin = '0 0 1rem';
+    notice.style.padding = '0.9rem 1rem';
+    notice.style.borderRadius = '14px';
+    notice.style.fontSize = '0.92rem';
+    notice.style.fontWeight = '600';
+    grid.parentNode.insertBefore(notice, grid);
+  }
+  notice.style.background = kind === 'warn' ? '#fff7ed' : '#eff6ff';
+  notice.style.border = '1px solid ' + (kind === 'warn' ? '#fdba74' : '#bfdbfe');
+  notice.style.color = kind === 'warn' ? '#9a3412' : '#1d4ed8';
+  notice.innerHTML = '<i class="fas fa-circle-info" style="margin-right:0.45rem;"></i>' + escHtml(message);
+}
+
 // ── LOAD PRODUCTS ──────────────────────────────────────────
 async function loadProducts() {
   // Load from Supabase — fetch ALL products, filter approved client-side
   // (avoids PostgREST column filter issues if status column has different type)
   var dbProducts = [];
+  var cfg = getMallSupabaseConfig();
   try {
-    var resp = await fetch(SUPA_URL + '/rest/v1/mall_products?select=*&order=created_at.desc', {
-      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-    });
-    if (resp.ok) {
-      var raw = await resp.json();
-      if (Array.isArray(raw) && raw.length) {
-        raw.forEach(function(p) {
-          try { p.colours = typeof p.colours === 'string' ? JSON.parse(p.colours||'[]') : (p.colours||[]); } catch(e) { p.colours = []; }
-          try { p.colour_names = typeof p.colour_names === 'string' ? JSON.parse(p.colour_names||'[]') : (p.colour_names||[]); } catch(e) { p.colour_names = []; }
-          try { p.sizes = typeof p.sizes === 'string' ? JSON.parse(p.sizes||'[]') : (p.sizes||[]); } catch(e) { p.sizes = []; }
-          try { p.extra_images = typeof p.extra_images === 'string' ? JSON.parse(p.extra_images||'[]') : (p.extra_images||[]); } catch(e) { p.extra_images = []; }
-          p.verified = true;
-        });
-        // Filter: show approved OR products with no status field set (legacy)
-        dbProducts = raw.filter(function(p){
-          return !p.status || p.status === 'approved';
-        });
+    var raw = [];
+    if (cfg.client) {
+      var query = await cfg.client.from('mall_products').select('*').order('created_at', { ascending: false });
+      if (query.error) throw query.error;
+      raw = Array.isArray(query.data) ? query.data : [];
+    } else {
+      if (!cfg.url || !cfg.key || cfg.url.indexOf('YOUR_SUPABASE_PROJECT_URL') !== -1) {
+        throw new Error('Supabase configuration is missing for the mall page.');
       }
+      var resp = await fetch(cfg.url + '/rest/v1/mall_products?select=*&order=created_at.desc', {
+        headers: { 'apikey': cfg.key, 'Authorization': 'Bearer ' + cfg.key }
+      });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      raw = await resp.json();
     }
-  } catch(e) { console.warn('Mall products fetch error:', e); }
+
+    if (Array.isArray(raw) && raw.length) {
+      raw.forEach(function(p) {
+        try { p.colours = typeof p.colours === 'string' ? JSON.parse(p.colours||'[]') : (p.colours||[]); } catch(e) { p.colours = []; }
+        try { p.colour_names = typeof p.colour_names === 'string' ? JSON.parse(p.colour_names||'[]') : (p.colour_names||[]); } catch(e) { p.colour_names = []; }
+        try { p.sizes = typeof p.sizes === 'string' ? JSON.parse(p.sizes||'[]') : (p.sizes||[]); } catch(e) { p.sizes = []; }
+        try { p.extra_images = typeof p.extra_images === 'string' ? JSON.parse(p.extra_images||'[]') : (p.extra_images||[]); } catch(e) { p.extra_images = []; }
+        p.verified = true;
+      });
+      // Filter: show approved OR products with no status field set (legacy)
+      dbProducts = raw.filter(function(p){
+        return !p.status || p.status === 'approved';
+      });
+    }
+    setMallDataNotice('', 'info');
+  } catch(e) {
+    console.warn('Mall products fetch error:', e);
+    setMallDataNotice('Live mall products could not be loaded, so only the built-in featured items are showing right now.', 'warn');
+  }
 
   // DB products first (newest), then seed products at the end
   allProducts = dbProducts.concat(SEED_PRODUCTS);
@@ -1310,7 +1357,6 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .subscribe();
   })();
-});
 });
 </script>
 </body>
