@@ -1896,6 +1896,8 @@ window.scheduleClass = async function(){
       venue: venue||null,
       map_link: mapLink||null,
       meet_platform: clsType === 'virtual' ? platform : null,
+      session_type: sessionType,
+      target_group: targetGroup,
       status:'upcoming', created_at:new Date().toISOString()
     });
     if(error) throw new Error(error.message);
@@ -6604,6 +6606,9 @@ window.handleAttClassSelect = async function(){
     titleInput.value = selectedClass;
   }
 };
+
+
+
 
 
 
