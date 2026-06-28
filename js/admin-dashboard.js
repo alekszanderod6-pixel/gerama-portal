@@ -6475,7 +6475,7 @@ window.syncAllGradesToPortal = async function() {
       var { error: uErr } = await sb.from('student_grades').upsert({
         student_email:    s.student_email.toLowerCase().trim(),
         student_name:     s.student_name  || null,
-        assignment_title: s.assignment_title || 'Assignment',
+        assignment_title: (s.assignment_title || 'Assignment').toLowerCase().trim(),
         course:           asgMeta.course  || null,
         score:            s.score,
         total_marks:      asgMeta.points  || null,
@@ -6604,3 +6604,6 @@ window.handleAttClassSelect = async function(){
     titleInput.value = selectedClass;
   }
 };
+
+
+

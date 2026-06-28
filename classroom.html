@@ -529,7 +529,13 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <div class="tab-section active" id="tab-classes">
   <div class="sec-head">
     <div class="sec-title">Scheduled &amp; <span>Live Classes</span></div>
-    <button class="btn-join" onclick="document.getElementById('requestModal').classList.add('open')" style="font-size:0.85rem;padding:0.55rem 1.2rem;">
+    <div style="display:flex;gap:0.8rem;align-items:center;">
+      <select id="sessionTypeFilter" onchange="filterClassesBySessionType()" style="padding:0.5rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.85rem;cursor:pointer;background:#fff;">
+        <option value="all">All Sessions</option>
+        <option value="classroom">Classroom Sessions</option>
+        <option value="mentorship">Mentorship Programs</option>
+      </select>
+      <button class="btn-join" onclick="document.getElementById('requestModal').classList.add('open')" style="font-size:0.85rem;padding:0.55rem 1.2rem;">
       <i class="fas fa-hand-paper"></i> Request to Host a Class
     </button>
   </div>
@@ -4394,3 +4400,29 @@ window.filterClassesByType = function(){
   }).catch(function(){ renderClasses([]); });
 };
 
+
+
+
+
+
+
+
+function filterClassesBySessionType() {
+  var filter = document.getElementById('sessionTypeFilter');
+  if(!filter) return;
+  var filterValue = filter.value;
+  var sb = window.geramaSupabase;
+  if(!sb){ renderClasses([]); return; }
+  
+  sb.from('classes').select('*').order('scheduled_at',{ascending:true}).then(function(res){
+    var classes = res.data || [];
+    if(filterValue === 'all'){
+      renderClasses(classes);
+    }else{
+      var filtered = classes.filter(function(cls){
+        return cls.session_type === filterValue;
+      });
+      renderClasses(filtered);
+    }
+  }).catch(function(){ renderClasses([]); });
+}
