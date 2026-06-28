@@ -536,9 +536,9 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         <option value="mentorship">Mentorship Programs</option>
       </select>
       <button class="btn-join" onclick="document.getElementById('requestModal').classList.add('open')" style="font-size:0.85rem;padding:0.55rem 1.2rem;">
-      <i class="fas fa-hand-paper"></i> Request to Host a Class
-    </button>
-  </div>
+        <i class="fas fa-hand-paper"></i> Request to Host a Class
+      </button>
+    </div>
   <div id="classAnnouncements"></div>
   <div class="card-grid" id="classesList">
     <div class="empty-state"><i class="fas fa-video"></i><p>No classes scheduled yet.<br>Check back soon.</p></div>
@@ -4426,3 +4426,8 @@ function filterClassesBySessionType() {
     }
   }).catch(function(){ renderClasses([]); });
 }
+
+
+</script>
+</body>
+</html>

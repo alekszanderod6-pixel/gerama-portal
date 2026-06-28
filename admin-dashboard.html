@@ -32,7 +32,7 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199;opacity:0;transition:opacity 0.3s;pointer-events:none;}
 .sidebar-overlay.active{opacity:1;pointer-events:all;}
 .dash-main{margin-left:240px;padding:2rem;min-height:100vh;}
-.dash-header{background:white;border-radius:16px;padding:1.2rem 1.8rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,0,0,0.06);position:relative;}
+.dash-header{background:white;border-radius:16px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 12px rgba(0,0,0,0.06);position:relative;z-index:10;}
 .dash-header h2{font-size:1.2rem;font-weight:700;color:#1e2a3e;}
 .panel{display:none;}
 .panel.active{display:block;}
@@ -1759,18 +1759,18 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           </select>
           <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Select a class to auto-fill the title, or leave blank to enter manually.</small>
         </div>
-        <div class="form-field full"><label>Class Title *</label><input type="text" id="attClassTitle" placeholder="e.g. Basic Electronics – Tutorial 3"></div>
+        <div class="form-field full"><label>Class Title (Optional)</label><input type="text" id="attClassTitle" placeholder="e.g. Basic Electronics – Tutorial 3"></div>
         <div class="form-field"><label>Valid For (minutes) *</label><input type="number" id="attDuration" value="15" min="1" max="120" placeholder="e.g. 15"></div>
         <div class="form-field">
-          <label>Target Group (Optional)</label>
-          <select id="attGroup">
-            <option value="">-- General / All Students --</option>
+          <label>Target Group <span style="color:#ef4444;">*</span></label>
+          <select id="attGroup" required>
+            <option value="">-- Select Target Group --</option>
             <option value="Group A">Group A</option>
             <option value="Group B">Group B</option>
             <option value="Group C">Group C</option>
             <option value="Group D">Group D</option>
           </select>
-          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Leave blank to make attendance available to all students.</small>
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Select the group for this attendance.</small>
         </div>
       </div>
       <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
@@ -1907,17 +1907,17 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Paste a Google Maps link so students can navigate to the venue.</small>
         </div>
 
-        <!-- Group selection (optional) -->
+        <!-- Group selection (required) -->
         <div class="form-field full" style="margin-bottom:1.2rem;">
-          <label>Target Group (Optional)</label>
-          <select id="clsGroup">
-            <option value="">-- General / All Students --</option>
+          <label>Target Group <span style="color:#ef4444;">*</span></label>
+          <select id="clsGroup" required>
+            <option value="">-- Select Target Group --</option>
             <option value="Group A">Group A</option>
             <option value="Group B">Group B</option>
             <option value="Group C">Group C</option>
             <option value="Group D">Group D</option>
           </select>
-          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Leave blank to make this class available to all students.</small>
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Select the group this class is for.</small>
         </div>
       </div>
 
@@ -2431,6 +2431,12 @@ window.quickBroadcast = async function(){
         </select>
         <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Leave blank to make this class available to all students.</small>
       </div>
+
+
+
+
+
+
 
 
 
