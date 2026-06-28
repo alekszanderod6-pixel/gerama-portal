@@ -1768,7 +1768,7 @@ window.postAssignment = async function(){
     if(error) throw new Error(error.message);
     window.logActivity('Posted assignment: '+title+(fileUrl?' (with file)':''));
     window.showStatus('asgStatus','✅ Assignment posted! Students can see and download it on the Classroom page.','ok');
-    ['asgTitle','asgCourse','asgTutor','asgPoints','asgDesc','asgDeadline','asgLink'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    ['asgTitle','asgCourse','asgTutor','asgPoints','asgDesc','asgDeadline','asgLink','asgGroup'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
     var fc = document.getElementById('asgFileChosen'); if(fc) fc.textContent='';
     if(asgFileInput) asgFileInput.value='';
     window.loadAsgList();
@@ -6577,6 +6577,13 @@ window.extendAttendanceSession = async function(){
     alert('Error extending attendance: ' + e.message);
   }
 };
+
+
+
+
+
+
+
 
 
 

@@ -567,6 +567,19 @@ tr:hover td{background:#fafcfa;}
             <input type="file" id="asgFile" accept=".pdf,.doc,.docx,.pptx,.jpg,.jpeg,.png" style="display:none;">
           </div>
         </div>
+
+        <!-- Group selection (optional) -->
+        <div class="form-field full" style="margin-bottom:1.2rem;">
+          <label>Target Group (Optional)</label>
+          <select id="asgGroup">
+            <option value="">-- General / All Students --</option>
+            <option value="Group A">Group A</option>
+            <option value="Group B">Group B</option>
+            <option value="Group C">Group C</option>
+            <option value="Group D">Group D</option>
+          </select>
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Leave blank to make this assignment available to all students.</small>
+        </div>
       </div>
       <div style="margin-top:1rem;"><button class="btn-primary" id="postAsgBtn"><i class="fas fa-paper-plane"></i> Post Assignment</button></div>
       <div class="status-msg" id="asgStatus"></div>
@@ -1739,8 +1752,26 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         <strong>How it works:</strong> Generate a random code, share it with students during a live class. Set a time window — students enter the code in their Classroom → Attendance tab to mark themselves present and earn 1 point.
       </div>
       <div class="form-grid">
-        <div class="form-field"><label>Class Title *</label><input type="text" id="attClassTitle" placeholder="e.g. Basic Electronics – Tutorial 3"></div>
+        <div class="form-field full">
+          <label>Select Class (Optional)</label>
+          <select id="attClassSelect" onchange="handleAttClassSelect()">
+            <option value="">-- Select from Scheduled Classes --</option>
+          </select>
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Select a class to auto-fill the title, or leave blank to enter manually.</small>
+        </div>
+        <div class="form-field full"><label>Class Title *</label><input type="text" id="attClassTitle" placeholder="e.g. Basic Electronics – Tutorial 3"></div>
         <div class="form-field"><label>Valid For (minutes) *</label><input type="number" id="attDuration" value="15" min="1" max="120" placeholder="e.g. 15"></div>
+        <div class="form-field">
+          <label>Target Group (Optional)</label>
+          <select id="attGroup">
+            <option value="">-- General / All Students --</option>
+            <option value="Group A">Group A</option>
+            <option value="Group B">Group B</option>
+            <option value="Group C">Group C</option>
+            <option value="Group D">Group D</option>
+          </select>
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Leave blank to make attendance available to all students.</small>
+        </div>
       </div>
       <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
         <button class="btn-primary" onclick="generateAttendanceCode()"><i class="fas fa-magic"></i> Generate Code</button>
@@ -1809,6 +1840,16 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     <div class="card">
       <div class="card-title"><i class="fas fa-plus-circle"></i> Schedule New Class</div>
 
+      <!-- Session type selection -->
+      <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1.2rem;">
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;padding:0.6rem 1.2rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;font-size:0.9rem;" id="clsSessionClassroomLabel">
+          <input type="radio" name="clsSessionType" value="classroom" id="clsSessionClassroom" checked onchange="toggleClsSessionType()"> <i class="fas fa-chalkboard-teacher" style="color:#1B5E20;"></i> Classroom Session
+        </label>
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;padding:0.6rem 1.2rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;font-size:0.9rem;" id="clsSessionMentorshipLabel">
+          <input type="radio" name="clsSessionType" value="mentorship" id="clsSessionMentorship" onchange="toggleClsSessionType()"> <i class="fas fa-user-graduate" style="color:#FFC107;"></i> Mentorship Program
+        </label>
+      </div>
+
       <!-- Class type toggle -->
       <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1.2rem;">
         <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;padding:0.6rem 1.2rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;font-size:0.9rem;" id="clsTypeVirtualLabel">
@@ -1864,6 +1905,19 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           <label>Google Maps Link (optional)</label>
           <input type="url" id="clsMapLink" placeholder="https://maps.google.com/...">
           <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Paste a Google Maps link so students can navigate to the venue.</small>
+        </div>
+
+        <!-- Group selection (optional) -->
+        <div class="form-field full" style="margin-bottom:1.2rem;">
+          <label>Target Group (Optional)</label>
+          <select id="clsGroup">
+            <option value="">-- General / All Students --</option>
+            <option value="Group A">Group A</option>
+            <option value="Group B">Group B</option>
+            <option value="Group C">Group C</option>
+            <option value="Group D">Group D</option>
+          </select>
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Leave blank to make this class available to all students.</small>
         </div>
       </div>
 
@@ -2010,7 +2064,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         <div class="form-field"><label>Points / Marks</label><input type="text" id="qzPoints" placeholder="e.g. 20"></div>
         <div class="form-field"><label>Tutor / Posted By</label><input type="text" id="qzTutor" placeholder="e.g. Edem H.K Prince"></div>
         <div class="form-field"><label>Deadline *</label><input type="datetime-local" id="qzDeadline"></div>
-        <div class="form-field"><label>Target Group (Optional)</label><select id="qzGroup"><option value="">-- General / All Students --</option><option value="group1">Group 1</option><option value="group2">Group 2</option><option value="group3">Group 3</option><option value="group4">Group 4</option></select></div>`n        <div class="form-field full"><label>Description / Instructions</label><textarea id="qzDesc" rows="2" placeholder="e.g. Answer all questions. No calculators. 30 minutes."></textarea></div>
+        <div class="form-field"><label>Target Group (Optional)</label><select id="qzGroup"><option value="">-- General / All Students --</option><option value="Group A">Group A</option><option value="Group B">Group B</option><option value="Group C">Group C</option><option value="Group D">Group D</option></select></div>
+        <div class="form-field full"><label>Description / Instructions</label><textarea id="qzDesc" rows="2" placeholder="e.g. Answer all questions. No calculators. 30 minutes."></textarea></div>
       </div>
 
       <!-- LINK MODE -->
