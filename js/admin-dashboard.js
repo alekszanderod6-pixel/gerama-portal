@@ -1876,7 +1876,11 @@ window.scheduleClass = async function(){
       
       if(platform === 'google'){
         meetLink = (document.getElementById('clsGoogleMeetLink')||{}).value.trim();
-        if(!meetLink){ window.showStatus('clsStatus','Please enter a Google Meet link.','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish'; return; }
+        if(!meetLink){
+          // Auto-generate placeholder Google Meet link
+          var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
+          meetLink = 'https://meet.google.com/lookup/'+slug;
+        }
         if(meetLink.toLowerCase().indexOf('meet.google.com') === -1){
           window.showStatus('clsStatus','Please paste a valid Google Meet link.','err');
           btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish';
@@ -6606,6 +6610,8 @@ window.handleAttClassSelect = async function(){
     titleInput.value = selectedClass;
   }
 };
+
+
 
 
 
