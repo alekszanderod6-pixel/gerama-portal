@@ -6593,3 +6593,14 @@ window.extendAttendanceSession = async function(){
 
 
 
+
+
+window.handleAttClassSelect = async function(){
+  var select = document.getElementById('attClassSelect');
+  var titleInput = document.getElementById('attClassTitle');
+  if(!select || !titleInput) return;
+  var selectedClass = select.value;
+  if(selectedClass){
+    titleInput.value = selectedClass;
+  }
+};
