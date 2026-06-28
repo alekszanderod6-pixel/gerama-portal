@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -177,7 +177,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .ann-banner-text strong{display:block;font-size:0.9rem;color:#92400e;margin-bottom:0.2rem;}
 .ann-banner-text span{font-size:0.85rem;color:#78350f;}
 
-/* ── ATTENDANCE ── */
+/* â”€â”€ ATTENDANCE â”€â”€ */
 .attend-hero{background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:20px;padding:2rem;color:white;margin-bottom:1.5rem;position:relative;overflow:hidden;}
 .attend-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:rgba(255,255,255,0.04);border-radius:50%;}
 .attend-code-input{display:flex;gap:0.8rem;margin-top:1.2rem;flex-wrap:wrap;}
@@ -202,7 +202,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 /* Planner grid: single column on mobile */
 @media(max-width:640px){
   #tab-planner > div:nth-child(2){grid-template-columns:1fr !important;}
-  /* Fix planner reminder banner on mobile — prevent overflow/invisible content */
+  /* Fix planner reminder banner on mobile â€” prevent overflow/invisible content */
   #plannerReminderBanner{flex-direction:column;gap:0.7rem;padding:1rem;}
   #plannerReminderBanner > i.fas{display:none;}
   #adminSuggestionsBanner{padding:1rem;}
@@ -257,7 +257,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   /* Did You Know share form */
   #diykShareBody textarea,#diykShareBody input{font-size:0.82rem;}
 }
-/* ── STUDY PLANNER ── */
+/* â”€â”€ STUDY PLANNER â”€â”€ */
 .deadline-item{display:flex;align-items:center;gap:0.8rem;background:rgba(255,255,255,0.1);border-radius:12px;padding:0.7rem 1rem;}
 .deadline-item.urgent{background:rgba(220,38,38,0.2);border:1px solid rgba(220,38,38,0.3);}
 .deadline-item.soon{background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);}
@@ -305,7 +305,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .reel-blocked{opacity:0.4;pointer-events:none;}
 .reel-blocked-badge{position:absolute;top:0.5rem;right:0.5rem;background:#dc2626;color:white;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;}
 
-/* ── FAB (Floating Action Button) ── */
+/* â”€â”€ FAB (Floating Action Button) â”€â”€ */
 .fab-container{position:fixed;bottom:5rem;right:1.2rem;z-index:500;display:flex;flex-direction:column;align-items:flex-end;gap:0.6rem;}
 .fab-main{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;border:none;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 20px rgba(27,94,32,0.4);display:flex;align-items:center;justify-content:center;transition:all 0.3s;}
 .fab-main:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(27,94,32,0.5);}
@@ -316,7 +316,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .fab-option i{width:20px;text-align:center;color:var(--primary);}
 .fab-option:hover i{color:white;}
 
-/* ── SITE BOTTOM NAV (mobile main site) ── */
+/* â”€â”€ SITE BOTTOM NAV (mobile main site) â”€â”€ */
 .site-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;z-index:400;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
 .site-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;color:#9ca3af;text-decoration:none;font-size:0.6rem;font-weight:600;gap:0.2rem;transition:all 0.2s;}
 .site-bnav-item i{font-size:1.1rem;}
@@ -329,13 +329,13 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .footer-copy,.footer-credits{font-size:0.82rem;color:rgba(255,255,255,0.4);margin:0;}
 .footer-credits strong{color:rgba(255,255,255,0.65);}
 
-/* ── DELETE / POSTPONE BUTTONS ── */
+/* â”€â”€ DELETE / POSTPONE BUTTONS â”€â”€ */
 .btn-danger-sm{background:#fee2e2;color:#dc2626;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;transition:all 0.2s;font-family:'Inter',sans-serif;}
 .btn-danger-sm:hover{background:#dc2626;color:white;}
 .btn-warn-sm{background:#fef3c7;color:#92400e;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;transition:all 0.2s;font-family:'Inter',sans-serif;}
 .btn-warn-sm:hover{background:#f59e0b;color:white;}
 
-/* ── Q&A BOARD ── */
+/* â”€â”€ Q&A BOARD â”€â”€ */
 .qa-post{background:white;border-radius:18px;padding:1.4rem;margin-bottom:1.2rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;}
 .qa-post-header{display:flex;align-items:center;gap:0.8rem;margin-bottom:0.8rem;}
 .qa-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0;}
@@ -373,7 +373,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .qa-img-preview .rm-img{position:relative;display:inline-block;}
 .qa-img-preview .rm-img button{position:absolute;top:-6px;right:-6px;background:#dc2626;color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:0.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
-/* ── COMMENT INPUT FIX ── */
+/* â”€â”€ COMMENT INPUT FIX â”€â”€ */
 .qa-reply-input{display:flex;gap:0.5rem;margin-top:0.6rem;align-items:flex-end;}
 .qa-reply-input textarea{
   flex:1;padding:0.5rem 0.8rem;border:1.5px solid #e5e7eb;border-radius:14px;
@@ -384,7 +384,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .qa-reply-input textarea:focus{border-color:var(--primary);}
 .qa-reply-input button{background:var(--primary);color:white;border:none;padding:0.5rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0;height:36px;}
 
-/* ── COMMENT ACTIONS ── */
+/* â”€â”€ COMMENT ACTIONS â”€â”€ */
 .qa-comment-actions{display:flex;gap:0.4rem;margin-top:0.3rem;opacity:0;transition:opacity 0.2s;}
 .qa-comment:hover .qa-comment-actions{opacity:1;}
 .qa-comment-action-btn{background:none;border:none;font-size:0.72rem;color:var(--muted);cursor:pointer;padding:0.1rem 0.4rem;border-radius:10px;font-family:'Inter',sans-serif;font-weight:600;}
@@ -392,18 +392,18 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .qa-comment-action-btn.del:hover{background:#fee2e2;color:#dc2626;}
 .qa-edited-tag{font-size:0.68rem;color:var(--muted);font-style:italic;margin-left:0.3rem;}
 
-/* ── CHAR COUNTER ── */
+/* â”€â”€ CHAR COUNTER â”€â”€ */
 .qa-char-count{font-size:0.72rem;color:var(--muted);text-align:right;margin-top:0.2rem;}
 .qa-char-count.warn{color:#f59e0b;}
 .qa-char-count.over{color:#dc2626;}
 
-/* ── ANSWER COUNT BADGE ── */
+/* â”€â”€ ANSWER COUNT BADGE â”€â”€ */
 .qa-ans-count{background:#e8f5e9;color:var(--primary);font-size:0.7rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:20px;margin-left:0.2rem;}
 
-/* ── VERIFIED BADGE ── */
+/* â”€â”€ VERIFIED BADGE â”€â”€ */
 .qa-verified{color:#1d4ed8;font-size:0.72rem;margin-left:0.3rem;} 
 
-/* ── EDIT COMMENT INLINE ── */
+/* â”€â”€ EDIT COMMENT INLINE â”€â”€ */
 .qa-comment-edit-area{width:100%;border:1.5px solid var(--primary);border-radius:10px;padding:0.4rem 0.7rem;font-size:0.83rem;font-family:'Inter',sans-serif;outline:none;resize:none;margin-top:0.3rem;word-break:break-word;}
 .qa-edit-timer{font-size:0.7rem;color:#f59e0b;font-weight:600;}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;align-items:center;justify-content:center;}
@@ -411,7 +411,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .lightbox img{max-width:90vw;max-height:90vh;border-radius:12px;}
 .lightbox-close{position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.2);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
-/* ── QUIZ HERO BANNER ── */
+/* â”€â”€ QUIZ HERO BANNER â”€â”€ */
 .quiz-hero-banner{background:linear-gradient(135deg,#4338ca 0%,#6366f1 50%,#818cf8 100%);border-radius:20px;padding:2rem;color:white;margin-bottom:1.5rem;position:relative;overflow:hidden;}
 .quiz-hero-banner::before{content:'';position:absolute;top:-30px;right:-30px;width:160px;height:160px;background:rgba(255,255,255,0.06);border-radius:50%;}
 .quiz-hero-banner::after{content:'';position:absolute;bottom:-20px;left:40%;width:100px;height:100px;background:rgba(255,255,255,0.04);border-radius:50%;}
@@ -421,14 +421,14 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .quiz-hero-sub{font-size:0.88rem;opacity:0.85;line-height:1.5;}
 @media(max-width:640px){.quiz-hero-banner{padding:1.4rem;}.quiz-hero-title{font-size:1.1rem;}.quiz-hero-icon{font-size:2rem;}}
 
-/* ── QUIZ STATS ROW ── */
+/* â”€â”€ QUIZ STATS ROW â”€â”€ */
 .quiz-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;margin-bottom:0.5rem;}
 .quiz-stat-box{background:white;border-radius:14px;padding:1rem;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.05);border-top:3px solid #1B5E20;}
 .quiz-stat-num{font-size:1.8rem;font-weight:800;color:#1B5E20;line-height:1.1;}
 .quiz-stat-lbl{font-size:0.72rem;color:#6b7280;margin-top:0.2rem;font-weight:600;}
 @media(max-width:640px){.quiz-stats-row{grid-template-columns:1fr 1fr;gap:0.6rem;}.quiz-stat-num{font-size:1.4rem;}}
 
-/* ── ENHANCED QUIZ CARD ── */
+/* â”€â”€ ENHANCED QUIZ CARD â”€â”€ */
 .quiz-card{background:white;border-radius:20px;padding:1.6rem;box-shadow:0 2px 16px rgba(0,0,0,0.07);border:1px solid #e8f0e8;transition:all 0.3s;position:relative;overflow:hidden;}
 .quiz-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#6366f1,#818cf8,var(--gold));}
 .quiz-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(99,102,241,0.15);}
@@ -455,7 +455,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .quiz-done-badge i{color:#059669;}
 .quiz-points-badge{display:inline-flex;align-items:center;gap:0.3rem;background:#fef3c7;color:#92400e;font-size:0.75rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;margin-left:0.4rem;}
 
-/* ── QUIZ ATTEMPT MODAL ── */
+/* â”€â”€ QUIZ ATTEMPT MODAL â”€â”€ */
 .quiz-attempt-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:3000;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
 .quiz-attempt-modal.open{display:flex;}
 .quiz-attempt-box{background:white;border-radius:24px;padding:1.8rem;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 60px rgba(0,0,0,0.3);}
@@ -463,7 +463,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .quiz-iframe-wrap iframe{width:100%;height:520px;border:none;display:block;}
 @media(max-width:640px){.quiz-attempt-box{padding:1.2rem;border-radius:18px;}.quiz-iframe-wrap iframe{height:380px;}}
 
-/* ── MY QUIZ HISTORY BADGES ── */
+/* â”€â”€ MY QUIZ HISTORY BADGES â”€â”€ */
 .my-quiz-badge{display:inline-flex;align-items:center;gap:0.4rem;background:rgba(255,255,255,0.15);color:white;font-size:0.75rem;font-weight:600;padding:0.3rem 0.8rem;border-radius:20px;border:1px solid rgba(255,255,255,0.25);}
 .my-quiz-badge i{color:#4ade80;}
 </style>
@@ -484,7 +484,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <a href="index.html">Home</a>
     <a href="resources.html">Resources</a>
     <a href="classroom.html" class="active">Classroom</a>
-    <a href="connect.html" style="color:#0ea5e9;">📡 Connect</a>
+    <a href="connect.html" style="color:#0ea5e9;">ðŸ“¡ Connect</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
   </nav>
@@ -496,7 +496,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <div style="position:relative;z-index:1;">
     <div class="hero-badge"><i class="fas fa-chalkboard-teacher"></i> GERAMA Classroom</div>
     <h1>Assignments &amp; <span style="color:var(--gold)">Online Classes</span></h1>
-    <p>Submit assignments, join live classes, take quizzes, and stay on top of your coursework — all in one place.</p>
+    <p>Submit assignments, join live classes, take quizzes, and stay on top of your coursework â€” all in one place.</p>
     <div style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
       <button onclick="showTab('quizzes')" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.65rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;font-family:'Inter',sans-serif;box-shadow:0 4px 15px rgba(99,102,241,0.4);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
         <i class="fas fa-brain"></i> Take a Quiz
@@ -522,10 +522,10 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <button class="tab-btn" onclick="showTab('assistance')"><i class="fas fa-graduation-cap" style="color:#059669;"></i><span class="tab-label">Get Help</span></button>
   <button class="tab-btn" id="qaTabBtn" onclick="showTab('qa')"><i class="fas fa-comments"></i><span class="tab-label">Q&amp;A</span><span id="qaBadge" class="tab-badge" style="background:#dc2626;"></span></button>
   <button class="tab-btn" id="oppTabBtn" onclick="showTab('opportunities')"><i class="fas fa-briefcase" style="color:#0ea5e9;"></i><span class="tab-label">Opportunities</span><span id="oppBadge" class="tab-badge" style="background:#0ea5e9;display:none;"></span></button>
-  <!-- Reels moved to GERAMA Connect — use the Connect tab for video reels -->
+  <!-- Reels moved to GERAMA Connect â€” use the Connect tab for video reels -->
 </div>
 
-<!-- ═══ ONLINE CLASSES TAB ═══ -->
+<!-- â•â•â• ONLINE CLASSES TAB â•â•â• -->
 <div class="tab-section active" id="tab-classes">
   <div class="sec-head">
     <div class="sec-title">Scheduled &amp; <span>Live Classes</span></div>
@@ -539,13 +539,14 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         <i class="fas fa-hand-paper"></i> Request to Host a Class
       </button>
     </div>
+  </div>
   <div id="classAnnouncements"></div>
   <div class="card-grid" id="classesList">
     <div class="empty-state"><i class="fas fa-video"></i><p>No classes scheduled yet.<br>Check back soon.</p></div>
   </div>
 </div>
 
-<!-- ═══ ASSIGNMENTS TAB ═══ -->
+<!-- â•â•â• ASSIGNMENTS TAB â•â•â• -->
 <div class="tab-section" id="tab-assignments">
   <div class="sec-head">
     <div class="sec-title">Posted <span>Assignments</span></div>
@@ -556,7 +557,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
-<!-- ═══ Q&A BOARD TAB ═══ -->
+<!-- â•â•â• Q&A BOARD TAB â•â•â• -->
 <div class="tab-section" id="tab-qa">
   <div class="sec-head">
     <div class="sec-title">Q&amp;A <span>Discussion Board</span></div>
@@ -591,7 +592,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <div id="qaFeed"><div class="empty-state"><i class="fas fa-comments"></i><p>No posts yet. Be the first to ask a question!</p></div></div>
 </div>
 
-<!-- ═══ REQUEST HOST MODAL ═══ -->
+<!-- â•â•â• REQUEST HOST MODAL â•â•â• -->
 <div class="modal-overlay" id="requestModal">
   <div class="modal-box">
     <div class="modal-title"><i class="fas fa-hand-paper"></i> Request to Host a Class</div>
@@ -616,7 +617,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     </div>
     <div class="form-field">
       <label>Topic / Title *</label>
-      <input type="text" id="reqTopic" placeholder="e.g. Kirchhoff's Laws – Tutorial">
+      <input type="text" id="reqTopic" placeholder="e.g. Kirchhoff's Laws â€“ Tutorial">
     </div>
     <div class="form-field">
       <label>Proposed Date &amp; Time *</label>
@@ -634,7 +635,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
-<!-- ═══ SUBMISSION MODAL ═══ -->
+<!-- â•â•â• SUBMISSION MODAL â•â•â• -->
 <div class="modal-overlay" id="submitModal">
   <div class="modal-box">
     <div class="modal-title"><i class="fas fa-paper-plane"></i> Submit Assignment</div>
@@ -658,7 +659,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <textarea id="subComment" rows="2" placeholder="Any notes for your tutor..."></textarea>
     </div>
     <div class="form-field">
-      <label>Attach File * (PDF, DOC, DOCX, ZIP — max 20 MB)</label>
+      <label>Attach File * (PDF, DOC, DOCX, ZIP â€” max 20 MB)</label>
       <div class="drop-zone" id="subDropZone">
         <i class="fas fa-cloud-upload-alt"></i>
         <p>Tap to browse or drag &amp; drop your file</p>
@@ -674,30 +675,30 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
-<!-- ═══ REELS TAB ═══ -->
+<!-- â•â•â• REELS TAB â•â•â• -->
 <!-- NOTE: Reels have moved to GERAMA Connect. This section remains for backward
      compat (deep links) but shows a redirect notice. All reel data is intact. -->
 <div class="tab-section" id="tab-reels">
   <div style="text-align:center;padding:3rem 1rem;">
-    <div style="font-size:3rem;margin-bottom:1rem;">📡</div>
+    <div style="font-size:3rem;margin-bottom:1rem;">ðŸ“¡</div>
     <h2 style="font-size:1.3rem;font-weight:800;color:var(--text);margin-bottom:0.6rem;">Reels have moved to <span style="color:#0ea5e9;">GERAMA Connect</span></h2>
-    <p style="color:var(--muted);font-size:0.92rem;max-width:400px;margin:0 auto 1.5rem;line-height:1.6;">All your GERAMA Reels now live under the new <strong>Connect</strong> tab — along with DMs, group chats, status stories, and more. All previous reels are still there!</p>
+    <p style="color:var(--muted);font-size:0.92rem;max-width:400px;margin:0 auto 1.5rem;line-height:1.6;">All your GERAMA Reels now live under the new <strong>Connect</strong> tab â€” along with DMs, group chats, status stories, and more. All previous reels are still there!</p>
     <a href="connect.html?tab=reels" style="background:linear-gradient(135deg,#0ea5e9,#0369a1);color:white;padding:0.75rem 2rem;border-radius:30px;font-weight:700;font-size:0.92rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.6rem;box-shadow:0 4px 15px rgba(14,165,233,0.35);">
       <i class="fas fa-satellite-dish"></i> Go to GERAMA Connect
     </a>
   </div>
 </div>
 
-<!-- ═══ QUIZZES TAB ═══ -->
+<!-- â•â•â• QUIZZES TAB â•â•â• -->
 <div class="tab-section" id="tab-quizzes">
 
   <!-- Hero banner -->
   <div class="quiz-hero-banner">
     <div class="quiz-hero-inner">
-      <div class="quiz-hero-icon">🧠</div>
+      <div class="quiz-hero-icon">ðŸ§ </div>
       <div>
         <h2 class="quiz-hero-title">Test Your Knowledge</h2>
-        <p class="quiz-hero-sub">Take timed quizzes posted by your tutors. Each quiz has a deadline — don't miss out!</p>
+        <p class="quiz-hero-sub">Take timed quizzes posted by your tutors. Each quiz has a deadline â€” don't miss out!</p>
       </div>
     </div>
     <!-- My progress strip -->
@@ -729,7 +730,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
   <!-- Quiz cards grid -->
   <div class="card-grid" id="quizzesList" style="margin-top:1.5rem;">
-    <div class="empty-state"><i class="fas fa-brain"></i><p>No quizzes posted yet.<br>Check back soon — your tutors will post quizzes here.</p></div>
+    <div class="empty-state"><i class="fas fa-brain"></i><p>No quizzes posted yet.<br>Check back soon â€” your tutors will post quizzes here.</p></div>
   </div>
 
   <!-- Student quiz submission -->
@@ -738,7 +739,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div style="width:42px;height:42px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-paper-plane" style="color:white;font-size:1rem;"></i></div>
       <div>
         <div style="font-size:1rem;font-weight:800;color:#1e2a3e;">Submit a Quiz for Review</div>
-        <div style="font-size:0.8rem;color:#6b7280;margin-top:0.1rem;">Have a quiz link? Submit it — admin reviews and publishes it live.</div>
+        <div style="font-size:0.8rem;color:#6b7280;margin-top:0.1rem;">Have a quiz link? Submit it â€” admin reviews and publishes it live.</div>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:0.7rem;">
@@ -749,8 +750,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       </div>
       <!-- Toggle: link or file -->
       <div style="display:flex;gap:0.5rem;" id="qrTypeToggle">
-        <button type="button" id="qrTypeLinkBtn" onclick="switchQrType('link')" style="flex:1;padding:0.5rem;border-radius:10px;border:2px solid #6366f1;background:#6366f1;color:white;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;">🔗 Quiz Link</button>
-        <button type="button" id="qrTypeFileBtn" onclick="switchQrType('file')" style="flex:1;padding:0.5rem;border-radius:10px;border:2px solid #e5e7eb;background:white;color:#374151;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;">📄 Upload PDF</button>
+        <button type="button" id="qrTypeLinkBtn" onclick="switchQrType('link')" style="flex:1;padding:0.5rem;border-radius:10px;border:2px solid #6366f1;background:#6366f1;color:white;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;">ðŸ”— Quiz Link</button>
+        <button type="button" id="qrTypeFileBtn" onclick="switchQrType('file')" style="flex:1;padding:0.5rem;border-radius:10px;border:2px solid #e5e7eb;background:white;color:#374151;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:'Inter',sans-serif;">ðŸ“„ Upload PDF</button>
       </div>
       <div id="qrLinkArea">
         <input type="url" id="qrUrl" placeholder="Quiz link * (Google Forms, Testmoz, Kahoot...)" style="width:100%;padding:0.7rem 1rem;border:2px solid #c4b5fd;border-radius:12px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;box-sizing:border-box;">
@@ -772,10 +773,10 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
-<!-- ═══ ATTENDANCE TAB ═══ -->
+<!-- â•â•â• ATTENDANCE TAB â•â•â• -->
 <div class="tab-section" id="tab-mygrades">
   <div class="sec-head">
-    <div class="sec-title">⭐ My <span>Grades & Scores</span></div>
+    <div class="sec-title">â­ My <span>Grades & Scores</span></div>
   </div>
 
   <div id="myGradesContent">
@@ -783,16 +784,16 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
-<!-- ═══ ACADEMIC ASSISTANCE TAB ═══ -->
+<!-- â•â•â• ACADEMIC ASSISTANCE TAB â•â•â• -->
 <div class="tab-section" id="tab-assistance">
   <div class="sec-head">
-    <div class="sec-title">🎓 Request <span>Academic Assistance</span></div>
+    <div class="sec-title">ðŸŽ“ Request <span>Academic Assistance</span></div>
   </div>
 
   <div style="max-width:640px;margin:0 auto;">
     <div style="background:linear-gradient(135deg,#f0fdf4,#e8f5e9);border-radius:20px;padding:1.5rem;margin-bottom:1.5rem;border:1px solid #c8e6c9;">
       <h3 style="font-size:1rem;font-weight:700;color:#1B5E20;margin-bottom:0.4rem;"><i class="fas fa-lightbulb"></i> How it works</h3>
-      <p style="font-size:0.88rem;color:#374151;line-height:1.65;">Struggling with a course or topic? Submit a request below. A GERAMA tutor will reach out via email within 24 hours to help you. This is completely free — it's what we're here for!</p>
+      <p style="font-size:0.88rem;color:#374151;line-height:1.65;">Struggling with a course or topic? Submit a request below. A GERAMA tutor will reach out via email within 24 hours to help you. This is completely free â€” it's what we're here for!</p>
     </div>
 
     <div style="background:white;border-radius:20px;padding:1.8rem;box-shadow:0 4px 20px rgba(0,0,0,0.07);border:1px solid #e8f0e8;">
@@ -802,10 +803,10 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
             <label style="display:block;font-size:0.78rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Academic Level *</label>
             <select id="aLevel" required style="width:100%;padding:0.7rem 1rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;background:white;">
               <option value="">Select Level</option>
-              <option>L100 – First Year</option>
-              <option>L200 – Second Year</option>
-              <option>L300 – Third Year</option>
-              <option>L400 – Final Year</option>
+              <option>L100 â€“ First Year</option>
+              <option>L200 â€“ Second Year</option>
+              <option>L300 â€“ Third Year</option>
+              <option>L400 â€“ Final Year</option>
               <option>Graduate</option>
               <option>Visitor / Non-Student</option>
             </select>
@@ -850,7 +851,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
-<!-- ═══ ATTENDANCE TAB ═══ -->
+<!-- â•â•â• ATTENDANCE TAB â•â•â• -->
 <div class="tab-section" id="tab-attendance">
 
   <!-- Hero: enter code -->
@@ -888,7 +889,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
-<!-- ═══ STUDY PLANNER TAB ═══ -->
+<!-- â•â•â• STUDY PLANNER TAB â•â•â• -->
 <div class="tab-section" id="tab-planner">
 
   <!-- Smart Planner Notifications Banner (shown at reminder hours) -->
@@ -896,11 +897,11 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(255,255,255,0.07);border-radius:50%;pointer-events:none;"></div>
     <i class="fas fa-bell" style="font-size:1.4rem;margin-top:0.1rem;flex-shrink:0;"></i>
     <div style="flex:1;position:relative;">
-      <div style="font-weight:800;font-size:0.95rem;margin-bottom:0.3rem;" id="plannerReminderTitle">📅 Time to Plan Your Day</div>
+      <div style="font-weight:800;font-size:0.95rem;margin-bottom:0.3rem;" id="plannerReminderTitle">ðŸ“… Time to Plan Your Day</div>
       <div style="font-size:0.85rem;opacity:0.9;line-height:1.6;" id="plannerReminderMsg">Start by reviewing your goals for today and checking upcoming deadlines.</div>
       <div id="plannerSmartSuggestions" style="margin-top:0.8rem;display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
     </div>
-    <button onclick="this.parentElement.style.display='none'" style="background:rgba(255,255,255,0.2);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Inter',sans-serif;z-index:1;">✕</button>
+    <button onclick="this.parentElement.style.display='none'" style="background:rgba(255,255,255,0.2);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Inter',sans-serif;z-index:1;">âœ•</button>
   </div>
 
   <!-- Admin Suggestions Banner -->
@@ -915,8 +916,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div style="display:flex;align-items:flex-start;gap:0.8rem;cursor:pointer;" onclick="var g=document.getElementById('plannerGuideBody');g.style.display=g.style.display==='none'?'block':'none';this.querySelector('i.toggle').className='fas toggle fa-chevron-'+(g.style.display==='none'?'down':'up');">
       <i class="fas fa-map-signs" style="color:#f59e0b;font-size:1.1rem;margin-top:0.15rem;flex-shrink:0;"></i>
       <div style="flex:1;">
-        <div style="font-weight:800;font-size:0.92rem;color:#92400e;">📖 How to use the Study Planner</div>
-        <div style="font-size:0.8rem;color:#b45309;margin-top:0.1rem;">Tap to expand · 5 easy steps</div>
+        <div style="font-weight:800;font-size:0.92rem;color:#92400e;">ðŸ“– How to use the Study Planner</div>
+        <div style="font-size:0.8rem;color:#b45309;margin-top:0.1rem;">Tap to expand Â· 5 easy steps</div>
       </div>
       <i class="fas toggle fa-chevron-down" style="color:#d97706;margin-top:0.2rem;"></i>
     </div>
@@ -924,15 +925,15 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div style="display:flex;flex-direction:column;gap:0.7rem;">
         <div style="display:flex;gap:0.8rem;align-items:flex-start;">
           <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.82rem;flex-shrink:0;">1</div>
-          <div><strong style="font-size:0.88rem;color:#92400e;">Check Upcoming Deadlines</strong><br><span style="font-size:0.82rem;color:#b45309;">The top banner auto-fetches your assignment and quiz deadlines from Classroom. Stay ahead — don't wait for reminders!</span></div>
+          <div><strong style="font-size:0.88rem;color:#92400e;">Check Upcoming Deadlines</strong><br><span style="font-size:0.82rem;color:#b45309;">The top banner auto-fetches your assignment and quiz deadlines from Classroom. Stay ahead â€” don't wait for reminders!</span></div>
         </div>
         <div style="display:flex;gap:0.8rem;align-items:flex-start;">
           <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.82rem;flex-shrink:0;">2</div>
-          <div><strong style="font-size:0.88rem;color:#92400e;">Add Study Goals</strong><br><span style="font-size:0.82rem;color:#b45309;">Type a goal (e.g. "Revise Chapter 3 — Circuit Analysis") and press Enter or ＋. Tick it off when done to track your progress.</span></div>
+          <div><strong style="font-size:0.88rem;color:#92400e;">Add Study Goals</strong><br><span style="font-size:0.82rem;color:#b45309;">Type a goal (e.g. "Revise Chapter 3 â€” Circuit Analysis") and press Enter or ï¼‹. Tick it off when done to track your progress.</span></div>
         </div>
         <div style="display:flex;gap:0.8rem;align-items:flex-start;">
           <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.82rem;flex-shrink:0;">3</div>
-          <div><strong style="font-size:0.88rem;color:#92400e;">Use the Pomodoro Timer</strong><br><span style="font-size:0.82rem;color:#b45309;">25 min focused study → 5 min break. Research shows this boosts retention by 40%. Press Start, focus on one goal, then take your break.</span></div>
+          <div><strong style="font-size:0.88rem;color:#92400e;">Use the Pomodoro Timer</strong><br><span style="font-size:0.82rem;color:#b45309;">25 min focused study â†’ 5 min break. Research shows this boosts retention by 40%. Press Start, focus on one goal, then take your break.</span></div>
         </div>
         <div style="display:flex;gap:0.8rem;align-items:flex-start;">
           <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.82rem;flex-shrink:0;">4</div>
@@ -940,7 +941,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         </div>
         <div style="display:flex;gap:0.8rem;align-items:flex-start;">
           <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.82rem;flex-shrink:0;">5</div>
-          <div><strong style="font-size:0.88rem;color:#92400e;">Evening &amp; Morning Reminders</strong><br><span style="font-size:0.82rem;color:#b45309;">Every evening 8–12 pm: plan tomorrow's study session. Every morning 5–8 am: review today's goals. A 🔔 badge appears on the Planner tab to remind you.</span></div>
+          <div><strong style="font-size:0.88rem;color:#92400e;">Evening &amp; Morning Reminders</strong><br><span style="font-size:0.82rem;color:#b45309;">Every evening 8â€“12 pm: plan tomorrow's study session. Every morning 5â€“8 am: review today's goals. A ðŸ”” badge appears on the Planner tab to remind you.</span></div>
         </div>
       </div>
     </div>
@@ -980,16 +981,16 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <!-- Pomodoro Timer -->
     <div style="background:white;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;text-align:center;">
       <div style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:0.8rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;"><i class="fas fa-clock" style="color:#dc2626;"></i> Study Timer</div>
-      <div id="pomodoroMode" style="font-size:0.78rem;font-weight:700;color:#dc2626;background:#fee2e2;padding:0.2rem 0.8rem;border-radius:20px;display:inline-block;margin-bottom:1rem;">🍅 Focus Time</div>
+      <div id="pomodoroMode" style="font-size:0.78rem;font-weight:700;color:#dc2626;background:#fee2e2;padding:0.2rem 0.8rem;border-radius:20px;display:inline-block;margin-bottom:1rem;">ðŸ… Focus Time</div>
       <div id="pomodoroDisplay" style="font-size:3.5rem;font-weight:900;color:var(--text);line-height:1;margin-bottom:1rem;font-variant-numeric:tabular-nums;letter-spacing:-2px;">25:00</div>
       <div style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;">
         <button id="pomodoroBtn" onclick="togglePomodoro()" style="background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;border:none;padding:0.65rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 12px rgba(220,38,38,0.3);transition:all 0.2s;"><i class="fas fa-play"></i> Start</button>
         <button onclick="resetPomodoro()" style="background:#f1f5f9;color:var(--text);border:none;padding:0.65rem 1rem;border-radius:30px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-redo"></i> Reset</button>
       </div>
       <div style="display:flex;gap:0.5rem;justify-content:center;">
-        <button onclick="setPomodoroMode('focus')" style="background:#fee2e2;color:#dc2626;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">🍅 25 min</button>
-        <button onclick="setPomodoroMode('short')" style="background:#d1fae5;color:#065f46;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">☕ 5 min</button>
-        <button onclick="setPomodoroMode('long')" style="background:#dbeafe;color:#1d4ed8;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">🌙 15 min</button>
+        <button onclick="setPomodoroMode('focus')" style="background:#fee2e2;color:#dc2626;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">ðŸ… 25 min</button>
+        <button onclick="setPomodoroMode('short')" style="background:#d1fae5;color:#065f46;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">â˜• 5 min</button>
+        <button onclick="setPomodoroMode('long')" style="background:#dbeafe;color:#1d4ed8;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">ðŸŒ™ 15 min</button>
       </div>
       <div id="pomodoroSessions" style="margin-top:0.8rem;font-size:0.78rem;color:#9ca3af;"></div>
     </div>
@@ -997,9 +998,9 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
   <!-- Quote of the Day -->
   <div id="plannerQotdCard" style="display:none;background:linear-gradient(135deg,#fffbeb,#fff7ed);border:1px solid #fcd34d;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.05);margin-top:1.2rem;position:relative;overflow:hidden;">
-    <div style="position:absolute;top:-18px;right:-18px;font-size:4rem;opacity:0.08;pointer-events:none;">✨</div>
+    <div style="position:absolute;top:-18px;right:-18px;font-size:4rem;opacity:0.08;pointer-events:none;">âœ¨</div>
     <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.9rem;">
-      <span style="background:#f59e0b;color:white;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">✨</span>
+      <span style="background:#f59e0b;color:white;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">âœ¨</span>
       <div style="font-size:1rem;font-weight:800;color:#92400e;">Quote of the Day</div>
       <button onclick="refreshQotd()" style="margin-left:auto;background:none;border:none;color:#d97706;font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.3rem;"><i class="fas fa-sync-alt"></i> New quote</button>
     </div>
@@ -1009,9 +1010,9 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
   <!-- Did You Know -->
   <div id="plannerDidYouKnowCard" style="background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.05);margin-top:1.2rem;position:relative;overflow:hidden;">
-    <div style="position:absolute;top:-10px;right:-5px;font-size:4rem;opacity:0.08;pointer-events:none;">💡</div>
+    <div style="position:absolute;top:-10px;right:-5px;font-size:4rem;opacity:0.08;pointer-events:none;">ðŸ’¡</div>
     <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.9rem;flex-wrap:wrap;">
-      <span style="background:#0ea5e9;color:white;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">💡</span>
+      <span style="background:#0ea5e9;color:white;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">ðŸ’¡</span>
       <div style="font-size:1rem;font-weight:800;color:#0c4a6e;">Did You Know?</div>
       <button onclick="refreshDidYouKnow()" style="margin-left:auto;background:none;border:none;color:#0284c7;font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.3rem;"><i class="fas fa-lightbulb"></i> Next fact</button>
       <button onclick="var b=document.getElementById('diykShareBody');b.style.display=b.style.display==='none'?'block':'none';" style="background:rgba(14,165,233,0.1);border:1px solid #bae6fd;color:#0284c7;font-size:0.75rem;cursor:pointer;font-family:'Inter',sans-serif;padding:0.25rem 0.6rem;border-radius:20px;font-weight:600;"><i class="fas fa-plus"></i> Add a fact</button>
@@ -1020,11 +1021,11 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div id="diykSource" style="font-size:0.78rem;color:#0284c7;"></div>
     <!-- Contribute a Did You Know fact -->
     <div id="diykShareBody" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid #bae6fd;">
-      <div style="font-size:0.82rem;font-weight:700;color:#075985;margin-bottom:0.6rem;">Share a fun engineering fact 🔬</div>
+      <div style="font-size:0.82rem;font-weight:700;color:#075985;margin-bottom:0.6rem;">Share a fun engineering fact ðŸ”¬</div>
       <textarea id="diykInput" rows="2" placeholder="e.g. Did you know that concrete gains strength over time? A 50-year-old concrete structure is often stronger than when it was first built." maxlength="400"
         style="width:100%;padding:0.6rem 0.8rem;border:2px solid #bae6fd;border-radius:10px;font-size:0.87rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;box-sizing:border-box;"
         onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#bae6fd'"></textarea>
-      <input type="text" id="diykSourceInput" placeholder="Source (optional — e.g. Engineering Today, NASA)" maxlength="100"
+      <input type="text" id="diykSourceInput" placeholder="Source (optional â€” e.g. Engineering Today, NASA)" maxlength="100"
         style="width:100%;margin-top:0.5rem;padding:0.55rem 0.8rem;border:2px solid #bae6fd;border-radius:10px;font-size:0.85rem;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box;"
         onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#bae6fd'">
       <div style="display:flex;gap:0.6rem;margin-top:0.7rem;align-items:center;flex-wrap:wrap;">
@@ -1041,7 +1042,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div style="font-size:1rem;font-weight:800;color:var(--text);display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-sticky-note" style="color:#f59e0b;"></i> Quick Notes</div>
       <span style="font-size:0.75rem;color:#9ca3af;">Auto-saved</span>
     </div>
-    <textarea id="quickNotes" placeholder="Jot down anything — formulas, reminders, ideas..." rows="5"
+    <textarea id="quickNotes" placeholder="Jot down anything â€” formulas, reminders, ideas..." rows="5"
       style="width:100%;padding:0.8rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;resize:vertical;outline:none;line-height:1.6;box-sizing:border-box;"
       onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#e5e7eb'"
       oninput="saveNotes(this.value)"></textarea>
@@ -1052,7 +1053,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
-<!-- ═══ OPPORTUNITIES TAB ═══ -->
+<!-- â•â•â• OPPORTUNITIES TAB â•â•â• -->
 <div class="tab-section" id="tab-opportunities">
   <!-- Hero Banner -->
   <div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20,#0ea5e9);border-radius:20px;padding:1.8rem;color:white;margin-bottom:1.5rem;position:relative;overflow:hidden;">
@@ -1060,9 +1061,9 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div style="position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;background:rgba(255,193,7,0.07);border-radius:50%;pointer-events:none;"></div>
     <div style="position:relative;z-index:1;">
       <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.6rem;flex-wrap:wrap;">
-        <span style="background:rgba(14,165,233,0.25);border:1px solid rgba(14,165,233,0.5);color:#7dd3fc;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">🌍 Opportunities Hub</span>
+        <span style="background:rgba(14,165,233,0.25);border:1px solid rgba(14,165,233,0.5);color:#7dd3fc;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">ðŸŒ Opportunities Hub</span>
       </div>
-      <div style="font-size:1.3rem;font-weight:900;margin-bottom:0.5rem;">Internships · NSS · Scholarships &amp; More</div>
+      <div style="font-size:1.3rem;font-weight:900;margin-bottom:0.5rem;">Internships Â· NSS Â· Scholarships &amp; More</div>
       <div style="font-size:0.88rem;opacity:0.85;line-height:1.6;max-width:500px;">Engineering opportunities curated for GERAMA members. Apply, track your progress, and connect with others who've been through the process. <a href="contact.html" style="color:#FFC107;font-weight:700;text-decoration:underline;">Contact admins</a> for assistance.</div>
     </div>
   </div>
@@ -1070,11 +1071,11 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <!-- Filter Bar -->
   <div class="opp-filter-bar" id="oppFilterBar">
     <button class="opp-filter-btn active" data-filter="all" onclick="filterOpportunities('all',this)">All</button>
-    <button class="opp-filter-btn" data-filter="internship" onclick="filterOpportunities('internship',this)">🏢 Internship</button>
-    <button class="opp-filter-btn" data-filter="nss" onclick="filterOpportunities('nss',this)">📋 NSS</button>
-    <button class="opp-filter-btn" data-filter="scholarship" onclick="filterOpportunities('scholarship',this)">🎓 Scholarship</button>
-    <button class="opp-filter-btn" data-filter="job" onclick="filterOpportunities('job',this)">💼 Job</button>
-    <button class="opp-filter-btn" data-filter="other" onclick="filterOpportunities('other',this)">✨ Other</button>
+    <button class="opp-filter-btn" data-filter="internship" onclick="filterOpportunities('internship',this)">ðŸ¢ Internship</button>
+    <button class="opp-filter-btn" data-filter="nss" onclick="filterOpportunities('nss',this)">ðŸ“‹ NSS</button>
+    <button class="opp-filter-btn" data-filter="scholarship" onclick="filterOpportunities('scholarship',this)">ðŸŽ“ Scholarship</button>
+    <button class="opp-filter-btn" data-filter="job" onclick="filterOpportunities('job',this)">ðŸ’¼ Job</button>
+    <button class="opp-filter-btn" data-filter="other" onclick="filterOpportunities('other',this)">âœ¨ Other</button>
     <button onclick="loadOpportunities()" style="margin-left:auto;background:none;border:none;color:#6b7280;cursor:pointer;font-size:0.8rem;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.3rem;padding:0.35rem 0.6rem;border-radius:20px;border:1px solid #e5e7eb;"><i class="fas fa-sync-alt"></i> Refresh</button>
   </div>
 
@@ -1084,7 +1085,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <i class="fas fa-plus-circle" style="color:#1B5E20;font-size:1rem;"></i>
       <div style="flex:1;">
         <div style="font-weight:800;font-size:0.92rem;color:#1B5E20;">Know an Opportunity? Share it!</div>
-        <div style="font-size:0.78rem;color:#4caf50;">Help a fellow engineer — post an internship, NSS opening, or scholarship</div>
+        <div style="font-size:0.78rem;color:#4caf50;">Help a fellow engineer â€” post an internship, NSS opening, or scholarship</div>
       </div>
       <i id="oppSubmitChevron" class="fas fa-chevron-down" style="color:#4caf50;"></i>
     </div>
@@ -1126,7 +1127,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
           <textarea id="oppDesc" rows="3" placeholder="Describe the opportunity, who can apply, requirements, what to bring, etc." maxlength="800" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
         </div>
         <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:0.3rem;">
-          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Image (optional — company logo or flyer)</label>
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Image (optional â€” company logo or flyer)</label>
           <div id="oppImgZone" style="border:2px dashed #c8e6c9;border-radius:10px;padding:1rem;text-align:center;cursor:pointer;background:#f9fdf9;transition:all 0.3s;" onclick="document.getElementById('oppImgFile').click()">
             <i class="fas fa-image" style="color:#4caf50;font-size:1.4rem;display:block;margin-bottom:0.3rem;"></i>
             <div style="font-size:0.82rem;color:#6b7280;">Click to upload image (JPG/PNG, max 5MB)</div>
@@ -1153,7 +1154,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   </div>
 </div>
 
-<!-- ═══ QUIZ ATTEMPT MODAL ═══ -->
+<!-- â•â•â• QUIZ ATTEMPT MODAL â•â•â• -->
 <div class="quiz-attempt-modal" id="quizAttemptModal">
   <div class="quiz-attempt-box">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
@@ -1161,12 +1162,12 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         <h3 style="font-size:1.05rem;font-weight:800;color:var(--text);margin-bottom:0.2rem;" id="quizModalTitle">Quiz</h3>
         <div id="quizModalCourse" style="font-size:0.8rem;color:var(--muted);"></div>
       </div>
-      <button onclick="closeQuizModal()" style="background:#f1f5f9;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+      <button onclick="closeQuizModal()" style="background:#f1f5f9;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">âœ•</button>
     </div>
     <!-- Timer -->
     <div id="quizTimerDisplay" style="display:none;background:linear-gradient(135deg,#ede9fe,#ddd6fe);border-radius:12px;padding:0.8rem 1.2rem;margin-bottom:1rem;display:none;align-items:center;justify-content:space-between;gap:1rem;">
       <div>
-        <div style="font-size:0.75rem;color:#5b21b6;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">⏱ Time Remaining</div>
+        <div style="font-size:0.75rem;color:#5b21b6;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">â± Time Remaining</div>
         <div id="quizCountdownTimer" style="font-size:1.8rem;font-weight:900;color:#4338ca;line-height:1.1;font-variant-numeric:tabular-nums;"></div>
       </div>
       <div id="quizTimerRing" style="width:52px;height:52px;position:relative;flex-shrink:0;">
@@ -1204,7 +1205,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
 <!-- IMAGE LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
-  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">✕</button>
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">âœ•</button>
   <img id="lightboxImg" src="" alt="">
 </div>
 </div>
@@ -1212,8 +1213,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <!-- FOOTER -->
 <footer class="site-footer">
   <div class="footer-bottom">
-    <p class="footer-copy">© 2026 GERAMA Academic Resources · All rights reserved</p>
-    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
+    <p class="footer-copy">Â© 2026 GERAMA Academic Resources Â· All rights reserved</p>
+    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;Â·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
   </div>
 </footer>
 
@@ -1249,7 +1250,7 @@ window.formatTimeAgo = window.formatTimeAgo || function(iso) {
 
 var selectedSubFile = null;
 
-// ── TABS (updated to handle reels, video stop, scroll into view) ──────────────────────────────
+// â”€â”€ TABS (updated to handle reels, video stop, scroll into view) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function showTab(name) {
   // Stop any playing reels videos when leaving reels tab
   document.querySelectorAll('.reel-card video').forEach(function(v){
@@ -1287,7 +1288,7 @@ function showTab(name) {
   if(name === 'opportunities') loadOpportunities();
 }
 
-// ── Q&A NOTIFICATION BADGE ────────────────────────────────────────
+// â”€â”€ Q&A NOTIFICATION BADGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function hideQaBadge() {
   var badge = document.getElementById('qaBadge');
   if(badge){ badge.style.display='none'; badge.textContent=''; }
@@ -1336,7 +1337,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var dismissKey = 'planner_reminder_dismissed_' + h;
     if(isReminderHour && !localStorage.getItem(dismissKey) && badge){
       badge.style.display = 'flex';
-      badge.textContent = '🔔';
+      badge.textContent = 'ðŸ””';
     }
   }, 1000);
   setInterval(function(){
@@ -1346,7 +1347,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var dismissKey = 'planner_reminder_dismissed_' + h;
     if(badge){
       if(isReminderHour && !localStorage.getItem(dismissKey)){
-        badge.style.display = 'flex'; badge.textContent = '🔔';
+        badge.style.display = 'flex'; badge.textContent = 'ðŸ””';
       } else {
         badge.style.display = 'none';
       }
@@ -1354,7 +1355,7 @@ document.addEventListener('DOMContentLoaded', function(){
   }, 60000);
 });
 
-// ── LOAD DATA ─────────────────────────────────────────────────────
+// â”€â”€ LOAD DATA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 document.addEventListener('DOMContentLoaded', function() {
   // Keep class statuses in sync with time (upcoming -> live -> ended)
   safeStartClassLifecycle();
@@ -1373,7 +1374,7 @@ document.addEventListener('DOMContentLoaded', function() {
     inp.addEventListener('change', function(){
       if(this.files[0]){
         selectedSubFile = this.files[0];
-        document.getElementById('subFileChosen').textContent = '✅ '+this.files[0].name;
+        document.getElementById('subFileChosen').textContent = 'âœ… '+this.files[0].name;
       }
     });
     zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.style.borderColor='#1B5E20'; });
@@ -1382,7 +1383,7 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault(); zone.style.borderColor='';
       if(e.dataTransfer.files[0]){
         selectedSubFile = e.dataTransfer.files[0];
-        document.getElementById('subFileChosen').textContent = '✅ '+selectedSubFile.name;
+        document.getElementById('subFileChosen').textContent = 'âœ… '+selectedSubFile.name;
       }
     });
   }
@@ -1390,7 +1391,7 @@ document.addEventListener('DOMContentLoaded', function() {
   loadAssignments();
 });
 
-// ── LOAD CLASSES ──────────────────────────────────────────────────
+// â”€â”€ LOAD CLASSES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function loadClasses() {
   // Reset filter when loading all classes
   var filter = document.getElementById('sessionTypeFilter');
@@ -1411,7 +1412,7 @@ function renderClasses(classes) {
   var now = Date.now();
   var userEmail = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email) || '';
 
-  // Sort: live first → upcoming soonest → ended most-recently last
+  // Sort: live first â†’ upcoming soonest â†’ ended most-recently last
   classes.sort(function(a,b){
     var aL=a.status==='live', bL=b.status==='live';
     // A class is "ended" if status==='ended' OR its scheduled_at is more than 1 hour in the past
@@ -1433,7 +1434,7 @@ function renderClasses(classes) {
     var meetLink = c.meet_link || c.meeting_link || '';
     var meetPlatform = c.meet_platform || (meetLink.toLowerCase().indexOf('meet.google.com') !== -1 ? 'google' : 'jitsi');
     var badgeClass = isLive ? 'live' : (isEnded ? 'ended' : 'upcoming');
-    var badgeText = isLive ? '🔴 LIVE NOW' : (isEnded ? 'Ended' : '📅 Upcoming');
+    var badgeText = isLive ? 'ðŸ”´ LIVE NOW' : (isEnded ? 'Ended' : 'ðŸ“… Upcoming');
 
     // Type badge
     var typeBadge = isInPerson
@@ -1477,7 +1478,7 @@ function renderClasses(classes) {
       '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.6rem;">'+
         '<div class="class-badge '+badgeClass+'">'+badgeText+'</div>'+typeBadge+
       '</div>'+
-      '<div class="class-title">'+escHtml(c.course)+' — '+escHtml(c.topic)+'</div>'+
+      '<div class="class-title">'+escHtml(c.course)+' â€” '+escHtml(c.topic)+'</div>'+
       '<div class="class-meta">'+
         '<div><i class="fas fa-calendar"></i> '+dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div>'+
         '<div><i class="fas fa-clock"></i> '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+'</div>'+
@@ -1492,7 +1493,7 @@ function renderClasses(classes) {
 }
 
 function isAdmin() {
-  // Simple check — admin email stored in localStorage when they log in via admin dashboard
+  // Simple check â€” admin email stored in localStorage when they log in via admin dashboard
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
   return profile.email === 'gerama.uenr@gmail.com' || profile.isAdmin === true;
 }
@@ -1506,7 +1507,7 @@ function postponeClass(id) {
   if(hoursAway < 12){ alert('New date must be at least 12 hours from now.'); return; }
   var sb = window.geramaSupabase; if(!sb) return;
   sb.from('classes').update({scheduled_at: newDate.toISOString()}).eq('id', id)
-  .then(function(){ alert('✅ Class postponed!'); loadClasses(); });
+  .then(function(){ alert('âœ… Class postponed!'); loadClasses(); });
 }
 
 function deleteClassFromPage(id) {
@@ -1516,7 +1517,7 @@ function deleteClassFromPage(id) {
   .then(function(){ loadClasses(); });
 }
 
-// ── LOAD ASSIGNMENTS ──────────────────────────────────────────────
+// â”€â”€ LOAD ASSIGNMENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function loadAssignments() {
   function tryLoad(attempts) {
     var sb = window.geramaSupabase;
@@ -1567,7 +1568,7 @@ function loadAssignments() {
         }
       }).catch(function(){ renderAssignments([]); });
     }).catch(function(){
-      // Session fetch failed — fall back to localStorage email
+      // Session fetch failed â€” fall back to localStorage email
       var myEmail = (profile.email || '').toLowerCase().trim();
       var gradesQuery = myEmail
         ? sb.from('student_grades').select('*').eq('student_email', myEmail)
@@ -1602,7 +1603,7 @@ function renderAssignments(assignments, gradeMap) {
     var dlBadge = '';
     if(deadline){
       var dlClass = isPast ? 'deadline-passed' : (isSoon ? 'deadline-soon' : 'deadline-ok');
-      var dlText  = isPast ? '⚠️ Deadline passed' : ('Due: '+deadline.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' '+deadline.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
+      var dlText  = isPast ? 'âš ï¸ Deadline passed' : ('Due: '+deadline.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' '+deadline.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}));
       dlBadge = '<span class="deadline-badge '+dlClass+'">'+dlText+'</span>';
     }
     var fileLink = a.file_url ? '<a href="'+a.file_url+'" target="_blank" style="color:#1B5E20;font-size:0.82rem;"><i class="fas fa-download"></i> Download Assignment File</a>' : '';
@@ -1637,7 +1638,7 @@ function renderAssignments(assignments, gradeMap) {
   }).join('');
 }
 
-// ── SUBMIT ASSIGNMENT ─────────────────────────────────────────────
+// â”€â”€ SUBMIT ASSIGNMENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function openSubmitModal(id, title) {
   document.getElementById('modalAssignId').value = id;
   document.getElementById('modalAssignTitle').value = title;
@@ -1651,7 +1652,7 @@ async function openSubmitModal(id, title) {
   document.getElementById('subStatus').textContent = '';
   selectedSubFile = null;
 
-  // ── Always use authenticated session email for grade matching ──
+  // â”€â”€ Always use authenticated session email for grade matching â”€â”€
   var emailEl = document.getElementById('subEmail');
   var sessionEmail = null;
   try {
@@ -1669,7 +1670,7 @@ async function openSubmitModal(id, title) {
     emailEl.readOnly = true;
     emailEl.style.background = '#f0fdf4';
     emailEl.style.borderColor = '#86efac';
-    emailEl.title = 'Email locked to your account — ensures grades are linked correctly';
+    emailEl.title = 'Email locked to your account â€” ensures grades are linked correctly';
     // store for later use during submit
     emailEl.dataset.verified = '1';
     // Show lock badge
@@ -1720,7 +1721,7 @@ async function submitAssignment() {
   }
   var sb = window.geramaSupabase;
   if(!sb){
-    showSubStatus('❌ Service not available. Please refresh the page and try again.','err');
+    showSubStatus('âŒ Service not available. Please refresh the page and try again.','err');
     btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit';
     return;
   }
@@ -1728,9 +1729,9 @@ async function submitAssignment() {
   var fileUrl = null;
   var storagePath = null;
 
-  // ── STEP 1: Upload file (3 attempts, non-blocking if all fail) ──
+  // â”€â”€ STEP 1: Upload file (3 attempts, non-blocking if all fail) â”€â”€
   try {
-    showSubStatus('📤 Uploading file... (1/2)','info');
+    showSubStatus('ðŸ“¤ Uploading file... (1/2)','info');
     var ext = selectedSubFile.name.split('.').pop().toLowerCase();
     var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,30)+'-'+Date.now()+'.'+ext;
     storagePath = 'submissions/'+(assignId||'general')+'/'+safeName;
@@ -1743,7 +1744,7 @@ async function submitAssignment() {
           contentType: selectedSubFile.type || 'application/octet-stream'
         });
         if(!upRes.error){ break; }
-        // Storage error (not network) — no point retrying
+        // Storage error (not network) â€” no point retrying
         if(upRes.error && !upRes.error.message.toLowerCase().includes('fetch')){
           console.warn('Storage error:', upRes.error.message);
           upRes = null; break;
@@ -1763,7 +1764,7 @@ async function submitAssignment() {
     if(upRes && !upRes.error){
       fileUrl = sb.storage.from('gerama-materials').getPublicUrl(storagePath).data.publicUrl;
     } else {
-      // File upload failed — still save the record without file
+      // File upload failed â€” still save the record without file
       console.warn('File upload failed after retries, saving record without file.');
       storagePath = null;
     }
@@ -1772,9 +1773,9 @@ async function submitAssignment() {
     storagePath = null;
   }
 
-  // ── STEP 2: Save submission record to database ──
+  // â”€â”€ STEP 2: Save submission record to database â”€â”€
   try {
-    showSubStatus('💾 Saving submission... (2/2)','info');
+    showSubStatus('ðŸ’¾ Saving submission... (2/2)','info');
 
     var record = {
       assignment_title: assignTitle,
@@ -1798,7 +1799,7 @@ async function submitAssignment() {
     if(dbRes.error){
       // Check for duplicate submission
       if(dbRes.error.message.toLowerCase().includes('duplicate') || dbRes.error.code === '23505'){
-        showSubStatus('⚠️ You have already submitted this assignment.','err');
+        showSubStatus('âš ï¸ You have already submitted this assignment.','err');
       } else {
         throw new Error(dbRes.error.message);
       }
@@ -1808,9 +1809,9 @@ async function submitAssignment() {
 
     // Success
     if(fileUrl){
-      showSubStatus('✅ Submitted successfully with your file! Your tutor will review it shortly.','ok');
+      showSubStatus('âœ… Submitted successfully with your file! Your tutor will review it shortly.','ok');
     } else {
-      showSubStatus('✅ Submission recorded! (File upload failed — please email your file to the tutor directly if needed.)','ok');
+      showSubStatus('âœ… Submission recorded! (File upload failed â€” please email your file to the tutor directly if needed.)','ok');
     }
     btn.innerHTML = '<i class="fas fa-check"></i> Submitted';
     if(window.launchConfetti) window.launchConfetti();
@@ -1819,13 +1820,13 @@ async function submitAssignment() {
   } catch(err) {
     var msg = err.message || 'Unknown error';
     if(msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror') || msg.toLowerCase().includes('network request')){
-      showSubStatus('❌ Network error — check your internet connection and try again.','err');
+      showSubStatus('âŒ Network error â€” check your internet connection and try again.','err');
     } else if(msg.toLowerCase().includes('row-level security') || msg.toLowerCase().includes('rls') || msg.toLowerCase().includes('permission')){
-      showSubStatus('❌ Permission error. Please contact the admin.','err');
+      showSubStatus('âŒ Permission error. Please contact the admin.','err');
     } else if(msg.toLowerCase().includes('does not exist') || msg.toLowerCase().includes('relation')){
-      showSubStatus('❌ Database not set up yet. Please contact the admin.','err');
+      showSubStatus('âŒ Database not set up yet. Please contact the admin.','err');
     } else {
-      showSubStatus('❌ '+msg,'err');
+      showSubStatus('âŒ '+msg,'err');
     }
     btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit';
   }
@@ -1837,18 +1838,18 @@ function showSubStatus(msg, type) {
   el.className = 'status-msg status-'+type;
 }
 
-// ── COPY LINK ─────────────────────────────────────────────────────
+// â”€â”€ COPY LINK â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function copyLink(url) {
   if(navigator.clipboard){ navigator.clipboard.writeText(url); }
   else { var t=document.createElement('textarea'); t.value=url; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); }
   alert('Link copied! Share it with your classmates.');
 }
 
-// ── HELPERS ───────────────────────────────────────────────────────
+// â”€â”€ HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function escAttr(s){ return String(s||'').replace(/'/g,"\\'"); }
 
-// ── REQUEST TO HOST A CLASS ───────────────────────────────────────
+// â”€â”€ REQUEST TO HOST A CLASS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function submitClassRequest() {
   var name  = document.getElementById('reqName').value.trim();
   var email = document.getElementById('reqEmail').value.trim();
@@ -1872,8 +1873,8 @@ function submitClassRequest() {
     status: 'pending', created_at: new Date().toISOString()
   }).then(function(res){
     if(res.error) throw new Error(res.error.message);
-    showReqStatus('✅ Request submitted! The admin will review and approve it. Check back soon.','ok');
-    btn.innerHTML='✅ Submitted';
+    showReqStatus('âœ… Request submitted! The admin will review and approve it. Check back soon.','ok');
+    btn.innerHTML='âœ… Submitted';
     setTimeout(function(){
       document.getElementById('requestModal').classList.remove('open');
       btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Request';
@@ -1885,7 +1886,7 @@ function submitClassRequest() {
       document.getElementById('reqDesc').value='';
     }, 2500);
   }).catch(function(err){
-    showReqStatus('❌ '+err.message,'err');
+    showReqStatus('âŒ '+err.message,'err');
     btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Request';
   });
 }
@@ -1896,9 +1897,9 @@ function showReqStatus(msg, type) {
   el.className = 'status-msg status-'+type;
 }
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // Q&A BOARD
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 var qaImages = []; // selected images for new post
 
 // Setup image picker for Q&A compose
@@ -1916,7 +1917,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var idx = qaImages.length - 1;
         var wrap = document.createElement('div');
         wrap.className = 'rm-img';
-        wrap.innerHTML = '<img src="'+e.target.result+'" alt=""><button onclick="removeQaImg('+idx+',this.parentNode)" title="Remove">✕</button>';
+        wrap.innerHTML = '<img src="'+e.target.result+'" alt=""><button onclick="removeQaImg('+idx+',this.parentNode)" title="Remove">âœ•</button>';
         prev.appendChild(wrap);
       };
       reader.readAsDataURL(f);
@@ -1953,7 +1954,7 @@ async function postQuestion() {
   var sb = window.geramaSupabase;
   if(!sb){ alert('Not connected. Please refresh.'); return; }
 
-  // ── OPTIMISTIC UI: show post immediately ──
+  // â”€â”€ OPTIMISTIC UI: show post immediately â”€â”€
   var tempId = 'temp-'+Date.now();
   var feed = document.getElementById('qaFeed');
   var emptyState = feed.querySelector('.empty-state');
@@ -2156,8 +2157,8 @@ async function loadComments(answerId) {
     var minsLeft = canEdit ? Math.ceil((5*60*1000 - ageMs)/60000) : 0;
     var actions = isOwn
       ? '<div class="qa-comment-actions">'+
-          (canEdit ? '<button class="qa-comment-action-btn" onclick="editComment(\''+c.id+'\',\''+answerId+'\',this)" title="Edit ('+minsLeft+'m left)">✏️ Edit</button>' : '')+
-          '<button class="qa-comment-action-btn del" onclick="deleteComment(\''+c.id+'\',\''+answerId+'\')">🗑 Delete</button>'+
+          (canEdit ? '<button class="qa-comment-action-btn" onclick="editComment(\''+c.id+'\',\''+answerId+'\',this)" title="Edit ('+minsLeft+'m left)">âœï¸ Edit</button>' : '')+
+          '<button class="qa-comment-action-btn del" onclick="deleteComment(\''+c.id+'\',\''+answerId+'\')">ðŸ—‘ Delete</button>'+
         '</div>'
       : '';
     return '<div class="qa-comment" id="comment-'+c.id+'">'+
@@ -2184,7 +2185,7 @@ async function postAnswer(qid) {
   if(!text && (!ansImages[qid]||!ansImages[qid].length)){ alert('Please write something or add an image.'); return; }
   var sb = window.geramaSupabase; if(!sb) return;
 
-  // ── OPTIMISTIC UI ──
+  // â”€â”€ OPTIMISTIC UI â”€â”€
   var listEl = document.getElementById('qa-answers-list-'+qid);
   var tempDiv = document.createElement('div');
   tempDiv.className = 'qa-answer';
@@ -2234,7 +2235,7 @@ async function postComment(qid, answerId) {
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
   var name = profile.name || 'Anonymous';
 
-  // ── OPTIMISTIC UI ──
+  // â”€â”€ OPTIMISTIC UI â”€â”€
   if(inp){ inp.value = ''; inp.style.height=''; }
   var commentsEl = document.getElementById('comments-'+answerId);
   if(commentsEl){
@@ -2292,7 +2293,7 @@ function editComment(commentId, answerId, btn) {
   textEl.replaceWith(editArea);
   editArea.focus();
   // Change button to Save
-  btn.textContent = '✅ Save';
+  btn.textContent = 'âœ… Save';
   btn.onclick = function(){ saveCommentEdit(commentId, answerId, editArea, btn); };
 }
 
@@ -2300,9 +2301,9 @@ async function saveCommentEdit(commentId, answerId, editArea, btn) {
   var newText = editArea.value.trim();
   if(!newText){ alert('Comment cannot be empty.'); return; }
   var sb = window.geramaSupabase; if(!sb) return;
-  btn.textContent = '⏳';
+  btn.textContent = 'â³';
   var {error} = await sb.from('question_comments').update({content:newText, edited:true}).eq('id',commentId);
-  if(error){ alert('Failed to edit: '+error.message); btn.textContent='✏️ Edit'; return; }
+  if(error){ alert('Failed to edit: '+error.message); btn.textContent='âœï¸ Edit'; return; }
   loadComments(answerId);
 }
 
@@ -2324,7 +2325,7 @@ async function likeQuestion(qid, btn) {
   var currentCount = span ? parseInt(span.textContent||'0') : 0;
 
   if(liked[qid]){
-    // UNLIKE — optimistic UI first
+    // UNLIKE â€” optimistic UI first
     liked[qid] = false;
     localStorage.setItem('gerama_q_liked', JSON.stringify(liked));
     if(btn) btn.classList.remove('liked');
@@ -2340,7 +2341,7 @@ async function likeQuestion(qid, btn) {
       if(span && res.count != null) span.textContent = res.count;
     } catch(e){}
   } else {
-    // LIKE — optimistic UI first
+    // LIKE â€” optimistic UI first
     liked[qid] = true;
     localStorage.setItem('gerama_q_liked', JSON.stringify(liked));
     if(btn) btn.classList.add('liked');
@@ -2458,9 +2459,9 @@ function formatTimeAgo(iso) {
   return new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
 }
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // REELS
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 document.addEventListener('DOMContentLoaded', function() {
   var reelZone = document.getElementById('reelDropZone');
   var reelInp  = document.getElementById('reelFile');
@@ -2470,7 +2471,7 @@ document.addEventListener('DOMContentLoaded', function() {
     reelInp.addEventListener('change', function(){
       var f = this.files[0]; if(!f) return;
       if(f.size > 50*1024*1024){ alert('Video too large. Max 50MB.'); return; }
-      document.getElementById('reelFileChosen').textContent = '✅ '+f.name;
+      document.getElementById('reelFileChosen').textContent = 'âœ… '+f.name;
       reelPrev.src = URL.createObjectURL(f);
       reelPrev.style.display = 'block';
     });
@@ -2480,7 +2481,7 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault(); reelZone.style.borderColor='';
       var f = e.dataTransfer.files[0];
       if(f && f.type.startsWith('video/')){
-        document.getElementById('reelFileChosen').textContent = '✅ '+f.name;
+        document.getElementById('reelFileChosen').textContent = 'âœ… '+f.name;
         reelPrev.src = URL.createObjectURL(f);
         reelPrev.style.display = 'block';
         // Store file reference
@@ -2519,14 +2520,14 @@ async function uploadReel() {
       likes:0, status:'active', created_at:new Date().toISOString()
     });
     if(res.error) throw new Error(res.error.message);
-    showReelStatus('✅ Reel posted!','ok');
+    showReelStatus('âœ… Reel posted!','ok');
     document.getElementById('reelCaption').value='';
     document.getElementById('reelCourse').value='';
     document.getElementById('reelFileChosen').textContent='';
     document.getElementById('reelVideoPreview').style.display='none';
     fileInp.value='';
     loadReels();
-  } catch(e){ showReelStatus('❌ '+e.message,'err'); }
+  } catch(e){ showReelStatus('âŒ '+e.message,'err'); }
   btn.disabled=false; btn.innerHTML='<i class="fas fa-upload"></i> Post Reel';
 }
 
@@ -2628,7 +2629,7 @@ async function likeReel(rid, btn) {
   var currentCount = span ? parseInt(span.textContent||'0') : 0;
 
   if(liked[rid]){
-    // Unlike — optimistic
+    // Unlike â€” optimistic
     liked[rid] = false;
     localStorage.setItem('gerama_r_liked', JSON.stringify(liked));
     if(btn) btn.classList.remove('liked');
@@ -2639,7 +2640,7 @@ async function likeReel(rid, btn) {
       if(span && cr.count != null) span.textContent = cr.count;
     }catch(e){}
   } else {
-    // Like — optimistic
+    // Like â€” optimistic
     liked[rid] = true;
     localStorage.setItem('gerama_r_liked', JSON.stringify(liked));
     if(btn) btn.classList.add('liked');
@@ -2660,7 +2661,7 @@ async function likeReel(rid, btn) {
 async function deleteReel(rid, storagePath) {
   if(!confirm('Delete this reel?')) return;
   var sb = window.geramaSupabase; if(!sb) return;
-  // storagePath may be empty if column doesn't exist — just delete the DB record
+  // storagePath may be empty if column doesn't exist â€” just delete the DB record
   if(storagePath && storagePath.length > 3){
     await sb.storage.from('gerama-materials').remove([storagePath]);
   }
@@ -2684,13 +2685,13 @@ function shareReel(rid) {
   else { prompt('Copy this link:',url); }
 }
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // QUIZZES
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 var _currentQuiz = null;
 var _quizTimer   = null;
 var _quizTotalSecs = 0;
-var _quizDataStore = {}; // stores quiz objects by id — avoids onclick escaping bugs
+var _quizDataStore = {}; // stores quiz objects by id â€” avoids onclick escaping bugs
 
 async function loadQuizzes() {
   var el = document.getElementById('quizzesList'); if(!el) return;
@@ -2700,7 +2701,7 @@ async function loadQuizzes() {
   var res = await sb.from('quizzes').select('*').order('created_at',{ascending:false});
   var data = res.data;
   if(!data||!data.length){
-    el.innerHTML='<div class="empty-state"><i class="fas fa-brain"></i><p>No quizzes posted yet.<br>Check back soon — your tutors will post quizzes here.</p></div>';
+    el.innerHTML='<div class="empty-state"><i class="fas fa-brain"></i><p>No quizzes posted yet.<br>Check back soon â€” your tutors will post quizzes here.</p></div>';
     document.getElementById('quizStatsRow').style.display='none';
     return;
   }
@@ -2758,11 +2759,11 @@ async function loadQuizzes() {
     var dlText   = '';
     if(deadline){
       dlText = (isPast||isClosed)
-        ? '⚠️ Deadline passed'
-        : 'Due: '+deadline.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' · '+deadline.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        ? 'âš ï¸ Deadline passed'
+        : 'Due: '+deadline.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' Â· '+deadline.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     }
     var statusClass = isClosed ? 'quiz-status-ended' : isPast ? 'quiz-status-ended' : isSoon ? 'quiz-status-soon' : 'quiz-status-active';
-    var statusText  = isClosed ? '🔒 Closed by Admin' : isPast ? '⏰ Deadline Passed' : isSoon ? '⚡ Closing Soon' : '✅ Open';
+    var statusText  = isClosed ? 'ðŸ”’ Closed by Admin' : isPast ? 'â° Deadline Passed' : isSoon ? 'âš¡ Closing Soon' : 'âœ… Open';
     var isDone = doneIds[q.id];
     if(!isPast && !isClosed && !isDone) openCount++;
     if(isSoon && !isClosed && !isDone) soonCount++;
@@ -2820,7 +2821,7 @@ async function loadQuizzes() {
     '</div>';
   }).join('');
 
-  // Event delegation for Take Quiz buttons — avoids onclick escaping issues
+  // Event delegation for Take Quiz buttons â€” avoids onclick escaping issues
   el.addEventListener('click', function(e){
     var btn = e.target.closest('[data-qid]');
     if(!btn) return;
@@ -2894,7 +2895,7 @@ function openQuizFromData(q) {
   openQuiz(q.id, q.title, url, q.duration_mins||0, q.course||'', q.description||q.instructions||'');
 }
 
-// ── QUESTION PAPER BRANDED WORKSPACE ──────────────────────────
+// â”€â”€ QUESTION PAPER BRANDED WORKSPACE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function openQuestionPaper(quiz, questions) {
   // Remove existing paper modal if any
   var existing = document.getElementById('questionPaperModal');
@@ -2944,11 +2945,11 @@ function openQuestionPaper(quiz, questions) {
       '<div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;padding:1.5rem 2rem;">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">' +
           '<div>' +
-            '<div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">UNIVERSITY OF ENERGY AND NATURAL RESOURCES · TEAM GERAMA</div>' +
+            '<div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">UNIVERSITY OF ENERGY AND NATURAL RESOURCES Â· TEAM GERAMA</div>' +
             '<div style="font-size:1.3rem;font-weight:800;margin-bottom:0.2rem;">'+quiz.title+'</div>' +
-            '<div style="font-size:0.85rem;opacity:0.8;">'+(quiz.course||'')+(quiz.course&&quiz.tutor?' · ':'')+''+(quiz.tutor||quiz.posted_by||'')+'</div>' +
+            '<div style="font-size:0.85rem;opacity:0.8;">'+(quiz.course||'')+(quiz.course&&quiz.tutor?' Â· ':'')+''+(quiz.tutor||quiz.posted_by||'')+'</div>' +
           '</div>' +
-          '<button onclick="document.getElementById(\'questionPaperModal\').remove()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>' +
+          '<button onclick="document.getElementById(\'questionPaperModal\').remove()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">âœ•</button>' +
         '</div>' +
         '<div style="display:flex;gap:1.5rem;margin-top:1rem;flex-wrap:wrap;">' +
           '<div style="font-size:0.82rem;opacity:0.8;"><i class="fas fa-calendar" style="margin-right:0.3rem;"></i>'+now+'</div>' +
@@ -2999,7 +3000,7 @@ async function submitQuestionPaper(qid, qtitle, numQ) {
   }
 
   var sb = window.geramaSupabase;
-  if(!sb || !email){ if(statusEl){statusEl.textContent='❌ Not logged in.';statusEl.style.color='#dc2626';} return; }
+  if(!sb || !email){ if(statusEl){statusEl.textContent='âŒ Not logged in.';statusEl.style.color='#dc2626';} return; }
 
   try {
     await sb.from('quiz_attempts').insert({
@@ -3009,7 +3010,7 @@ async function submitQuestionPaper(qid, qtitle, numQ) {
       answers: JSON.stringify(answers),
       completed_at: new Date().toISOString()
     });
-    if(statusEl){statusEl.textContent='✅ Answers submitted! Your tutor will grade them.';statusEl.style.color='#059669';}
+    if(statusEl){statusEl.textContent='âœ… Answers submitted! Your tutor will grade them.';statusEl.style.color='#059669';}
     if(window.launchConfetti) window.launchConfetti();
     setTimeout(function(){
       var modal = document.getElementById('questionPaperModal');
@@ -3017,7 +3018,7 @@ async function submitQuestionPaper(qid, qtitle, numQ) {
       loadQuizzes();
     }, 2500);
   } catch(e) {
-    if(statusEl){statusEl.textContent='❌ '+e.message;statusEl.style.color='#dc2626';}
+    if(statusEl){statusEl.textContent='âŒ '+e.message;statusEl.style.color='#dc2626';}
   }
 }
 
@@ -3041,7 +3042,7 @@ function downloadQuestionPaperPDF(qid) {
     (header ? header.outerHTML : '') +
     (studentBar ? studentBar.outerHTML : '') +
     (paperArea ? paperArea.innerHTML.replace(/textarea/g,'div').replace(/input/g,'div') : '') +
-    '<p style="font-size:0.75rem;color:#9ca3af;text-align:center;margin-top:2rem;border-top:1px solid #e5e7eb;padding-top:0.8rem;">GERAMA Academic Resources Centre · UENR · Generated '+new Date().toLocaleDateString('en-GB')+'</p>' +
+    '<p style="font-size:0.75rem;color:#9ca3af;text-align:center;margin-top:2rem;border-top:1px solid #e5e7eb;padding-top:0.8rem;">GERAMA Academic Resources Centre Â· UENR Â· Generated '+new Date().toLocaleDateString('en-GB')+'</p>' +
     '</body></html>');
   win.document.close();
   win.focus();
@@ -3062,7 +3063,7 @@ function openQuiz(qid, title, url, durationMins, course, instructions) {
   // Instructions
   var instrEl = document.getElementById('quizModalInstructions');
   if(instructions && instrEl){
-    instrEl.textContent = '📋 ' + instructions;
+    instrEl.textContent = 'ðŸ“‹ ' + instructions;
     instrEl.style.display = 'block';
   } else if(instrEl){
     instrEl.style.display = 'none';
@@ -3141,9 +3142,9 @@ async function markQuizDone() {
   localStorage.setItem('gerama_quizzes_done', JSON.stringify(done));
 
   var statusEl = document.getElementById('quizAttemptStatus');
-  statusEl.textContent = '✅ Recorded! This quiz has been added to your completed list.';
+  statusEl.textContent = 'âœ… Recorded! This quiz has been added to your completed list.';
   statusEl.className = 'status-msg status-ok';
-  btn.innerHTML = '✅ Completed';
+  btn.innerHTML = 'âœ… Completed';
   if(window.launchConfetti) window.launchConfetti();
 
   setTimeout(function(){
@@ -3151,7 +3152,7 @@ async function markQuizDone() {
     loadQuizzes(); // refresh to show completed badge
   }, 2000);
 }
-// ── STUDENT QUIZ SUBMISSION ───────────────────────────────────
+// â”€â”€ STUDENT QUIZ SUBMISSION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var _qrType = 'link'; // 'link' or 'file'
 var _qrPdfFile = null;
 
@@ -3171,7 +3172,7 @@ function previewQrFile(inp){
   var f = inp.files && inp.files[0]; if(!f) return;
   _qrPdfFile = f;
   var lbl = document.getElementById('qrPdfLabel');
-  if(lbl) lbl.textContent = '✅ ' + f.name + (f.size > 10*1024*1024 ? ' — ⚠️ too large (max 10MB)' : '');
+  if(lbl) lbl.textContent = 'âœ… ' + f.name + (f.size > 10*1024*1024 ? ' â€” âš ï¸ too large (max 10MB)' : '');
 }
 
 async function submitQuizRequest() {
@@ -3202,12 +3203,12 @@ async function submitQuizRequest() {
   var sb = window.geramaSupabase;
   if(!sb){ showQrStatus('Not connected. Please refresh.','err'); return; }
 
-  showQrStatus('Submitting…','info');
+  showQrStatus('Submittingâ€¦','info');
 
   // If file mode, upload to storage first
   var fileUrl = null;
   if(_qrType === 'file' && _qrPdfFile){
-    showQrStatus('Uploading file…','info');
+    showQrStatus('Uploading fileâ€¦','info');
     var safeName = name.replace(/[^a-z0-9]/gi,'-').toLowerCase() + '-' + Date.now() + '.' + (_qrPdfFile.name.split('.').pop()||'pdf');
     var {data: upData, error: upErr} = await sb.storage.from('gerama-materials').upload('quiz-requests/'+safeName, _qrPdfFile, {upsert:true, contentType:_qrPdfFile.type});
     if(upErr){ showQrStatus('Upload failed: '+upErr.message,'err'); return; }
@@ -3223,7 +3224,7 @@ async function submitQuizRequest() {
       status: 'pending', created_at: new Date().toISOString()
     });
     if(error) throw new Error(error.message);
-    showQrStatus('✅ Submitted! Admin will review and publish it soon.','ok');
+    showQrStatus('âœ… Submitted! Admin will review and publish it soon.','ok');
     ['qrTitle','qrCourse','qrName','qrUrl','qrDesc'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
     _qrPdfFile = null;
     var lbl = document.getElementById('qrPdfLabel'); if(lbl) lbl.textContent = 'Tap to upload quiz PDF/image (max 10MB)';
@@ -3231,16 +3232,16 @@ async function submitQuizRequest() {
   } catch(e) {
     // If quiz_requests table doesn't exist yet, show helpful message
     if(e.message && e.message.includes('does not exist')){
-      showQrStatus('⚠️ Quiz requests not set up yet. Please contact admin directly.','err');
+      showQrStatus('âš ï¸ Quiz requests not set up yet. Please contact admin directly.','err');
     } else {
-      showQrStatus('❌ '+e.message,'err');
+      showQrStatus('âŒ '+e.message,'err');
     }
   }
 }
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // ATTENDANCE SYSTEM
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function loadAttendance() {
   var histEl = document.getElementById('attendHistory');
   var totalEl = document.getElementById('attendTotal');
@@ -3250,7 +3251,7 @@ async function loadAttendance() {
   var sb = window.geramaSupabase;
   if(!sb){ if(histEl) histEl.innerHTML='<div class="empty-state"><i class="fas fa-wifi"></i><p>Not connected.</p></div>'; return; }
 
-  // Use email from localStorage profile — set at login from Supabase auth
+  // Use email from localStorage profile â€” set at login from Supabase auth
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
   var email = profile.email || '';
 
@@ -3272,9 +3273,9 @@ async function loadAttendance() {
   if(totalPts) totalPts.textContent = data.reduce(function(s,r){ return s+(r.points||1); }, 0);
 
   if(histEl) histEl.innerHTML = data.map(function(r){
-    var dt = r.marked_at ? new Date(r.marked_at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    var dt = r.marked_at ? new Date(r.marked_at).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : 'â€”';
     return '<div class="attend-history-card">'+
-      '<div class="attend-check">✅</div>'+
+      '<div class="attend-check">âœ…</div>'+
       '<div class="attend-info">'+
         '<div class="attend-class-name">'+escHtml(r.class_title||'Class Session')+'</div>'+
         '<div class="attend-meta"><i class="fas fa-calendar" style="color:var(--primary);margin-right:0.3rem;"></i>'+dt+'</div>'+
@@ -3295,7 +3296,7 @@ async function markAttendance() {
   var sb = window.geramaSupabase;
   if(!sb){ setStatus('Not connected. Please refresh.','#f87171'); return; }
 
-  // Use localStorage profile — email is set there at login from Supabase
+  // Use localStorage profile â€” email is set there at login from Supabase
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
   var realEmail = profile.email || '';
   var realName  = profile.name  || 'Student';
@@ -3303,13 +3304,13 @@ async function markAttendance() {
 
   // If no email in profile, user hasn't logged in properly
   if(!realEmail){
-    setStatus('⚠️ Could not find your account email. Please log out and log back in.','#fbbf24');
+    setStatus('âš ï¸ Could not find your account email. Please log out and log back in.','#fbbf24');
     return;
   }
 
   setStatus('Verifying code...','rgba(255,255,255,0.7)');
 
-  // Try to get location (non-blocking — attendance still works without it)
+  // Try to get location (non-blocking â€” attendance still works without it)
   var lat = null, lng = null, locName = null;
   try {
     if(navigator.geolocation) {
@@ -3331,7 +3332,7 @@ async function markAttendance() {
     }
   } catch(e){}
 
-  // Look up the session by code — accept it if it is still active OR if expires_at is still in
+  // Look up the session by code â€” accept it if it is still active OR if expires_at is still in
   // the future. This makes the system resilient to the admin's browser closing/refreshing before
   // the timer fires (which would have left is_active stuck at true anyway).
   var now = new Date().toISOString();
@@ -3339,11 +3340,11 @@ async function markAttendance() {
     .select('*').eq('code', code).gte('expires_at', now).limit(1);
 
   if(sessErr || !sessions || !sessions.length){
-    // Fallback: maybe expires_at is null (older sessions) — try is_active flag only
+    // Fallback: maybe expires_at is null (older sessions) â€” try is_active flag only
     var {data: sessions2, error: sessErr2} = await sb.from('attendance_sessions')
       .select('*').eq('code', code).eq('is_active', true).limit(1);
     if(sessErr2 || !sessions2 || !sessions2.length){
-      setStatus('❌ Invalid or expired code. Ask your tutor for the active code.','#f87171'); return;
+      setStatus('âŒ Invalid or expired code. Ask your tutor for the active code.','#f87171'); return;
     }
     sessions = sessions2;
   }
@@ -3355,7 +3356,7 @@ async function markAttendance() {
     .select('id').eq('session_id', session.id).eq('student_email', realEmail).limit(1);
 
   if(existing && existing.length){
-    setStatus('✅ You already marked attendance for this class!','#4ade80'); return;
+    setStatus('âœ… You already marked attendance for this class!','#4ade80'); return;
   }
 
   var {error: insertErr} = await sb.from('attendance_records').insert({
@@ -3371,9 +3372,9 @@ async function markAttendance() {
     marked_at:     new Date().toISOString()
   });
 
-  if(insertErr){ setStatus('❌ Error: '+insertErr.message,'#f87171'); return; }
+  if(insertErr){ setStatus('âŒ Error: '+insertErr.message,'#f87171'); return; }
 
-  setStatus('🎉 Attendance marked! +1 point earned.','#4ade80');
+  setStatus('ðŸŽ‰ Attendance marked! +1 point earned.','#4ade80');
   if(window.launchConfetti) window.launchConfetti();
   document.getElementById('attendCodeInput').value = '';
 
@@ -3381,9 +3382,9 @@ async function markAttendance() {
   setTimeout(loadAttendance, 800);
 }
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // STUDY PLANNER
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 var _pomodoroTimer = null;
 var _pomodoroSecs  = 25 * 60;
 var _pomodoroTotal = 25 * 60;
@@ -3418,9 +3419,9 @@ async function loadPlanner() {
           var timeStr = days > 1 ? days+'d left' : hrs > 0 ? hrs+'h left' : 'Due soon';
           var urgency = hrs < 24 ? 'urgent' : hrs < 72 ? 'soon' : '';
           return '<div class="deadline-item '+urgency+'">'+
-            '<span class="deadline-type '+item.type+'">'+(item.type==='asg'?'📝 Assignment':'🧠 Quiz')+'</span>'+
+            '<span class="deadline-type '+item.type+'">'+(item.type==='asg'?'ðŸ“ Assignment':'ðŸ§  Quiz')+'</span>'+
             '<span class="deadline-title">'+escHtml(item.title)+'</span>'+
-            '<span class="deadline-time">'+(urgency==='urgent'?'⚠️ ':'')+timeStr+'</span>'+
+            '<span class="deadline-time">'+(urgency==='urgent'?'âš ï¸ ':'')+timeStr+'</span>'+
           '</div>';
         }).join('');
       }
@@ -3438,25 +3439,25 @@ async function loadPlanner() {
   // Update pomodoro display
   updatePomodoroDisplay();
 
-  // ── Smart time-based notifications ──
+  // â”€â”€ Smart time-based notifications â”€â”€
   checkPlannerReminder();
 
-  // ── Load admin suggestions from Supabase ──
+  // â”€â”€ Load admin suggestions from Supabase â”€â”€
   loadAdminPlannerSuggestions();
 
-  // ── Load Quote of the Day ──
+  // â”€â”€ Load Quote of the Day â”€â”€
   loadPlannerQotd();
 
-  // ── Load Did You Know ──
+  // â”€â”€ Load Did You Know â”€â”€
   loadDidYouKnow();
 }
 
-// ── PLANNER REMINDER (8–12pm evening / 5–8am morning) ───────────
+// â”€â”€ PLANNER REMINDER (8â€“12pm evening / 5â€“8am morning) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function checkPlannerReminder() {
   var now = new Date();
   var h = now.getHours();
-  var isEvening = h >= 20 && h < 24;  // 8pm–midnight
-  var isMorning = h >= 5  && h < 8;   // 5am–8am
+  var isEvening = h >= 20 && h < 24;  // 8pmâ€“midnight
+  var isMorning = h >= 5  && h < 8;   // 5amâ€“8am
 
   var banner = document.getElementById('plannerReminderBanner');
   var title  = document.getElementById('plannerReminderTitle');
@@ -3474,7 +3475,7 @@ function checkPlannerReminder() {
   }
 
   // Show badge on Planner tab
-  if(badge) { badge.style.display = 'flex'; badge.textContent = '🔔'; }
+  if(badge) { badge.style.display = 'flex'; badge.textContent = 'ðŸ””'; }
 
   var plannerTab = document.getElementById('plannerTabBtn');
   var plannerBadgeEl = document.getElementById('plannerBadge');
@@ -3484,32 +3485,32 @@ function checkPlannerReminder() {
 
   var suggestions = [];
   if(isEvening) {
-    title.textContent = '🌙 Evening Planning — Prepare for Tomorrow';
+    title.textContent = 'ðŸŒ™ Evening Planning â€” Prepare for Tomorrow';
     msg.textContent   = 'Great time to set your study goals for tomorrow, review today\'s progress, and check upcoming deadlines.';
     suggestions = [
-      '📖 Set 3 study goals for tomorrow',
-      '📋 Review today\'s notes',
-      '✅ Mark completed goals for today',
-      '🗓️ Check assignment deadlines',
-      '😴 Plan your sleep time — aim for 7–8 hrs',
-      '📱 Reduce screen time before sleep'
+      'ðŸ“– Set 3 study goals for tomorrow',
+      'ðŸ“‹ Review today\'s notes',
+      'âœ… Mark completed goals for today',
+      'ðŸ—“ï¸ Check assignment deadlines',
+      'ðŸ˜´ Plan your sleep time â€” aim for 7â€“8 hrs',
+      'ðŸ“± Reduce screen time before sleep'
     ];
   } else {
-    title.textContent = '☀️ Good Morning — Plan Your Day';
+    title.textContent = 'â˜€ï¸ Good Morning â€” Plan Your Day';
     msg.textContent   = 'Start strong! Review your goals for today, fire up the Pomodoro timer, and check what\'s due this week.';
     suggestions = [
-      '☕ Review your study goals for today',
-      '📚 Read ahead before class starts',
-      '🍅 Start a 25-min focus session',
-      '💧 Stay hydrated — keep water nearby',
-      '🗓️ Check this week\'s deadlines',
-      '📝 Write down one thing to revise today'
+      'â˜• Review your study goals for today',
+      'ðŸ“š Read ahead before class starts',
+      'ðŸ… Start a 25-min focus session',
+      'ðŸ’§ Stay hydrated â€” keep water nearby',
+      'ðŸ—“ï¸ Check this week\'s deadlines',
+      'ðŸ“ Write down one thing to revise today'
     ];
   }
 
   if(suggs) {
     suggs.innerHTML = suggestions.slice(0,4).map(function(s){
-      return '<span style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);color:white;font-size:0.76rem;font-weight:600;padding:0.25rem 0.7rem;border-radius:20px;cursor:pointer;" onclick="addGoalText(\''+s.replace(/'/g,'').replace(/[^\w\s\u00C0-\u024F📖📋✅🗓️😴📱☕📚🍅💧📝]/g,'')+'\')">+ '+s+'</span>';
+      return '<span style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);color:white;font-size:0.76rem;font-weight:600;padding:0.25rem 0.7rem;border-radius:20px;cursor:pointer;" onclick="addGoalText(\''+s.replace(/'/g,'').replace(/[^\w\s\u00C0-\u024FðŸ“–ðŸ“‹âœ…ðŸ—“ï¸ðŸ˜´ðŸ“±â˜•ðŸ“šðŸ…ðŸ’§ðŸ“]/g,'')+'\')">+ '+s+'</span>';
     }).join('');
   }
 
@@ -3536,7 +3537,7 @@ function addGoalText(text) {
   renderGoals();
 }
 
-// ── ADMIN PLANNER SUGGESTIONS ────────────────────────────────────
+// â”€â”€ ADMIN PLANNER SUGGESTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function loadAdminPlannerSuggestions() {
   var banner  = document.getElementById('adminSuggestionsBanner');
   var listEl  = document.getElementById('adminSuggestionsList');
@@ -3548,7 +3549,7 @@ async function loadAdminPlannerSuggestions() {
     banner.style.display = 'block';
     listEl.innerHTML = data.map(function(s){
       return '<div style="display:flex;align-items:center;gap:0.8rem;background:rgba(255,255,255,0.1);border-radius:10px;padding:0.6rem 0.9rem;">' +
-        '<span style="font-size:1rem;">'+(s.emoji||'💡')+'</span>' +
+        '<span style="font-size:1rem;">'+(s.emoji||'ðŸ’¡')+'</span>' +
         '<span style="font-size:0.88rem;font-weight:600;flex:1;">'+escHtml(s.text||'')+'</span>' +
         '<button onclick="addGoalText(\''+escHtml(s.text||'').replace(/'/g,'')+'\')" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:white;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;cursor:pointer;white-space:nowrap;font-family:\'Inter\',sans-serif;">+ Add Goal</button>' +
       '</div>';
@@ -3556,7 +3557,7 @@ async function loadAdminPlannerSuggestions() {
   } catch(e) { banner.style.display = 'none'; }
 }
 
-// ── QUOTE OF THE DAY (Planner) ─────────────────────────────────
+// â”€â”€ QUOTE OF THE DAY (Planner) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var _qotdData = [];
 var _qotdIndex = 0;
 
@@ -3583,7 +3584,7 @@ function renderQotd() {
   if(!textEl || !_qotdData.length) return;
   var q = _qotdData[_qotdIndex];
   textEl.innerHTML = '&ldquo;' + escHtml(q.quote_text || '') + '&rdquo;';
-  if(authorEl) authorEl.textContent = q.author ? '— ' + q.author : '';
+  if(authorEl) authorEl.textContent = q.author ? 'â€” ' + q.author : '';
 }
 
 window.refreshQotd = function() {
@@ -3592,9 +3593,9 @@ window.refreshQotd = function() {
   renderQotd();
 };
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // DID YOU KNOW
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 var _diykData = [];
 var _diykIndex = 0;
 
@@ -3626,7 +3627,7 @@ function renderDidYouKnow() {
   if(!textEl || !_diykData.length) return;
   var item = _diykData[_diykIndex];
   textEl.textContent = item.fact_text || '';
-  if(srcEl) srcEl.textContent = item.source ? '— ' + item.source : '';
+  if(srcEl) srcEl.textContent = item.source ? 'â€” ' + item.source : '';
 }
 
 window.refreshDidYouKnow = function() {
@@ -3654,7 +3655,7 @@ window.submitDidYouKnow = async function() {
     });
     document.getElementById('diykInput').value = '';
     document.getElementById('diykSourceInput').value = '';
-    showDiykStatus('✅ Thank you! Your fact has been submitted for review.', 'ok');
+    showDiykStatus('âœ… Thank you! Your fact has been submitted for review.', 'ok');
     setTimeout(function(){ document.getElementById('diykShareBody').style.display='none'; }, 2500);
   } catch(e) {
     showDiykStatus('Failed: ' + e.message, 'err');
@@ -3670,9 +3671,9 @@ function showDiykStatus(msg, type) {
   el.style.color = type === 'ok' ? '#065f46' : '#991b1b';
 }
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // OPPORTUNITIES
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 var _allOpportunities = [];
 var _oppFilter = 'all';
 
@@ -3734,7 +3735,7 @@ function renderOpportunities() {
     var applyCount = opp.apply_count || 0;
     var applyBtn = opp.apply_link
       ? '<a href="' + escHtml(opp.apply_link) + '" target="_blank" rel="noopener" class="opp-apply-btn" onclick="trackOppApply(\'' + opp.id + '\')"><i class="fas fa-external-link-alt"></i> Apply Now</a>'
-      : '<span style="font-size:0.82rem;color:#6b7280;font-style:italic;">Contact admins to apply →</span>';
+      : '<span style="font-size:0.82rem;color:#6b7280;font-style:italic;">Contact admins to apply â†’</span>';
 
     return '<div class="opp-card" id="opp-' + opp.id + '" onclick="trackOppView(\'' + opp.id + '\')">' +
       badge +
@@ -3755,12 +3756,12 @@ function renderOpportunities() {
 }
 
 function getOppTypeLabel(type) {
-  var map = {internship:'🏢 Internship', nss:'📋 NSS', scholarship:'🎓 Scholarship', job:'💼 Job', other:'✨ Other'};
-  return map[type] || '✨ Other';
+  var map = {internship:'ðŸ¢ Internship', nss:'ðŸ“‹ NSS', scholarship:'ðŸŽ“ Scholarship', job:'ðŸ’¼ Job', other:'âœ¨ Other'};
+  return map[type] || 'âœ¨ Other';
 }
 function getOppEmoji(type) {
-  var map = {internship:'🏢', nss:'📋', scholarship:'🎓', job:'💼', other:'✨'};
-  return map[type] || '✨';
+  var map = {internship:'ðŸ¢', nss:'ðŸ“‹', scholarship:'ðŸŽ“', job:'ðŸ’¼', other:'âœ¨'};
+  return map[type] || 'âœ¨';
 }
 
 function filterOpportunities(type, btn) {
@@ -3836,7 +3837,7 @@ async function loadOppComments(oppId) {
     var html = '<div class="opp-comment-box">';
     if(list.length) {
       html += list.map(function(c) {
-        var statusTag = c.action_type ? '<span style="background:' + (c.action_type==='applied'?'#d1fae5':c.action_type==='interested'?'#dbeafe':'#f3f4f6') + ';color:' + (c.action_type==='applied'?'#065f46':c.action_type==='interested'?'#1e40af':'#374151') + ';font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;margin-left:0.4rem;">' + (c.action_type==='applied'?'✅ Applied':c.action_type==='interested'?'👀 Interested':'💬 Comment') + '</span>' : '';
+        var statusTag = c.action_type ? '<span style="background:' + (c.action_type==='applied'?'#d1fae5':c.action_type==='interested'?'#dbeafe':'#f3f4f6') + ';color:' + (c.action_type==='applied'?'#065f46':c.action_type==='interested'?'#1e40af':'#374151') + ';font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;margin-left:0.4rem;">' + (c.action_type==='applied'?'âœ… Applied':c.action_type==='interested'?'ðŸ‘€ Interested':'ðŸ’¬ Comment') + '</span>' : '';
         return '<div class="opp-comment-item">' +
           '<div class="opp-comment-avatar">' + escHtml((c.author_name||'A').charAt(0).toUpperCase()) + '</div>' +
           '<div style="flex:1;min-width:0;">' +
@@ -3856,9 +3857,9 @@ async function loadOppComments(oppId) {
     // Quick action buttons
     html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.8rem;">';
     if(!alreadyApplied) {
-      html += '<button onclick="postOppAction(\'' + oppId + '\',\'applied\')" style="background:#d1fae5;color:#065f46;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;">✅ I\'ve Applied</button>';
+      html += '<button onclick="postOppAction(\'' + oppId + '\',\'applied\')" style="background:#d1fae5;color:#065f46;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;">âœ… I\'ve Applied</button>';
     }
-    html += '<button onclick="postOppAction(\'' + oppId + '\',\'interested\')" style="background:#dbeafe;color:#1e40af;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;">👀 Interested</button>';
+    html += '<button onclick="postOppAction(\'' + oppId + '\',\'interested\')" style="background:#dbeafe;color:#1e40af;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;">ðŸ‘€ Interested</button>';
     html += '</div>';
 
     // Comment input
@@ -3960,7 +3961,7 @@ window.submitOpportunity = async function() {
       apply_count: 0,
       created_at: new Date().toISOString()
     });
-    showOppSubmitStatus('✅ Submitted! Admins will review shortly.', 'ok');
+    showOppSubmitStatus('âœ… Submitted! Admins will review shortly.', 'ok');
     // Clear form
     ['oppCompany','oppLocation','oppLink','oppMode','oppDesc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('oppType').value = '';
@@ -3986,7 +3987,7 @@ function showOppSubmitStatus(msg, type) {
 window.previewOppImg = function(input) {
   var f = input.files[0]; if(!f) return;
   if(f.size > 5*1024*1024) { alert('Image too large. Max 5MB.'); return; }
-  document.getElementById('oppImgChosen').textContent = '✅ ' + f.name;
+  document.getElementById('oppImgChosen').textContent = 'âœ… ' + f.name;
   var reader = new FileReader();
   reader.onload = function(e) {
     var prev = document.getElementById('oppImgPreview');
@@ -4025,7 +4026,7 @@ function renderGoals(){
   }
   el.innerHTML = goals.map(function(g,i){
     return '<div class="goal-item'+(g.done?' done':'')+'">'+
-      '<div class="goal-check'+(g.done?' checked':'')+'" onclick="toggleGoal('+i+')">'+(g.done?'✓':'')+'</div>'+
+      '<div class="goal-check'+(g.done?' checked':'')+'" onclick="toggleGoal('+i+')">'+(g.done?'âœ“':'')+'</div>'+
       '<span class="goal-text">'+escHtml(g.text)+'</span>'+
       '<button class="goal-del" onclick="deleteGoal('+i+')" title="Remove"><i class="fas fa-times"></i></button>'+
     '</div>';
@@ -4057,14 +4058,14 @@ function deleteGoal(i){
   renderGoals();
 }
 
-// ── POMODORO TIMER ─────────────────────────────────────────────
+// â”€â”€ POMODORO TIMER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function updatePomodoroDisplay(){
   var m = Math.floor(_pomodoroSecs/60);
   var s = _pomodoroSecs % 60;
   var el = document.getElementById('pomodoroDisplay');
   if(el) el.textContent = m+':'+(s<10?'0':'')+s;
   // Update page title when running
-  if(_pomodoroRunning) document.title = m+':'+(s<10?'0':'')+s+' — GERAMA';
+  if(_pomodoroRunning) document.title = m+':'+(s<10?'0':'')+s+' â€” GERAMA';
   else document.title = 'GERAMA Classroom | Assignments & Online Classes';
 }
 
@@ -4073,9 +4074,9 @@ function setPomodoroMode(mode){
   _pomodoroRunning = false;
   var btn = document.getElementById('pomodoroBtn');
   var modeEl = document.getElementById('pomodoroMode');
-  if(mode==='focus'){ _pomodoroSecs=25*60; _pomodoroTotal=25*60; if(modeEl){modeEl.textContent='🍅 Focus Time';modeEl.style.background='#fee2e2';modeEl.style.color='#dc2626';} }
-  if(mode==='short'){ _pomodoroSecs=5*60;  _pomodoroTotal=5*60;  if(modeEl){modeEl.textContent='☕ Short Break';modeEl.style.background='#d1fae5';modeEl.style.color='#065f46';} }
-  if(mode==='long'){  _pomodoroSecs=15*60; _pomodoroTotal=15*60; if(modeEl){modeEl.textContent='🌙 Long Break';modeEl.style.background='#dbeafe';modeEl.style.color='#1d4ed8';} }
+  if(mode==='focus'){ _pomodoroSecs=25*60; _pomodoroTotal=25*60; if(modeEl){modeEl.textContent='ðŸ… Focus Time';modeEl.style.background='#fee2e2';modeEl.style.color='#dc2626';} }
+  if(mode==='short'){ _pomodoroSecs=5*60;  _pomodoroTotal=5*60;  if(modeEl){modeEl.textContent='â˜• Short Break';modeEl.style.background='#d1fae5';modeEl.style.color='#065f46';} }
+  if(mode==='long'){  _pomodoroSecs=15*60; _pomodoroTotal=15*60; if(modeEl){modeEl.textContent='ðŸŒ™ Long Break';modeEl.style.background='#dbeafe';modeEl.style.color='#1d4ed8';} }
   if(btn){ btn.innerHTML='<i class="fas fa-play"></i> Start'; btn.style.background='linear-gradient(135deg,#dc2626,#b91c1c)'; }
   updatePomodoroDisplay();
 }
@@ -4097,12 +4098,12 @@ function togglePomodoro(){
         _pomodoroRunning = false;
         _pomodoroSessionsDone++;
         var sessEl = document.getElementById('pomodoroSessions');
-        if(sessEl) sessEl.textContent = '🍅 '.repeat(Math.min(_pomodoroSessionsDone,8))+' '+_pomodoroSessionsDone+' session'+(  _pomodoroSessionsDone!==1?'s':'');
+        if(sessEl) sessEl.textContent = 'ðŸ… '.repeat(Math.min(_pomodoroSessionsDone,8))+' '+_pomodoroSessionsDone+' session'+(  _pomodoroSessionsDone!==1?'s':'');
         if(window.launchConfetti) window.launchConfetti();
         // Play a soft notification sound (best effort)
         try{ var ctx=new AudioContext(); var osc=ctx.createOscillator(); var gain=ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value=880; gain.gain.setValueAtTime(0.3,ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.8); osc.start(); osc.stop(ctx.currentTime+0.8); }catch(e){}
         if(btn){ btn.innerHTML='<i class="fas fa-play"></i> Start'; }
-        alert('⏰ Time\'s up! Great work. Take a break.');
+        alert('â° Time\'s up! Great work. Take a break.');
       }
     }, 1000);
   }
@@ -4117,14 +4118,14 @@ function resetPomodoro(){
   updatePomodoroDisplay();
 }
 
-// ── NOTES ──────────────────────────────────────────────────────
+// â”€â”€ NOTES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 var _notesSaveTimer = null;
 function saveNotes(val){
   clearTimeout(_notesSaveTimer);
   _notesSaveTimer = setTimeout(function(){
     localStorage.setItem('gerama_notes', val);
     var el = document.getElementById('notesSaved');
-    if(el){ el.textContent='Saved ✓'; setTimeout(function(){ el.textContent=''; },2000); }
+    if(el){ el.textContent='Saved âœ“'; setTimeout(function(){ el.textContent=''; },2000); }
   }, 600);
 }
 function clearNotes(){
@@ -4155,9 +4156,9 @@ document.addEventListener('click', function(e){
   if(fab && !fab.contains(e.target)) closeFab();
 });
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // MY GRADES TAB
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 async function loadMyGrades() {
   var el = document.getElementById('myGradesContent'); if(!el) return;
   var sb = window.geramaSupabase;
@@ -4165,7 +4166,7 @@ async function loadMyGrades() {
 
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
 
-  // ── Always use authenticated session email ──
+  // â”€â”€ Always use authenticated session email â”€â”€
   var myEmail = null;
   try {
     var sRes = await sb.auth.getSession();
@@ -4192,7 +4193,7 @@ async function loadMyGrades() {
 
     if(gradesRes.error) throw new Error(gradesRes.error.message);
 
-    // Build lookup maps: title → {course, points, type}
+    // Build lookup maps: title â†’ {course, points, type}
     var itemMap = {};
     (quizzesRes.data||[]).forEach(function(q){
       if(q.title) itemMap[q.title.toLowerCase().trim()] = {course:q.course||'', points:q.points||null, type:'quiz'};
@@ -4203,7 +4204,7 @@ async function loadMyGrades() {
 
     var grades = gradesRes.data || [];
 
-    // ── Student identity card ──
+    // â”€â”€ Student identity card â”€â”€
     var initials = (profile.name||'S').split(' ').map(function(n){return n[0];}).join('').toUpperCase().substring(0,2);
     var identityCard =
       '<div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);border-radius:20px;padding:1.4rem 1.8rem;color:white;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap;position:relative;overflow:hidden;">' +
@@ -4242,7 +4243,7 @@ async function loadMyGrades() {
     // Summary stats
     var totalScore = 0, count = 0;
     grades.forEach(function(g){ if(g.score!==null&&g.score!==undefined){ totalScore+=parseFloat(g.score)||0; count++; } });
-    var avg = count ? (totalScore/count).toFixed(1) : '—';
+    var avg = count ? (totalScore/count).toFixed(1) : 'â€”';
 
     var summaryBar =
       '<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;">' +
@@ -4265,7 +4266,7 @@ async function loadMyGrades() {
       '</div>';
 
     function renderGradeCard(g){
-      var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'â€”';
       var participatedDt = g.participated_at ? new Date(g.participated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : null;
       var scoreNum = parseFloat(g.score)||0;
       var maxPts   = g._points ? parseFloat(g._points) : null;      var pct      = maxPts ? Math.round((scoreNum/maxPts)*100) : null;
@@ -4283,8 +4284,8 @@ async function loadMyGrades() {
       return '<div style="background:white;border-radius:16px;padding:1.1rem 1.4rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;display:flex;align-items:flex-start;gap:1rem;flex-wrap:wrap;">' +
         '<div style="flex:1;min-width:0;">' +
           '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.35rem;">'+typeBadge+courseTag+'</div>' +
-          '<div style="font-weight:700;color:#1e2a3e;font-size:0.95rem;margin-bottom:0.15rem;">'+escHtml(g.assignment_title||'—')+'</div>' +
-      '<div style="font-size:0.75rem;color:#9ca3af;"><i class="fas fa-check-circle" style="color:#059669;margin-right:0.3rem;"></i>Graded ' + dt + (participatedDt ? ' · Participated '+participatedDt : '') + '</div>' +          progressBar +
+          '<div style="font-weight:700;color:#1e2a3e;font-size:0.95rem;margin-bottom:0.15rem;">'+escHtml(g.assignment_title||'â€”')+'</div>' +
+      '<div style="font-size:0.75rem;color:#9ca3af;"><i class="fas fa-check-circle" style="color:#059669;margin-right:0.3rem;"></i>Graded ' + dt + (participatedDt ? ' Â· Participated '+participatedDt : '') + '</div>' +          progressBar +
         '</div>' +
         '<div style="background:'+scoreBg+';color:'+scoreColor+';font-size:1.5rem;font-weight:900;padding:0.5rem 1.1rem;border-radius:12px;white-space:nowrap;text-align:center;flex-shrink:0;min-width:80px;">' +
           g.score + (maxPts ? '<div style="font-size:0.62rem;font-weight:600;opacity:0.7;">/ '+maxPts+'</div>' : '<div style="font-size:0.62rem;font-weight:600;opacity:0.7;">pts</div>') +
@@ -4322,9 +4323,9 @@ async function loadMyGrades() {
   }
 }
 
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // ACADEMIC ASSISTANCE FORM (moved from contact page)
-// ══════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 var _assistanceFormReady = false;
 function initAssistanceForm() {
   if(_assistanceFormReady) return;
@@ -4375,59 +4376,6 @@ function initAssistanceForm() {
     }
   });
 }
-</script>
-</body>
-</html>
-
-
-
-window.filterClassesByType = function(){
-  var filter = document.getElementById('sessionTypeFilter').value;
-  var sb = window.geramaSupabase;
-  if(!sb){ renderClasses([]); return; }
-  
-  var query = sb.from('classes').select('*').order('scheduled_at',{ascending:true});
-  
-  if(filter === 'classroom'){
-    query = query.eq('session_type', 'classroom');
-  } else if(filter === 'mentorship'){
-    query = query.eq('session_type', 'mentorship');
-  }
-  // 'all' shows everything
-  
-  query.then(function(res){
-    renderClasses(res.data || []);
-  }).catch(function(){ renderClasses([]); });
-};
-
-
-
-
-
-
-
-
-function filterClassesBySessionType() {
-  var filter = document.getElementById('sessionTypeFilter');
-  if(!filter) return;
-  var filterValue = filter.value;
-  var sb = window.geramaSupabase;
-  if(!sb){ renderClasses([]); return; }
-  
-  sb.from('classes').select('*').order('scheduled_at',{ascending:true}).then(function(res){
-    var classes = res.data || [];
-    if(filterValue === 'all'){
-      renderClasses(classes);
-    }else{
-      var filtered = classes.filter(function(cls){
-        return cls.session_type === filterValue;
-      });
-      renderClasses(filtered);
-    }
-  }).catch(function(){ renderClasses([]); });
-}
-
-
 </script>
 </body>
 </html>
