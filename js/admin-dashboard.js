@@ -7,19 +7,19 @@
   window.escHtml = window.escHtml || function(s){
     return String(s||'')
       .replace(/&/g,'&amp;')
-      .replace(/</g,'<')
-      .replace(/>/g,'>')
-      .replace(/"/g,'"')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
       .replace(/'/g,'&#x27;');
   };
 
   window.escAttr = window.escAttr || function(s){
     return String(s||'')
       .replace(/&/g,'&amp;')
-      .replace(/"/g,'"')
+      .replace(/"/g,'&quot;')
       .replace(/'/g,'&#x27;')
-      .replace(/</g,'<')
-      .replace(/>/g,'>');
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;');
   };
 
   // --- Globals used across the dashboard ---
@@ -30,6 +30,88 @@
   var selectedMatFile  = null;
   var selectedAnnImage = null;
   var selectedSwFile   = null;
+  window._adminClassCache = window._adminClassCache || {};
+
+  function normalizeGroupName(name) {
+    name = String(name || '').trim();
+    return name.replace(/^Team\s+/i, '');
+  }
+
+  window.populateAdminGroupSelects = async function() {
+    var ids = ['asgGroup','qzGroup','clsGroup','attGroup','editClsGroup'];
+    var selects = ids.map(function(id){ return document.getElementById(id); }).filter(Boolean);
+    if (!selects.length) return;
+
+    var names = [];
+    try {
+      var sb = window.geramaSupabase;
+      if (sb) {
+        var res = await sb.from('gerama_groups').select('name').order('name');
+        names = (res.data || []).map(function(g){ return normalizeGroupName(g.name); }).filter(Boolean);
+      }
+    } catch(e) {}
+
+    if (!names.length) names = ['Gerama A','Gerama B','Gerama C','Gerama D','Gerama E','Gerama F','Group A','Group B','Group C','Group D','Group E','Group F'];
+    var seen = {};
+    names = names.filter(function(n){
+      var key = n.toLowerCase();
+      if (seen[key]) return false;
+      seen[key] = true;
+      return true;
+    }).sort(function(a,b){ return a.localeCompare(b, undefined, {numeric:true}); });
+
+    selects.forEach(function(sel){
+      var current = sel.value || '';
+      var isStrict = sel.hasAttribute('required') && sel.id === 'attGroup';
+      var first = isStrict ? '-- Select Target Group --' : '-- General / All Students --';
+      sel.innerHTML = '<option value="">' + first + '</option>' + names.map(function(name){
+        return '<option value="' + window.escAttr(name) + '">' + window.escHtml(name) + '</option>';
+      }).join('');
+      if (current && names.indexOf(current) === -1) {
+        sel.insertAdjacentHTML('beforeend', '<option value="' + window.escAttr(current) + '">' + window.escHtml(current) + '</option>');
+      }
+      sel.value = current || '';
+    });
+  };
+
+  async function upsertStudentGrade(record) {
+    var sb = window.geramaSupabase;
+    if (!sb) throw new Error('Not connected to database.');
+    var payload = {
+      student_email:    String(record.student_email || '').toLowerCase().trim(),
+      student_name:     record.student_name || null,
+      assignment_title: String(record.assignment_title || 'Assignment').trim(),
+      course:           record.course || null,
+      score:            record.score,
+      total_marks:      record.total_marks || record.points || null,
+      points:           record.points || record.total_marks || null,
+      submission_id:    record.submission_id || null,
+      graded_at:        record.graded_at || new Date().toISOString(),
+      participated_at:  record.participated_at || null
+    };
+    if (record.index_number) payload.index_number = record.index_number;
+    if (!payload.student_email) throw new Error('Missing student email.');
+    if (!payload.assignment_title) throw new Error('Missing assignment title.');
+
+    var first = await sb.from('student_grades').upsert(payload, { onConflict: 'student_email,assignment_title' });
+    if (!first.error) return first;
+
+    console.warn('student_grades upsert failed, trying update/insert fallback:', first.error.message);
+    var existing = await sb.from('student_grades')
+      .select('id')
+      .eq('student_email', payload.student_email)
+      .eq('assignment_title', payload.assignment_title)
+      .maybeSingle();
+    if (existing.data && existing.data.id) {
+      var updated = await sb.from('student_grades').update(payload).eq('id', existing.data.id);
+      if (!updated.error) return updated;
+      throw updated.error;
+    }
+    var inserted = await sb.from('student_grades').insert(payload);
+    if (inserted.error) throw inserted.error;
+    return inserted;
+  }
+  window.upsertStudentGrade = upsertStudentGrade;
 
   // --- UI helpers ---
   window.closeSidebar = function(){
@@ -70,12 +152,13 @@
     if(name === 'software') setTimeout(window.loadSwList, 150);
     if(name === 'assignments') setTimeout(function(){
       if(window.loadAsgList) window.loadAsgList();
+      if(window.populateAdminGroupSelects) window.populateAdminGroupSelects();
     }, 150);
     if(name === 'grades') setTimeout(function(){ if(window.loadGradesPanel) window.loadGradesPanel(); else if(window.loadSubmissionsTable) window.loadSubmissionsTable(); }, 150);
-    if(name === 'quizzes' && window.loadQzList) setTimeout(function(){ window.loadQzList(); window.loadQzAttempts && window.loadQzAttempts(); }, 150);
+    if(name === 'quizzes' && window.loadQzList) setTimeout(function(){ window.loadQzList(); window.loadQzAttempts && window.loadQzAttempts(); if(window.populateAdminGroupSelects) window.populateAdminGroupSelects(); }, 150);
     if(name === 'quizrequests' && window.loadQuizRequests) setTimeout(window.loadQuizRequests, 150);
-    if(name === 'classes' && window.loadClsList) setTimeout(window.loadClsList, 150);
-    if(name === 'attendance') setTimeout(function(){ if(window.loadAttSessions) window.loadAttSessions(); if(window.loadAttRecords) window.loadAttRecords(); }, 150);
+    if(name === 'classes' && window.loadClsList) setTimeout(function(){ window.loadClsList(); if(window.populateAdminGroupSelects) window.populateAdminGroupSelects(); }, 150);
+    if(name === 'attendance') setTimeout(function(){ if(window.loadAttSessions) window.loadAttSessions(); if(window.loadAttRecords) window.loadAttRecords(); if(window.populateAdminGroupSelects) window.populateAdminGroupSelects(); }, 150);
     if(name === 'classrequests' && window.loadClassRequests) setTimeout(window.loadClassRequests, 150);
     if(name === 'visitors' && window.loadVisitorStats) setTimeout(window.loadVisitorStats, 150);
     if(name === 'messages' && window.loadContactMessages) setTimeout(function(){ window.loadContactMessages('all'); }, 150);
@@ -1279,6 +1362,7 @@ async function publishQuiz(){
   var tutor    = (document.getElementById('qzTutor')||{}).value||'';
   var deadline = (document.getElementById('qzDeadline')||{}).value||'';
   var desc     = (document.getElementById('qzDesc')||{}).value||'';
+  var targetGroup = ((document.getElementById('qzGroup')||{}).value || '').trim() || null;
   title = title.trim(); course = course.trim(); desc = desc.trim();
 
   if(!title){ window.showStatus('quizStatus','Quiz title is required.','err'); return; }
@@ -1350,6 +1434,7 @@ async function publishQuiz(){
       paper_questions: paperQuestions,
       deadline:     new Date(deadline).toISOString(),
       description:  desc   || null,
+      target_group:  targetGroup,
       status:       'active',
       created_at:   new Date().toISOString()
     };
@@ -1698,7 +1783,7 @@ window.gradeSubmission = async function(btn){
       if(subRes && subRes.data && subRes.data.student_name) studentNameVal = subRes.data.student_name;
 
       // Upsert grade atomically — no more delete+insert race
-      await sb.from('student_grades').upsert({
+      await window.upsertStudentGrade({
         student_email:    email,
         student_name:     studentNameVal || null,
         assignment_title: title,
@@ -1709,8 +1794,12 @@ window.gradeSubmission = async function(btn){
         submission_id:    subId,
         graded_at:        new Date().toISOString(),
         participated_at:  (subRes && subRes.data && subRes.data.submitted_at) || new Date().toISOString()
-      }, {onConflict: 'student_email,assignment_title'});
-    }catch(e){ console.warn('student_grades upsert error:', e.message); }
+      });
+    }catch(e){
+      console.warn('student_grades upsert error:', e.message);
+      if(statusEl){ statusEl.textContent='Saved submission score, but portal sync failed: '+e.message; statusEl.style.color='#dc2626'; }
+      return;
+    }
 
   window.logActivity('Graded: '+title+' for '+email+' → '+score);
   if(statusEl){statusEl.textContent='✅ Graded!';statusEl.style.color='#059669';}
@@ -1738,6 +1827,7 @@ window.postAssignment = async function(){
   var desc    = document.getElementById('asgDesc').value.trim();
   var deadline= document.getElementById('asgDeadline').value;
   var extLink = document.getElementById('asgLink').value.trim();
+  var targetGroup = (document.getElementById('asgGroup')||{}).value.trim() || null;
   if(!title||!course||!desc||!deadline){ window.showStatus('asgStatus','Please fill in Title, Course, Description and Deadline.','err'); return; }
   var btn = document.getElementById('postAsgBtn');
   btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Posting...';
@@ -1763,6 +1853,7 @@ window.postAssignment = async function(){
       description:desc, deadline:new Date(deadline).toISOString(),
       external_link:extLink||null,
       file_url: fileUrl||null,
+      target_group: targetGroup,
       status:'active', created_at:new Date().toISOString()
     });
     if(error) throw new Error(error.message);
@@ -1944,6 +2035,8 @@ window.loadClsList = async function(){
   var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
   var {data} = await sb.from('classes').select('*').order('scheduled_at',{ascending:false});
   if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No classes scheduled yet.</p>'; return; }
+  window._adminClassCache = {};
+  data.forEach(function(c){ if(c && c.id) window._adminClassCache[c.id] = c; });
 
   var now = Date.now();
 
@@ -1984,7 +2077,7 @@ window.loadClsList = async function(){
     var goLiveBtn = (!isLive&&!isEnded)?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'live\')"><i class="fas fa-broadcast-tower"></i> Go Live</button>':'';
     var endBtn    = isLive?'<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:#dc2626;" onclick="setClassStatus(\''+c.id+'\',\'ended\')"><i class="fas fa-stop-circle"></i> End Class</button>':'';
     var reopenBtn = isEnded?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'upcoming\')"><i class="fas fa-redo"></i> Reopen</button>':'';
-    var editBtn   = !isEnded ? '<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:linear-gradient(135deg,#0369a1,#0ea5e9);" onclick="openEditClassModal(\''+window.escAttr(JSON.stringify(c))+'\')"><i class="fas fa-edit"></i> Edit</button>' : '';
+    var editBtn   = !isEnded ? '<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:linear-gradient(135deg,#0369a1,#0ea5e9);" onclick="openEditClassModal(\''+window.escAttr(c.id)+'\')"><i class="fas fa-edit"></i> Edit</button>' : '';
     var deleteBtn = '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')" style="font-size:0.78rem;padding:0.4rem 0.7rem;"><i class="fas fa-trash"></i></button>';
 
     var locationInfo = isInPerson
@@ -1995,7 +2088,10 @@ window.loadClsList = async function(){
     return '<div class="sub-card" style="'+(isLive?'border-left:4px solid #dc2626;background:linear-gradient(135deg,#fff5f5,#fff);':'')+'">'+
       '<div class="sub-info">'+
         '<strong>'+window.escHtml(c.course)+' — '+window.escHtml(c.topic)+' '+badge+typeBadge+'</strong>'+
-        '<div class="sub-meta"><b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+locationInfo+'</div>'+
+        '<div class="sub-meta"><b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+
+        (c.session_type?' | <b>Type:</b> '+window.escHtml(c.session_type === 'mentorship' ? 'Mentorship' : 'Classroom'):'')+
+        (c.target_group?' | <b>Group:</b> '+window.escHtml(c.target_group):' | <b>Group:</b> All')+
+        locationInfo+'</div>'+
       '</div>'+
       '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+editBtn+deleteBtn+'</div>'+
     '</div>';
@@ -2042,9 +2138,9 @@ window.deleteClass = async function(id){
 // ─── EDIT SCHEDULED CLASS ─────────────────────────────────────────────────────
 // Allows changing venue, date/time, tutor, description — the meeting link is
 // shown for reference only and is NEVER modified here.
-window.openEditClassModal = function(classDataStr) {
-  var c;
-  try { c = JSON.parse(classDataStr); } catch(e) { alert('Could not load class data.'); return; }
+window.openEditClassModal = function(classId) {
+  var c = (window._adminClassCache || {})[classId];
+  if (!c) { alert('Could not load class data. Refresh the class list and try again.'); return; }
 
   var existing = document.getElementById('editClassModal');
   if (existing) existing.remove();
@@ -2111,6 +2207,19 @@ window.openEditClassModal = function(classDataStr) {
           '<input type="text" id="editClsTutor" value="' + window.escAttr(c.tutor||'') + '" placeholder="e.g. Aleks ZanderOD" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;" onfocus="this.style.borderColor=\'#0ea5e9\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
         '</div>' +
         '<div class="form-field full">' +
+          '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.35rem;">Session Category</label>' +
+          '<select id="editClsSessionType" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;">' +
+            '<option value="classroom">Classroom Session</option>' +
+            '<option value="mentorship">Mentorship Program</option>' +
+          '</select>' +
+        '</div>' +
+        '<div class="form-field full">' +
+          '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.35rem;">Target Group</label>' +
+          '<select id="editClsGroup" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;">' +
+            '<option value="">-- General / All Students --</option>' +
+          '</select>' +
+        '</div>' +
+        '<div class="form-field full">' +
           '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.35rem;">Description / Notes</label>' +
           '<textarea id="editClsDesc" rows="3" placeholder="Any additional info for students..." style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.9rem;font-family:\'Inter\',sans-serif;outline:none;resize:vertical;box-sizing:border-box;" onfocus="this.style.borderColor=\'#0ea5e9\'" onblur="this.style.borderColor=\'#e5e7eb\'">' + window.escHtml(c.description||c.desc||'') + '</textarea>' +
         '</div>' +
@@ -2124,6 +2233,14 @@ window.openEditClassModal = function(classDataStr) {
     '</div>';
 
   document.body.appendChild(modal);
+  var sessionEl = document.getElementById('editClsSessionType');
+  if (sessionEl) sessionEl.value = c.session_type || inferAdminClassSessionType(c);
+  if (window.populateAdminGroupSelects) {
+    window.populateAdminGroupSelects().then(function(){
+      var groupEl = document.getElementById('editClsGroup');
+      if (groupEl) groupEl.value = c.target_group || '';
+    });
+  }
   modal.addEventListener('click', function(e){ if (e.target === modal) modal.remove(); });
 };
 
@@ -6478,10 +6595,10 @@ window.syncAllGradesToPortal = async function() {
     var asgMeta = asgMap[s.assignment_id] || asgMap[(s.assignment_title || '').toLowerCase().trim()] || {};
 
     try {
-      var { error: uErr } = await sb.from('student_grades').upsert({
+      await window.upsertStudentGrade({
         student_email:    s.student_email.toLowerCase().trim(),
         student_name:     s.student_name  || null,
-        assignment_title: (s.assignment_title || 'Assignment').toLowerCase().trim(),
+        assignment_title: (s.assignment_title || 'Assignment').trim(),
         course:           asgMeta.course  || null,
         score:            s.score,
         total_marks:      asgMeta.points  || null,
@@ -6489,10 +6606,12 @@ window.syncAllGradesToPortal = async function() {
         submission_id:    s.id,
         graded_at:        s.graded_at     || new Date().toISOString(),
         participated_at:  s.submitted_at  || s.graded_at || new Date().toISOString()
-      }, { onConflict: 'student_email,assignment_title' });
-
-      if (uErr) { errors++; } else { ok++; }
-    } catch(e) { errors++; }
+      });
+      ok++;
+    } catch(e) {
+      errors++;
+      console.warn('Grade sync failed for submission '+s.id+':', e.message || e);
+    }
   }
 
   window.logActivity('Synced ' + ok + ' graded submissions to student_grades portal' + (errors ? ' (' + errors + ' errors)' : ''));

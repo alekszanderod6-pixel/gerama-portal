@@ -157,21 +157,23 @@
     var style = document.createElement('style');
     style.id = 'geralexWidgetStyle';
     style.textContent = [
-      '#geralexLauncher{position:fixed;right:14px;bottom:196px;z-index:8100;border:none;min-width:64px;height:58px;border-radius:999px;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;box-shadow:0 14px 40px rgba(27,94,32,0.35);cursor:pointer;font-size:0.96rem;font-weight:800;padding:0 1rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}',
+      '#geralexLauncher{position:fixed;right:14px;bottom:80px;z-index:8100;border:none;min-width:64px;height:58px;border-radius:999px;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;box-shadow:0 14px 40px rgba(27,94,32,0.35);cursor:pointer;font-size:0.96rem;font-weight:800;padding:0 1rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}',
       '#geralexLauncher::before{content:"";width:9px;height:9px;border-radius:50%;background:#FFC107;box-shadow:0 0 0 6px rgba(255,193,7,0.18);flex-shrink:0;}',
-      '#geralexWidget{position:fixed;right:14px;bottom:264px;z-index:8101;width:min(410px,calc(100vw - 24px));height:min(80vh,700px);display:none;grid-template-rows:auto auto minmax(300px,1fr) auto;background:#fff;border:1px solid rgba(15,23,42,0.08);border-radius:26px;box-shadow:0 24px 60px rgba(15,23,42,0.22);overflow:hidden;}',
+      '#geralexWidget{position:fixed;right:14px;bottom:148px;z-index:8101;width:min(410px,calc(100vw - 24px));height:min(80vh,700px);display:none;grid-template-rows:auto auto minmax(300px,1fr) auto;background:#fff;border:1px solid rgba(15,23,42,0.08);border-radius:26px;box-shadow:0 24px 60px rgba(15,23,42,0.22);overflow:hidden;}',
       '#geralexWidget.open{display:grid;}',
       '.geralex-head{padding:1rem 1rem 0.9rem;background:linear-gradient(135deg,#071a12,#0a2f1f 40%,#1B5E20);color:#fff;}',
       '.geralex-title{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;}',
       '.geralex-title h3{margin:0;font-size:1rem;font-weight:800;}',
-      '.geralex-title button{border:none;background:rgba(255,255,255,0.14);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;}',
+      '.geralex-title button{border:none;background:rgba(255,255,255,0.14);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;transition:all 0.2s;}',
+      '.geralex-title button:hover{background:rgba(255,255,255,0.25);transform:scale(1.05);}',
       '.geralex-sub{margin-top:0.45rem;font-size:0.8rem;line-height:1.45;color:rgba(255,255,255,0.84);}',
       '.geralex-topline{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-top:0.75rem;}',
       '.geralex-chip{display:inline-flex;align-items:center;gap:0.35rem;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.16);padding:0.38rem 0.7rem;border-radius:999px;font-size:0.72rem;color:#ecfdf5;font-weight:700;}',
       '.geralex-headnote{font-size:0.72rem;color:rgba(255,255,255,0.72);text-align:right;}',
       '.geralex-prompts{display:flex;gap:0.45rem;overflow:auto;padding:0.75rem 1rem;background:#f8fafc;border-bottom:1px solid #e5e7eb;scrollbar-width:none;}',
       '.geralex-prompts::-webkit-scrollbar{display:none;}',
-      '.geralex-prompt{border:none;background:#fff;color:#1f2937;padding:0.55rem 0.8rem;border-radius:999px;font-size:0.76rem;white-space:nowrap;cursor:pointer;border:1px solid #e5e7eb;}',
+      '.geralex-prompt{border:none;background:#fff;color:#1f2937;padding:0.55rem 0.8rem;border-radius:999px;font-size:0.76rem;white-space:nowrap;cursor:pointer;border:1px solid #e5e7eb;transition:all 0.2s;}',
+      '.geralex-prompt:hover{border-color:#1B5E20;color:#1B5E20;background:#f0fdf4;}',
       '.geralex-feed{padding:1rem;overflow:auto;background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);display:flex;flex-direction:column;gap:0.7rem;min-height:0;scroll-behavior:smooth;}',
       '.geralex-msg{max-width:88%;padding:0.8rem 0.9rem;border-radius:18px;font-size:0.9rem;line-height:1.5;word-break:break-word;}',
       '.geralex-msg.user{align-self:flex-end;background:#1B5E20;color:#fff;border-bottom-right-radius:6px;}',
@@ -216,7 +218,10 @@
       '  <div class="geralex-head">' +
       '    <div class="geralex-title">' +
       '      <h3>GERALEX AI</h3>' +
-      '      <button type="button" id="geralexCloseBtn" aria-label="Close GERALEX">x</button>' +
+      '      <div style="display:flex;gap:0.5rem;">' +
+      '        <button type="button" id="geralexNewChatBtn" aria-label="New Chat" style="border:none;background:rgba(255,255,255,0.14);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:0.85rem;">+</button>' +
+      '        <button type="button" id="geralexCloseBtn" aria-label="Close GERALEX">x</button>' +
+      '      </div>' +
       '    </div>' +
       '    <div class="geralex-sub">Ask about the portal, study topics, or upload one image/PDF question. Private admin details stay protected.</div>' +
       '    <div class="geralex-topline">' +
@@ -289,13 +294,20 @@
       empty.innerHTML = '<strong style="display:block;margin-bottom:0.3rem;color:#0f172a;">Welcome to GERALEX.</strong>' +
         'I can explain this page, answer study questions, and work through one uploaded image or PDF question at a time.';
       feed.appendChild(empty);
-      addMessage('ai', 'Hello, I am GERALEX. I can guide you through GERAMA, help with study questions, and review one uploaded image or PDF at a time.', true);
+      addMessage('ai', 'Hello, I am GERALEX, developed in 2026 by Aleks ZanderOD. I can guide you through GERAMA, help with study questions, and review one uploaded image or PDF at a time.', true);
       return;
     }
 
     state.history.forEach(function(entry) {
       addMessage(entry.role, entry.text, true);
     });
+  }
+
+  function startNewChat() {
+    state.history = [];
+    persistHistory();
+    renderHistory();
+    setStatus('New chat started. GERALEX is ready.', 'ok');
   }
 
   function openWidget() {
@@ -533,12 +545,14 @@
   function bindEvents() {
     var launcher = document.getElementById('geralexLauncher');
     var closeBtn = document.getElementById('geralexCloseBtn');
+    var newChatBtn = document.getElementById('geralexNewChatBtn');
     var form = document.getElementById('geralexForm');
     var fileInput = document.getElementById('geralexFileInput');
     var removeBtn = document.getElementById('geralexRemoveAttachment');
 
     if (launcher) launcher.addEventListener('click', openWidget);
     if (closeBtn) closeBtn.addEventListener('click', closeWidget);
+    if (newChatBtn) newChatBtn.addEventListener('click', startNewChat);
     if (form) form.addEventListener('submit', onSubmit);
     if (removeBtn) removeBtn.addEventListener('click', clearAttachment);
 

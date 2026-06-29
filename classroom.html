@@ -917,7 +917,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <i class="fas fa-map-signs" style="color:#f59e0b;font-size:1.1rem;margin-top:0.15rem;flex-shrink:0;"></i>
       <div style="flex:1;">
         <div style="font-weight:800;font-size:0.92rem;color:#92400e;">ðŸ“– How to use the Study Planner</div>
-        <div style="font-size:0.8rem;color:#b45309;margin-top:0.1rem;">Tap to expand Â· 5 easy steps</div>
+        <div style="font-size:0.8rem;color:#b45309;margin-top:0.1rem;">Tap to expand 5 easy steps</div>
       </div>
       <i class="fas toggle fa-chevron-down" style="color:#d97706;margin-top:0.2rem;"></i>
     </div>
@@ -1063,7 +1063,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.6rem;flex-wrap:wrap;">
         <span style="background:rgba(14,165,233,0.25);border:1px solid rgba(14,165,233,0.5);color:#7dd3fc;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">ðŸŒ Opportunities Hub</span>
       </div>
-      <div style="font-size:1.3rem;font-weight:900;margin-bottom:0.5rem;">Internships Â· NSS Â· Scholarships &amp; More</div>
+      <div style="font-size:1.3rem;font-weight:900;margin-bottom:0.5rem;">Internships NSS Scholarships &amp; More</div>
       <div style="font-size:0.88rem;opacity:0.85;line-height:1.6;max-width:500px;">Engineering opportunities curated for GERAMA members. Apply, track your progress, and connect with others who've been through the process. <a href="contact.html" style="color:#FFC107;font-weight:700;text-decoration:underline;">Contact admins</a> for assistance.</div>
     </div>
   </div>
@@ -1213,7 +1213,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <!-- FOOTER -->
 <footer class="site-footer">
   <div class="footer-bottom">
-    <p class="footer-copy">Â© 2026 GERAMA Academic Resources Â· All rights reserved</p>
+    <p class="footer-copy">Â© 2026 GERAMA Academic Resources All rights reserved</p>
     <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;Â·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
   </div>
 </footer>
@@ -2760,7 +2760,7 @@ async function loadQuizzes() {
     if(deadline){
       dlText = (isPast||isClosed)
         ? 'âš ï¸ Deadline passed'
-        : 'Due: '+deadline.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' Â· '+deadline.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+        : 'Due: '+deadline.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' '+deadline.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
     }
     var statusClass = isClosed ? 'quiz-status-ended' : isPast ? 'quiz-status-ended' : isSoon ? 'quiz-status-soon' : 'quiz-status-active';
     var statusText  = isClosed ? 'ðŸ”’ Closed by Admin' : isPast ? 'â° Deadline Passed' : isSoon ? 'âš¡ Closing Soon' : 'âœ… Open';
@@ -2945,9 +2945,9 @@ function openQuestionPaper(quiz, questions) {
       '<div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;padding:1.5rem 2rem;">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">' +
           '<div>' +
-            '<div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">UNIVERSITY OF ENERGY AND NATURAL RESOURCES Â· TEAM GERAMA</div>' +
+            '<div style="font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:0.3rem;">UNIVERSITY OF ENERGY AND NATURAL RESOURCES TEAM GERAMA</div>' +
             '<div style="font-size:1.3rem;font-weight:800;margin-bottom:0.2rem;">'+quiz.title+'</div>' +
-            '<div style="font-size:0.85rem;opacity:0.8;">'+(quiz.course||'')+(quiz.course&&quiz.tutor?' Â· ':'')+''+(quiz.tutor||quiz.posted_by||'')+'</div>' +
+            '<div style="font-size:0.85rem;opacity:0.8;">'+(quiz.course||'')+(quiz.course&&quiz.tutor?' ':'')+''+(quiz.tutor||quiz.posted_by||'')+'</div>' +
           '</div>' +
           '<button onclick="document.getElementById(\'questionPaperModal\').remove()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">âœ•</button>' +
         '</div>' +
@@ -3042,7 +3042,7 @@ function downloadQuestionPaperPDF(qid) {
     (header ? header.outerHTML : '') +
     (studentBar ? studentBar.outerHTML : '') +
     (paperArea ? paperArea.innerHTML.replace(/textarea/g,'div').replace(/input/g,'div') : '') +
-    '<p style="font-size:0.75rem;color:#9ca3af;text-align:center;margin-top:2rem;border-top:1px solid #e5e7eb;padding-top:0.8rem;">GERAMA Academic Resources Centre Â· UENR Â· Generated '+new Date().toLocaleDateString('en-GB')+'</p>' +
+    '<p style="font-size:0.75rem;color:#9ca3af;text-align:center;margin-top:2rem;border-top:1px solid #e5e7eb;padding-top:0.8rem;">GERAMA Academic Resources Centre UENR Generated '+new Date().toLocaleDateString('en-GB')+'</p>' +
     '</body></html>');
   win.document.close();
   win.focus();
@@ -4285,7 +4285,7 @@ async function loadMyGrades() {
         '<div style="flex:1;min-width:0;">' +
           '<div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.35rem;">'+typeBadge+courseTag+'</div>' +
           '<div style="font-weight:700;color:#1e2a3e;font-size:0.95rem;margin-bottom:0.15rem;">'+escHtml(g.assignment_title||'â€”')+'</div>' +
-      '<div style="font-size:0.75rem;color:#9ca3af;"><i class="fas fa-check-circle" style="color:#059669;margin-right:0.3rem;"></i>Graded ' + dt + (participatedDt ? ' Â· Participated '+participatedDt : '') + '</div>' +          progressBar +
+      '<div style="font-size:0.75rem;color:#9ca3af;"><i class="fas fa-check-circle" style="color:#059669;margin-right:0.3rem;"></i>Graded ' + dt + (participatedDt ? ' Participated '+participatedDt : '') + '</div>' +          progressBar +
         '</div>' +
         '<div style="background:'+scoreBg+';color:'+scoreColor+';font-size:1.5rem;font-weight:900;padding:0.5rem 1.1rem;border-radius:12px;white-space:nowrap;text-align:center;flex-shrink:0;min-width:80px;">' +
           g.score + (maxPts ? '<div style="font-size:0.62rem;font-weight:600;opacity:0.7;">/ '+maxPts+'</div>' : '<div style="font-size:0.62rem;font-weight:600;opacity:0.7;">pts</div>') +
