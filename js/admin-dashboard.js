@@ -6065,6 +6065,10 @@ window.filterMemberSearch = function(groupId) {
   if (!input || !drop) return;
 
   var q = input.value.trim().toLowerCase();
+  if (input.dataset.selectedName && input.value !== input.dataset.selectedName) {
+    input.dataset.selectedEmail = '';
+    input.dataset.selectedName = '';
+  }
   drop.style.display = 'none';
   if (q.length < 1) return;
 
@@ -6102,6 +6106,7 @@ window.filterMemberSearch = function(groupId) {
       ' style="padding:0.5rem 0.8rem;cursor:pointer;font-size:0.83rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:0.3rem;"' +
       ' onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'\'">' +
       '<span style="font-weight:600;color:#1e2a3e;">' + window.escHtml(u.full_name || u.email) + '</span>' +
+      '<span style="font-size:0.72rem;color:#9ca3af;">' + window.escHtml(u.email || '') + '</span>' +
       lvlBadge + idxBadge +
     '</div>';
   }).join('');
@@ -6112,7 +6117,7 @@ window.filterMemberSearch = function(groupId) {
 window.selectMemberSearch = function(groupId, email, name) {
   var input = document.getElementById('addMemberSearch-' + groupId);
   var drop  = document.getElementById('addMemberDrop-' + groupId);
-  if (input) { input.value = name; input.dataset.selectedEmail = email; }
+  if (input) { input.value = name; input.dataset.selectedEmail = email; input.dataset.selectedName = name; }
   if (drop)  drop.style.display = 'none';
 };
 
