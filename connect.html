@@ -2565,6 +2565,17 @@ renderChatWindow = async function(email, name){
 
 // Add search button to DM sidebar header
 document.addEventListener('DOMContentLoaded', function(){
+  var peopleTitle = document.querySelector('#sec-people .people-header > div:first-child');
+  if (peopleTitle) {
+    var online = document.getElementById('onlineCount');
+    peopleTitle.innerHTML = '<i class="fas fa-users" style="color:var(--primary);margin-right:0.35rem;"></i>Discover Members ';
+    if (online) peopleTitle.appendChild(online);
+  }
+  var msgTitle = document.querySelector('#sec-dms .chat-list-header h3');
+  if (msgTitle) msgTitle.innerHTML = '<i class="fas fa-comment-dots" style="color:var(--primary);margin-right:0.35rem;"></i>Messages';
+  var groupsTitle = document.querySelector('#sec-groups .sec-title span:first-child');
+  if (groupsTitle) groupsTitle.innerHTML = '<i class="fas fa-book-open" style="color:var(--primary);margin-right:0.35rem;"></i>L100 Study Groups';
+
   var header = document.querySelector('.chat-list-header');
   if(header){
     var sb = document.createElement('button');
