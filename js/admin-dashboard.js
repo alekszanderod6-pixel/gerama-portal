@@ -93,7 +93,38 @@
     if (!payload.student_email) throw new Error('Missing student email.');
     if (!payload.assignment_title) throw new Error('Missing assignment title.');
 
-    var first = await sb.from('student_grades').upsert(payload, { onConflict: 'student_email,assignment_title' });
+    var optionalGradeColumns = ['student_name','course','total_marks','points','submission_id','participated_at','index_number'];
+
+    function trimGradePayload(source, error) {
+      var next = {};
+      Object.keys(source).forEach(function(k){ next[k] = source[k]; });
+      var msg = String((error && (error.message || error.details || error.hint)) || '');
+      optionalGradeColumns.forEach(function(col) {
+        if (msg.indexOf("'" + col + "'") !== -1 || msg.toLowerCase().indexOf('column ' + col.toLowerCase()) !== -1) {
+          delete next[col];
+        }
+      });
+      if (Object.keys(next).length === Object.keys(source).length && msg.toLowerCase().indexOf('schema cache') !== -1) {
+        optionalGradeColumns.forEach(function(col){ delete next[col]; });
+      }
+      return next;
+    }
+
+    async function runGradeWrite(buildQuery, sourcePayload) {
+      var current = sourcePayload;
+      for (var tries = 0; tries < 3; tries++) {
+        var result = await buildQuery(current);
+        if (!result.error) return result;
+        var trimmed = trimGradePayload(current, result.error);
+        if (JSON.stringify(trimmed) === JSON.stringify(current)) return result;
+        current = trimmed;
+      }
+      return await buildQuery(current);
+    }
+
+    var first = await runGradeWrite(function(p) {
+      return sb.from('student_grades').upsert(p, { onConflict: 'student_email,assignment_title' });
+    }, payload);
     if (!first.error) return first;
 
     console.warn('student_grades upsert failed, trying update/insert fallback:', first.error.message);
@@ -103,11 +134,15 @@
       .eq('assignment_title', payload.assignment_title)
       .maybeSingle();
     if (existing.data && existing.data.id) {
-      var updated = await sb.from('student_grades').update(payload).eq('id', existing.data.id);
+      var updated = await runGradeWrite(function(p) {
+        return sb.from('student_grades').update(p).eq('id', existing.data.id);
+      }, payload);
       if (!updated.error) return updated;
       throw updated.error;
     }
-    var inserted = await sb.from('student_grades').insert(payload);
+    var inserted = await runGradeWrite(function(p) {
+      return sb.from('student_grades').insert(p);
+    }, payload);
     if (inserted.error) throw inserted.error;
     return inserted;
   }
@@ -3708,14 +3743,13 @@ window.importScoresFromCSV = async function() {
   for(var i=0;i<parsed.length;i++){
     var row = parsed[i];
     try{
-      // Upsert to student_grades
-      await sb.from('student_grades').upsert({
+      await window.upsertStudentGrade({
         student_email:    row.email,
         assignment_title: qzTitle,
         score:            row.score,
         graded_at:        new Date().toISOString(),
         participated_at:  participatedAt
-      }, {onConflict:'student_email,assignment_title'});
+      });
       ok++;
     }catch(e){ fail++; }
   }
@@ -3938,7 +3972,7 @@ window.importScoresFromCSV = async function() {
     var row = toImport[i];
     try{
       // Upsert atomically — prevents race condition from delete+insert
-      await sb.from('student_grades').upsert({
+      await window.upsertStudentGrade({
         student_email:    row.email,
         assignment_title: qzTitle,
         course:           qzCourse,
@@ -3947,7 +3981,7 @@ window.importScoresFromCSV = async function() {
         points:           qzPoints,
         graded_at:        new Date().toISOString(),
         participated_at:  participatedAt2
-      }, {onConflict: 'student_email,assignment_title'});
+      });
       ok++;
     }catch(e){ fail++; errors.push(row.ident+': '+e.message); }
   }
