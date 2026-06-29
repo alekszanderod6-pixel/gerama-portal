@@ -4006,6 +4006,21 @@ var GROUP_NAMES = ['Gerama A', 'Gerama B', 'Gerama C', 'Gerama D', 'Gerama E', '
 var GROUP_COLORS = ['#1B5E20','#1565C0','#6A1B9A','#E65100','#AD1457','#00695C'];
 var GROUP_MAX = 25; // max per group after rebalance
 
+async function fetchGroupSearchUsers(sb) {
+  var queries = [
+    'email, full_name, level, program, index_number, gender',
+    'email, full_name, level, program, index_number',
+    'email, full_name, level, program',
+    'email, full_name'
+  ];
+
+  for (var i = 0; i < queries.length; i++) {
+    var res = await sb.from('user_profiles').select(queries[i]).order('full_name');
+    if (!res.error && res.data) return res.data;
+  }
+  return [];
+}
+
 window.loadGroups = async function(){
   var container = document.getElementById('groupsContainer');
   if(!container) return;
@@ -4033,9 +4048,9 @@ window.loadGroups = async function(){
     var {data: allMembers} = await sb.from('gerama_group_members').select('*');
     allMembers = allMembers || [];
 
-    // Fetch all registered users for "Add member" dropdowns
-    var {data: allUsers} = await sb.from('user_profiles').select('email, full_name, level, program, index_number, gender').order('full_name');
-    allUsers = allUsers || [];
+    // Fetch all registered users for "Add member" dropdowns.
+    // Some deployments may not have every optional profile column yet, so retry with slimmer selects.
+    var allUsers = await fetchGroupSearchUsers(sb);
 
     // Store globally for use in modal functions
     window._geramaGroups = existingGroups;
@@ -4193,7 +4208,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
       ? '<span style="font-size:0.72rem;color:#6b7280;margin-left:0.4rem;">♀ '+femaleCount+' ♂ '+maleCount+'</span>'
       : '';
 
-    return '<div style="margin-bottom:1.2rem;border:1px solid '+borderColor+';border-radius:14px;overflow:hidden;">'+
+    return '<div style="margin-bottom:1.2rem;border:1px solid '+borderColor+';border-radius:14px;overflow:visible;position:relative;">'+
       // Header
       '<div onclick="toggleGroupAccordion(\''+accordionId+'\')" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;background:'+lighterBg+';cursor:pointer;user-select:none;">'+
         '<div style="display:flex;align-items:center;gap:0.8rem;">'+
@@ -4216,7 +4231,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
         '</div>'+
       '</div>'+
       // Body
-      '<div id="'+accordionId+'" style="display:none;padding:1rem 1.2rem;background:white;">'+
+      '<div id="'+accordionId+'" style="display:none;padding:1rem 1.2rem;background:white;border-radius:0 0 14px 14px;">'+
         // Tutors highlighted section
         (tutors.length ? '<div style="background:'+hexToRgba(color,0.06)+';border-radius:10px;padding:0.7rem 0.8rem;margin-bottom:0.8rem;border-left:3px solid '+color+';">'+
           '<div style="font-size:0.78rem;font-weight:700;color:'+color+';margin-bottom:0.4rem;"><i class="fas fa-chalkboard-teacher"></i> Assigned Tutors</div>'+
@@ -6059,7 +6074,7 @@ window.commitIndexAssignment = async function() {
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Called on every keystroke in the per-group search box
-window.filterMemberSearch = function(groupId) {
+window.filterMemberSearch = async function(groupId) {
   var input = document.getElementById('addMemberSearch-' + groupId);
   var drop  = document.getElementById('addMemberDrop-' + groupId);
   if (!input || !drop) return;
@@ -6074,6 +6089,12 @@ window.filterMemberSearch = function(groupId) {
 
   var allUsers   = window._allUsers || [];
   var allMembers = window._allGroupMembers || [];
+  if (!allUsers.length && window.geramaSupabase) {
+    drop.innerHTML = '<div style="padding:0.55rem 0.8rem;font-size:0.82rem;color:#6b7280;"><i class="fas fa-spinner fa-spin"></i> Loading registered members...</div>';
+    drop.style.display = 'block';
+    allUsers = await fetchGroupSearchUsers(window.geramaSupabase);
+    window._allUsers = allUsers || [];
+  }
 
   // Emails already in this specific group
   var inGroup = {};
@@ -6089,7 +6110,7 @@ window.filterMemberSearch = function(groupId) {
   }).slice(0, 10);
 
   if (!matches.length) {
-    drop.innerHTML = '<div style="padding:0.55rem 0.8rem;font-size:0.82rem;color:#9ca3af;">No matches found</div>';
+    drop.innerHTML = '<div style="padding:0.55rem 0.8rem;font-size:0.82rem;color:#9ca3af;">No registered member matches found</div>';
     drop.style.display = 'block';
     return;
   }
