@@ -1124,9 +1124,9 @@
 
       } else if(srcType === 'gdrive'){
         var gdUrl = document.getElementById('matGdriveUrl').value.trim();
-        if(!gdUrl) throw new Error('Please enter the Google Drive / external link.');
+        if(!gdUrl) throw new Error('Please enter the website, YouTube, or external resource link.');
         fileUrl = gdUrl;
-        window.showStatus('matStatus','Saving external link...','info');
+        window.showStatus('matStatus','Saving website/tutorial link...','info');
 
       } else {
         // File upload
