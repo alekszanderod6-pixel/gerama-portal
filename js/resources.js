@@ -21,6 +21,15 @@
 const GITHUB_BASE =
   "https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/materials/";
 
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 // Helper: pick the right icon emoji for a file extension
 function fileIcon(filename) {
   const ext = (filename || "").split(".").pop().toLowerCase();
@@ -535,18 +544,30 @@ function renderCourses(filterText) {
       }
 
       var dlUrl = rawUrl;
+      var safeName = escapeHtml(m.name);
+      var safeDesc = m.description ? escapeHtml(m.description) : '';
 
       return (
-        '<div class="material-row">' +
+        '<div class="material-row' + (currentType === 'videos' ? ' video-material-row' : '') + '">' +
           '<div class="material-info">' +
             '<span class="material-icon">' + icon + '</span>' +
-            '<span class="material-name">' + m.name + '</span>' +
+            '<span class="material-copy">' +
+              '<span class="material-name">' + safeName + '</span>' +
+              (safeDesc ? '<span class="material-desc">' + safeDesc + '</span>' : '') +
+            '</span>' +
           '</div>' +
           '<div class="material-actions">' +
             // Detect source type
             (function(){
               var isTelegram = dlUrl && (dlUrl.indexOf('t.me') !== -1 || dlUrl.indexOf('telegram') !== -1);
               var isGdrive   = dlUrl && (dlUrl.indexOf('drive.google') !== -1 || dlUrl.indexOf('docs.google') !== -1 || dlUrl.indexOf('dropbox') !== -1);
+              var isYoutube  = dlUrl && (dlUrl.indexOf('youtube.com') !== -1 || dlUrl.indexOf('youtu.be') !== -1);
+              var isExternalVideo = currentType === 'videos' && m.supabase && !isVideo;
+              if(isYoutube){
+                return '<a class="btn-dl download video-watch" href="'+dlUrl+'" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#dc2626,#ef4444);text-decoration:none;"><i class="fab fa-youtube"></i> Watch</a>';
+              } else if(isExternalVideo){
+                return '<a class="btn-dl download video-watch" href="'+dlUrl+'" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#7c3aed,#2563eb);text-decoration:none;"><i class="fas fa-play-circle"></i> Open Tutorial</a>';
+              }
               if(isTelegram){
                 return '<a class="btn-dl download" href="'+dlUrl+'" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#0088cc,#006aaa);text-decoration:none;"><i class="fab fa-telegram"></i> Open in Telegram</a>';
               } else if(isGdrive){
@@ -680,6 +701,7 @@ function fetchSupabaseMaterials(level) {
         }
         currentCourses[course][type].push({
           name:    row.name,
+          description: row.description || '',
           file:    null,
           url:     matUrl,
           supabase: true

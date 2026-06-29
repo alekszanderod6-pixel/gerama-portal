@@ -457,7 +457,7 @@ tr:hover td{background:#fafcfa;}
               <input type="radio" name="matSourceType" value="telegram" id="matSrcTelegram" onchange="toggleMatSource()"> <i class="fab fa-telegram" style="color:#0088cc;"></i> Telegram Link
             </label>
             <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500;padding:0.5rem 1rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;" id="matSrcGdLabel">
-              <input type="radio" name="matSourceType" value="gdrive" id="matSrcGdrive" onchange="toggleMatSource()"> <i class="fab fa-google-drive" style="color:#4285F4;"></i> Google Drive / Link
+              <input type="radio" name="matSourceType" value="gdrive" id="matSrcGdrive" onchange="toggleMatSource()"> <i class="fas fa-link" style="color:#4285F4;"></i> Website / YouTube Link
             </label>
           </div>
         </div>
@@ -475,11 +475,11 @@ tr:hover td{background:#fafcfa;}
           <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;"><i class="fab fa-telegram" style="color:#0088cc;"></i> Right-click any message in your Telegram channel → Copy Message Link → paste here. Students will tap to open in Telegram.</small>
         </div>
 
-        <!-- Google Drive / external link -->
+        <!-- Website / video / external link -->
         <div class="form-field full" id="matGdriveField" style="display:none;">
-          <label>Google Drive / External Link *</label>
-          <input type="url" id="matGdriveUrl" placeholder="https://drive.google.com/file/d/... or any direct URL">
-          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;"><i class="fab fa-google-drive" style="color:#4285F4;"></i> Paste a Google Drive share link, Dropbox link, or any direct file URL. Make sure sharing is set to "Anyone with the link".</small>
+          <label>Website / YouTube / External Link *</label>
+          <input type="url" id="matGdriveUrl" placeholder="https://youtube.com/watch?v=... or https://www.w3schools.com/...">
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;"><i class="fas fa-link" style="color:#4285F4;"></i> Paste YouTube, W3Schools, Google Drive, Dropbox, or any safe tutorial/resource URL. For videos, select Material Type = Video Tutorial.</small>
         </div>
       </div>
       <div style="margin-top:1rem;"><button class="btn-primary" id="uploadMatBtn" type="button"><i class="fas fa-upload"></i> Upload &amp; Go Live</button></div>
