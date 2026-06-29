@@ -4,6 +4,7 @@
 
   var STORAGE_KEY = 'gerama_study_timer';
   var COLLAPSE_KEY = 'gerama_study_timer_collapsed';
+  var DISMISS_KEY = 'gerama_study_timer_dismissed_until';
   var state = {
     isRunning: false,
     seconds: 0,
@@ -32,6 +33,8 @@
   }
 
   function shouldShowWidget() {
+    var dismissedUntil = parseInt(localStorage.getItem(DISMISS_KEY) || '0', 10);
+    if (dismissedUntil && Date.now() < dismissedUntil) return false;
     var hour = new Date().getHours();
     return hour >= 18 || hour < 6; // Show after 6pm or before 6am
   }
@@ -100,6 +103,12 @@
     saveState();
   }
 
+  function dismissWidget() {
+    localStorage.setItem(DISMISS_KEY, String(Date.now() + (12 * 60 * 60 * 1000)));
+    var widget = document.getElementById('studyTimerWidget');
+    if (widget) widget.remove();
+  }
+
   function tick() {
     if (state.isRunning) {
       state.seconds++;
@@ -117,12 +126,14 @@
     var style = document.createElement('style');
     style.id = 'studyTimerStyle';
     style.textContent = [
-      '#studyTimerWidget{position:fixed;right:14px;bottom:80px;z-index:8090;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;padding:1rem;border-radius:18px;box-shadow:0 12px 35px rgba(27,94,32,0.3);min-width:200px;font-family:"Inter",sans-serif;transition:all 0.3s;}',
+      '#studyTimerWidget{position:fixed;right:14px;bottom:92px;z-index:8090;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;padding:1rem;border-radius:18px;box-shadow:0 12px 35px rgba(27,94,32,0.3);min-width:200px;font-family:"Inter",sans-serif;transition:all 0.3s;}',
       '#studyTimerWidget.collapsed{min-width:auto;padding:0.6rem 0.8rem;}',
       '#studyTimerHeader{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.5rem;}',
       '#studyTimerWidget h4{margin:0;font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:0.4rem;}',
       '#studyTimerCollapse{border:none;background:rgba(255,255,255,0.2);color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;}',
+      '#studyTimerClose{border:none;background:rgba(255,255,255,0.2);color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:0.72rem;display:flex;align-items:center;justify-content:center;}',
       '#studyTimerCollapse:hover{background:rgba(255,255,255,0.3);}',
+      '#studyTimerClose:hover{background:rgba(255,255,255,0.3);}',
       '#studyTimerContent{transition:all 0.3s;}',
       '#studyTimerContent.hidden{display:none;}',
       '#studyTimerDisplay{font-size:2rem;font-weight:800;text-align:center;margin:0.5rem 0;font-family:monospace;letter-spacing:2px;}',
@@ -132,7 +143,7 @@
       '#studyTimerToggle:hover{transform:scale(1.02);}',
       '#studyTimerReset{border:none;background:rgba(255,255,255,0.2);color:#fff;padding:0.5rem 0.8rem;border-radius:10px;cursor:pointer;font-weight:700;font-size:0.8rem;}',
       '#studyTimerReset:hover{background:rgba(255,255,255,0.3);}',
-      '@media (max-width:640px){#studyTimerWidget{right:12px;bottom:70px;min-width:180px;padding:0.8rem;}#studyTimerDisplay{font-size:1.6rem;}}'
+      '@media (max-width:640px){#studyTimerWidget{right:12px;bottom:78px;min-width:180px;padding:0.8rem;}#studyTimerDisplay{font-size:1.6rem;}}'
     ].join('');
     document.head.appendChild(style);
 
@@ -141,7 +152,10 @@
     widget.innerHTML = '' +
       '<div id="studyTimerHeader">' +
         '<h4><i class="fas fa-clock"></i> Study Timer</h4>' +
-        '<button id="studyTimerCollapse" title="Collapse/Expand"><i class="fas fa-chevron-down"></i></button>' +
+        '<div style="display:flex;align-items:center;gap:0.35rem;">' +
+          '<button id="studyTimerCollapse" title="Collapse/Expand"><i class="fas fa-chevron-down"></i></button>' +
+          '<button id="studyTimerClose" title="Close Study Timer" aria-label="Close Study Timer"><i class="fas fa-times"></i></button>' +
+        '</div>' +
       '</div>' +
       '<div id="studyTimerContent">' +
         '<div id="studyTimerDisplay">00:00</div>' +
@@ -160,6 +174,7 @@
     document.getElementById('studyTimerToggle').addEventListener('click', toggleTimer);
     document.getElementById('studyTimerReset').addEventListener('click', resetTimer);
     document.getElementById('studyTimerCollapse').addEventListener('click', toggleCollapse);
+    document.getElementById('studyTimerClose').addEventListener('click', dismissWidget);
   }
 
   function init() {

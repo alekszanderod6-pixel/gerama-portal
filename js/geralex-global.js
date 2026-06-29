@@ -157,13 +157,13 @@
     var style = document.createElement('style');
     style.id = 'geralexWidgetStyle';
     style.textContent = [
-      '#geralexLauncher{position:fixed;right:14px;bottom:80px;z-index:8100;border:none;min-width:64px;height:58px;border-radius:999px;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;box-shadow:0 14px 40px rgba(27,94,32,0.35);cursor:pointer;font-size:0.96rem;font-weight:800;padding:0 1rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}',
+      '#geralexLauncher{position:fixed;right:14px;bottom:22px;z-index:8100;border:none;min-width:64px;height:58px;border-radius:999px;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;box-shadow:0 14px 40px rgba(27,94,32,0.35);cursor:pointer;font-size:0.96rem;font-weight:800;padding:0 1rem;display:flex;align-items:center;justify-content:center;gap:0.45rem;}',
       '#geralexLauncher::before{content:"";width:9px;height:9px;border-radius:50%;background:#FFC107;box-shadow:0 0 0 6px rgba(255,193,7,0.18);flex-shrink:0;}',
-      '#geralexWidget{position:fixed;right:14px;bottom:148px;z-index:8101;width:min(410px,calc(100vw - 24px));height:min(80vh,700px);display:none;grid-template-rows:auto auto minmax(300px,1fr) auto;background:#fff;border:1px solid rgba(15,23,42,0.08);border-radius:26px;box-shadow:0 24px 60px rgba(15,23,42,0.22);overflow:hidden;}',
+      '#geralexWidget{position:fixed;right:14px;bottom:92px;z-index:8101;width:min(430px,calc(100vw - 28px));height:min(720px,calc(100vh - 118px));display:none;grid-template-rows:auto auto minmax(120px,1fr) auto;background:#fff;border:1px solid rgba(15,23,42,0.08);border-radius:24px;box-shadow:0 24px 60px rgba(15,23,42,0.22);overflow:hidden;}',
       '#geralexWidget.open{display:grid;}',
       '.geralex-head{padding:1rem 1rem 0.9rem;background:linear-gradient(135deg,#071a12,#0a2f1f 40%,#1B5E20);color:#fff;}',
       '.geralex-title{display:flex;align-items:center;justify-content:space-between;gap:0.75rem;}',
-      '.geralex-title h3{margin:0;font-size:1rem;font-weight:800;}',
+      '.geralex-title h3{margin:0;font-size:1rem;font-weight:800;letter-spacing:0;}',
       '.geralex-title button{border:none;background:rgba(255,255,255,0.14);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;transition:all 0.2s;}',
       '.geralex-title button:hover{background:rgba(255,255,255,0.25);transform:scale(1.05);}',
       '.geralex-sub{margin-top:0.45rem;font-size:0.8rem;line-height:1.45;color:rgba(255,255,255,0.84);}',
@@ -203,7 +203,8 @@
       '.geralex-send-btn{border:none;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:#fff;border-radius:999px;padding:0.78rem 1.4rem;cursor:pointer;font-weight:800;min-width:120px;display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;box-shadow:0 10px 28px rgba(27,94,32,0.3);transition:all 0.2s;font-size:0.9rem;}',
       '.geralex-note{margin-top:0.55rem;font-size:0.72rem;color:#6b7280;line-height:1.4;display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;}',
       '.geralex-note strong{color:#0f172a;}',
-      '@media (max-width:640px){#geralexLauncher{bottom:132px;right:12px;height:54px;padding:0 0.95rem;font-size:0.9rem;}#geralexWidget{right:12px;left:12px;bottom:194px;width:auto;height:min(70vh,660px);} .geralex-actions{flex-wrap:wrap;} .geralex-send-btn{width:100%;}}'
+      '@media (max-width:900px){#geralexWidget{height:min(680px,calc(100vh - 112px));}}',
+      '@media (max-width:640px){#geralexLauncher{bottom:82px;right:12px;height:54px;padding:0 0.95rem;font-size:0.9rem;}#geralexWidget{right:10px;left:10px;bottom:146px;width:auto;height:calc(100vh - 166px);border-radius:20px;grid-template-rows:auto auto minmax(90px,1fr) auto;} .geralex-head{padding:0.85rem 0.9rem 0.75rem;} .geralex-sub{font-size:0.76rem;} .geralex-headnote{display:none;} .geralex-prompts{padding:0.6rem 0.8rem;} .geralex-feed{padding:0.8rem;} .geralex-footer{padding:0.7rem 0.8rem 0.8rem;} .geralex-actions{flex-wrap:wrap;} .geralex-send-btn{width:100%;}}'
     ].join('');
     document.head.appendChild(style);
 
@@ -219,8 +220,8 @@
       '    <div class="geralex-title">' +
       '      <h3>GERALEX AI</h3>' +
       '      <div style="display:flex;gap:0.5rem;">' +
-      '        <button type="button" id="geralexNewChatBtn" aria-label="New Chat" style="border:none;background:rgba(255,255,255,0.14);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:0.85rem;">+</button>' +
-      '        <button type="button" id="geralexCloseBtn" aria-label="Close GERALEX">x</button>' +
+      '        <button type="button" id="geralexNewChatBtn" aria-label="New Chat" title="New chat" style="border:none;background:rgba(255,255,255,0.14);color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:0.85rem;">+</button>' +
+      '        <button type="button" id="geralexCloseBtn" aria-label="Close GERALEX" title="Close GERALEX">x</button>' +
       '      </div>' +
       '    </div>' +
       '    <div class="geralex-sub">Ask about the portal, study topics, or upload one image/PDF question. Private admin details stay protected.</div>' +
@@ -605,4 +606,3 @@
     init();
   }
 })();
-
