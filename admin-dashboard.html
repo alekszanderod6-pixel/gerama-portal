@@ -1868,7 +1868,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
             <input type="radio" name="clsPlatform" value="jitsi" id="clsPlatformJitsi" checked onchange="toggleClsPlatform()"> <i class="fas fa-video" style="color:#1d4ed8;"></i> Jitsi Meet (Auto-generated)
           </label>
           <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;padding:0.5rem 1rem;border-radius:8px;border:2px solid #e5e7eb;transition:all 0.2s;font-size:0.85rem;" id="clsPlatformGoogleLabel">
-            <input type="radio" name="clsPlatform" value="google" id="clsPlatformGoogle" onchange="toggleClsPlatform()"> <i class="fab fa-google" style="color:#4285F4;"></i> Google Meet (Custom Link)
+            <input type="radio" name="clsPlatform" value="google" id="clsPlatformGoogle" onchange="toggleClsPlatform()"> <i class="fab fa-google" style="color:#4285F4;"></i> Google Meet (Auto-generated)
           </label>
         </div>
       </div>
@@ -1889,11 +1889,9 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           <i class="fas fa-info-circle"></i> A Jitsi Meet link will be generated automatically when you schedule.
         </div>
 
-        <!-- Google Meet custom link input -->
-        <div class="form-field full" id="clsGoogleMeetField" style="display:none;">
-          <label>Google Meet Link *</label>
-          <input type="url" id="clsGoogleMeetLink" placeholder="https://meet.google.com/xxx-yyyy-zzz">
-          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Paste your Google Meet link here. Create a meeting in Google Calendar and copy the link.</small>
+        <!-- Google Meet auto-generated link info -->
+        <div class="form-field full" id="clsGoogleMeetField" style="display:none;background:#dbeafe;border-radius:10px;padding:0.8rem 1rem;font-size:0.85rem;color:#1e40af;">
+          <i class="fas fa-info-circle"></i> A Google Meet link will be generated automatically when you schedule.
         </div>
 
         <!-- In-person: venue fields -->

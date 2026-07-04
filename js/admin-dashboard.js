@@ -2001,17 +2001,9 @@ window.scheduleClass = async function(){
       if(platformInput) platform = platformInput.value;
       
       if(platform === 'google'){
-        meetLink = (document.getElementById('clsGoogleMeetLink')||{}).value.trim();
-        if(!meetLink){
-          // Auto-generate placeholder Google Meet link
-          var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
-          meetLink = 'https://meet.google.com/lookup/'+slug;
-        }
-        if(meetLink.toLowerCase().indexOf('meet.google.com') === -1){
-          window.showStatus('clsStatus','Please paste a valid Google Meet link.','err');
-          btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish';
-          return;
-        }
+        // Auto-generate Google Meet link
+        var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
+        meetLink = 'https://meet.google.com/lookup/'+slug+'-'+Date.now();
       } else {
         var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
         meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
@@ -2039,7 +2031,7 @@ window.scheduleClass = async function(){
     }
     window.logActivity('Scheduled '+(clsType==='inperson'?'in-person':(platform==='google'?'Google Meet':'Jitsi'))+' class: '+course+' – '+topic);
     window.showStatus('clsStatus','✅ Class scheduled! '+(clsType==='inperson'?'Venue: '+venue:'Share the link with students.'),'ok');
-    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime','clsVenue','clsMapLink','clsGoogleMeetLink','clsGroup'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime','clsVenue','clsMapLink','clsGroup'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
     window.loadClsList();
   }catch(e){ window.showStatus('clsStatus','❌ '+e.message,'err'); }
   btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish';
@@ -6789,6 +6781,7 @@ window.handleAttClassSelect = async function(){
     titleInput.value = selectedClass;
   }
 };
+
 
 
 

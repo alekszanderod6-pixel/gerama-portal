@@ -768,25 +768,29 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ── Main section switcher: Explore ↔ Software ↔ Upload ──
+  // ── Main section switcher: Explore ↔ Videos ↔ Software ↔ Upload ──
   const exploreBtn     = document.getElementById("exploreMainBtn");
+  const videosBtn      = document.getElementById("videosMainBtn");
   const softwareBtn    = document.getElementById("softwareMainBtn");
   const uploadBtn      = document.getElementById("uploadMainBtn");
   const exploreSection  = document.getElementById("exploreSection");
+  const videosSection   = document.getElementById("videosSection");
   const softwareSection = document.getElementById("softwareSection");
   const uploadSection   = document.getElementById("uploadSection");
 
   function showSection(active) {
     // hide all
-    [exploreSection, softwareSection, uploadSection].forEach(function(s){ if(s) s.style.display = "none"; });
-    [exploreBtn, softwareBtn, uploadBtn].forEach(function(b){ if(b) b.classList.remove("active"); });
+    [exploreSection, videosSection, softwareSection, uploadSection].forEach(function(s){ if(s) s.style.display = "none"; });
+    [exploreBtn, videosBtn, softwareBtn, uploadBtn].forEach(function(b){ if(b) b.classList.remove("active"); });
     // show chosen
     if (active === "explore")  { if(exploreSection)  exploreSection.style.display  = "block"; if(exploreBtn)  exploreBtn.classList.add("active"); }
+    if (active === "videos")   { if(videosSection)   videosSection.style.display   = "block"; if(videosBtn)   videosBtn.classList.add("active"); loadVideosByLevel('all'); }
     if (active === "software") { if(softwareSection) softwareSection.style.display = "block"; if(softwareBtn) softwareBtn.classList.add("active"); loadAdminSoftware(); }
     if (active === "upload")   { if(uploadSection)   uploadSection.style.display   = "block"; if(uploadBtn)   uploadBtn.classList.add("active"); }
   }
 
   if(exploreBtn)  exploreBtn.addEventListener("click",  function() { showSection("explore"); });
+  if(videosBtn)   videosBtn.addEventListener("click",   function() { showSection("videos"); });
   if(softwareBtn) softwareBtn.addEventListener("click", function() { showSection("software"); });
   if(uploadBtn)   uploadBtn.addEventListener("click",   function() { showSection("upload"); });
 
@@ -954,4 +958,106 @@ function loadAdminSoftware() {
       grid.innerHTML = html;
     })
     .catch(function() { /* silent — no admin software yet */ });
+}
+
+function loadVideosByLevel(level) {
+  var container = document.getElementById('videosContainer');
+  if (!container) return;
+
+  document.querySelectorAll('.level-btn').forEach(function(btn) {
+    btn.classList.remove('active');
+    if (btn.dataset.level === level) btn.classList.add('active');
+  });
+
+  container.innerHTML = '<div style="text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin" style="font-size:2rem;color:#6b7280;"></i><p style="color:#6b7280;margin-top:1rem;">Loading videos...</p></div>';
+
+  var sb = window.geramaSupabase;
+  var allVideos = [];
+
+  var staticVideos = [
+    { course: 'Applied Electricity', name: 'Kirchhoff\'s Laws Explained', url: 'https://www.youtube.com/watch?v=example1', level: 'L200', description: 'Understanding KVL and KCL' },
+    { course: 'Digital Logic', name: 'Logic Gates Tutorial', url: 'https://www.youtube.com/watch?v=example2', level: 'L200', description: 'AND, OR, NOT gates basics' },
+    { course: 'Circuit Analysis', name: 'Thevenin\'s Theorem', url: 'https://www.youtube.com/watch?v=example3', level: 'L300', description: 'Simplify complex circuits' }
+  ];
+
+  if (sb) {
+    var query = sb.from('materials').select('*').eq('source_type', 'video');
+    if (level !== 'all') {
+      query = query.eq('level', level);
+    }
+    query.then(function(result) {
+      if (!result.error && result.data) {
+        result.data.forEach(function(mat) {
+          allVideos.push({
+            course: mat.course,
+            name: mat.name,
+            url: mat.file_url,
+            description: mat.description || '',
+            source: 'supabase',
+            source_type: mat.source_type
+          });
+        });
+      }
+      renderVideos(allVideos.length > 0 ? allVideos : staticVideos.filter(function(v) { return level === 'all' || v.level === level; }), container);
+    })
+    .catch(function() {
+      renderVideos(staticVideos.filter(function(v) { return level === 'all' || v.level === level; }), container);
+    });
+  } else {
+    renderVideos(staticVideos.filter(function(v) { return level === 'all' || v.level === level; }), container);
+  }
+}
+
+function renderVideos(videos, container) {
+  if (!videos || videos.length === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="fas fa-video"></i><p>No video tutorials found for this level.</p></div>';
+    return;
+  }
+
+  var grouped = {};
+  videos.forEach(function(vid) {
+    if (!grouped[vid.course]) {
+      grouped[vid.course] = [];
+    }
+    grouped[vid.course].push(vid);
+  });
+
+  var html = '';
+  Object.keys(grouped).forEach(function(course) {
+    var courseVideos = grouped[course];
+    html += '<div class="course-card">' +
+      '<div class="course-header" onclick="this.parentElement.querySelector(\'.course-materials\').classList.toggle(\'show\'); this.classList.toggle(\'open\');">' +
+        '<span style="font-weight:700;">' + escapeHtml(course) + '</span>' +
+        '<span style="background:#fee2e2;color:#dc2626;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">' + courseVideos.length + ' videos</span>' +
+        '<i class="fas fa-chevron-down chevron"></i>' +
+      '</div>' +
+      '<div class="course-materials">';
+
+    courseVideos.forEach(function(vid) {
+      var safeName = escapeHtml(vid.name);
+      var safeDesc = vid.description ? escapeHtml(vid.description) : '';
+      var videoUrl = vid.url || (vid.file ? GITHUB_BASE + vid.file : '#');
+      var isYoutube = videoUrl.indexOf('youtube.com') !== -1 || videoUrl.indexOf('youtu.be') !== -1;
+
+      html += '<div class="material-row video-material-row">' +
+        '<div class="material-info">' +
+          '<span class="material-icon"><i class="fas fa-play-circle"></i></span>' +
+          '<span class="material-copy">' +
+            '<span class="material-name">' + safeName + '</span>' +
+            (safeDesc ? '<span class="material-desc">' + safeDesc + '</span>' : '') +
+          '</span>' +
+        '</div>' +
+        '<div class="material-actions">' +
+          (isYoutube
+            ? '<a class="btn-dl download video-watch" href="' + videoUrl + '" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#dc2626,#ef4444);text-decoration:none;"><i class="fab fa-youtube"></i> Watch</a>'
+            : '<a class="btn-dl download video-watch" href="' + videoUrl + '" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#7c3aed,#2563eb);text-decoration:none;"><i class="fas fa-play-circle"></i> Open Tutorial</a>'
+          ) +
+        '</div>' +
+      '</div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  container.innerHTML = html;
 }
