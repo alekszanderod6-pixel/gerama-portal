@@ -1,4 +1,4 @@
-// GERAMA Service Worker — enables PWA install prompt and offline caching
+// GERAMA Service Worker — enables PWA install prompt and offline caching
 const CACHE_NAME = 'gerama-v1';
 const STATIC_ASSETS = [
   '/',
@@ -47,7 +47,7 @@ self.addEventListener('fetch', function(event) {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET') return;
 
-  // For navigation requests (HTML pages) — network first, fallback to cache
+  // For navigation requests (HTML pages) — network first, fallback to cache
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(function() {
@@ -57,7 +57,7 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
-  // For everything else — stale-while-revalidate
+  // For everything else — stale-while-revalidate
   event.respondWith(
     caches.match(event.request).then(function(cached) {
       const networkFetch = fetch(event.request).then(function(response) {

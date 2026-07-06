@@ -22,7 +22,7 @@ header { background: linear-gradient(135deg, #1B5E20, #2E7D32); color: white; pa
 nav a { color: #eef2ff; text-decoration: none; margin: 0 1rem; padding: 0.5rem; transition: 0.3s; }
 nav a:hover, nav a.active { color: #FFC107; border-bottom: 2px solid #FFC107; }
 
-/* ── PREVENT HORIZONTAL SCROLL ON ALL SECTIONS ── */
+/* —— PREVENT HORIZONTAL SCROLL ON ALL SECTIONS —— */
 section, .section-wrap, .res-container, .contact-wrap, .who-section,
 .team-section, .mission-section, .values-section, .cta-banner,
 .stats-bar, .ann-grid, .features-grid, .steps-grid {
@@ -45,7 +45,7 @@ section, .section-wrap, .res-container, .contact-wrap, .who-section,
 .stat-card, .announcement-card { background: white; border-radius: 20px; padding: 1.5rem; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
 .stat-number { font-size: 2rem; font-weight: 800; color: #1B5E20; }
 
-/* ── SIDEBAR DRAWER ──
+/* —— SIDEBAR DRAWER ——
    z-index 3000 keeps it above the sticky header (z-index 1000).
    width is capped at 85vw so it never covers the full screen on small phones.
    The overlay sits at z-index 2999 to block interaction with the page behind. */
@@ -64,11 +64,11 @@ section, .section-wrap, .res-container, .contact-wrap, .who-section,
 .drawer-nav a:hover, .drawer-nav a.active { background: rgba(255,193,7,0.2); border-left: 3px solid #FFC107; color: #FFC107; }
 .logout-drawer { background: #FFC107; color: #1B5E20; width: 90%; margin: 1rem auto; display: block; border: none; padding: 0.8rem; border-radius: 40px; font-weight: bold; cursor: pointer; }
 
-/* Overlay — blocks page interaction when sidebar is open */
+/* Overlay — blocks page interaction when sidebar is open */
 .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); z-index: 2999; display: none; backdrop-filter: blur(2px); }
 .overlay.active { display: block; }
 
-/* Menu toggle button — only shown on mobile, sits inside the header area.
+/* Menu toggle button — only shown on mobile, sits inside the header area.
    On pages that use the old <header> tag, it floats fixed.
    On pages with .site-header, it is hidden because those headers have their own toggle. */
 .menu-toggle {
@@ -77,7 +77,7 @@ section, .section-wrap, .res-container, .contact-wrap, .who-section,
   padding: 10px 12px; border-radius: 10px; cursor: pointer;
   font-size: 1.1rem; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
   transition: background 0.2s;
-  /* Hidden by default on desktop — only shown on mobile */
+  /* Hidden by default on desktop — only shown on mobile */
   display: none;
 }
 .menu-toggle:hover { background: #FFC107; color: #1B5E20; }
@@ -86,7 +86,7 @@ section, .section-wrap, .res-container, .contact-wrap, .who-section,
    a .site-header (resources.html uses old <header>) */
 @media (max-width: 768px) {
   .menu-toggle { display: block; }
-  /* On pages with .site-header, the header has its own toggle — hide the fixed one */
+  /* On pages with .site-header, the header has its own toggle — hide the fixed one */
   body:has(.site-header) .menu-toggle { display: none; }
 }
 
@@ -112,7 +112,7 @@ footer { background: #0a2f1f; color: white; padding: 2rem; margin-top: 3rem; tex
   .stats-grid { grid-template-columns: 1fr; }
 }
 
-/* ── GLOBAL MOBILE SAFETY NET ── */
+/* —— GLOBAL MOBILE SAFETY NET —— */
 @media (max-width: 768px) {
   /* Prevent any element from causing horizontal scroll */
   * { max-width: 100%; }
@@ -129,10 +129,10 @@ footer { background: #0a2f1f; color: white; padding: 2rem; margin-top: 3rem; tex
   header nav { display: none; }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   GERAMA GLOBAL ENHANCEMENTS — June 2026
+/* ———————————————————————————————————————————————————————————————
+   GERAMA GLOBAL ENHANCEMENTS — June 2026
    Better accessibility, focus states, animations, typography
-   ═══════════════════════════════════════════════════════════════ */
+   ——————————————————————————————————————————————————————————————— */
 
 /* Smooth scroll globally */
 html { scroll-behavior: smooth; }
@@ -147,14 +147,14 @@ html { scroll-behavior: smooth; }
 /* Remove outline for mouse users */
 :focus:not(:focus-visible) { outline: none; }
 
-/* ── IMPROVED BUTTON INTERACTIONS ── */
+/* —— IMPROVED BUTTON INTERACTIONS —— */
 button, .btn, a.btn-hero-primary, a.btn-hero-secondary, a.btn-cta {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
-/* ── IMPROVED INPUTS ── */
+/* —— IMPROVED INPUTS —— */
 input, textarea, select {
   -webkit-appearance: none;
   appearance: none;
@@ -165,7 +165,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   opacity: 0.7;
 }
 
-/* ── GLOBAL PAGE TRANSITIONS ── */
+/* —— GLOBAL PAGE TRANSITIONS —— */
 .tab-section {
   animation: tabFadeIn 0.28s ease both;
 }
@@ -174,7 +174,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── ENHANCED SIDEBAR DRAWER ── */
+/* —— ENHANCED SIDEBAR DRAWER —— */
 .sidebar-drawer {
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.15) transparent;
@@ -183,11 +183,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .sidebar-drawer::-webkit-scrollbar-track { background: transparent; }
 .sidebar-drawer::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
 
-/* ── BOTTOM NAV ACTIVE STATE INDICATOR ── */
+/* —— BOTTOM NAV ACTIVE STATE INDICATOR —— */
 #siteBottomNav a.active { color: #1B5E20 !important; }
 #siteBottomNav a.active i { transform: scale(1.12); }
 
-/* ── STATUS MESSAGES (global) ── */
+/* —— STATUS MESSAGES (global) —— */
 .status-msg {
   border-radius: 12px;
   font-size: 0.87rem;
@@ -200,7 +200,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .status-info { background: #dbeafe; color: #1e40af; display: block; }
 .status-warn { background: #fef3c7; color: #92400e; display: block; }
 
-/* ── SKELETON LOADING SHIMMER ── */
+/* —— SKELETON LOADING SHIMMER —— */
 @keyframes shimmer {
   0%   { background-position: -400px 0; }
   100% { background-position: 400px 0; }
@@ -212,14 +212,14 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   border-radius: 8px;
 }
 
-/* ── PULSE ANIMATION ── */
+/* —— PULSE ANIMATION —— */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.6; }
 }
 .pulse { animation: pulse 2s infinite; }
 
-/* ── CARD HOVER LIFT ── */
+/* —— CARD HOVER LIFT —— */
 .card-hover {
   transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
 }
@@ -228,7 +228,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   box-shadow: 0 16px 40px rgba(27,94,32,0.14);
 }
 
-/* ── BADGE CHIP ── */
+/* —— BADGE CHIP —— */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -245,7 +245,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .badge-red    { background: #fee2e2; color: #991b1b; }
 .badge-purple { background: #ede9fe; color: #5b21b6; }
 
-/* ── FLOATING LABEL INPUTS ── */
+/* —— FLOATING LABEL INPUTS —— */
 .input-wrap { position: relative; }
 .input-wrap input:not(:placeholder-shown) + label,
 .input-wrap input:focus + label {
@@ -265,7 +265,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   padding: 0 0.3rem;
 }
 
-/* ── TOAST NOTIFICATIONS ── */
+/* —— TOAST NOTIFICATIONS —— */
 #geramaToast {
   position: fixed;
   bottom: 6rem;
@@ -291,7 +291,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ── TOOLTIP ── */
+/* —— TOOLTIP —— */
 [data-tip] { position: relative; }
 [data-tip]::after {
   content: attr(data-tip);
@@ -314,11 +314,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 [data-tip]:hover::after { opacity: 1; }
 
-/* ── IMAGE LAZY LOAD FADE ── */
+/* —— IMAGE LAZY LOAD FADE —— */
 img.lazy { opacity: 0; transition: opacity 0.4s ease; }
 img.lazy.loaded { opacity: 1; }
 
-/* ── SCROLL TO TOP BUTTON ── */
+/* —— SCROLL TO TOP BUTTON —— */
 #scrollTopBtn {
   position: fixed;
   bottom: 5.5rem;
@@ -341,7 +341,7 @@ img.lazy.loaded { opacity: 1; }
 #scrollTopBtn.visible { display: flex; }
 #scrollTopBtn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(27,94,32,0.45); }
 
-/* ── DARK MODE OVERRIDES ── */
+/* —— DARK MODE OVERRIDES —— */
 body.dark-mode {
   --light: #0f172a;
   --text: #e2e8f0;
@@ -358,7 +358,7 @@ body.dark-mode select {
 body.dark-mode input::placeholder,
 body.dark-mode textarea::placeholder { color: #64748b; }
 
-/* ── IMPROVED RESPONSIVE TYPOGRAPHY ── */
+/* —— IMPROVED RESPONSIVE TYPOGRAPHY —— */
 @media (max-width: 640px) {
   body { font-size: 15px; }
   h1 { font-size: clamp(1.6rem, 7vw, 2.5rem); }
@@ -367,5 +367,5 @@ body.dark-mode textarea::placeholder { color: #64748b; }
   p  { font-size: 0.9rem; }
 }
 
-/* ── NO-SCROLL WHILE MODAL OPEN ── */
+/* —— NO-SCROLL WHILE MODAL OPEN —— */
 body.no-scroll { overflow: hidden; }

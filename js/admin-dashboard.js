@@ -2090,12 +2090,12 @@ window.loadClsList = async function(){
     var meetPlatform = window.getClassMeetPlatform(c);
 
     var badge = isLive
-      ? '<span style="background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;animation:pulse 2s infinite;">ð´ LIVE NOW</span>'
+      ? '<span style="background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;animation:pulse 2s infinite;">🔴 LIVE NOW</span>'
       : isEnded
         ? '<span style="background:#f3f4f6;color:#6b7280;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">â Ended</span>'
         : isPast
           ? '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">â° Time Passed</span>'
-          : '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">ð Upcoming</span>';
+          : '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;">📅 Upcoming</span>';
 
     var typeBadge = isInPerson
       ? '<span style="background:#fce7f3;color:#9d174d;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.4rem;"><i class="fas fa-map-marker-alt"></i> In-Person</span>'
@@ -2150,7 +2150,7 @@ window.setClassStatus = async function(id, status){
   var dbStatus = status === 'upcoming' ? 'upcoming' : status;
   var {error} = await sb.from('classes').update({status: dbStatus}).eq('id', id);
   if(error){ alert('Error: '+error.message); return; }
-  var label = status==='live' ? 'ð´ Class is now LIVE!' : status==='ended' ? 'â Class ended â moved to history.' : 'ð Class reopened.';
+  var label = status==='live' ? '🔴 Class is now LIVE!' : status==='ended' ? 'â Class ended â moved to history.' : '📅 Class reopened.';
   window.logActivity(label+' ('+id+')');
   window.loadClsList();
 };
@@ -2699,7 +2699,7 @@ window.loadAttRecords = async function(){
         '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(r.student_email||'â')+'</td>'+
         '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(r.student_phone||'â')+'</td>'+
         '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
-        '<td style="font-size:0.78rem;color:#6b7280;">'+(r.location_name ? 'ð '+window.escHtml(r.location_name) : (r.latitude ? 'ð '+r.latitude.toFixed(4)+','+r.longitude.toFixed(4) : 'â'))+'</td>'+
+        '<td style="font-size:0.78rem;color:#6b7280;">'+(r.location_name ? '<i class=\"fas fa-map-marker-alt\" style=\"color:#dc2626;margin-right:3px;\"></i> '+window.escHtml(r.location_name) : (r.latitude ? '<i class=\"fas fa-map-marker-alt\" style=\"color:#dc2626;margin-right:3px;\"></i> '+r.latitude.toFixed(4)+','+r.longitude.toFixed(4) : 'â'))+'</td>'+
         '<td><span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">+'+( r.points||1)+' pt</span></td>'+
         '<td><button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" data-attid="'+r.id+'" data-attname="'+window.escAttr(r.student_name||'')+'" onclick="removeAttRecord(this.getAttribute(\'data-attid\'),this.getAttribute(\'data-attname\'))" title="Remove (requires secret code)"><i class="fas fa-minus-circle"></i></button></td>'+
       '</tr>';
@@ -2972,13 +2972,13 @@ window.blockUser = async function(email, safeId, displayName){
     await sb.from('user_notifications').insert({
       user_email: email,
       type: 'account_blocked',
-      message: 'ð« Your account has been suspended. Reason: '+reason+'. Contact GERAMA admin to appeal.',
+      message: '🚫 Your account has been suspended. Reason: '+reason+'. Contact GERAMA admin to appeal.',
       is_read: false,
       created_at: new Date().toISOString()
     });
   }catch(e){}
 
-  window.logActivity('ð« BLOCKED user: '+email+' | Reason: '+reason);
+  window.logActivity('🚫 BLOCKED user: '+email+' | Reason: '+reason);
   alert('â User "'+displayName+'" has been blocked.\nReason: '+reason);
   window.loadUsers();
 };
@@ -3177,7 +3177,7 @@ window.openAddToSession = function(sessionId, sessionTitle) {
   var classEl     = document.getElementById('addAttClass');
   if(sessionIdEl) sessionIdEl.value = sessionId || '';
   if(classEl){ classEl.value = sessionTitle || ''; classEl.setAttribute('readonly','readonly'); }
-  if(sessionTag){ sessionTag.textContent = 'ð Session: ' + sessionTitle; sessionTag.style.display = 'inline-block'; }
+  if(sessionTag){ sessionTag.textContent = '📋 Session: ' + sessionTitle; sessionTag.style.display = 'inline-block'; }
   // Clear other fields
   ['addAttName','addAttEmail','addAttSearch','addAttSecret'].forEach(function(id){
     var e = document.getElementById(id); if(e) e.value = '';
@@ -3372,6 +3372,269 @@ window.downloadAttCSV = async function(){
   URL.revokeObjectURL(url);
   window.logActivity('Downloaded attendance records as CSV');
 };
+
+
+// ─── BULK PASTE NAMES → ATTENDANCE ───────────────────────────────────────────
+// Admin pastes a numbered/plain list of student names. The system fuzzy-matches
+// them against user_profiles (first name, last name, full name, index number),
+// previews matches, and bulk-inserts attendance records with no duplicates.
+// Requires code: 2026GERAMA
+
+window.openBulkAttendanceModal = async function(){
+  var existing = document.getElementById('bulkAttModal');
+  if(existing) existing.remove();
+
+  var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
+
+  var {data: sessions} = await sb.from('attendance_sessions')
+    .select('id,class_title,created_at')
+    .order('created_at',{ascending:false})
+    .limit(30);
+  sessions = sessions || [];
+
+  var sessionOptions = '<option value="">-- No specific session (records only) --</option>' +
+    sessions.map(function(s){
+      var dt = s.created_at ? new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
+      return '<option value="'+window.escAttr(s.id)+'">'+window.escHtml(s.class_title+(dt?' \u00b7 '+dt:''))+'</option>';
+    }).join('');
+
+  var modal = document.createElement('div');
+  modal.id = 'bulkAttModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:6000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(5px);overflow-y:auto;';
+
+  modal.innerHTML =
+    '<div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">' +
+      '<div><div style="font-size:1.1rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.5rem;">' +
+        '<i class="fas fa-list-check" style="color:#7c3aed;"></i> Bulk Paste Names &rarr; Attendance</div>' +
+        '<div style="font-size:0.8rem;color:#6b7280;margin-top:0.2rem;">Paste a list of student names &mdash; system matches &amp; marks them all present</div></div>' +
+      '<button onclick="document.getElementById(\'bulkAttModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;flex-shrink:0;">\u2715</button>' +
+    '</div>' +
+    '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:1rem;margin-bottom:1rem;">' +
+      '<div style="font-size:0.78rem;font-weight:700;color:#166534;margin-bottom:0.6rem;text-transform:uppercase;"><i class="fas fa-clipboard-check"></i> Step 1 &mdash; Target Session &amp; Class</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;">' +
+        '<div><label style="font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Assign to Session (optional)</label>' +
+          '<select id="bulkAttSession" style="width:100%;padding:0.55rem 0.8rem;border:2px solid #c8e6c9;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;">'+sessionOptions+'</select></div>' +
+        '<div><label style="font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Class Title <span style="color:#ef4444;">*</span></label>' +
+          '<input type="text" id="bulkAttClass" placeholder="e.g. Applied Electricity Week 3" style="width:100%;padding:0.55rem 0.8rem;border:2px solid #c8e6c9;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;"></div>' +
+        '<div><label style="font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Points per student</label>' +
+          '<input type="number" id="bulkAttPoints" value="1" min="1" max="10" style="width:100%;padding:0.55rem 0.8rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;"></div>' +
+        '<div><label style="font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Admin Code <span style="color:#ef4444;">*</span></label>' +
+          '<input type="password" id="bulkAttCode" placeholder="2026GERAMA" style="width:100%;padding:0.55rem 0.8rem;border:2px solid #fcd34d;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;background:#fffbeb;"></div>' +
+      '</div></div>' +
+    '<div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:12px;padding:1rem;margin-bottom:1rem;">' +
+      '<div style="font-size:0.78rem;font-weight:700;color:#5b21b6;margin-bottom:0.5rem;text-transform:uppercase;"><i class="fas fa-paste"></i> Step 2 &mdash; Paste Student Names</div>' +
+      '<div style="font-size:0.78rem;color:#6b7280;margin-bottom:0.5rem;line-height:1.5;">One name per line. Supports numbered lists (e.g. <code>1. Kwame Mensah</code>), first names, surnames, full names, or index numbers.</div>' +
+      '<textarea id="bulkAttNames" rows="10" placeholder="1. John Doe&#10;2. Abena Ofori&#10;3. Kwame&#10;4. UETG/ENG/26/005&#10;..." ' +
+        'style="width:100%;padding:0.7rem;border:2px solid #c4b5fd;border-radius:8px;font-size:0.85rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;resize:vertical;line-height:1.6;" ' +
+        'oninput="bulkAttClearPreview()"></textarea>' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;flex-wrap:wrap;gap:0.4rem;">' +
+        '<span id="bulkAttLineCount" style="font-size:0.75rem;color:#9ca3af;">0 names entered</span>' +
+        '<button onclick="bulkAttPreviewMatch()" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-search"></i> Preview Match</button>' +
+      '</div></div>' +
+    '<div id="bulkAttPreview" style="display:none;margin-bottom:1rem;"></div>' +
+    '<div id="bulkAttConfirmArea" style="display:none;">' +
+      '<div id="bulkAttStatus" style="font-size:0.85rem;margin-bottom:0.8rem;min-height:1.2rem;"></div>' +
+      '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;">' +
+        '<button onclick="bulkAttConfirm()" style="flex:1;background:linear-gradient(135deg,#059669,#10b981);color:white;border:none;padding:0.75rem 1.2rem;border-radius:12px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;min-width:160px;"><i class="fas fa-check"></i> Confirm &amp; Mark Attendance</button>' +
+        '<button onclick="document.getElementById(\'bulkAttModal\').remove()" style="background:#f1f5f9;color:#374151;border:none;padding:0.75rem 1.2rem;border-radius:12px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>' +
+      '</div></div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+
+  var sessionSel = document.getElementById('bulkAttSession');
+  if(sessionSel){
+    sessionSel.addEventListener('change', function(){
+      var opt = sessionSel.options[sessionSel.selectedIndex];
+      var clsInput = document.getElementById('bulkAttClass');
+      if(clsInput && opt && opt.value) clsInput.value = opt.text.split(' \u00b7')[0].trim();
+    });
+  }
+
+  var ta = document.getElementById('bulkAttNames');
+  if(ta){
+    ta.addEventListener('input', function(){
+      var lines = _parseBulkAttNames(ta.value);
+      var lc = document.getElementById('bulkAttLineCount');
+      if(lc) lc.textContent = lines.length + ' name' + (lines.length !== 1 ? 's' : '') + ' entered';
+    });
+  }
+};
+
+function _parseBulkAttNames(raw){
+  return (raw || '').split('\n')
+    .map(function(line){ return line.replace(/^\s*\d+[\.\)\-\s]+/, '').trim(); })
+    .filter(function(line){ return line.length > 1; });
+}
+
+function _normalizeAtt(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+
+window.bulkAttClearPreview = function(){
+  var p = document.getElementById('bulkAttPreview');
+  if(p){ p.style.display = 'none'; p.innerHTML = ''; }
+  var c = document.getElementById('bulkAttConfirmArea');
+  if(c) c.style.display = 'none';
+};
+
+window.bulkAttPreviewMatch = async function(){
+  var ta    = document.getElementById('bulkAttNames');
+  var code  = (document.getElementById('bulkAttCode')||{}).value || '';
+  var cls   = ((document.getElementById('bulkAttClass')||{}).value||'').trim();
+  var preview = document.getElementById('bulkAttPreview');
+  var confirmArea = document.getElementById('bulkAttConfirmArea');
+  var statusEl = document.getElementById('bulkAttStatus');
+
+  function setStatus(msg, ok){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=ok?'#059669':'#dc2626'; } }
+
+  if(code !== '2026GERAMA'){
+    var ci = document.getElementById('bulkAttCode');
+    if(ci){ ci.style.borderColor='#dc2626'; ci.focus(); }
+    alert('Enter the admin code \u20182026GERAMA\u2019 to use this feature.');
+    return;
+  }
+  if(!cls){ alert('Please enter a Class Title first.'); document.getElementById('bulkAttClass').focus(); return; }
+
+  var names = _parseBulkAttNames(ta ? ta.value : '');
+  if(!names.length){ alert('Please paste at least one name.'); return; }
+
+  if(preview){ preview.style.display='block'; preview.innerHTML='<div style="text-align:center;padding:1rem;color:#9ca3af;"><i class="fas fa-spinner fa-spin"></i> Matching names\u2026</div>'; }
+  if(confirmArea) confirmArea.style.display='none';
+
+  var sb = window.geramaSupabase; if(!sb){ if(preview) preview.innerHTML='<p style="color:#dc2626;">Not connected.</p>'; return; }
+
+  var {data: users} = await sb.from('user_profiles').select('id,full_name,email,phone,index_number,level,program,is_active').eq('is_active',true);
+  users = users || [];
+
+  var byFullName={}, byFirstName={}, byLastName={}, byIndex={};
+  users.forEach(function(u){
+    var fn = _normalizeAtt(u.full_name);
+    if(fn) byFullName[fn] = u;
+    var parts = String(u.full_name||'').trim().split(/\s+/);
+    if(parts[0]){ var f=_normalizeAtt(parts[0]); if(!byFirstName[f]) byFirstName[f]=[]; byFirstName[f].push(u); }
+    if(parts.length>1){ var l=_normalizeAtt(parts[parts.length-1]); if(!byLastName[l]) byLastName[l]=[]; byLastName[l].push(u); }
+    if(u.index_number) byIndex[_normalizeAtt(u.index_number)] = u;
+  });
+
+  var results = names.map(function(input){
+    var key = _normalizeAtt(input);
+    var match=null, method='';
+    if(byFullName[key]){ match=byFullName[key]; method='full name'; }
+    if(!match && byIndex[key]){ match=byIndex[key]; method='index number'; }
+    if(!match){ var fm=byFirstName[key]||[]; if(fm.length===1){ match=fm[0]; method='first name'; } }
+    if(!match){ var lm=byLastName[key]||[]; if(lm.length===1){ match=lm[0]; method='surname'; } }
+    if(!match){
+      var partials=users.filter(function(u){ var n=_normalizeAtt(u.full_name); return n&&(n.indexOf(key)!==-1||key.indexOf(n)!==-1); });
+      if(partials.length===1){ match=partials[0]; method='partial'; }
+    }
+    return {input:input, match:match, method:method};
+  });
+
+  window._bulkAttResults = results;
+
+  var matched   = results.filter(function(r){ return r.match; });
+  var unmatched = results.filter(function(r){ return !r.match; });
+
+  var html =
+    '<div style="border:1px solid #e8f5e9;border-radius:14px;overflow:hidden;">' +
+    '<div style="background:linear-gradient(135deg,#e8f5e9,#f0fdf4);padding:0.8rem 1rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">' +
+      '<span style="background:#d1fae5;color:#065f46;font-size:0.82rem;font-weight:700;padding:0.25rem 0.8rem;border-radius:20px;"><i class="fas fa-check-circle"></i> '+matched.length+' matched</span>' +
+      (unmatched.length?'<span style="background:#fee2e2;color:#991b1b;font-size:0.82rem;font-weight:700;padding:0.25rem 0.8rem;border-radius:20px;"><i class="fas fa-times-circle"></i> '+unmatched.length+' not found</span>':'') +
+    '</div>' +
+    (matched.length?
+      '<div style="padding:0.8rem 1rem;"><div style="font-size:0.75rem;font-weight:700;color:#1B5E20;margin-bottom:0.5rem;text-transform:uppercase;"><i class="fas fa-user-check"></i> Will be marked present:</div>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.35rem;">' +
+        matched.map(function(r){
+          var u=r.match;
+          return '<div style="display:flex;align-items:center;gap:0.4rem;padding:0.3rem 0.5rem;background:#f0fdf4;border-radius:8px;font-size:0.8rem;">' +
+            '<i class="fas fa-check" style="color:#059669;flex-shrink:0;"></i>' +
+            '<div style="min-width:0;"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+window.escAttr(u.email)+'">'+window.escHtml(u.full_name||u.email)+'</div>' +
+            '<div style="font-size:0.68rem;color:#6b7280;">via '+window.escHtml(r.method)+(u.index_number?' \u00b7 '+window.escHtml(u.index_number):'')+'</div></div></div>';
+        }).join('') +
+      '</div></div>'
+    :'') +
+    (unmatched.length?
+      '<div style="padding:0.8rem 1rem;border-top:1px solid #f1f5f9;"><div style="font-size:0.75rem;font-weight:700;color:#dc2626;margin-bottom:0.4rem;text-transform:uppercase;"><i class="fas fa-user-times"></i> Not found:</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;">' +
+        unmatched.map(function(r){
+          var isAmb=(byFirstName[_normalizeAtt(r.input)]&&byFirstName[_normalizeAtt(r.input)].length>1)||(byLastName[_normalizeAtt(r.input)]&&byLastName[_normalizeAtt(r.input)].length>1);
+          return '<span style="background:'+(isAmb?'#fef3c7;color:#92400e':'#fee2e2;color:#991b1b')+';font-size:0.78rem;padding:0.2rem 0.6rem;border-radius:20px;" title="'+(isAmb?'Multiple matches \u2014 use full name':'Not registered')+'">'+window.escHtml(r.input)+(isAmb?' \u26a0':'')+'</span>';
+        }).join('') +
+      '</div>' +
+      '<div style="font-size:0.73rem;color:#6b7280;margin-top:0.4rem;"><i class="fas fa-info-circle"></i> Use full names or index numbers for unmatched entries.</div></div>'
+    :'') +
+    '</div>';
+
+  if(preview) preview.innerHTML = html;
+  if(matched.length > 0 && confirmArea){ confirmArea.style.display='block'; setStatus('',''); }
+};
+
+window.bulkAttConfirm = async function(){
+  var results   = window._bulkAttResults || [];
+  var sessionId = (document.getElementById('bulkAttSession')||{}).value||'';
+  var cls       = ((document.getElementById('bulkAttClass')||{}).value||'').trim();
+  var pts       = parseInt((document.getElementById('bulkAttPoints')||{}).value)||1;
+  var code      = (document.getElementById('bulkAttCode')||{}).value||'';
+  var statusEl  = document.getElementById('bulkAttStatus');
+  var btn       = document.querySelector('#bulkAttConfirmArea button:first-child');
+
+  function setStatus(msg,ok){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=ok?'#059669':'#dc2626'; } }
+
+  if(code!=='2026GERAMA'){ setStatus('Wrong admin code. Action denied.',false); return; }
+  if(!cls){ setStatus('Class title required.',false); return; }
+
+  var toInsert = results.filter(function(r){ return r.match; });
+  if(!toInsert.length){ setStatus('No matched students.',false); return; }
+
+  var sb = window.geramaSupabase; if(!sb){ setStatus('Not connected.',false); return; }
+
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Processing\u2026'; }
+  setStatus('Checking for existing records\u2026', true);
+
+  var existingQ = sb.from('attendance_records').select('student_email');
+  if(sessionId) existingQ = existingQ.eq('session_id', sessionId);
+  else existingQ = existingQ.eq('class_title', cls);
+  var {data: existingRecs} = await existingQ;
+
+  var alreadyPresent = {};
+  (existingRecs||[]).forEach(function(r){ if(r.student_email) alreadyPresent[r.student_email.toLowerCase().trim()]=true; });
+
+  setStatus('Inserting records\u2026', true);
+
+  var added=0, skipped=0, errors=0;
+  var now = new Date().toISOString();
+
+  for(var i=0; i<toInsert.length; i++){
+    var u = toInsert[i].match;
+    var emailKey = (u.email||'').toLowerCase().trim();
+    if(alreadyPresent[emailKey]){ skipped++; continue; }
+    var record = { class_title:cls, student_name:u.full_name||u.email, student_email:emailKey, student_phone:u.phone||null, points:pts, marked_at:now };
+    if(sessionId) record.session_id = sessionId;
+    try{
+      var {error:insErr} = await sb.from('attendance_records').insert(record);
+      if(insErr) throw insErr;
+      alreadyPresent[emailKey]=true; added++;
+    }catch(e){ console.warn('Bulk att error:', u.email, e.message); errors++; }
+  }
+
+  window.logActivity('Bulk attendance: '+added+' students marked present for "'+cls+'"'+(skipped?' ('+skipped+' already present)':''));
+  setStatus(
+    '\u2714 '+added+' student'+(added!==1?'s':'')+' marked present!'+
+    (skipped?' '+skipped+' already present, skipped.':'')+
+    (errors?' \u26a0 '+errors+' failed.':''),
+    !errors
+  );
+
+  if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-check"></i> Confirm &amp; Mark Attendance'; }
+
+  setTimeout(function(){
+    window.loadAttRecords();
+    window.loadAttSessions();
+    var modal = document.getElementById('bulkAttModal');
+    if(modal) modal.remove();
+  }, 2500);
+};
+
 
 // âââ CONTACT MESSAGES ââââââââââââââââââââââââââââââââââââââââ
 window.loadContactMessages = async function(filter){
@@ -3980,7 +4243,7 @@ window.importScoresFromCSV = async function() {
 
   window.logActivity('Imported '+ok+' quiz scores for: '+qzTitle);
   var msg = 'â Imported '+ok+' score'+(ok!==1?'s':'')+' for "'+qzTitle+'".';
-  if(matchLog.length) msg += ' ð Name matches: '+matchLog.slice(0,3).join(', ')+(matchLog.length>3?' â¦+'+( matchLog.length-3)+' more':'')+'';
+  if(matchLog.length) msg += ' 🔗 Name matches: '+matchLog.slice(0,3).join(', ')+(matchLog.length>3?' â¦+'+( matchLog.length-3)+' more':'')+'';
   if(skipped.length) msg += ' â ï¸ '+skipped.length+' unmatched: '+skipped.slice(0,3).join(', ')+(skipped.length>3?' â¦+' +(skipped.length-3)+' more':'');
   if(fail) msg += ' â '+fail+' failed to save.';
   window.showStatus('importStatus', msg, ok>0?'ok':'err');
@@ -4230,7 +4493,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
           tutors.map(function(t){
             var userInfo = userMap[t.user_email] || {};
             var idxNum = t.index_number || userInfo.index_number || '';
-            return '<div style="font-size:0.85rem;color:#374151;font-weight:600;">ð¨âð« '+window.escHtml(t.user_name||t.user_email)+(idxNum?' <span style="font-size:0.72rem;color:#1B5E20;font-family:monospace;">['+window.escHtml(idxNum)+']</span>':'')+'</div>';
+            return '<div style="font-size:0.85rem;color:#374151;font-weight:600;">👨‍🏫 '+window.escHtml(t.user_name||t.user_email)+(idxNum?' <span style="font-size:0.72rem;color:#1B5E20;font-family:monospace;">['+window.escHtml(idxNum)+']</span>':'')+'</div>';
           }).join('')+
         '</div>' : '')+
         // Members list
@@ -4410,7 +4673,7 @@ window.setMemberRole = async function(memberId, role){
         await sb.from('user_notifications').insert({
           user_email: mem.user_email,
           type: 'tutor_assigned',
-          message: 'ð Congratulations! You have been assigned as a Tutor for your study group.',
+          message: '🎉 Congratulations! You have been assigned as a Tutor for your study group.',
           is_read: false,
           created_at: new Date().toISOString()
         });
@@ -5375,7 +5638,7 @@ window.loadAdminConnectGroups = async function(){
     var dt = new Date(g.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric'});
     html += '<div class="sub-card">'+
       '<div class="sub-info">'+
-        '<strong>'+window.escHtml(g.emoji||'ð¬')+' '+window.escHtml(g.name)+'</strong>'+
+        '<strong>'+window.escHtml(g.emoji||'💬')+' '+window.escHtml(g.name)+'</strong>'+
         '<div class="sub-meta">'+
           '<b>Created by:</b> '+window.escHtml(g.created_by||'â')+' &nbsp;Â·&nbsp; '+
           '<b>Members:</b> '+window.escHtml(g.member_count||0)+' &nbsp;Â·&nbsp; '+
@@ -6414,8 +6677,8 @@ window.openSubmissionAddModal = async function(groupId, groupName) {
     return '<option value="qz:' + window.escAttr(q.title) + '">' + window.escHtml(q.title) + '</option>';
   }).join('');
 
-  var allOptions = (asgOptions ? '<optgroup label="ð Assignments">' + asgOptions + '</optgroup>' : '') +
-                   (qzOptions  ? '<optgroup label="ð§  Quizzes">'     + qzOptions  + '</optgroup>' : '');
+  var allOptions = (asgOptions ? '<optgroup label="📝 Assignments">' + asgOptions + '</optgroup>' : '') +
+                   (qzOptions  ? '<optgroup label="🧠 Quizzes">'     + qzOptions  + '</optgroup>' : '');
   if (!allOptions) allOptions = '<option value="">No assignments or quizzes found</option>';
 
   var modal = document.createElement('div');

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -217,7 +217,7 @@
                             window.location.href = 'login.html';
                             return;
                         }
-                        // Use Supabase as source of truth — overrides any stale localStorage
+                        // Use Supabase as source of truth — overrides any stale localStorage
                         const meta = data.user.user_metadata || {};
                         profileData = {
                             email:        email,
@@ -229,7 +229,7 @@
                             img:          JSON.parse(localStorage.getItem('gerama_profile') || '{}').img || null
                         };
                     } else {
-                        // No Supabase record yet — create one
+                        // No Supabase record yet — create one
                         const meta = data.user.user_metadata || {};
                         const existingProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
                         profileData = {
@@ -251,7 +251,7 @@
                         }, { onConflict: 'email' });
                     }
                 } catch(e) {
-                    // Supabase unreachable — use what we have
+                    // Supabase unreachable — use what we have
                     const meta = data.user.user_metadata || {};
                     const existingProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
                     profileData = {
@@ -298,16 +298,16 @@
                 msg.style.background = '#d1fae5';
                 msg.style.padding = '0.6rem 1rem';
                 msg.style.borderRadius = '10px';
-                msg.innerText = '✅ Account created! Sign in with your email and password below.';
+                msg.innerText = '— Account created! Sign in with your email and password below.';
             }
-            // Coming from a password reset — pre-fill a helpful message
+            // Coming from a password reset — pre-fill a helpful message
             if (params.get('reset') === 'success') {
                 var msg2 = document.getElementById('errorMsg');
                 msg2.style.color = '#065f46';
                 msg2.style.background = '#d1fae5';
                 msg2.style.padding = '0.6rem 1rem';
                 msg2.style.borderRadius = '10px';
-                msg2.innerText = '🔐 Password reset! Sign in with your new password.';
+                msg2.innerText = 'ð Password reset! Sign in with your new password.';
             }
         })();
     </script>

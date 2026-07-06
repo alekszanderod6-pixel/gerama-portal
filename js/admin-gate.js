@@ -1,8 +1,8 @@
-// ══════════════════════════════════════════════════════
-// GERAMA Admin Gate — Netflix-style login overlay
+// ——————————————————————————————————————————————————————
+// GERAMA Admin Gate — Netflix-style login overlay
 // Uses direct fetch (no Supabase SDK dependency).
-// Dashboard JS runs fully in background — overlay just gates access.
-// ══════════════════════════════════════════════════════
+// Dashboard JS runs fully in background — overlay just gates access.
+// ——————————————————————————————————————————————————————
 (function(){
   'use strict';
 
@@ -184,7 +184,7 @@
     var origLog = window.logActivity;
     if(origLog) window.logActivity = function(msg){ origLog('['+(session.name||'Admin')+'] '+msg); };
 
-    // ── Reload all dashboard data now that the gate is removed ──
+    // —— Reload all dashboard data now that the gate is removed ——
     // DOMContentLoaded fired before login, so Supabase may not have
     // been ready. Force a fresh load with a reliable retry.
     var _reloadAttempts = 0;
@@ -199,7 +199,7 @@
           if(typeof window.loadOverviewStats === 'function') window.loadOverviewStats();
           // Pre-load assignments list so it's ready when admin navigates there
           if(typeof window.loadAsgList === 'function') window.loadAsgList();
-          // NOTE: do NOT pre-call loadGradesPanel here — it has an 8s await loop
+          // NOTE: do NOT pre-call loadGradesPanel here — it has an 8s await loop
           // and will be called by switchPanel when the admin clicks Grades.
         }, 1000);
       } else if(_reloadAttempts < 30){

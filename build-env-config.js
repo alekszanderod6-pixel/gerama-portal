@@ -21,4 +21,4 @@ console.log('[GERAMA] Environment config loaded from Vercel env vars');
 
 const outputPath = path.join(__dirname, 'js', 'env-config.js');
 fs.writeFileSync(outputPath, configContent, 'utf8');
-console.log('✅ env-config.js generated successfully');
+console.log('— env-config.js generated successfully');
