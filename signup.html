@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -195,30 +195,30 @@
                 <div class="hint">Ask a GERAMA member or admin for the secret code.</div>
             </div>
             <button type="submit" class="btn-submit" id="submitBtn">
-                <i>—¦</i> Create Account
+                <i>✨</i> Create Account
             </button>
             <div class="msg" id="statusMsg"></div>
         </form>
         <div class="login-link">
             Already have an account? <a href="login.html">Sign In</a><br>
-            <a href="index.html" style="color:#9ca3af;font-size:0.82rem;margin-top:0.4rem;display:inline-block;">— Back to Home</a>
+            <a href="index.html" style="color:#9ca3af;font-size:0.82rem;margin-top:0.4rem;display:inline-block;">← Back to Home</a>
         </div>
     </div>
 
     <!-- SUCCESS SCREEN (shown after signup) -->
     <div class="success-screen" id="successScreen">
-        <div class="icon">—</div>
+        <div class="icon">✅</div>
         <h2>Account Created!</h2>
         <p>
             Welcome to GERAMA, <strong id="welcomeName"></strong>!<br><br>
             Your account is ready. Sign in now with your email and password to access the portal.
         </p>
-        <a href="login.html">Sign In Now —</a>
+        <a href="login.html">Sign In Now →</a>
     </div>
 </div>
 
 <script>
-// —— PASSWORD STRENGTH ——————————————————————————————————————————————
+// —— PASSWORD STRENGTH ——
 document.getElementById('password').addEventListener('input', function() {
     var val = this.value;
     var fill = document.getElementById('strengthFill');
@@ -239,7 +239,7 @@ document.getElementById('password').addEventListener('input', function() {
     label.style.color = colors[score-1] || colors[0];
 });
 
-// —— SIGNUP FORM SUBMIT —————————————————————————————————————————————
+// —— SIGNUP FORM SUBMIT ——
 document.getElementById('form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -253,7 +253,7 @@ document.getElementById('form').addEventListener('submit', async function(e) {
     var statusMsg      = document.getElementById('statusMsg');
     var submitBtn      = document.getElementById('submitBtn');
 
-    // —— CLIENT-SIDE VALIDATION ——
+    // —— CLIENT-SIDE VALIDATION ——
     if (!fullName)    { showMsg('Please enter your full name.', 'error'); return; }
     if (!program)     { showMsg('Please select your program.', 'error'); return; }
     if (!level)       { showMsg('Please select your academic level.', 'error'); return; }
@@ -269,13 +269,13 @@ document.getElementById('form').addEventListener('submit', async function(e) {
         return;
     }
 
-    // —— SUPABASE CHECK ——
+    // —— SUPABASE CHECK ——
     if (typeof window.geramaSupabase === 'undefined') {
         showMsg('Authentication service not ready. Please refresh the page.', 'error'); return;
     }
 
     submitBtn.disabled = true;
-    submitBtn.textContent = '—³ Creating account...';
+    submitBtn.textContent = '⏳ Creating account...';
     showMsg('Creating your account, please wait...', 'info');
 
     try {
@@ -310,11 +310,11 @@ document.getElementById('form').addEventListener('submit', async function(e) {
                 showMsg('Sign up failed: ' + error.message, 'error');
             }
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i>—¦</i> Create Account';
+            submitBtn.innerHTML = '<i>✨</i> Create Account';
             return;
         }
 
-        // —— SUCCESS — email confirmation is OFF so session is active immediately ——
+        // —— SUCCESS —— email confirmation is OFF so session is active immediately ——
         var phone = document.getElementById('phone') ? document.getElementById('phone').value.trim() : '';
         localStorage.setItem('gerama_profile', JSON.stringify({
             name: fullName, program: program, level: level, img: null, phone: phone, email: email
@@ -333,14 +333,14 @@ document.getElementById('form').addEventListener('submit', async function(e) {
         } catch(e) { /* non-critical */ }
 
         if (data.session) {
-            // Logged in immediately — link to OneSignal, then go to site
+            // Logged in immediately — link to OneSignal, then go to site
             sessionStorage.setItem('gerama_loggedIn', 'true');
             localStorage.setItem('gerama_loggedIn', 'true'); // persist for PWA cold-opens
             // Link Supabase user to OneSignal for targeted push notifications
             if (typeof window.geramaLinkOneSignal === 'function') {
                 window.geramaLinkOneSignal();
             }
-            showMsg('— Account created! Taking you in...', 'success');
+            showMsg('✅ Account created! Taking you in...', 'success');
             setTimeout(function(){ window.location.href = 'index.html'; }, 1200);
         } else {
             // Fallback: show success and let them sign in
@@ -353,7 +353,7 @@ document.getElementById('form').addEventListener('submit', async function(e) {
     } catch (err) {
         showMsg('Unexpected error: ' + err.message, 'error');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i>—¦</i> Create Account';
+        submitBtn.innerHTML = '<i>✨</i> Create Account';
         console.error('Signup error:', err);
     }
 });

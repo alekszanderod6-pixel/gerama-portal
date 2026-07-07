@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>GERAMA | Academic Resources Centre — UENR Engineering</title>
+<title>GERAMA | Academic Resources Centre — UENR Engineering</title>
 <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1B5E20">
@@ -23,7 +23,7 @@
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script src="js/onesignal-init.js" defer></script>
 <style>
-/* —— INDEX PAGE SPECIFIC STYLES —— */
+/* —— INDEX PAGE SPECIFIC STYLES —— */
 :root {
   --primary: #1B5E20;
   --primary-dark: #0a2f1f;
@@ -157,7 +157,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 }
 @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
 
-/* STATS BAR — enhanced */
+/* STATS BAR — enhanced */
 .stats-bar {
   background:linear-gradient(135deg,#071a12 0%,#0a2f1f 100%);
   padding:2.5rem 5%;
@@ -192,7 +192,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 .section-head { margin-bottom:3rem; text-align:center; }
 .section-sub { margin:0 auto; }
 
-/* FEATURES GRID — always 3 on desktop */
+/* FEATURES GRID — always 3 on desktop */
 .features-grid {
   display:grid; grid-template-columns:repeat(3,1fr);
   gap:1.5rem; max-width:1200px; margin:0 auto;
@@ -242,7 +242,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 .section-head { margin-bottom:3rem; text-align:center; }
 .section-sub { margin:0 auto; }
 
-/* ANNOUNCEMENT CARDS — 3 per row */
+/* ANNOUNCEMENT CARDS — 3 per row */
 .ann-grid {
   display:grid; grid-template-columns:repeat(3,1fr);
   gap:1.5rem; max-width:1200px; margin:0 auto;
@@ -390,7 +390,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 .footer-copy,.footer-credits { font-size:0.8rem; color:rgba(255,255,255,0.35); margin:0; }
 .footer-credits strong { color:rgba(255,255,255,0.6); }
 
-/* RESPONSIVE — Tablet (641—1024px) */
+/* RESPONSIVE — Tablet (641—1024px) */
 @media(max-width:1024px) {
   .footer-inner { grid-template-columns:1.5fr 1fr 1fr; }
   .footer-inner > *:last-child { grid-column:1/-1; max-width:400px; }
@@ -453,7 +453,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <a href="index.html" class="active">Home</a>
     <a href="resources.html">Resources</a>
     <a href="classroom.html">Classroom</a>
-    <a href="connect.html" style="color:#0ea5e9;">ð¡ Connect</a>
+    <a href="connect.html" style="color:#0ea5e9;">📡 Connect</a>
     <a href="mall.html" style="background:rgba(255,193,7,0.15);color:#FFC107;border:1px solid rgba(255,193,7,0.3);border-radius:20px;"><i class="fas fa-store"></i> Mall</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
@@ -464,7 +464,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   <button onclick="openQuickSearch()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.95rem;transition:all 0.2s;flex-shrink:0;" title="Quick Search (Ctrl+K)" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fas fa-search"></i></button>
 </header>
 
-<!-- HERO — cycling team photos with animated overlay -->
+<!-- HERO — cycling team photos with animated overlay -->
 <section class="hero-section">
   <div class="hero-slides" id="heroSlides">
     <div class="hero-slide active" style="background-image:url('https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/aleks.jpg')"></div>
@@ -475,9 +475,9 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-badge"><i class="fas fa-university"></i> TEAM GERAMA Â· Est. 2022</div>
+    <div class="hero-badge"><i class="fas fa-university"></i> TEAM GERAMA · Est. 2022</div>
     <h1 class="hero-title">Empowering <span>Engineering Excellence</span> at UENR</h1>
-    <p class="hero-subtitle">Access comprehensive lecture slides, textbooks, past questions and video tutorials — curated by students, for students.</p>
+    <p class="hero-subtitle">Access comprehensive lecture slides, textbooks, past questions and video tutorials — curated by students, for students.</p>
     <div class="hero-actions">
       <a href="signup.html" class="btn-hero-primary" id="heroCtaPrimary"><i class="fas fa-rocket"></i> Get Started Free</a>
       <a href="about.html" class="btn-hero-secondary"><i class="fas fa-users"></i> Meet the Team</a>
@@ -497,7 +497,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   <div class="stat-item"><span class="stat-num" data-target="300">0</span><div class="stat-lbl">Active Students</div></div>
   <div class="stat-item"><span class="stat-num" data-target="8">0</span><div class="stat-lbl">Engineering Programs</div></div>
   <div class="stat-item">
-    <span class="stat-num" id="liveVisitorCount" style="color:#4ade80;">—</span>
+    <span class="stat-num" id="liveVisitorCount" style="color:#4ade80;">—</span>
     <div class="stat-lbl" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">
       <span style="width:8px;height:8px;background:#4ade80;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span> Online Now
     </div>
@@ -516,32 +516,32 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
         <i class="fas fa-graduation-cap"></i> FREE FOR ALL UENR ENGINEERING STUDENTS
       </div>
       <h2 style="font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;color:white;line-height:1.2;margin-bottom:0.8rem;">Everything You Need to <span style="color:#FFC107;">Pass Your Exams</span></h2>
-      <p style="color:rgba(255,255,255,0.8);font-size:1rem;max-width:560px;margin:0 auto;line-height:1.7;">Join 300+ engineering students already using GERAMA — study smarter, attend live classes, and never miss a deadline.</p>
+      <p style="color:rgba(255,255,255,0.8);font-size:1rem;max-width:560px;margin:0 auto;line-height:1.7;">Join 300+ engineering students already using GERAMA — study smarter, attend live classes, and never miss a deadline.</p>
     </div>
     <!-- Feature pills grid -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2.5rem;">
       <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:1.2rem;display:flex;align-items:center;gap:0.9rem;backdrop-filter:blur(6px);transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
-        <div style="width:44px;height:44px;background:linear-gradient(135deg,#1B5E20,#2E7D32);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">ð</div>
+        <div style="width:44px;height:44px;background:linear-gradient(135deg,#1B5E20,#2E7D32);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">📚</div>
         <div><div style="font-weight:700;color:white;font-size:0.92rem;">Study Materials</div><div style="color:rgba(255,255,255,0.6);font-size:0.75rem;margin-top:0.1rem;">1000+ slides, books, past Qs</div></div>
       </div>
       <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:1.2rem;display:flex;align-items:center;gap:0.9rem;backdrop-filter:blur(6px);transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
-        <div style="width:44px;height:44px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">ð§ </div>
+        <div style="width:44px;height:44px;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">🧠</div>
         <div><div style="font-weight:700;color:white;font-size:0.92rem;">Quizzes & Assignments</div><div style="color:rgba(255,255,255,0.6);font-size:0.75rem;margin-top:0.1rem;">Test yourself, get graded</div></div>
       </div>
       <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:1.2rem;display:flex;align-items:center;gap:0.9rem;backdrop-filter:blur(6px);transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
-        <div style="width:44px;height:44px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">ð¥</div>
+        <div style="width:44px;height:44px;background:linear-gradient(135deg,#0ea5e9,#0284c7);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">🎥</div>
         <div><div style="font-weight:700;color:white;font-size:0.92rem;">Live Online Classes</div><div style="color:rgba(255,255,255,0.6);font-size:0.75rem;margin-top:0.1rem;">Join real-time tutorials</div></div>
       </div>
       <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:1.2rem;display:flex;align-items:center;gap:0.9rem;backdrop-filter:blur(6px);transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
-        <div style="width:44px;height:44px;background:linear-gradient(135deg,#FFC107,#e6a800);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">ð</div>
+        <div style="width:44px;height:44px;background:linear-gradient(135deg,#FFC107,#e6a800);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">📋</div>
         <div><div style="font-weight:700;color:white;font-size:0.92rem;">Attendance Tracking</div><div style="color:rgba(255,255,255,0.6);font-size:0.75rem;margin-top:0.1rem;">Never miss a class record</div></div>
       </div>
       <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:1.2rem;display:flex;align-items:center;gap:0.9rem;backdrop-filter:blur(6px);transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
-        <div style="width:44px;height:44px;background:linear-gradient(135deg,#dc2626,#b91c1c);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">ð¬</div>
+        <div style="width:44px;height:44px;background:linear-gradient(135deg,#dc2626,#b91c1c);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">💬</div>
         <div><div style="font-weight:700;color:white;font-size:0.92rem;">Q&amp;A Community</div><div style="color:rgba(255,255,255,0.6);font-size:0.75rem;margin-top:0.1rem;">Ask, answer, discuss</div></div>
       </div>
       <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:18px;padding:1.2rem;display:flex;align-items:center;gap:0.9rem;backdrop-filter:blur(6px);transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
-        <div style="width:44px;height:44px;background:linear-gradient(135deg,#059669,#047857);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">ð</div>
+        <div style="width:44px;height:44px;background:linear-gradient(135deg,#059669,#047857);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.2rem;box-shadow:0 4px 12px rgba(0,0,0,0.3);">🎓</div>
         <div><div style="font-weight:700;color:white;font-size:0.92rem;">Get Academic Help</div><div style="color:rgba(255,255,255,0.6);font-size:0.75rem;margin-top:0.1rem;">Personal tutor support</div></div>
       </div>
     </div>
@@ -554,7 +554,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
         <i class="fas fa-sign-in-alt"></i> Sign In
       </a>
       <div style="color:rgba(255,255,255,0.55);font-size:0.8rem;width:100%;margin-top:0.5rem;">
-        <i class="fas fa-lock" style="font-size:0.7rem;"></i> 100% Free Â· No credit card required Â· UENR students only
+        <i class="fas fa-lock" style="font-size:0.7rem;"></i> 100% Free · No credit card required · UENR students only
       </div>
     </div>
   </div>
@@ -564,7 +564,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 <section id="loggedInWelcome" style="display:none;background:linear-gradient(135deg,#0a2f1f,#1B5E20);padding:2rem 5%;position:relative;overflow:hidden;">
   <div style="position:absolute;inset:0;background:url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.03\'%3E%3Cpath d=\'M0 0h20v20H0V0zm20 20h20v20H20V20z\'/%3E%3C/g%3E%3C/svg%3E');pointer-events:none;"></div>
   <div style="max-width:1200px;margin:0 auto;position:relative;z-index:1;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
-    <div id="welcomeAvatar" style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#FFC107,#e6a800);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:#0a2f1f;border:3px solid rgba(255,193,7,0.4);flex-shrink:0;overflow:hidden;">—ï¸</div>
+    <div id="welcomeAvatar" style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#FFC107,#e6a800);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:900;color:#0a2f1f;border:3px solid rgba(255,193,7,0.4);flex-shrink:0;overflow:hidden;">—��️</div>
     <div style="flex:1;min-width:0;">
       <div style="font-size:0.78rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.15rem;" id="welcomeTimeGreeting">Welcome back</div>
       <div style="font-size:1.2rem;font-weight:800;color:white;" id="welcomeName">Student</div>
@@ -583,26 +583,26 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   <div style="position:absolute;inset:0;background:url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.04\'%3E%3Cpath d=\'M20 20.5V18H0v5h5v5H0v5h20v-9.5zm-2 4.5h-1v-1h1v1zm-1-7h1v1h-1v-1zM0 0h20v2.5h-1V5h1v2.5h-1V10h1v2.5H0V0zm7 10H5V5h2v5zm8 0h-2V5h2v5z\'/%3E%3C/g%3E%3C/svg%3E');"></div>
   <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;position:relative;z-index:1;">
     <div style="display:flex;align-items:center;gap:1.2rem;">
-      <div style="width:56px;height:56px;background:linear-gradient(135deg,#FFC107,#e6a800);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;box-shadow:0 4px 16px rgba(255,193,7,0.4);">ðï¸</div>
+      <div style="width:56px;height:56px;background:linear-gradient(135deg,#FFC107,#e6a800);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;box-shadow:0 4px 16px rgba(255,193,7,0.4);">🛍️</div>
       <div>
-        <div style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);color:#FFC107;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:700;margin-bottom:0.3rem;letter-spacing:0.5px;">ð NEW</div>
+        <div style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);color:#FFC107;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:700;margin-bottom:0.3rem;letter-spacing:0.5px;">🆕 NEW</div>
         <div style="font-size:1.3rem;font-weight:800;color:white;line-height:1.2;">GERAMA <span style="color:#FFC107;">Urban Mall</span></div>
-        <div style="font-size:0.85rem;color:rgba(255,255,255,0.8);margin-top:0.2rem;">Shop T-shirts, Yoghurt &amp; more Â· Direct WhatsApp orders Â· Campus delivery</div>
+        <div style="font-size:0.85rem;color:rgba(255,255,255,0.8);margin-top:0.2rem;">Shop T-shirts, Yoghurt &amp; more · Direct WhatsApp orders · Campus delivery</div>
       </div>
     </div>
     <div style="display:flex;gap:0.8rem;flex-wrap:wrap;align-items:center;">
       <div style="display:flex;gap:1rem;flex-wrap:wrap;">
         <div style="text-align:center;background:rgba(255,255,255,0.08);border-radius:12px;padding:0.5rem 1rem;border:1px solid rgba(255,255,255,0.1);">
-          <div style="font-size:1.2rem;font-weight:800;color:#FFC107;">GH—µ48</div>
+          <div style="font-size:1.2rem;font-weight:800;color:#FFC107;">GH—��48</div>
           <div style="font-size:0.7rem;color:rgba(255,255,255,0.7);">T-Shirts</div>
         </div>
         <div style="text-align:center;background:rgba(255,255,255,0.08);border-radius:12px;padding:0.5rem 1rem;border:1px solid rgba(255,255,255,0.1);">
-          <div style="font-size:1.2rem;font-weight:800;color:#FFC107;">GH—µ7</div>
+          <div style="font-size:1.2rem;font-weight:800;color:#FFC107;">GH—��7</div>
           <div style="font-size:0.7rem;color:rgba(255,255,255,0.7);">Yoghurt</div>
         </div>
       </div>
       <a href="mall.html" style="background:linear-gradient(135deg,#FFC107,#e6a800);color:#0a2f1f;padding:0.8rem 2rem;border-radius:50px;font-weight:800;font-size:0.95rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;box-shadow:0 4px 20px rgba(255,193,7,0.4);transition:all 0.3s;white-space:nowrap;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-        <i class="fas fa-store"></i> Shop Now —
+        <i class="fas fa-store"></i> Shop Now —��
       </a>
     </div>
   </div>
@@ -612,30 +612,30 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 <section style="padding:1.5rem 5%;background:#f0fdf4;border-top:1px solid #c8e6c9;border-bottom:1px solid #c8e6c9;">
   <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;">
     <div style="display:flex;align-items:center;gap:1.2rem;">
-      <div style="width:52px;height:52px;background:linear-gradient(135deg,#1B5E20,#2E7D32);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;box-shadow:0 4px 14px rgba(27,94,32,0.3);">ð</div>
+      <div style="width:52px;height:52px;background:linear-gradient(135deg,#1B5E20,#2E7D32);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;box-shadow:0 4px 14px rgba(27,94,32,0.3);">🌍</div>
       <div>
-        <div style="display:inline-flex;align-items:center;gap:0.4rem;background:#1B5E20;color:white;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.68rem;font-weight:900;margin-bottom:0.25rem;letter-spacing:0.5px;animation:oppPulseGreen 2s infinite;">—¨ NEW</div>
+        <div style="display:inline-flex;align-items:center;gap:0.4rem;background:#1B5E20;color:white;padding:0.15rem 0.6rem;border-radius:20px;font-size:0.68rem;font-weight:900;margin-bottom:0.25rem;letter-spacing:0.5px;animation:oppPulseGreen 2s infinite;">—�� NEW</div>
         <div style="font-size:1.1rem;font-weight:800;color:#0a2f1f;line-height:1.2;">Opportunities Hub</div>
-        <div style="font-size:0.82rem;color:#374151;margin-top:0.1rem;">Internships Â· NSS Â· Scholarships Â· Jobs for engineers</div>
+        <div style="font-size:0.82rem;color:#374151;margin-top:0.1rem;">Internships · NSS · Scholarships · Jobs for engineers</div>
       </div>
     </div>
     <a href="classroom.html?tab=opportunities" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;padding:0.65rem 1.4rem;border-radius:30px;font-size:0.88rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;box-shadow:0 4px 14px rgba(27,94,32,0.3);transition:all 0.2s;white-space:nowrap;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(27,94,32,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px rgba(27,94,32,0.3)'">
-      <i class="fas fa-briefcase"></i> View Opportunities —
+      <i class="fas fa-briefcase"></i> View Opportunities —��
     </a>
   </div>
   <style>@keyframes oppPulseGreen{0%,100%{box-shadow:0 0 0 0 rgba(27,94,32,0.4);}50%{box-shadow:0 0 0 6px rgba(27,94,32,0);}}</style>
 </section>
 
-<!-- TSHIRT INTEREST BANNER — shown to logged-in users only -->
+<!-- TSHIRT INTEREST BANNER —�� shown to logged-in users only -->
 <div id="tshirtBannerSection" style="display:none;background:linear-gradient(135deg,#0a2f1f 0%,#1B5E20 60%,#2E7D32 100%);padding:2.5rem 5%;position:relative;overflow:hidden;">
   <div style="position:absolute;inset:0;background:url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/svg%3E\");pointer-events:none;"></div>
   <div style="max-width:800px;margin:0 auto;position:relative;z-index:1;">
     <div style="display:flex;align-items:flex-start;gap:1.2rem;flex-wrap:wrap;">
-      <div style="font-size:3rem;line-height:1;flex-shrink:0;">ð</div>
+      <div style="font-size:3rem;line-height:1;flex-shrink:0;">👕</div>
       <div style="flex:1;min-width:0;">
-        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);color:#FFC107;padding:0.3rem 1rem;border-radius:50px;font-size:0.78rem;font-weight:700;margin-bottom:0.7rem;letter-spacing:0.5px;">ð¥ LIMITED TIME Â· GERAMA T-SHIRTS</div>
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);color:#FFC107;padding:0.3rem 1rem;border-radius:50px;font-size:0.78rem;font-weight:700;margin-bottom:0.7rem;letter-spacing:0.5px;">🔥 LIMITED TIME · GERAMA T-SHIRTS</div>
         <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;color:white;margin-bottom:0.5rem;line-height:1.2;">GERAMA is Making Official T-Shirts!</h2>
-        <p style="font-size:0.92rem;color:rgba(255,255,255,0.85);line-height:1.7;margin-bottom:1rem;">Be part of the first batch — register your interest now so we know how many to make. Select your size and colour preference. No payment yet, just let us know you want one!</p>
+        <p style="font-size:0.92rem;color:rgba(255,255,255,0.85);line-height:1.7;margin-bottom:1rem;">Be part of the first batch —�� register your interest now so we know how many to make. Select your size and colour preference. No payment yet, just let us know you want one!</p>
         <div id="tshirtBannerStatus" style="display:none;padding:0.6rem 1rem;border-radius:10px;font-size:0.85rem;font-weight:600;margin-bottom:0.8rem;"></div>
         <div id="tshirtAlreadyRegistered" style="display:none;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);border-radius:14px;padding:0.9rem 1.2rem;color:#FFC107;font-size:0.88rem;font-weight:700;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-check-circle"></i> You're on the list! We'll contact you when T-shirts are ready.</div>
         <div id="tshirtRegisterForm">
@@ -660,14 +660,14 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
             </select>
             <button id="tshirtRegisterBtn" onclick="registerTshirtInterest()" style="background:linear-gradient(135deg,#FFC107,#e6a800);color:#0a2f1f;border:none;padding:0.6rem 1.4rem;border-radius:20px;font-size:0.88rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;display:inline-flex;align-items:center;gap:0.4rem;box-shadow:0 4px 16px rgba(255,193,7,0.4);"><i class="fas fa-hand-paper"></i> I'm Interested!</button>
           </div>
-          <p style="font-size:0.75rem;color:rgba(255,255,255,0.6);">Only for logged-in GERAMA members. No payment required — just register your interest.</p>
+          <p style="font-size:0.75rem;color:rgba(255,255,255,0.6);">Only for logged-in GERAMA members. No payment required —�� just register your interest.</p>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ANNOUNCEMENTS — shown first after hero/stats -->
+<!-- ANNOUNCEMENTS —�� shown first after hero/stats -->
 <section class="section-wrap alt" id="announcements-section">
   <div class="section-head">
     <div class="section-label">Latest Updates</div>
@@ -683,7 +683,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   <div class="section-head">
     <div class="section-label">What We Offer</div>
     <h2 class="section-title">Everything You Need to <span>Succeed</span></h2>
-    <p class="section-sub">GERAMA brings together the best academic resources for engineering students at UENR — all in one place, completely free.</p>
+    <p class="section-sub">GERAMA brings together the best academic resources for engineering students at UENR —�� all in one place, completely free.</p>
   </div>
   <div class="features-grid">
     <div class="feature-card">
@@ -714,12 +714,12 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <div class="feature-card" onclick="window.location.href='connect.html'" style="cursor:pointer;border-color:#bae6fd;background:linear-gradient(135deg,#f0f9ff,#fff);">
       <div class="feature-icon" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);"><i class="fas fa-satellite-dish"></i></div>
       <h3>GERAMA Connect <span style="background:#0ea5e9;color:white;font-size:0.6rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:8px;vertical-align:middle;margin-left:0.3rem;">NEW</span></h3>
-      <p>DMs, group chats, 24h status stories, reels and group study calls — your GERAMA social hub.</p>
+      <p>DMs, group chats, 24h status stories, reels and group study calls —�� your GERAMA social hub.</p>
     </div>
     <div class="feature-card" onclick="window.location.href='classroom.html?tab=opportunities'" style="cursor:pointer;border-color:#c8e6c9;background:linear-gradient(135deg,#f0fdf4,#fff);">
       <div class="feature-icon" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);"><i class="fas fa-briefcase"></i></div>
       <h3>Opportunities Hub <span style="background:#1B5E20;color:white;font-size:0.6rem;font-weight:900;padding:0.1rem 0.4rem;border-radius:8px;vertical-align:middle;margin-left:0.3rem;">NEW</span></h3>
-      <p>Internships, NSS placements, scholarships and jobs — curated engineering opportunities for GERAMA members.</p>
+      <p>Internships, NSS placements, scholarships and jobs —�� curated engineering opportunities for GERAMA members.</p>
     </div>
     <div class="feature-card">
       <div class="feature-icon"><i class="fas fa-cloud"></i></div>
@@ -749,7 +749,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <div class="step-card">
       <div class="step-num">3</div>
       <h3>Download or View</h3>
-      <p>View materials directly in your browser or download them for offline study — completely free.</p>
+      <p>View materials directly in your browser or download them for offline study —�� completely free.</p>
     </div>
   </div>
 </section>
@@ -762,13 +762,13 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <p class="section-sub">Celebrating GERAMA members who go above and beyond for the community.</p>
   </div>
   <div class="potw-grid" id="potwGrid">
-    <!-- Bediser as example — hardcoded until admin posts one -->
+    <!-- Bediser as example —�� hardcoded until admin posts one -->
     <div class="potw-card">
-      <span class="potw-week">ð This Week</span>
+      <span class="potw-week">🏆 This Week</span>
       <img class="potw-photo" src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/bediser.jpg" alt="Bediser" onerror="this.style.display='none'">
       <div class="potw-name">Bediser</div>
-      <div class="potw-role">Campus Coordinator Â· Lead Tutor</div>
-      <p class="potw-bio clamped" id="potw-bio-0">Bediser has made an outstanding contribution to GERAMA through his dedication and passion for teaching. Last semester, he single-handedly organised a series of structured tutorials that helped dozens of students grasp some of the most challenging engineering courses. His sessions were known for their clarity, patience, and genuine care for every student's understanding. Beyond tutorials, Bediser consistently shows up for the community — always ready to explain, encourage, and push others to excel. He is a true embodiment of what GERAMA stands for.</p>
+      <div class="potw-role">Campus Coordinator · Lead Tutor</div>
+      <p class="potw-bio clamped" id="potw-bio-0">Bediser has made an outstanding contribution to GERAMA through his dedication and passion for teaching. Last semester, he single-handedly organised a series of structured tutorials that helped dozens of students grasp some of the most challenging engineering courses. His sessions were known for their clarity, patience, and genuine care for every student's understanding. Beyond tutorials, Bediser consistently shows up for the community —�� always ready to explain, encourage, and push others to excel. He is a true embodiment of what GERAMA stands for.</p>
       <button class="potw-read-more" onclick="togglePotwBio('potw-bio-0',this)">Read more</button>
     </div>
     <div class="potw-nominate" onclick="document.getElementById('potwModal').classList.add('open')">
@@ -854,12 +854,12 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 <section class="cta-banner">
   <div style="position:relative;z-index:1;">
     <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.35);color:#FFC107;padding:0.35rem 1rem;border-radius:50px;font-size:0.78rem;font-weight:700;margin-bottom:1.2rem;letter-spacing:0.5px;">
-      <i class="fas fa-graduation-cap"></i> EST. 2022 Â· UENR
+      <i class="fas fa-graduation-cap"></i> EST. 2022 · UENR
     </div>
     <h2 id="ctaTitle">Ready to Ace Your Exams?</h2>
     <p id="ctaSubtitle">Join hundreds of UENR engineering students already using GERAMA to study smarter, collaborate, and succeed.</p>
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:0.5rem;">
-      <a href="signup.html" id="ctaPrimaryBtn" class="btn-cta"><i class="fas fa-rocket"></i> Get Started — It's Free</a>
+      <a href="signup.html" id="ctaPrimaryBtn" class="btn-cta"><i class="fas fa-rocket"></i> Get Started —�� It's Free</a>
       <a href="about.html" class="btn-cta" style="background:rgba(255,255,255,0.12);color:white;border:1.5px solid rgba(255,255,255,0.35);box-shadow:none;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
         <i class="fas fa-users"></i> Meet the Team
       </a>
@@ -873,7 +873,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <div style="display:flex;align-items:center;gap:0.8rem;padding:1rem 1.2rem;border-bottom:1px solid #e5e7eb;">
       <i class="fas fa-search" style="color:#1B5E20;font-size:1.1rem;flex-shrink:0;"></i>
       <input type="text" id="quickSearchInput" placeholder="Search materials, quizzes, announcements..." style="flex:1;border:none;outline:none;font-size:1rem;font-family:'Inter',sans-serif;color:#1e2a3e;" oninput="runQuickSearch(this.value)" autofocus>
-      <button onclick="closeQuickSearch()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:1.2rem;padding:0.2rem;">—</button>
+      <button onclick="closeQuickSearch()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:1.2rem;padding:0.2rem;">—��</button>
     </div>
     <div id="quickSearchResults" style="max-height:400px;overflow-y:auto;padding:0.5rem;">
       <div style="text-align:center;padding:2rem;color:#9ca3af;font-size:0.9rem;"><i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>Type to search across all content</div>
@@ -896,7 +896,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
         <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA">
         <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/uenr logo.png" alt="UENR">
       </div>
-      <p class="footer-tagline">Ghana Engineering Resources &amp; Academic Materials Association — empowering engineering excellence at UENR through free, comprehensive academic resources.</p>
+      <p class="footer-tagline">Ghana Engineering Resources &amp; Academic Materials Association —�� empowering engineering excellence at UENR through free, comprehensive academic resources.</p>
       <div class="footer-socials">
         <a href="https://wa.me/233555749497" target="_blank" rel="noopener" class="social-icon whatsapp" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
         <a href="#" class="social-icon facebook" title="Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -937,20 +937,20 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   </div>
   <div class="footer-divider"></div>
   <div class="footer-bottom-bar">
-    <p class="footer-copy">Â© 2026 GERAMA Academic Resources Â· All rights reserved</p>
-    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;Â·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
+    <p class="footer-copy">© 2026 GERAMA Academic Resources · All rights reserved</p>
+    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
   </div>
 </footer>
 
 <!-- IMAGE LIGHTBOX for announcements -->
 <div class="ann-lightbox" id="annLightbox" onclick="closeAnnLightbox()">
-  <button class="ann-lightbox-close" onclick="closeAnnLightbox()">—</button>
+  <button class="ann-lightbox-close" onclick="closeAnnLightbox()">—��</button>
   <img id="annLightboxImg" src="" alt="" onclick="event.stopPropagation()">
 </div>
 
 <script src="js/main.js"></script>
 <script>
-// —— GUEST/LOGGED-IN STATE DETECTION ——————————————————————————————
+// —��—�� GUEST/LOGGED-IN STATE DETECTION —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
   function applyGuestUI(isGuest) {
     var guestSection = document.getElementById('guestWelcomeSection');
@@ -977,7 +977,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
         var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
         var name = profile.name || 'Student';
         var h = new Date().getHours();
-        var greet = h < 12 ? '—ï¸ Good morning' : h < 17 ? 'ð¤ï¸ Good afternoon' : 'ð Good evening';
+        var greet = h < 12 ? '—��️ Good morning' : h < 17 ? '🌤️ Good afternoon' : '🌆 Good evening';
         var wn = document.getElementById('welcomeName');
         var wg = document.getElementById('welcomeTimeGreeting');
         var wm = document.getElementById('welcomeMeta');
@@ -989,7 +989,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
           if (profile.program) meta.push(profile.program);
           if (profile.level)   meta.push(profile.level);
           if (profile.index_number) meta.push(profile.index_number);
-          wm.textContent = meta.join(' Â· ');
+          wm.textContent = meta.join(' · ');
         }
         if (wa) {
           if (profile.img) {
@@ -1021,7 +1021,7 @@ function closeAnnLightbox() {
   if(lb){ lb.classList.remove('open'); document.body.style.overflow=''; }
 }
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnLightbox(); });
-// —— HERO SLIDESHOW — cycles through team photos every 5 seconds ——
+// —��—�� HERO SLIDESHOW —�� cycles through team photos every 5 seconds —��—��
 (function() {
   var slides = document.querySelectorAll('#heroSlides .hero-slide');
   if (slides.length <= 1) return;
@@ -1033,7 +1033,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   }, 5000);
 })();
 
-// —— COUNTER ANIMATION ——
+// —��—�� COUNTER ANIMATION —��—��
 (function(){
   var nums = document.querySelectorAll('.stat-num[data-target]');
   var started = false;
@@ -1057,13 +1057,13 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   if(statsBar) observer.observe(statsBar);
 })();
 
-// —— ANNOUNCEMENTS ——
+// —��—�� ANNOUNCEMENTS —��—��
 (function(){
   var container = document.getElementById('announcementsContainer');
   var demo = [
-    { title:'ð New L200 Materials Added', message:'Electrical Machines, Solid State Electronics slides and past questions now available.', date:'May 5, 2026' },
-    { title:'ð Mid-Semester Tutorials', message:'Join our weekly tutor sessions every Saturday at 10am. WhatsApp group link in contact page.', date:'April 28, 2026' },
-    { title:'ð¤ Mentorship Program Launch', message:'Connect with senior students and alumni for academic and career guidance.', date:'April 20, 2026' }
+    { title:'📚 New L200 Materials Added', message:'Electrical Machines, Solid State Electronics slides and past questions now available.', date:'May 5, 2026' },
+    { title:'🎓 Mid-Semester Tutorials', message:'Join our weekly tutor sessions every Saturday at 10am. WhatsApp group link in contact page.', date:'April 28, 2026' },
+    { title:'🤝 Mentorship Program Launch', message:'Connect with senior students and alumni for academic and career guidance.', date:'April 20, 2026' }
   ];
   // Track last visit to announcements
   var lastAnnVisit = localStorage.getItem('gerama_ann_last_visit');
@@ -1118,7 +1118,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
       return '<div class="ann-card">'+
         imgHtml+
         '<div class="ann-card-body">'+
-          '<div class="ann-date">ð '+dateStr+'</div>'+
+          '<div class="ann-date">📅 '+dateStr+'</div>'+
           '<h3>'+a.title+'</h3>'+
           '<p class="ann-card-msg clamped" id="msg-'+safeId+'">'+msg+'</p>'+
           (msg.length > 120 ? '<button class="ann-read-more" onclick="toggleAnnMsg(\''+safeId+'\',this)">Read more</button>' : '')+
@@ -1178,7 +1178,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   trySupabase();
 })();
 
-// —— ANNOUNCEMENT LIKES & SHARE ————————————————————————————————————
+// —��—�� ANNOUNCEMENT LIKES & SHARE —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 function toggleAnnMsg(uid, btn) {
   var el = document.getElementById('msg-'+uid);
   if(!el) return;
@@ -1266,7 +1266,7 @@ function copyAnnLink(url) {
 
 function escAttr(s){ return String(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
 
-// —— PERSONALITY OF THE WEEK ———————————————————————————————————————
+// —��—�� PERSONALITY OF THE WEEK —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 function togglePotwBio(id, btn) {
   var el = document.getElementById(id);
   if(!el) return;
@@ -1279,7 +1279,7 @@ function togglePotwBio(id, btn) {
   }
 }
 
-// —— POTW NAME AUTOCOMPLETE ——————————————————————————————————————
+// —��—�� POTW NAME AUTOCOMPLETE —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 var _potwNamesCache = null;
 async function searchPotwNames(query) {
   var sugEl = document.getElementById('potwNameSuggestions');
@@ -1310,7 +1310,7 @@ async function searchPotwNames(query) {
       'onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'white\'">' +
       '<i class="fas fa-user-circle" style="color:#1B5E20;font-size:0.9rem;"></i>' +
       '<div><div style="font-weight:600;">' + u.full_name + '</div>' +
-      (u.program || u.level ? '<div style="font-size:0.75rem;color:#6b7280;">' + (u.level||'') + (u.level&&u.program?' Â· ':'') + (u.program||'') + '</div>' : '') +
+      (u.program || u.level ? '<div style="font-size:0.75rem;color:#6b7280;">' + (u.level||'') + (u.level&&u.program?' · ':'') + (u.program||'') + '</div>' : '') +
       '</div></div>';
   }).join('');
   sugEl.style.display = 'block';
@@ -1333,7 +1333,7 @@ document.addEventListener('click', function(e) {
 function previewPotwNomPhoto(input) {
   var file = input.files && input.files[0];
   if (!file) return;
-  document.getElementById('potwNomPhotoChosen').textContent = '— ' + file.name;
+  document.getElementById('potwNomPhotoChosen').textContent = '—�� ' + file.name;
   var reader = new FileReader();
   reader.onload = function(e) {
     var prev = document.getElementById('potwNomPhotoPreview');
@@ -1386,7 +1386,7 @@ async function submitPotwNomination() {
   }).then(function(res){
     if(res.error){ status.style.background='#fee2e2'; status.style.color='#991b1b'; status.textContent='Error: '+res.error.message; return; }
     status.style.background='#d1fae5'; status.style.color='#065f46';
-    status.textContent='— Nomination submitted! The admin will review it soon.';
+    status.textContent='—�� Nomination submitted! The admin will review it soon.';
     setTimeout(function(){
       document.getElementById('potwModal').classList.remove('open');
       ['potwName','potwRole','potwBio','potwNomBy'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
@@ -1415,7 +1415,7 @@ async function submitPotwNomination() {
         var card = document.createElement('div');
         card.className = 'potw-card';
         var bioId = 'potw-dyn-bio-'+i;
-        card.innerHTML = '<span class="potw-week">ð Featured</span>'+
+        card.innerHTML = '<span class="potw-week">🏆 Featured</span>'+
           (p.photo_url ? '<img class="potw-photo" src="'+p.photo_url+'" alt="'+p.name+'" onerror="this.style.display=\'none\'">' :
             '<div class="potw-photo-placeholder">'+p.name.charAt(0).toUpperCase()+'</div>')+
           '<div class="potw-name">'+p.name+'</div>'+
@@ -1429,7 +1429,7 @@ async function submitPotwNomination() {
   }, 1200);
 })();
 
-// —— LIVE VISITOR COUNT ————————————————————————————————————————————
+// —��—�� LIVE VISITOR COUNT —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
   var el = document.getElementById('liveVisitorCount');
   if(!el) return;
@@ -1442,13 +1442,13 @@ async function submitPotwNomination() {
       .then(function(res){
         var count = Math.max(1, (res.count||0));
         el.textContent = count;
-      }).catch(function(){ el.textContent = '—'; });
+      }).catch(function(){ el.textContent = '—��'; });
   }
   updateCount();
   setInterval(updateCount, 30000);
 })();
 
-// —— QUICK SEARCH ——————————————————————————————————————————————————
+// —��—�� QUICK SEARCH —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 var _searchData = null;
 
 function openQuickSearch() {
@@ -1493,7 +1493,7 @@ function runQuickSearch(q) {
   var results = [];
   (_searchData.materials||[]).forEach(function(m){
     if((m.name||'').toLowerCase().includes(q)||(m.course||'').toLowerCase().includes(q)){
-      results.push({type:'material',icon:'fas fa-file-pdf',color:'#1B5E20',title:m.name,sub:m.course+' Â· '+m.level+' Â· '+m.type,url:m.file_url||'resources.html'});
+      results.push({type:'material',icon:'fas fa-file-pdf',color:'#1B5E20',title:m.name,sub:m.course+' · '+m.level+' · '+m.type,url:m.file_url||'resources.html'});
     }
   });
   (_searchData.announcements||[]).forEach(function(a){
@@ -1519,7 +1519,7 @@ function runQuickSearch(q) {
   }).join('');
 }
 
-// —— ASSIGNMENT DEADLINE BANNER ————————————————————————————————————
+// —��—�� ASSIGNMENT DEADLINE BANNER —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
   function checkDeadlines() {
     if(typeof window.geramaSupabase === 'undefined') { setTimeout(checkDeadlines, 1000); return; }
@@ -1542,7 +1542,7 @@ function runQuickSearch(q) {
           var hrs = Math.floor(diff/3600000);
           var mins = Math.floor((diff%3600000)/60000);
           var timeStr = hrs > 0 ? hrs+'h '+mins+'m' : mins+'m';
-          text.textContent = '— ï¸ "'+a.title+'" due in '+timeStr;
+          text.textContent = '—��️ "'+a.title+'" due in '+timeStr;
           banner.style.display = 'flex';
         } else {
           banner.style.display = 'none';
@@ -1552,7 +1552,7 @@ function runQuickSearch(q) {
   setTimeout(checkDeadlines, 2000);
 })();
 
-// —— PWA: Register Service Worker ——
+// —��—�� PWA: Register Service Worker —��—��
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('sw.js').then(function(reg) {
@@ -1563,7 +1563,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// —— PWA: Install Prompt Banner ——
+// —��—�� PWA: Install Prompt Banner —��—��
 (function() {
   var deferredPrompt = null;
   var banner = null;
@@ -1579,7 +1579,7 @@ if ('serviceWorker' in navigator) {
         '<span style="font-size:0.78rem;opacity:0.85;">Access resources offline, anytime</span></div>' +
       '</div>' +
       '<button id="pwa-install-btn" style="background:#FFC107;color:#1B5E20;border:none;padding:0.5rem 1.2rem;border-radius:30px;font-weight:700;cursor:pointer;font-size:0.85rem;white-space:nowrap;">Install</button>' +
-      '<button id="pwa-dismiss-btn" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1.2rem;padding:0.2rem 0.5rem;margin-left:0.3rem;">—</button>';
+      '<button id="pwa-dismiss-btn" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1.2rem;padding:0.2rem 0.5rem;margin-left:0.3rem;">—��</button>';
     banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;padding:1rem 1.2rem;display:flex;align-items:center;gap:0.8rem;z-index:9999;box-shadow:0 -4px 20px rgba(0,0,0,0.3);transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);';
     document.body.appendChild(banner);
 
@@ -1629,7 +1629,7 @@ if ('serviceWorker' in navigator) {
   });
 })();
 
-// —— T-SHIRT INTEREST BANNER ————————————————————————————————
+// —��—�� T-SHIRT INTEREST BANNER —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
   // Use centralized Supabase config from supabase-config.js
   var SUPA_URL = window.__SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
@@ -1659,7 +1659,7 @@ if ('serviceWorker' in navigator) {
       headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
     }).then(function(r) { return r.json(); }).then(function(data) {
       if (data && data.length) {
-        // Already registered — show confirmation, hide form
+        // Already registered —�� show confirmation, hide form
         var form = document.getElementById('tshirtRegisterForm');
         var done = document.getElementById('tshirtAlreadyRegistered');
         if (form) form.style.display = 'none';
@@ -1698,7 +1698,7 @@ if ('serviceWorker' in navigator) {
     var fullName = profile.name || session.user.user_metadata && session.user.user_metadata.full_name || userEmail.split('@')[0];
     var phone = profile.phone || '';
 
-    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering—¦'; }
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering—��'; }
 
     try {
       var resp = await fetch(SUPA_URL + '/rest/v1/tshirt_interest', {
@@ -1730,7 +1730,7 @@ if ('serviceWorker' in navigator) {
 
       if (!resp.ok) throw new Error('HTTP ' + resp.status);
 
-      // Success — update dashboard marker and show confirmation
+      // Success —�� update dashboard marker and show confirmation
       localStorage.setItem('gerama_tshirt_interest', JSON.stringify({ size: size, colour: colour, date: new Date().toISOString() }));
 
       var form = document.getElementById('tshirtRegisterForm');

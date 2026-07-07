@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -17,7 +17,7 @@
     html{scroll-behavior:smooth;overflow-x:hidden;}
     body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);line-height:1.6;overflow-x:hidden;}
 
-    /* —— HEADER —— */
+    /* —— HEADER —— */
     .site-header{position:sticky;top:0;z-index:1000;background:rgba(10,47,31,0.97);backdrop-filter:blur(12px);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:70px;box-shadow:0 2px 20px rgba(0,0,0,0.2);}
     .header-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
     .header-logo img{height:38px;border-radius:8px;}
@@ -29,7 +29,7 @@
     .menu-toggle-btn:hover{background:rgba(255,255,255,0.1);}
     @media(max-width:640px){.header-nav{display:none;}}
 
-    /* —— DASHBOARD HERO —— */
+    /* —— DASHBOARD HERO —— */
     .dash-hero{background:linear-gradient(135deg,#0a2f1f,#1B5E20);padding:2rem 5%;color:white;position:relative;overflow:hidden;}
     .dash-hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
     .dash-hero-inner{display:flex;align-items:center;gap:1.5rem;position:relative;z-index:1;flex-wrap:wrap;}
@@ -44,17 +44,17 @@
     .dash-streak-num{font-size:1.5rem;font-weight:900;color:#FFC107;line-height:1;}
     .dash-streak-lbl{font-size:0.7rem;opacity:0.7;margin-top:0.15rem;}
 
-    /* —— MAIN LAYOUT —— */
+    /* —— MAIN LAYOUT —— */
     .dash-body{max-width:1100px;margin:0 auto;padding:2rem 5%;display:grid;grid-template-columns:320px 1fr;gap:1.5rem;align-items:start;}
     @media(max-width:900px){.dash-body{grid-template-columns:1fr;}}
     @media(max-width:640px){.dash-body{padding:1rem 3%;gap:1rem;}}
 
-    /* —— CARDS —— */
+    /* —— CARDS —— */
     .dash-card{background:white;border-radius:20px;padding:1.5rem;box-shadow:0 4px 20px rgba(0,0,0,0.06);border:1px solid #e8f0e8;margin-bottom:1.2rem;}
     .dash-card-title{font-size:0.9rem;font-weight:800;color:var(--text);margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}
     .dash-card-title i{color:var(--primary);font-size:1rem;}
 
-    /* —— PROFILE FORM —— */
+    /* —— PROFILE FORM —— */
     .profile-photo-wrap{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;}
     .profile-photo-circle{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:white;border:3px solid #FFC107;overflow:hidden;flex-shrink:0;cursor:pointer;position:relative;}
     .profile-photo-circle img{width:100%;height:100%;object-fit:cover;}
@@ -67,14 +67,14 @@
     .btn-save-profile{width:100%;padding:0.8rem;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;border-radius:30px;font-size:0.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.5rem;}
     .btn-save-profile:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,94,32,0.3);}
 
-    /* —— QUICK STATS —— */
+    /* —— QUICK STATS —— */
     .quick-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:0.8rem;margin-bottom:1.2rem;}
     .qs-box{background:linear-gradient(135deg,#f0fdf4,#e8f5e9);border-radius:14px;padding:1rem;border:1px solid #c8e6c9;text-align:center;transition:all 0.2s;cursor:default;}
     .qs-box:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(27,94,32,0.1);}
     .qs-num{font-size:1.6rem;font-weight:900;color:var(--primary);line-height:1;}
     .qs-lbl{font-size:0.7rem;color:var(--muted);margin-top:0.2rem;font-weight:600;}
 
-    /* —— GRADE ITEMS —— */
+    /* —— GRADE ITEMS —— */
     .grade-item{display:flex;align-items:center;gap:0.8rem;padding:0.65rem 0.8rem;background:#f8fafc;border-radius:12px;border-left:3px solid #c8e6c9;margin-bottom:0.5rem;transition:background 0.15s;}
     .grade-item:hover{background:#f0fdf4;}
     .grade-item-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#1B5E20,#2E7D32);display:flex;align-items:center;justify-content:center;color:white;font-size:0.78rem;flex-shrink:0;}
@@ -83,18 +83,18 @@
     .grade-item-sub{font-size:0.72rem;color:var(--muted);}
     .grade-item-score{font-size:1rem;font-weight:800;color:var(--primary);flex-shrink:0;}
 
-    /* —— QUIZ HISTORY —— */
+    /* —— QUIZ HISTORY —— */
     .quiz-hist-item{display:flex;align-items:center;gap:0.6rem;padding:0.5rem 0.7rem;background:#f5f3ff;border-radius:10px;border-left:3px solid #6366f1;margin-bottom:0.4rem;}
     .quiz-hist-title{flex:1;font-size:0.83rem;font-weight:600;color:#1e2a3e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .quiz-hist-date{font-size:0.7rem;color:#6b7280;flex-shrink:0;}
 
-    /* —— GROUP CARD —— */
+    /* —— GROUP CARD —— */
     .group-banner{border-radius:16px;padding:1rem 1.2rem;color:white;display:flex;align-items:center;gap:0.8rem;margin-bottom:1.2rem;}
     .group-banner i{font-size:1.3rem;flex-shrink:0;}
     .group-banner .gname{font-size:1rem;font-weight:800;}
     .group-banner .grole{font-size:0.75rem;opacity:0.8;margin-top:0.1rem;}
 
-    /* —— QUICK NAV LINKS —— */
+    /* —— QUICK NAV LINKS —— */
     .quick-nav{display:grid;grid-template-columns:repeat(2,1fr);gap:0.6rem;margin-bottom:1.2rem;}
     .qn-btn{display:flex;align-items:center;gap:0.6rem;padding:0.7rem 0.9rem;border-radius:12px;font-size:0.82rem;font-weight:700;text-decoration:none;transition:all 0.2s;border:2px solid transparent;}
     .qn-btn:hover{transform:translateY(-2px);}
@@ -107,25 +107,25 @@
     .qn-btn.gold{background:#fef3c7;color:#92400e;border-color:#fde68a;}
     .qn-btn.gold:hover{background:#f59e0b;color:white;}
 
-    /* —— ACTIVITY FEED —— */
+    /* —— ACTIVITY FEED —— */
     .activity-item{display:flex;align-items:flex-start;gap:0.7rem;padding:0.6rem 0;border-bottom:1px solid #f1f5f9;}
     .activity-item:last-child{border-bottom:none;}
     .activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:0.45rem;}
     .activity-text{flex:1;font-size:0.83rem;color:#374151;line-height:1.4;}
     .activity-time{font-size:0.7rem;color:var(--muted);flex-shrink:0;}
 
-    /* —— REALTIME GRADE NOTIF —— */
+    /* —— REALTIME GRADE NOTIF —— */
     .grade-notif-badge{position:fixed;top:80px;right:1rem;z-index:9999;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;padding:0.7rem 1.2rem;border-radius:20px;box-shadow:0 8px 25px rgba(27,94,32,0.4);transform:translateX(120%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);font-size:0.88rem;font-weight:700;display:flex;align-items:center;gap:0.5rem;max-width:300px;}
     .grade-notif-badge.show{transform:translateX(0);}
 
-    /* —— SITE BOTTOM NAV —— */
+    /* —— SITE BOTTOM NAV —— */
     .site-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;z-index:400;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
     .site-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;color:#9ca3af;text-decoration:none;font-size:0.6rem;font-weight:600;gap:0.2rem;transition:all 0.2s;}
     .site-bnav-item i{font-size:1.1rem;}
     .site-bnav-item.active,.site-bnav-item:hover{color:var(--primary);}
     @media(max-width:640px){.site-bottom-nav{display:flex;}body{padding-bottom:60px;}}
 
-    /* —— FOOTER —— */
+    /* —— FOOTER —— */
     .site-footer{background:linear-gradient(180deg,#0a2f1f,#071a12);color:white;padding:2rem 5% 0;margin-top:3rem;}
     .footer-grid{max-width:1100px;margin:0 auto;padding:2rem 0 1rem;display:grid;grid-template-columns:2fr 1fr 1fr;gap:2rem;}
     @media(max-width:640px){.footer-grid{grid-template-columns:1fr;gap:1.5rem;}}
@@ -156,7 +156,7 @@
     <a href="index.html">Home</a>
     <a href="resources.html">Resources</a>
     <a href="classroom.html">Classroom</a>
-    <a href="connect.html" style="color:#0ea5e9;">ð¡ Connect</a>
+    <a href="connect.html" style="color:#0ea5e9;">📡 Connect</a>
     <a href="dashboard.html" class="active">My Dashboard</a>
   </nav>
 </header>
@@ -164,19 +164,19 @@
 <!-- HERO -->
 <section class="dash-hero">
   <div class="dash-hero-inner">
-    <div class="dash-avatar" id="heroAvatar">—ï¸</div>
+    <div class="dash-avatar" id="heroAvatar">—��️</div>
     <div class="dash-greeting">
       <div class="hello" id="timeGreeting">Good day</div>
       <div class="name" id="heroName">Student</div>
       <div class="meta">
         <span id="heroProg"><i class="fas fa-graduation-cap"></i> GERAMA Member</span>
-        <span id="heroLevel" style="display:none;"><i class="fas fa-layer-group"></i> —</span>
-        <span id="heroIndex" style="display:none;"><i class="fas fa-id-card"></i> —</span>
+        <span id="heroLevel" style="display:none;"><i class="fas fa-layer-group"></i> —��</span>
+        <span id="heroIndex" style="display:none;"><i class="fas fa-id-card"></i> —��</span>
       </div>
     </div>
     <div class="dash-streak">
       <div class="dash-streak-num" id="streakNumDisplay">0</div>
-      <div class="dash-streak-lbl">ð¥ Day Streak</div>
+      <div class="dash-streak-lbl">🔥 Day Streak</div>
     </div>
   </div>
 </section>
@@ -203,10 +203,10 @@
         <a href="connect.html" class="qn-btn" style="background:#e0f2fe;color:#0369a1;border-color:#bae6fd;grid-column:1/-1;" onmouseover="this.style.background='#0369a1';this.style.color='white'" onmouseout="this.style.background='#e0f2fe';this.style.color='#0369a1'"><i class="fas fa-satellite-dish"></i> GERAMA Connect</a>
         <!-- Opportunities CTA -->
         <a href="classroom.html?tab=opportunities" style="grid-column:1/-1;display:flex;align-items:center;gap:0.8rem;background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;border-radius:14px;padding:0.9rem 1.1rem;text-decoration:none;border:none;transition:all 0.2s;position:relative;overflow:hidden;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(27,94,32,0.4)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-          <span style="width:38px;height:38px;border-radius:10px;background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;">ð</span>
+          <span style="width:38px;height:38px;border-radius:10px;background:rgba(255,193,7,0.2);border:1px solid rgba(255,193,7,0.4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;">🌍</span>
           <div style="flex:1;min-width:0;">
             <div style="font-size:0.88rem;font-weight:800;display:flex;align-items:center;gap:0.5rem;">Opportunities Hub <span style="background:#FFC107;color:#0a2f1f;font-size:0.65rem;font-weight:900;padding:0.15rem 0.5rem;border-radius:20px;letter-spacing:0.5px;animation:oppPulse 2s infinite;">NEW</span></div>
-            <div style="font-size:0.72rem;opacity:0.75;margin-top:0.1rem;">Internships Â· NSS Â· Scholarships Â· Jobs</div>
+            <div style="font-size:0.72rem;opacity:0.75;margin-top:0.1rem;">Internships · NSS · Scholarships · Jobs</div>
           </div>
           <i class="fas fa-chevron-right" style="opacity:0.6;flex-shrink:0;"></i>
         </a>
@@ -222,11 +222,11 @@
 
       <div class="profile-photo-wrap">
         <div class="profile-photo-circle" id="profilePhotoCircle" onclick="document.getElementById('profilePictureUpload').click()">
-          <span id="profileInitial">—ï¸</span>
+          <span id="profileInitial">—��️</span>
           <div class="upload-overlay"><i class="fas fa-camera" style="color:white;font-size:1.1rem;"></i></div>
         </div>
         <div>
-          <div style="font-weight:700;font-size:0.9rem;" id="profileDisplayName">Loading—¦</div>
+          <div style="font-weight:700;font-size:0.9rem;" id="profileDisplayName">Loading—��</div>
           <div style="font-size:0.78rem;color:var(--muted);margin-top:0.2rem;" id="profileDisplayEmail"></div>
           <label style="font-size:0.75rem;color:#1B5E20;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.4rem;">
             <i class="fas fa-camera"></i> Change photo
@@ -274,20 +274,20 @@
       <div class="dash-card-title"><span><i class="fas fa-chart-bar"></i> My Stats</span></div>
       <div class="quick-stats">
         <div class="qs-box">
-          <div class="qs-num" id="statGrades">—</div>
-          <div class="qs-lbl">ð Grades</div>
+          <div class="qs-num" id="statGrades">—��</div>
+          <div class="qs-lbl">📝 Grades</div>
         </div>
         <div class="qs-box">
-          <div class="qs-num" id="statQuizzes">—</div>
-          <div class="qs-lbl">ð§  Quizzes Done</div>
+          <div class="qs-num" id="statQuizzes">—��</div>
+          <div class="qs-lbl">🧠 Quizzes Done</div>
         </div>
         <div class="qs-box">
-          <div class="qs-num" id="statAttendance">—</div>
-          <div class="qs-lbl">— Classes Attended</div>
+          <div class="qs-num" id="statAttendance">—��</div>
+          <div class="qs-lbl">—�� Classes Attended</div>
         </div>
         <div class="qs-box">
-          <div class="qs-num" id="statStreak">—</div>
-          <div class="qs-lbl">ð¥ Study Streak</div>
+          <div class="qs-num" id="statStreak">—��</div>
+          <div class="qs-lbl">🔥 Study Streak</div>
         </div>
       </div>
       <a href="classroom.html?tab=attendance" style="font-size:0.8rem;color:#1B5E20;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.7rem;"></i> View attendance history</a>
@@ -303,7 +303,7 @@
       <div class="group-banner" id="groupBanner" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);">
         <i class="fas fa-users"></i>
         <div>
-          <div class="gname" id="groupNameEl">—</div>
+          <div class="gname" id="groupNameEl">—��</div>
           <div class="grole" id="groupRoleEl">Member</div>
         </div>
         <a href="connect.html?tab=groups" style="margin-left:auto;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:white;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;text-decoration:none;white-space:nowrap;"><i class="fas fa-arrow-right"></i> View</a>
@@ -322,7 +322,7 @@
       </div>
       <div id="gradesSection">
         <div style="text-align:center;padding:1.5rem;color:#9ca3af;font-size:0.85rem;">
-          <i class="fas fa-spinner fa-spin" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;"></i>Loading grades—¦
+          <i class="fas fa-spinner fa-spin" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;"></i>Loading grades—��
         </div>
       </div>
     </div>
@@ -343,7 +343,7 @@
 
     <!-- T-Shirt Interest Card (shown if registered) -->
     <div class="dash-card" id="tshirtDashCard" style="display:none;border-top:3px solid #FFC107;">
-      <div class="dash-card-title"><span>ð GERAMA T-Shirt Interest</span></div>
+      <div class="dash-card-title"><span>👕 GERAMA T-Shirt Interest</span></div>
       <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border-radius:12px;padding:1rem;border:1px solid #fde68a;">
         <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.5rem;">
           <i class="fas fa-check-circle" style="color:#059669;font-size:1.1rem;"></i>
@@ -371,7 +371,7 @@
         <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA" style="height:40px;border-radius:8px;border:2px solid rgba(255,193,7,0.4);">
         <span style="color:white;font-weight:800;font-size:1rem;">GERAMA</span>
       </div>
-      <p style="color:rgba(255,255,255,0.55);font-size:0.85rem;line-height:1.7;max-width:280px;">Ghana Engineering Resources &amp; Academic Materials Association — empowering engineering excellence at UENR.</p>
+      <p style="color:rgba(255,255,255,0.55);font-size:0.85rem;line-height:1.7;max-width:280px;">Ghana Engineering Resources &amp; Academic Materials Association —�� empowering engineering excellence at UENR.</p>
     </div>
     <div>
       <div style="font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#FFC107;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid rgba(255,193,7,0.2);">Quick Links</div>
@@ -403,8 +403,8 @@
   </div>
   <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,193,7,0.25),rgba(255,255,255,0.08),rgba(255,193,7,0.25),transparent);"></div>
   <div class="footer-bottom-bar">
-    <p class="footer-copy">Â© 2026 GERAMA Academic Resources Â· All rights reserved</p>
-    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;Â·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
+    <p class="footer-copy">© 2026 GERAMA Academic Resources · All rights reserved</p>
+    <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
   </div>
 </footer>
 
@@ -422,18 +422,18 @@
 <script>
 'use strict';
 
-// —— Helpers ——————————————————————————————————————————
+// —��—�� Helpers —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 function escD(s){ var d=document.createElement('div'); d.textContent=String(s||''); return d.innerHTML; }
 
-// —— Greeting based on time ————————————————————————————
+// —��—�� Greeting based on time —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function(){
   var h = new Date().getHours();
-  var greet = h < 12 ? '—ï¸ Good morning' : h < 17 ? 'ð¤ï¸ Good afternoon' : h < 21 ? 'ð Good evening' : 'ð Good night';
+  var greet = h < 12 ? '—��️ Good morning' : h < 17 ? '🌤️ Good afternoon' : h < 21 ? '🌆 Good evening' : '🌙 Good night';
   var el = document.getElementById('timeGreeting');
   if(el) el.textContent = greet;
 })();
 
-// —— Load profile from localStorage first (instant), then sync from Supabase ——
+// —��—�� Load profile from localStorage first (instant), then sync from Supabase —��—��
 var userProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
 
 function applyProfileToUI(p) {
@@ -484,7 +484,7 @@ function applyProfileToUI(p) {
 
 applyProfileToUI(userProfile);
 
-// —— Profile picture upload ————————————————————————————
+// —��—�� Profile picture upload —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 document.getElementById('profilePictureUpload').addEventListener('change', function(e){
   var file = e.target.files[0]; if(!file) return;
   var reader = new FileReader();
@@ -496,7 +496,7 @@ document.getElementById('profilePictureUpload').addEventListener('change', funct
   reader.readAsDataURL(file);
 });
 
-// —— Save profile ——————————————————————————————————————
+// —��—�� Save profile —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 document.getElementById('saveProfileBtn').addEventListener('click', async function(){
   var name    = document.getElementById('fullName').value.trim();
   var program = document.getElementById('programStudy').value;
@@ -510,7 +510,7 @@ document.getElementById('saveProfileBtn').addEventListener('click', async functi
   userProfile.phone   = phone   || userProfile.phone;
   localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
   applyProfileToUI(userProfile);
-  statusEl.textContent = '— Saved!';
+  statusEl.textContent = '—�� Saved!';
   statusEl.style.color = '#059669';
 
   // Sync to Supabase
@@ -525,13 +525,13 @@ document.getElementById('saveProfileBtn').addEventListener('click', async functi
         phone: phone || null,
         updated_at: new Date().toISOString()
       }, {onConflict:'email'});
-      statusEl.textContent = '— Profile saved & synced!';
-    }catch(e){ statusEl.textContent = '— Saved locally.'; }
+      statusEl.textContent = '—�� Profile saved & synced!';
+    }catch(e){ statusEl.textContent = '—�� Saved locally.'; }
   }
   setTimeout(function(){ statusEl.textContent=''; }, 3000);
 });
 
-// —— Main data loader ——————————————————————————————————
+// —��—�� Main data loader —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 async function loadDashboardData(){
   var sb = window.geramaSupabase;
   if(!sb){ setTimeout(loadDashboardData, 400); return; }
@@ -557,7 +557,7 @@ async function loadDashboardData(){
     sb.from('attendance_records').select('id,class_title,marked_at').eq('student_email', email).order('marked_at',{ascending:false}).limit(10)
   ]);
 
-  // Build title — {course, points, type} lookup for enriching grades
+  // Build title —�� {course, points, type} lookup for enriching grades
   var itemMap = {};
   (quizzesRes.data||[]).forEach(function(q){
     if(q.title) itemMap[q.title.toLowerCase().trim()] = {course:q.course||'', points:q.points||null, type:'quiz'};
@@ -600,7 +600,7 @@ async function loadDashboardData(){
         var isTutor = memRes.data.role === 'tutor';
         document.getElementById('groupCard').style.display = 'block';
         document.getElementById('groupNameEl').textContent = gName;
-        document.getElementById('groupRoleEl').textContent = isTutor ? 'ð Group Tutor' : 'ð¤ Member';
+        document.getElementById('groupRoleEl').textContent = isTutor ? '🎓 Group Tutor' : '👤 Member';
         document.getElementById('groupBanner').style.background = 'linear-gradient(135deg,'+gColor+'dd,'+gColor+')';
         // New group notification
         var prevGroup = localStorage.getItem('gerama_last_known_group');
@@ -653,14 +653,14 @@ function renderGrades(grades){
   }
   // Enrich with assignment/quiz max marks from localStorage if available
   sec.innerHTML = grades.slice(0,10).map(function(g){
-    var score = (g.score !== null && g.score !== undefined) ? g.score : '—';
+    var score = (g.score !== null && g.score !== undefined) ? g.score : '—��';
     var maxPts = g.total_marks || g.points || null;
-    var pct = (maxPts && score !== '—') ? Math.round((parseFloat(score)/parseFloat(maxPts))*100) : null;
+    var pct = (maxPts && score !== '—��') ? Math.round((parseFloat(score)/parseFloat(maxPts))*100) : null;
     var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
     var participatedDt = g.participated_at ? new Date(g.participated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : null;
     var scoreColor = '#1B5E20';
     var scoreBg = '#e8f5e9';
-    if(score !== '—'){
+    if(score !== '—��'){
       var n = parseFloat(score);
       var ref = pct !== null ? pct : n;
       if(ref >= 70){ scoreColor='#059669'; scoreBg='#d1fae5'; }
@@ -682,8 +682,8 @@ function renderGrades(grades){
           '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.15rem;">'+
             '<span style="font-size:0.62rem;font-weight:700;background:'+typeBg+';color:'+typeColor+';padding:0.1rem 0.4rem;border-radius:8px;">'+typeLabel+'</span>'+
           '</div>'+
-          '<div class="grade-item-title">'+escD(g.assignment_title||'—')+'</div>'+
-          '<div class="grade-item-sub">'+escD(g.course||g._course||'')+(participatedDt?' Â· '+participatedDt:dt?' Â· Graded '+dt:'')+'</div>'+
+          '<div class="grade-item-title">'+escD(g.assignment_title||'—��')+'</div>'+
+          '<div class="grade-item-sub">'+escD(g.course||g._course||'')+(participatedDt?' · '+participatedDt:dt?' · Graded '+dt:'')+'</div>'+
         '</div>'+
         '<div style="background:'+scoreBg+';color:'+scoreColor+';font-size:1rem;font-weight:900;padding:0.35rem 0.7rem;border-radius:10px;white-space:nowrap;text-align:center;min-width:58px;flex-shrink:0;">'+
           score+(maxPts?'<span style="font-size:0.6rem;opacity:0.7;">/'+maxPts+'</span>':'<span style="font-size:0.6rem;opacity:0.7;"> pts</span>')+
@@ -698,7 +698,7 @@ function renderGrades(grades){
 function buildActivityFeed(grades, attendance, quizDone){
   var items = [];
   grades.slice(0,4).forEach(function(g){
-    items.push({text:'Graded: <strong>'+escD(g.assignment_title)+'</strong> — '+g.score+' pts',time:g.graded_at,color:'#1B5E20'});
+    items.push({text:'Graded: <strong>'+escD(g.assignment_title)+'</strong> —�� '+g.score+' pts',time:g.graded_at,color:'#1B5E20'});
   });
   attendance.slice(0,3).forEach(function(a){
     items.push({text:'Attended: <strong>'+escD(a.class_title||'Class')+'</strong>',time:a.marked_at,color:'#0ea5e9'});
@@ -727,7 +727,7 @@ function dismissGroupNotif(){
   localStorage.removeItem('gerama_group_notif_unread');
 }
 
-// —— Realtime grade watcher ————————————————————————————
+// —��—�� Realtime grade watcher —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function watchGrades(){
   var sb = window.geramaSupabase;
   if(!sb){ setTimeout(watchGrades, 600); return; }
@@ -740,7 +740,7 @@ function dismissGroupNotif(){
       var badge = document.getElementById('gradeNotifBadge');
       var text = document.getElementById('gradeNotifText');
       if(badge && text){
-        text.textContent = 'ð New grade: '+(g.assignment_title||'Assignment')+' — '+g.score+' pts';
+        text.textContent = '🎉 New grade: '+(g.assignment_title||'Assignment')+' —�� '+g.score+' pts';
         badge.classList.add('show');
         setTimeout(function(){ badge.classList.remove('show'); }, 6000);
       }
@@ -752,7 +752,7 @@ function dismissGroupNotif(){
       var badge = document.getElementById('gradeNotifBadge');
       var text = document.getElementById('gradeNotifText');
       if(badge && text){
-        text.textContent = '—ï¸ Grade updated: '+(g.assignment_title||'Assignment')+' — '+g.score+' pts';
+        text.textContent = '—��️ Grade updated: '+(g.assignment_title||'Assignment')+' —�� '+g.score+' pts';
         badge.classList.add('show');
         setTimeout(function(){ badge.classList.remove('show'); }, 6000);
       }
@@ -760,7 +760,7 @@ function dismissGroupNotif(){
     .subscribe();
 })();
 
-// —— Logout ————————————————————————————————————————————
+// —��—�� Logout —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 async function logoutUser(){
   var sb = window.geramaSupabase;
   if(sb) await sb.auth.signOut();
@@ -769,13 +769,13 @@ async function logoutUser(){
   window.location.href = 'login.html';
 }
 
-// —— Boot —————————————————————————————————————————————
+// —��—�� Boot —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function boot(){
   if(typeof window.geramaSupabase !== 'undefined') loadDashboardData();
   else setTimeout(boot, 300);
 })();
 
-// —— T-Shirt Interest Dashboard Card ——————————————————
+// —��—�� T-Shirt Interest Dashboard Card —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function(){
   // Use centralized Supabase config from supabase-config.js
   var SUPA_URL = window.__SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
@@ -798,8 +798,8 @@ async function logoutUser(){
           var m = data[0];
           var dt = m.registered_at ? new Date(m.registered_at).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'}) : '';
           details.innerHTML =
-            '<span style="display:inline-flex;align-items:center;gap:0.3rem;background:#fde68a;color:#92400e;padding:0.2rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">ð ' + (m.size_preference||'—') + '</span>' +
-            '<span style="display:inline-flex;align-items:center;gap:0.3rem;background:#fde68a;color:#92400e;padding:0.2rem 0.6rem;border-radius:10px;font-weight:700;">ð¨ ' + (m.colour_preference||'—') + '</span>' +
+            '<span style="display:inline-flex;align-items:center;gap:0.3rem;background:#fde68a;color:#92400e;padding:0.2rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">📏 ' + (m.size_preference||'—��') + '</span>' +
+            '<span style="display:inline-flex;align-items:center;gap:0.3rem;background:#fde68a;color:#92400e;padding:0.2rem 0.6rem;border-radius:10px;font-weight:700;">🎨 ' + (m.colour_preference||'—��') + '</span>' +
             (dt ? '<div style="margin-top:0.4rem;font-size:0.75rem;">Registered: ' + dt + '</div>' : '');
         }
       }).catch(function(){});

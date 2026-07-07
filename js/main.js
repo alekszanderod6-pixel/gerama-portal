@@ -1,10 +1,10 @@
-// —————————————————————————————————————————————————————————————————
-// GERAMA Portal — Core: Sidebar, Profile, Auth Check
-// Version: 2026.06 — cache-bust
-// —————————————————————————————————————————————————————————————————
+// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// GERAMA Portal —�� Core: Sidebar, Profile, Auth Check
+// Version: 2026.06 —�� cache-bust
+// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 
-// Force fresh content check — unregister stale service workers
-// IMPORTANT: skip the OneSignal worker — unregistering it breaks push notifications
+// Force fresh content check —�� unregister stale service workers
+// IMPORTANT: skip the OneSignal worker —�� unregistering it breaks push notifications
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(regs) {
         regs.forEach(function(reg) {
@@ -20,7 +20,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// —— PWA SESSION GUARD ——————————————————————————————————————————————
+// —��—�� PWA SESSION GUARD —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 // When the app is opened as PWA (saved to home screen), check if the
 // auth session is still valid before allowing access to protected pages.
 (function() {
@@ -33,13 +33,13 @@ if ('serviceWorker' in navigator) {
     var isProtected = protectedPages.indexOf(currentPage) !== -1;
 
     // A session marker exists if the profile is stored OR if gerama_loggedIn is set
-    // gerama_uid was never reliably set so we drop that check — profile alone is enough
+    // gerama_uid was never reliably set so we drop that check —�� profile alone is enough
     var hasSessionMarker = !!localStorage.getItem('gerama_profile') ||
                            !!sessionStorage.getItem('gerama_loggedIn') ||
                            !!localStorage.getItem('gerama_loggedIn');
 
     if (isStandalone && isProtected && !hasSessionMarker) {
-        // Stale PWA session on protected page — verify with Supabase before redirecting
+        // Stale PWA session on protected page —�� verify with Supabase before redirecting
         // (gives Supabase a chance to restore the session from its own storage)
         var _checked = false;
         function _guardCheck(attempts) {
@@ -52,22 +52,22 @@ if ('serviceWorker' in navigator) {
                         sessionStorage.removeItem('gerama_loggedIn');
                         window.location.replace('index.html');
                     }
-                    // else: Supabase has a valid session — stay on page
+                    // else: Supabase has a valid session —�� stay on page
                 }).catch(function() {
                     window.location.replace('index.html');
                 });
             } else if (attempts > 0) {
                 setTimeout(function() { _guardCheck(attempts - 1); }, 150);
             } else {
-                // Supabase never loaded — be conservative and redirect
+                // Supabase never loaded —�� be conservative and redirect
                 window.location.replace('index.html');
             }
         }
         _guardCheck(20);
-        // Don't return early — let the page load while we check in background
+        // Don't return early —�� let the page load while we check in background
     }
 
-    // Version check for PWA — reload if site has updated
+    // Version check for PWA —�� reload if site has updated
     var CACHE_KEY = 'gerama_last_check';
     var THIRTY_MIN = 30 * 60 * 1000;
     var now = Date.now();
@@ -91,7 +91,7 @@ if ('serviceWorker' in navigator) {
                         }
                     }
                 })
-                .catch(function() { /* offline — skip */ });
+                .catch(function() { /* offline —�� skip */ });
         }, 3000);
     }
 })();
@@ -133,7 +133,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
 
 (function() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    // Public pages — no auth required
+    // Public pages —�� no auth required
     const publicPages = ['index.html', 'about.html', 'contact.html', 'mall.html', 'login.html', 'signup.html', 'reset-code.html', 'admin-dashboard.html', ''];
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html' || currentPage === 'reset-code.html' || currentPage === 'admin-dashboard.html';
     const isPublicPage = publicPages.indexOf(currentPage) !== -1;
@@ -147,7 +147,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     if (!session) {
                         sessionStorage.removeItem('gerama_loggedIn');
                         if (isPublicPage) {
-                            // Public page — show guest UI instead of redirecting
+                            // Public page —�� show guest UI instead of redirecting
                             showGuestUI();
                         } else {
                             window.location.href = 'login.html';
@@ -180,7 +180,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     function showGuestUI() {
         if (document.getElementById('guestBar')) return;
 
-        // 0. Hide the site bottom nav (for logged-in users) — guests have their own
+        // 0. Hide the site bottom nav (for logged-in users) —�� guests have their own
         var siteNav = document.getElementById('siteBottomNav');
         if (siteNav) siteNav.style.display = 'none';
 
@@ -212,15 +212,15 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         ].join(';');
         bar.innerHTML =
             '<div style="display:flex;align-items:center;gap:0.7rem;flex:1;min-width:0;">' +
-                '<span style="font-size:1.3rem;flex-shrink:0;">ð</span>' +
+                '<span style="font-size:1.3rem;flex-shrink:0;">🎓</span>' +
                 '<div style="min-width:0;">' +
-                    '<div style="font-size:0.82rem;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Join GERAMA — It\'s Free</div>' +
-                    '<div style="font-size:0.7rem;color:rgba(255,255,255,0.7);">Resources Â· Classes Â· Assignments Â· Mall</div>' +
+                    '<div style="font-size:0.82rem;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Join GERAMA —�� It\'s Free</div>' +
+                    '<div style="font-size:0.7rem;color:rgba(255,255,255,0.7);">Resources · Classes · Assignments · Mall</div>' +
                 '</div>' +
             '</div>' +
             '<div style="display:flex;gap:0.5rem;flex-shrink:0;">' +
                 '<a href="login.html" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.35);padding:0.5rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:600;text-decoration:none;white-space:nowrap;">Sign In</a>' +
-                '<a href="signup.html" style="background:#FFC107;color:#0a2f1f;padding:0.5rem 1.1rem;border-radius:20px;font-size:0.82rem;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(255,193,7,0.4);">Join Free —</a>' +
+                '<a href="signup.html" style="background:#FFC107;color:#0a2f1f;padding:0.5rem 1.1rem;border-radius:20px;font-size:0.82rem;font-weight:800;text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(255,193,7,0.4);">Join Free —��</a>' +
             '</div>';
         document.body.appendChild(bar);
         document.body.style.paddingBottom = '65px';
@@ -232,12 +232,12 @@ window.showStatus = window.showStatus || function(id, msg, type) {
             // Update hero CTA buttons for guests
             var heroPrimary = document.getElementById('heroCtaPrimary');
             if (heroPrimary) {
-                heroPrimary.innerHTML = '<i class="fas fa-user-plus"></i> Join Free — It\'s Free';
+                heroPrimary.innerHTML = '<i class="fas fa-user-plus"></i> Join Free —�� It\'s Free';
                 heroPrimary.setAttribute('href', 'signup.html');
             }
         }
 
-        // 5. Intercept protected links — redirect to signup
+        // 5. Intercept protected links —�� redirect to signup
         setTimeout(function() {
             var protectedHrefs = ['resources.html','classroom.html','dashboard.html'];
             document.querySelectorAll('a[href]').forEach(function(link) {
@@ -286,8 +286,8 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         const sidebarHTML = `
             <div id="sidebarDrawer" class="sidebar-drawer">
                 <div class="drawer-header">
-                    <button id="closeSidebarBtn" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">—</button>
-                    <div id="drawerAvatar" class="profile-emoji">ð¤</div>
+                    <button id="closeSidebarBtn" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">—��</button>
+                    <div id="drawerAvatar" class="profile-emoji">👤</div>
                     <h3 id="drawerName">Student</h3>
                     <p id="drawerProgram">Program: Not set</p>
                     <div id="drawerClock" style="margin-top:0.8rem;background:rgba(255,255,255,0.1);border-radius:10px;padding:0.5rem 1rem;display:inline-block;">
@@ -300,17 +300,17 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     <a href="resources.html"><i class="fas fa-book-open"></i> Resources <span id="navBadgeResources" style="display:none;background:#1B5E20;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
                     <a href="classroom.html"><i class="fas fa-chalkboard-teacher"></i> Classroom <span id="navBadgeClassroom" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
                     <a href="dashboard.html"><i class="fas fa-user-circle"></i> My Dashboard</a>
-                    <a href="connect.html" style="background:rgba(14,165,233,0.1);border-left:3px solid #0ea5e9;color:#0ea5e9;"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> ð¡ GERAMA Connect <span style="background:#0ea5e9;color:white;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;" id="navBadgeConnect">NEW</span></a>
-                    <a href="mall.html" style="background:rgba(255,193,7,0.12);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-store" style="color:#FFC107;"></i> ðï¸ Urban Mall <span style="background:#FFC107;color:#0a2f1f;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;">NEW</span></a>
+                    <a href="connect.html" style="background:rgba(14,165,233,0.1);border-left:3px solid #0ea5e9;color:#0ea5e9;"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> 📡 GERAMA Connect <span style="background:#0ea5e9;color:white;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;" id="navBadgeConnect">NEW</span></a>
+                    <a href="mall.html" style="background:rgba(255,193,7,0.12);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-store" style="color:#FFC107;"></i> 🛍️ Urban Mall <span style="background:#FFC107;color:#0a2f1f;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;">NEW</span></a>
                     <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
                     <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
-                    <a href="contact.html#supportSection" style="background:rgba(255,193,7,0.13);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-heart" style="color:#FFC107;"></i> ð Support GERAMA</a>
-                    <a href="help.html" style="background:rgba(255,193,7,0.08);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-question-circle" style="color:#FFC107;"></i> — Help & Tutorials</a>
+                    <a href="contact.html#supportSection" style="background:rgba(255,193,7,0.13);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-heart" style="color:#FFC107;"></i> 💛 Support GERAMA</a>
+                    <a href="help.html" style="background:rgba(255,193,7,0.08);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-question-circle" style="color:#FFC107;"></i> —�� Help & Tutorials</a>
                 </div>
-                <button id="editProfileDrawerBtn" style="background:#FFC107; color:#1B5E20; margin:1rem auto; width:90%; border:none; padding:0.6rem; border-radius:30px; display:block; font-weight:600; cursor:pointer;">—ï¸ Edit Profile</button>
+                <button id="editProfileDrawerBtn" style="background:#FFC107; color:#1B5E20; margin:1rem auto; width:90%; border:none; padding:0.6rem; border-radius:30px; display:block; font-weight:600; cursor:pointer;">—��️ Edit Profile</button>
                 <div style="display:flex;gap:0.5rem;margin:0 auto 0.5rem;width:90%;">
                   <button id="darkModeBtn" onclick="window._toggleDarkMode && window._toggleDarkMode()" style="flex:1;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;padding:0.5rem;border-radius:20px;cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;font-family:'Inter',sans-serif;transition:all 0.2s;"><i class="fas fa-moon"></i> Dark</button>
-                  <div id="streakBadge" style="flex:1;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.3);color:#FFC107;padding:0.5rem;border-radius:20px;font-size:0.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:0.3rem;" title="Study streak">ð¥ <span id="streakCount">0</span>d</div>
+                  <div id="streakBadge" style="flex:1;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.3);color:#FFC107;padding:0.5rem;border-radius:20px;font-size:0.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:0.3rem;" title="Study streak">🔥 <span id="streakCount">0</span>d</div>
                 </div>
                 <button id="drawerLogoutBtn" class="logout-drawer">Logout</button>
             </div>
@@ -447,7 +447,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
 
         // Show index number if available
         var progText = 'Program: ' + (profile.program || "Not set");
-        if(profile.index_number) progText += ' Â· ' + profile.index_number;
+        if(profile.index_number) progText += ' · ' + profile.index_number;
         if(progEl) progEl.textContent = progText;
         
         if(avatarDiv) {
@@ -459,9 +459,9 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                 avatarDiv.appendChild(img);
             } else if(profile.name) {
                 // Show first letter with engineer emoji
-                avatarDiv.innerHTML = '<div style="font-size:2rem;line-height:1;">—ï¸</div><div style="font-size:0.75rem;font-weight:700;margin-top:0.2rem;opacity:0.9;">'+profile.name.charAt(0).toUpperCase()+'</div>';
+                avatarDiv.innerHTML = '<div style="font-size:2rem;line-height:1;">—��️</div><div style="font-size:0.75rem;font-weight:700;margin-top:0.2rem;opacity:0.9;">'+profile.name.charAt(0).toUpperCase()+'</div>';
             } else {
-                avatarDiv.innerHTML = '<div style="font-size:2.5rem;">—ï¸</div>';
+                avatarDiv.innerHTML = '<div style="font-size:2.5rem;">—��️</div>';
             }
         }
     }
@@ -474,7 +474,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     }, 100);
 })();
 
-// —— PWA HEADER INSTALL BUTTON —————————————————————————————————————
+// —��—�� PWA HEADER INSTALL BUTTON —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var _deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', function(e) {
@@ -500,7 +500,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     });
 })();
 
-// —— PAGE VIEW TRACKER —————————————————————————————————————————————
+// —��—�� PAGE VIEW TRACKER —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var page = window.location.pathname.split('/').pop() || 'index.html';
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
@@ -514,7 +514,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     setTimeout(trackView, 1000);
 })();
 
-// —— STUDY STREAK TRACKER —————————————————————————————————————————
+// —��—�� STUDY STREAK TRACKER —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';
@@ -537,7 +537,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     window._studyStreak = streak;
 })();
 
-// —— DARK MODE —————————————————————————————————————————————————————
+// —��—�� DARK MODE —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';
@@ -573,7 +573,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     };
 })();
 
-// —— CONFETTI CELEBRATION ——————————————————————————————————————————
+// —��—�� CONFETTI CELEBRATION —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 window.launchConfetti = function() {
     var colors = ['#1B5E20','#FFC107','#6366f1','#dc2626','#059669','#0ea5e9'];
     for(var i = 0; i < 80; i++) {
@@ -608,7 +608,7 @@ if(!document.getElementById('confettiStyle')) {
     document.head.appendChild(s);
 }
 
-// —— GLOBAL NOTIFICATION BADGES ————————————————————————————————————
+// —��—�� GLOBAL NOTIFICATION BADGES —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';
@@ -725,7 +725,7 @@ if(!document.getElementById('confettiStyle')) {
     setTimeout(updateNavBadges, 2000);
     setInterval(updateNavBadges, 60000);
 
-    // —— Realtime: notify student instantly when new content is uploaded ——
+    // —��—�� Realtime: notify student instantly when new content is uploaded —��—��
     (function startRealtimeBadges(){
         if(typeof window.geramaSupabase === 'undefined'){ setTimeout(startRealtimeBadges, 800); return; }
         var sb = window.geramaSupabase;
@@ -735,26 +735,26 @@ if(!document.getElementById('confettiStyle')) {
               var m = p.new; if(!m) return;
               if(page === 'resources.html') return; // already on page
               var name = m.name || 'a new material';
-              window.showToast && window.showToast('ð New: '+name+' — tap Resources to view!', 5000);
+              window.showToast && window.showToast('📚 New: '+name+' —�� tap Resources to view!', 5000);
               updateNavBadges();
           })
           .on('postgres_changes',{event:'INSERT',schema:'public',table:'assignments'},function(p){
               var a = p.new; if(!a) return;
               if(page === 'classroom.html') return;
               var title = a.title || 'a new assignment';
-              window.showToast && window.showToast('ð New Assignment: '+title, 5000);
+              window.showToast && window.showToast('📝 New Assignment: '+title, 5000);
               updateNavBadges();
           })
           .on('postgres_changes',{event:'INSERT',schema:'public',table:'announcements'},function(p){
               var ann = p.new; if(!ann) return;
               var title = ann.title || 'New announcement';
-              window.showToast && window.showToast('ð¢ '+title, 5000);
+              window.showToast && window.showToast('📢 '+title, 5000);
           })
           .subscribe();
     })();
 })();
 
-// —— FLOATING HELP BUTTON —————————————————————————————————————————
+// —��—�� FLOATING HELP BUTTON —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html','help.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';
@@ -775,7 +775,7 @@ if(!document.getElementById('confettiStyle')) {
         'transition:transform 0.2s,box-shadow 0.2s',
         'font-family:inherit'
     ].join(';');
-    helpBtn.innerHTML = '—';
+    helpBtn.innerHTML = '—��';
     helpBtn.addEventListener('mouseover', function(){ helpBtn.style.transform='scale(1.1)'; });
     helpBtn.addEventListener('mouseout',  function(){ helpBtn.style.transform='scale(1)'; });
 
@@ -798,7 +798,7 @@ if(!document.getElementById('confettiStyle')) {
     document.body.appendChild(helpBtn);
 })();
 
-// —— LOAD GERALEX ASSISTANT ———————————————————————————————————————
+// —��—�� LOAD GERALEX ASSISTANT —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var page = window.location.pathname.split('/').pop() || 'index.html';
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
@@ -812,7 +812,7 @@ if(!document.getElementById('confettiStyle')) {
     document.body.appendChild(script);
 })();
 
-// —— SCROLL TO TOP BUTTON —————————————————————————————————————————
+// —��—�� SCROLL TO TOP BUTTON —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';
@@ -840,7 +840,7 @@ if(!document.getElementById('confettiStyle')) {
     }, {passive:true});
 })();
 
-// —— AUTO-CLOSE EXPIRED QUIZ SESSIONS (attendance) ————————————————
+// —��—�� AUTO-CLOSE EXPIRED QUIZ SESSIONS (attendance) —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var page = window.location.pathname.split('/').pop() || 'index.html';
     if(page !== 'classroom.html') return;
@@ -855,7 +855,7 @@ if(!document.getElementById('confettiStyle')) {
           .then(function(){}).catch(function(){});
     }, 30000);
 })();
-// —— SYNC INDEX NUMBER FROM SUPABASE ——————————————————————————————
+// —��—�� SYNC INDEX NUMBER FROM SUPABASE —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';
@@ -886,7 +886,7 @@ if(!document.getElementById('confettiStyle')) {
                 }
 
                 var updated = false;
-                // Always sync ALL fields from Supabase — this is the cross-device fix
+                // Always sync ALL fields from Supabase —�� this is the cross-device fix
                 if(res.data.index_number && res.data.index_number !== profile.index_number) {
                     profile.index_number = res.data.index_number; updated = true;
                 }
@@ -911,7 +911,7 @@ if(!document.getElementById('confettiStyle')) {
                     var progEl = document.getElementById('drawerProgram');
                     if(progEl) {
                         var txt = 'Program: '+(profile.program||'Not set');
-                        if(profile.index_number) txt += ' Â· '+profile.index_number;
+                        if(profile.index_number) txt += ' · '+profile.index_number;
                         progEl.textContent = txt;
                     }
                 }
@@ -920,7 +920,7 @@ if(!document.getElementById('confettiStyle')) {
     setTimeout(syncIndexNumber, 1500);
 })();
 
-// —— SITE BOTTOM NAV ———————————————————————————————————————————————
+// —��—�� SITE BOTTOM NAV —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';
@@ -954,7 +954,7 @@ if(!document.getElementById('confettiStyle')) {
     window.addEventListener('resize', checkMobile);
 })();
 
-// —— GLOBAL TOAST NOTIFICATION —————————————————————————————————————
+// —��—�� GLOBAL TOAST NOTIFICATION —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 window.showToast = function(msg, duration) {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';
@@ -971,7 +971,7 @@ window.showToast = function(msg, duration) {
     setTimeout(function() { toast.classList.remove('show'); }, duration || 2800);
 };
 
-// —— IMAGE LAZY LOADING ————————————————————————————————————————————
+// —��—�� IMAGE LAZY LOADING —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
 (function() {
     if(!('IntersectionObserver' in window)) return;
     var imgs = document.querySelectorAll('img[data-src]');
