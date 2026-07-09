@@ -5565,7 +5565,7 @@ window.runIndexPreview = async function() {
 
         // Summary badges
         html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.5rem;margin-bottom:1rem;">' +
-          '<div style="background:#e8f5e9;color:#1B5E20;border-radius:10px;padding:0.45rem 0.7rem;font-size:0.78rem;font-weight:700;text-align:center;">' + plan.protected.length + ' protected tutors (001â€“012)</div>' +
+          '<div style="background:#e8f5e9;color:#1B5E20;border-radius:10px;padding:0.45rem 0.7rem;font-size:0.78rem;font-weight:700;text-align:center;">' + plan.protected.length + ' protected tutors (001–012)</div>' +
           '<div style="background:#dbeafe;color:#1d4ed8;border-radius:10px;padding:0.45rem 0.7rem;font-size:0.78rem;font-weight:700;text-align:center;">' + plan.toAssign.length + ' will get numbers (013+)</div>' +
           '<div style="background:#fee2e2;color:#dc2626;border-radius:10px;padding:0.45rem 0.7rem;font-size:0.78rem;font-weight:700;text-align:center;">' + plan.willClear.length + ' stale numbers cleared</div>' +
           '<div style="background:#f1f5f9;color:#6b7280;border-radius:10px;padding:0.45rem 0.7rem;font-size:0.78rem;font-weight:700;text-align:center;">' + plan.noGroup.length + ' no group â†’ stay blank</div>' +
@@ -5580,7 +5580,7 @@ window.runIndexPreview = async function() {
                 '<span>Member</span><span>Will be assigned</span>' +
               '</div>';
             plan.toAssign.forEach(function(u) {
-                var idx = proposed[u.email] || 'â€”';
+                var idx = proposed[u.email] || '—';
                 html += '<div style="display:grid;grid-template-columns:1fr 1fr;padding:0.32rem 0.8rem;border-top:1px solid #f1f5f9;font-size:0.82rem;">' +
                   '<span style="color:#1e2a3e;font-weight:600;">' + window.escHtml(u.full_name || u.email) + '</span>' +
                   '<span style="color:#b45309;font-family:monospace;font-weight:700;">' + window.escHtml(idx) + '</span>' +
@@ -5619,7 +5619,7 @@ window.runIndexPreview = async function() {
         if (!totalNew && !plan.willClear.length) {
             html = '<div style="text-align:center;padding:2rem;background:#f0fdf4;border-radius:12px;color:#059669;font-weight:700;">' +
               '<i class="fas fa-check-circle" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>' +
-              'Nothing to do â€” group members all have index numbers and no stale ones found.' +
+              'Nothing to do — group members all have index numbers and no stale ones found.' +
             '</div>';
         }
 
@@ -5639,12 +5639,12 @@ window.commitIndexAssignment = async function() {
     var willClear  = window._indexAssignWillClear || [];
 
     if ((!proposed || !Object.keys(proposed).length) && !willClear.length) {
-        setStatus('Run preview first â€” nothing to do.', false);
+        setStatus('Run preview first — nothing to do.', false);
         return;
     }
 
     // Password gate
-    var pw = window.prompt('Enter admin password to commit. This will:\nâ€¢ Clear all non-tutor L100 index numbers\nâ€¢ Reassign 013+ only to L100 group members\nâ€¢ Leave L200+ untouched');
+    var pw = window.prompt('Enter admin password to commit. This will:\n"¢ Clear all non-tutor L100 index numbers\n"¢ Reassign 013+ only to L100 group members\n"¢ Leave L200+ untouched');
     if (!pw) return;
     if (pw.trim() !== '2026GERAMA') {
         alert('âŒ Wrong password. Assignment cancelled.');
@@ -5657,7 +5657,7 @@ window.commitIndexAssignment = async function() {
     var cleared = 0, assigned = 0, errors = 0;
 
     // â”€â”€ STEP 1: Clear stale L100 index numbers (not in any group) â”€â”€
-    setStatus('Step 1/2 â€” clearing stale index numbersâ€¦', true);
+    setStatus('Step 1/2 — clearing stale index numbers"¦', true);
     for (var i = 0; i < willClear.length; i++) {
         try {
             var { error: ce } = await sb.from('user_profiles')
@@ -5680,7 +5680,7 @@ window.commitIndexAssignment = async function() {
     }
 
     // â”€â”€ STEP 3: Assign new numbers from 013 â”€â”€
-    setStatus('Step 2/2 â€” assigning new index numbersâ€¦', true);
+    setStatus('Step 2/2 — assigning new index numbers"¦', true);
     for (var k = 0; k < toAssignEmails.length; k++) {
         var email  = toAssignEmails[k];
         var newIdx = proposed[email];
