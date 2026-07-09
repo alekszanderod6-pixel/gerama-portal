@@ -628,52 +628,9 @@ var SUPA_URL = window.__SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
 var SUPA_KEY = window.__SUPABASE_KEY || '';
 
 // —��—�� HARDCODED SEED PRODUCTS (always shown, even before DB is set up) —��—��
-var SEED_PRODUCTS = [
-  {
-    id: 'seed-1',
-    name: 'GERAMA Round Neck T-Shirt',
-    category: 'fashion',
-    price: 48,
-    original_price: 60,
-    description: 'Official GERAMA team round neck T-shirt. Premium quality cotton. Available in multiple colours and sizes. Perfect for GERAMA members and supporters.',
-    image_url: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80',
-    seller_name: 'Aleks ZanderOD',
-    seller_whatsapp: '0555749497',
-    seller_id: 'GUM-001',
-    colours: ['white','#8B4513','#1B5E20','#1e2a3e','#dc2626'],
-    colour_names: ['White','Brown','Green','Navy','Red'],
-    sizes: ['S','M','L','XL','XXL','3XL'],
-    stock: 50,
-    badge: 'SALE',
-    verified: true,
-    featured: true
-  },
-  {
-    id: 'seed-2',
-    name: 'Fresh Creamy Yoghurt',
-    category: 'food',
-    price: 7,
-    original_price: null,
+var SEED_PRODUCTS = [];
     description: 'Fresh homemade creamy yoghurt —�� smooth, pink and delicious. Perfect for a healthy snack. Order 10 for just GH—��70! Made fresh daily.',
-    image_url: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80',
-    seller_name: 'GERAMA Canteen',
-    seller_whatsapp: '0555749497',
-    seller_id: 'GUM-002',
-    colours: [],
-    colour_names: [],
-    sizes: [],
-    stock: 30,
-    badge: 'FRESH',
-    verified: true,
-    featured: true,
-    bulk_note: 'Order 10 for GH—��70 (save GH—��0 per cup)'
-  }
-];
-
-var allProducts = [];
 var currentCategory = 'all';
-var currentProduct = null;
-var currentQty = 1;
 var selectedColour = '';
 var selectedSize = '';
 
