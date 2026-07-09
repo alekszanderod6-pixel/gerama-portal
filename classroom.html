@@ -218,26 +218,27 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 }
 /* Opportunities tab styles */
 .opp-card{background:white;border-radius:20px;padding:1.4rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;transition:transform 0.2s,box-shadow 0.2s;display:flex;flex-direction:column;gap:0.8rem;position:relative;overflow:hidden;}
-.opp-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.1);}
-.opp-badge{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.72rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;}
-.opp-badge.internship{background:#dbeafe;color:#1d4ed8;}
-.opp-badge.nss{background:#d1fae5;color:#065f46;}
-.opp-badge.scholarship{background:#fef3c7;color:#92400e;}
-.opp-badge.job{background:#fce7f3;color:#9d174d;}
-.opp-badge.other{background:#f3f4f6;color:#374151;}
-.opp-img{width:100%;height:160px;object-fit:cover;border-radius:14px;background:#f1f5f9;}
+.opp-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.12);}
+.opp-badge{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.72rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.opp-badge.internship{background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1d4ed8;border:1px solid #93c5fd;}
+.opp-badge.nss{background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46;border:1px solid #6ee7b7;}
+.opp-badge.scholarship{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;border:1px solid #fcd34d;}
+.opp-badge.job{background:linear-gradient(135deg,#fce7f3,#fbcfe8);color:#9d174d;border:1px solid #f9a8d4;}
+.opp-badge.other{background:linear-gradient(135deg,#f3f4f6,#e5e7eb);color:#374151;border:1px solid #d1d5db;}
+.opp-img{width:100%;height:160px;object-fit:cover;border-radius:14px;background:#f1f5f9;cursor:pointer;transition:transform 0.2s;}
+.opp-img:hover{transform:scale(1.02);}
 .opp-img-placeholder{width:100%;height:120px;border-radius:14px;background:linear-gradient(135deg,#e8f5e9,#f0fdf4);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#4caf50;}
-.opp-company{font-weight:800;font-size:1rem;color:var(--text);}
+.opp-company{font-weight:800;font-size:1rem;color:var(--text);line-height:1.3;}
 .opp-location{font-size:0.82rem;color:var(--muted);display:flex;align-items:center;gap:0.3rem;}
 .opp-description{font-size:0.87rem;color:#374151;line-height:1.6;}
 .opp-meta{display:flex;flex-wrap:wrap;gap:0.5rem;font-size:0.8rem;color:#6b7280;}
-.opp-apply-btn{background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.6rem 1.2rem;border-radius:30px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.4rem;text-decoration:none;transition:all 0.2s;align-self:flex-start;}
-.opp-apply-btn:hover{background:linear-gradient(135deg,#145214,#1B5E20);transform:translateY(-1px);}
-.opp-stat-pill{background:#f0fdf4;color:#1B5E20;border:1px solid #c8e6c9;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;display:inline-flex;align-items:center;gap:0.25rem;}
+.opp-apply-btn{background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.6rem 1.2rem;border-radius:30px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.4rem;text-decoration:none;transition:all 0.2s;align-self:flex-start;box-shadow:0 4px 12px rgba(27,94,32,0.3);}
+.opp-apply-btn:hover{background:linear-gradient(135deg,#145214,#1B5E20);transform:translateY(-2px);box-shadow:0 6px 16px rgba(27,94,32,0.4);}
+.opp-stat-pill{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#1B5E20;border:1px solid #86efac;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;display:inline-flex;align-items:center;gap:0.25rem;box-shadow:0 2px 6px rgba(27,94,32,0.1);}
 .opp-filter-bar{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.2rem;align-items:center;}
-.opp-filter-btn{background:#f8fafc;border:2px solid #e5e7eb;color:#374151;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.opp-filter-btn{background:#f8fafc;border:2px solid #e5e7eb;color:#374151;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
 .opp-filter-btn.active,
-.opp-filter-btn:hover{background:#1B5E20;color:white;border-color:#1B5E20;}
+.opp-filter-btn:hover{background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border-color:#1B5E20;box-shadow:0 4px 12px rgba(27,94,32,0.3);transform:translateY(-1px);}
 .opp-comment-box{background:#f8fafc;border-radius:12px;padding:0.8rem;border:1px solid #e5e7eb;margin-top:0.5rem;}
 .opp-comment-item{display:flex;gap:0.6rem;align-items:flex-start;padding:0.5rem 0;border-bottom:1px solid #f1f5f9;}
 .opp-comment-item:last-child{border-bottom:none;}
@@ -1061,7 +1062,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div style="position:absolute;bottom:-20px;left:-20px;width:100px;height:100px;background:rgba(255,193,7,0.07);border-radius:50%;pointer-events:none;"></div>
     <div style="position:relative;z-index:1;">
       <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.6rem;flex-wrap:wrap;">
-        <span style="background:rgba(14,165,233,0.25);border:1px solid rgba(14,165,233,0.5);color:#7dd3fc;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">?? Opportunities Hub</span>
+        <span style="background:rgba(14,165,233,0.25);border:1px solid rgba(14,165,233,0.5);color:#7dd3fc;font-size:0.72rem;font-weight:700;padding:0.2rem 0.7rem;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">🌍 Opportunities Hub</span>
       </div>
       <div style="font-size:1.3rem;font-weight:900;margin-bottom:0.5rem;">Internships NSS Scholarships &amp; More</div>
       <div style="font-size:0.88rem;opacity:0.85;line-height:1.6;max-width:500px;">Engineering opportunities curated for GERAMA members. Apply, track your progress, and connect with others who've been through the process. <a href="contact.html" style="color:#FFC107;font-weight:700;text-decoration:underline;">Contact admins</a> for assistance.</div>
@@ -1071,11 +1072,11 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <!-- Filter Bar -->
   <div class="opp-filter-bar" id="oppFilterBar">
     <button class="opp-filter-btn active" data-filter="all" onclick="filterOpportunities('all',this)">All</button>
-    <button class="opp-filter-btn" data-filter="internship" onclick="filterOpportunities('internship',this)">?? Internship</button>
-    <button class="opp-filter-btn" data-filter="nss" onclick="filterOpportunities('nss',this)">?? NSS</button>
-    <button class="opp-filter-btn" data-filter="scholarship" onclick="filterOpportunities('scholarship',this)">?? Scholarship</button>
-    <button class="opp-filter-btn" data-filter="job" onclick="filterOpportunities('job',this)">? Job</button>
-    <button class="opp-filter-btn" data-filter="other" onclick="filterOpportunities('other',this)">? Other</button>
+    <button class="opp-filter-btn" data-filter="internship" onclick="filterOpportunities('internship',this)">💼 Internship</button>
+    <button class="opp-filter-btn" data-filter="nss" onclick="filterOpportunities('nss',this)">🎓 NSS</button>
+    <button class="opp-filter-btn" data-filter="scholarship" onclick="filterOpportunities('scholarship',this)">🎓 Scholarship</button>
+    <button class="opp-filter-btn" data-filter="job" onclick="filterOpportunities('job',this)">💼 Job</button>
+    <button class="opp-filter-btn" data-filter="other" onclick="filterOpportunities('other',this)">📋 Other</button>
     <button onclick="loadOpportunities()" style="margin-left:auto;background:none;border:none;color:#6b7280;cursor:pointer;font-size:0.8rem;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.3rem;padding:0.35rem 0.6rem;border-radius:20px;border:1px solid #e5e7eb;"><i class="fas fa-sync-alt"></i> Refresh</button>
   </div>
 
@@ -1205,7 +1206,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
 <!-- IMAGE LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
-  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">—��</button>
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">×</button>
   <img id="lightboxImg" src="" alt="">
 </div>
 </div>
@@ -1220,6 +1221,16 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
 <script src="js/main.js"></script>
 <script src="js/gerama-features.js"></script>
+<script>
+// Lightbox for opportunity flyers
+function openLightbox(src) {
+  if(!src) return;
+  var lb = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lightboxImg');
+  lbImg.src = src;
+  lb.classList.add('open');
+}
+</script>
 <script>
 // XSS Prevention Helpers (already in main.js, but re-export here for local scope)
 window.escHtml = window.escHtml || function(s) {
@@ -3726,7 +3737,7 @@ function renderOpportunities() {
   grid.innerHTML = list.map(function(opp) {
     var badge = '<span class="opp-badge ' + (opp.type||'other') + '">' + getOppTypeLabel(opp.type) + '</span>';
     var img = opp.image_url
-      ? '<img src="' + escHtml(opp.image_url) + '" class="opp-img" alt="' + escHtml(opp.company) + '" loading="lazy" onerror="this.style.display=\'none\'">'
+      ? '<img src="' + escHtml(opp.image_url) + '" class="opp-img" alt="' + escHtml(opp.company) + '" loading="lazy" onerror="this.style.display=\'none\'" onclick="event.stopPropagation();openLightbox(\'' + escHtml(opp.image_url) + '\')">'
       : '<div class="opp-img-placeholder">' + getOppEmoji(opp.type) + '</div>';
     var deadline = opp.deadline ? '<span><i class="fas fa-calendar-alt" style="color:#dc2626;"></i> Deadline: ' + new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + '</span>' : '';
     var mode = opp.mode_of_application ? '<span><i class="fas fa-file-alt" style="color:#6366f1;"></i> ' + escHtml(opp.mode_of_application) + '</span>' : '';
@@ -3742,7 +3753,7 @@ function renderOpportunities() {
       img +
       '<div class="opp-company">' + escHtml(opp.company) + '</div>' +
       loc +
-      (opp.description ? '<div class="opp-description">' + escHtml(opp.description).substring(0,200) + (opp.description.length > 200 ? '...' : '') + '</div>' : '') +
+      (opp.description ? '<div class="opp-description">' + escHtml(opp.description).substring(0,200) + (opp.description.length > 200 ? '<button onclick="toggleOppDesc(\'' + opp.id + '\')" style="background:none;border:none;color:#0ea5e9;cursor:pointer;font-weight:600;font-size:0.8rem;padding:0;margin:0 0 0 0.3rem;">See more</button>' : '') + '</div>' : '') +
       '<div class="opp-meta">' + deadline + mode + '</div>' +
       '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-top:auto;">' +
         '<span class="opp-stat-pill"><i class="fas fa-eye"></i> ' + viewCount + ' views</span>' +
@@ -3756,12 +3767,27 @@ function renderOpportunities() {
 }
 
 function getOppTypeLabel(type) {
-  var map = {internship:'?? Internship', nss:'?? NSS', scholarship:'?? Scholarship', job:'? Job', other:'? Other'};
-  return map[type] || '? Other';
+  var map = {internship:'💼 Internship', nss:'🎓 NSS', scholarship:'🎓 Scholarship', job:'💼 Job', other:'📋 Other'};
+  return map[type] || '📋 Other';
 }
 function getOppEmoji(type) {
-  var map = {internship:'??', nss:'??', scholarship:'??', job:'?', other:'?'};
-  return map[type] || '?';
+  var map = {internship:'💼', nss:'🎓', scholarship:'🎓', job:'💼', other:'📋'};
+  return map[type] || '📋';
+}
+
+function toggleOppDesc(oppId) {
+  var card = document.getElementById('opp-' + oppId);
+  if(!card) return;
+  var descEl = card.querySelector('.opp-description');
+  if(!descEl) return;
+  var opp = _allOpportunities.find(function(o){ return o.id === oppId; });
+  if(!opp) return;
+  var btn = descEl.querySelector('button');
+  if(descEl.textContent.includes('See more')) {
+    descEl.innerHTML = escHtml(opp.description) + '<button onclick="toggleOppDesc(\'' + oppId + '\')" style="background:none;border:none;color:#0ea5e9;cursor:pointer;font-weight:600;font-size:0.8rem;padding:0;margin:0 0 0 0.3rem;">Show less</button>';
+  } else {
+    descEl.innerHTML = escHtml(opp.description).substring(0,200) + '<button onclick="toggleOppDesc(\'' + oppId + '\')" style="background:none;border:none;color:#0ea5e9;cursor:pointer;font-weight:600;font-size:0.8rem;padding:0;margin:0 0 0 0.3rem;">See more</button>';
+  }
 }
 
 function filterOpportunities(type, btn) {
