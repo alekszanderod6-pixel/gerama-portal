@@ -487,8 +487,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         <label>Available Sizes (comma-separated) <small style="font-weight:400;color:#6b7280;">optional</small></label>
         <input type="text" id="sellSizes" placeholder="e.g. S, M, L, XL, XXL">
       </div>
-      <div class="form-row"><label>Price (GH₵) *</label><input type="number" id="sellPrice" placeholder="e.g. 48" min="1"></div>
-      <div class="form-row"><label>Original Price (GH₵) – if discounted</label><input type="number" id="sellOrigPrice" placeholder="e.g. 60" min="1"></div>
+      <div class="form-row"><label>Price (GH₵ </label><input type="number" id="sellPrice" placeholder="e.g. 48" min="1"></div>
+      <div class="form-row"><label>Original Price (GH₵ if discounted</label><input type="number" id="sellOrigPrice" placeholder="e.g. 60" min="1"></div>
       <div class="form-row"><label>Description *</label><textarea id="sellDesc" rows="3" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;" placeholder="Describe your product – colours, sizes, materials..."></textarea></div>
       <div class="form-row">
         <label>Product Images (up to 3) <small style="font-weight:400;color:#6b7280;">First image = main display photo</small></label>
@@ -773,7 +773,7 @@ function renderProducts() {
       ? '<div class="seller-badge"><i class="fas fa-check-circle"></i> Verified</div>'
       : '';
     var oldPriceHtml = p.original_price && p.original_price > p.price
-      ? '<span class="product-price-old">GH₵' + p.original_price + '</span><span class="product-discount">-' + discount + '</span>'
+      ? '<span class="product-price-old">GH₵ p.original_price + '</span><span class="product-discount">-' + discount + '</span>'
       : '';
     var bulkHtml = p.bulk_note
       ? '<div style="font-size:0.7rem;color:#059669;font-weight:700;margin-bottom:0.4rem;background:#f0fdf4;padding:0.2rem 0.5rem;border-radius:6px;display:inline-block;"><i class="fas fa-tag"></i> ' + p.bulk_note + '</div>'
@@ -792,7 +792,7 @@ function renderProducts() {
         '<div class="product-name">' + escHtml(p.name) + '</div>' +
         ratingHtml +
         '<div class="product-seller"><i class="fas fa-store"></i>' + escHtml(p.seller_name||'GERAMA Seller') + '</div>' +
-        '<div class="product-price-row"><span class="product-price">GH₵��' + p.price + '</span>' + oldPriceHtml + '</div>' +
+        '<div class="product-price-row"><span class="product-price">GH₵ ' + p.price + '</span>' + oldPriceHtml + '</div>' +
         bulkHtml +
         '<div style="display:flex;gap:0.4rem;">' +
           '<button class="btn-order" style="flex:1;" onclick="event.stopPropagation();openOrderModal(\'' + p.id + '\')"><i class="fas fa-shopping-cart"></i> Order</button>' +
@@ -832,7 +832,7 @@ function openOrderModal(productId) {
   var preview = document.getElementById('orderPreview');
   preview.innerHTML = '<img src="' + (p.image_url||'https://via.placeholder.com/70') + '" alt="" onerror="this.src=\'https://via.placeholder.com/70\'">' +
     '<div><div class="name">' + escHtml(p.name) + '</div>' +
-    '<div class="price">GH₵' + p.price + (p.original_price&&p.original_price>p.price?' <span style="text-decoration:line-through;color:#9ca3af;font-size:0.85rem;">GH₵'+p.original_price+'</span>':'') + '</div>' +
+    '<div class="price">GH₵ p.price + (p.original_price&&p.original_price>p.price?' <span style="text-decoration:line-through;color:#9ca3af;font-size:0.85rem;">GH₵ p.original_price+'</span>':'') + '</div>' +
     '<div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem;">Seller: ' + escHtml(p.seller_name||'–') + ' · ' + (p.seller_id||'') + '</div>' +
     '</div>';
 
@@ -901,7 +901,7 @@ function updateOrderTotal() {
   if (!currentProduct) return;
   var total = (currentProduct.price * currentQty).toFixed(2);
   var el = document.getElementById('orderTotalAmt');
-  if (el) el.textContent = 'GH₵�� ' + total;
+  if (el) el.textContent = 'GH₵ ' + total;
 }
 
 function validateOrder(e, type) {
@@ -923,7 +923,7 @@ function validateOrder(e, type) {
     (selectedColour ? '🎨 *Colour:* ' + selectedColour + '\n' : '') +
     (selectedSize ? '📏 *Size:* ' + selectedSize + '\n' : '') +
     '🔢 *Quantity:* ' + currentQty + '\n' +
-    '💰 *Total:* GH₵' + total + '\n' +
+    '💰 *Total:* GH₵ total + '\n' +
     '📍 *Delivery:* ' + location + '\n' +
     '⏰ *Timeframe:* ' + timeframe + '\n' +
     '👤 *Buyer:* ' + name + '\n' +
@@ -1140,7 +1140,7 @@ function updateCartUI() {
     else { el.style.display='none'; }
   });
   var totalEl = document.getElementById('cartTotalAmt');
-  if (totalEl) totalEl.textContent = 'GH₵�� ' + total.toFixed(2);
+  if (totalEl) totalEl.textContent = 'GH₵ ' + total.toFixed(2);
   var body = document.getElementById('cartBody');
   if (!body) return;
   if (!cart.length) {
@@ -1153,7 +1153,7 @@ function updateCartUI() {
       '<div class="cart-item-info">' +
         '<div class="cart-item-name">' + escHtml(c.name) + '</div>' +
         '<div style="font-size:0.78rem;color:#6b7280;">Qty: '+c.qty+' · Seller: '+escHtml(c.seller||'–')+'</div>' +
-        '<div class="cart-item-price">GH₵' + (c.price * (c.qty||1)).toFixed(2) + '</div>' +
+        '<div class="cart-item-price">GH₵ (c.price * (c.qty||1)).toFixed(2) + '</div>' +
       '</div>' +
       '<button class="cart-remove" onclick="removeFromCart(\''+c.id+'\')"><i class="fas fa-trash"></i></button>' +
     '</div>';
@@ -1166,10 +1166,10 @@ function checkoutCart() {
   var msg = '🛒 *GERAMA Urban Mall – Cart Order*\n\n';
   var total = 0;
   cart.forEach(function(c, i){
-    msg += (i+1)+'. ' + c.name + ' × ' + c.qty + ' = GH₵' + (c.price * c.qty).toFixed(2) + '\n';
+    msg += (i+1)+'. ' + c.name + ' × ' + c.qty + ' = GH₵ (c.price * c.qty).toFixed(2) + '\n';
     total += c.price * c.qty;
   });
-  msg += '\n💰 *Grand Total: GH₵' + total.toFixed(2) + '*\n\nPlease confirm these orders. Thank you!';
+  msg += '\n💰 *Grand Total: GH₵ total.toFixed(2) + '*\n\nPlease confirm these orders. Thank you!';
   var wa = '233555749497';
   window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
   toggleCart();
@@ -1233,7 +1233,7 @@ function updateWishlistUI() {
       '<img src="'+(w.image||'https://via.placeholder.com/56')+'" alt="" onerror="this.src=\'https://via.placeholder.com/56\'">' +
       '<div class="cart-item-info">' +
         '<div class="cart-item-name">'+escHtml(w.name)+'</div>' +
-        '<div class="cart-item-price">GH₵��'+w.price+'</div>' +
+        '<div class="cart-item-price">GH₵ '+w.price+'</div>' +
       '</div>' +
       '<div style="display:flex;flex-direction:column;gap:0.3rem;">' +
         '<button style="background:var(--primary);color:white;border:none;padding:0.3rem 0.7rem;border-radius:8px;font-size:0.75rem;cursor:pointer;font-family:\'Inter\',sans-serif;" onclick="openOrderModal(\''+w.id+'\');toggleWishlist()">Order</button>' +

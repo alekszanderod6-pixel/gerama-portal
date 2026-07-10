@@ -966,8 +966,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
             <option value="other">Other</option>
           </select>
         </div>
-        <div class="form-field"><label>Price (GH₵��) *</label><input type="number" id="mallProdPrice" placeholder="48" min="1"></div>
-        <div class="form-field"><label>Original Price (GH₵��) – if discounted</label><input type="number" id="mallProdOrigPrice" placeholder="60" min="1"></div>
+        <div class="form-field"><label>Price (GH₵) *</label><input type="number" id="mallProdPrice" placeholder="48" min="1"></div>
+        <div class="form-field"><label>Original Price (GH₵) – if discounted</label><input type="number" id="mallProdOrigPrice" placeholder="60" min="1"></div>
         <div class="form-field"><label>Seller Name *</label><input type="text" id="mallProdSeller" placeholder="e.g. Aleks ZanderOD"></div>
         <div class="form-field"><label>Seller WhatsApp *</label><input type="tel" id="mallProdWA" placeholder="0551234567"></div>
         <div class="form-field"><label>Colours (comma-separated hex or names)</label><input type="text" id="mallProdColours" placeholder="white,#8B4513,#1B5E20"></div>
@@ -1084,7 +1084,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         var badge2 = r.status==='approved'?'<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Approved</span>':r.status==='rejected'?'<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Rejected</span>':'<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Pending</span>';
         return '<div class="sub-card">'+
           '<div class="sub-info"><strong>'+window.escHtml(r.product_name||'–')+' '+badge2+'</strong>'+
-          '<div class="sub-meta"><b>Seller:</b> '+window.escHtml(r.seller_name||'–')+' · '+window.escHtml(r.seller_whatsapp||'–')+' | <b>Cat:</b> '+window.escHtml(r.category||'–')+' | <b>Price:</b> GH₵��'+r.price+'</div>'+
+          '<div class="sub-meta"><b>Seller:</b> '+window.escHtml(r.seller_name||'–')+' · '+window.escHtml(r.seller_whatsapp||'–')+' | <b>Cat:</b> '+window.escHtml(r.category||'–')+' | <b>Price:</b> GH₵ '+r.price+'</div>'+
           '<div class="sub-meta" style="margin-top:0.2rem;">'+window.escHtml((r.description||'').substring(0,100))+'</div></div>'+
           '<div class="sub-actions">'+
             (r.status==='pending'?'<button class="btn-success" onclick="approveMallRequest(\''+r.id+'\',\''+window.escAttr(JSON.stringify(r))+'\')"><i class="fas fa-check"></i> Approve</button>':'') +
@@ -1139,7 +1139,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
             '<td>'+imgHtml+'</td>'+
             '<td><strong>'+window.escHtml(p.name||'–')+'</strong>'+(p.badge?'<br><span style="background:#fee2e2;color:#dc2626;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:8px;">'+window.escHtml(p.badge)+'</span>':'')+'</td>'+
             '<td>'+window.escHtml(p.category||'–')+'</td>'+
-            '<td>GH₵��'+p.price+(p.original_price?'<br><small style="text-decoration:line-through;color:#9ca3af;">GH₵��'+p.original_price+'</small>':'')+'</td>'+
+            '<td>GH₵ '+p.price+(p.original_price?'<br><small style="text-decoration:line-through;color:#9ca3af;">GH₵ '+p.original_price+'</small>':'')+'</td>'+
             '<td>'+window.escHtml(p.seller_name||'–')+'<br><small style="color:#6b7280;">'+window.escHtml(p.seller_whatsapp||'')+'</small></td>'+
             '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(p.seller_id||'–')+'</span></td>'+
             '<td style="white-space:nowrap;">'+
@@ -1175,7 +1175,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
             '<td>'+window.escHtml(o.buyer_name||'–')+'</td>'+
             '<td>'+window.escHtml(o.buyer_phone||'–')+'</td>'+
             '<td>'+o.quantity+'</td>'+
-            '<td>GH₵��'+o.total_price+'</td>'+
+            '<td>GH₵ '+o.total_price+'</td>'+
             '<td style="font-size:0.8rem;">'+window.escHtml(o.delivery_location||'–')+'</td>'+
             '<td style="font-size:0.78rem;white-space:nowrap;">'+dt+'</td>'+
           '</tr>';
@@ -1310,8 +1310,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
                 ['fashion','food','electronics','books','other'].map(function(c){return '<option value="'+c+'"'+(p.category===c?' selected':'')+'>'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>';}).join('')+
               '</select>'+
             '</div>'+
-            '<div class="form-field"><label>Price (GH₵��)</label><input type="number" id="editPrice" value="'+p.price+'"></div>'+
-            '<div class="form-field"><label>Original Price (GH₵��)</label><input type="number" id="editOrigPrice" value="'+(p.original_price||'')+'"></div>'+
+            '<div class="form-field"><label>Price (GH₵)</label><input type="number" id="editPrice" value="'+p.price+'"></div>'+
+            '<div class="form-field"><label>Original Price (GH₵)</label><input type="number" id="editOrigPrice" value="'+(p.original_price||'')+'"></div>'+
             '<div class="form-field"><label>Seller Name</label><input type="text" id="editSeller" value="'+window.escAttr(p.seller_name||'')+'"></div>'+
             '<div class="form-field"><label>Seller WhatsApp</label><input type="tel" id="editWA" value="'+window.escAttr(p.seller_whatsapp||'')+'"></div>'+
             '<div class="form-field"><label>Sizes (comma-separated)</label><input type="text" id="editSizes" value="'+window.escAttr((function(){try{return JSON.parse(p.sizes||'[]').join(',');}catch(e){return '';}})())+'"></div>'+
