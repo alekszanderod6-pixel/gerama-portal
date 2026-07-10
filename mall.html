@@ -190,7 +190,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .mall-icon-btn{background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);color:white;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;flex-shrink:0;position:relative;}
 .mall-icon-btn:hover{background:rgba(255,255,255,0.25);}
 
-/* PRODUCT CARD — wishlist heart */
+/* PRODUCT CARD – wishlist heart */
 .product-wishlist-btn{position:absolute;top:0.5rem;right:2.8rem;background:rgba(255,255,255,0.9);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;color:#9ca3af;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.12);}
 .product-wishlist-btn.wishlisted{color:#dc2626;}
 .product-wishlist-btn:hover{transform:scale(1.15);}
@@ -280,7 +280,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div class="mall-hero-text">
       <div class="badge"><i class="fas fa-store"></i> GERAMA Urban Mall · Est. 2025</div>
       <h1>Shop Smart,<br><span>Shop GERAMA</span></h1>
-      <p>Quality products from verified GERAMA sellers — fashion, food, drinks and more. Order directly, pay securely.</p>
+      <p>Quality products from verified GERAMA sellers – fashion, food, drinks and more. Order directly, pay securely.</p>
     </div>
     <div class="mall-hero-stats">
       <div class="mall-stat"><span class="mall-stat-num" id="statProducts">—</span><span class="mall-stat-lbl">Products</span></div>
@@ -328,7 +328,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div class="trust-item"><i class="fas fa-shield-alt"></i> Verified Sellers Only</div>
     <div class="trust-item"><i class="fas fa-whatsapp fab"></i> Direct WhatsApp Orders</div>
     <div class="trust-item"><i class="fas fa-map-marker-alt"></i> Campus Delivery Available</div>
-    <div class="trust-item"><i class="fas fa-clock"></i> 3—10 Days Delivery</div>
+    <div class="trust-item"><i class="fas fa-clock"></i> 3–10 Days Delivery</div>
     <div class="trust-item"><i class="fas fa-users"></i> GERAMA Community Backed</div>
   </div>
 
@@ -455,7 +455,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div class="modal-header">
       <button class="modal-close" onclick="closeSellModal()">×</button>
       <h3>🛒 Sell on GERAMA Urban Mall</h3>
-      <p>Submit a sample listing — admin will verify and approve you as a seller</p>
+      <p>Submit a sample listing – admin will verify and approve you as a seller</p>
     </div>
     <div class="modal-body">
       <div style="background:#dbeafe;border-radius:12px;padding:0.9rem 1rem;margin-bottom:1.2rem;font-size:0.85rem;color:#1e40af;">
@@ -532,10 +532,10 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <div class="wishlist-drawer" id="wishlistDrawer">
   <div class="cart-drawer-header" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">
     <div style="font-weight:800;font-size:1rem;display:flex;align-items:center;gap:0.6rem;"><i class="fas fa-heart"></i> Wishlist <span id="wishlistBadge" style="background:rgba(255,255,255,0.25);padding:0.1rem 0.6rem;border-radius:20px;font-size:0.78rem;">0 items</span></div>
-    <button onclick="toggleWishlist()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">—</button>
+    <button onclick="toggleWishlist()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">×</button>
   </div>
   <div class="cart-drawer-body" id="wishlistBody">
-    <div style="text-align:center;padding:3rem 1rem;color:#9ca3af;"><i class="fas fa-heart" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i><p style="font-weight:600;">No saved items</p><small>Tap the — on any product to save it</small></div>
+    <div style="text-align:center;padding:3rem 1rem;color:#9ca3af;"><i class="fas fa-heart" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i><p style="font-weight:600;">No saved items</p><small>Tap the ❤ on any product to save it</small></div>
   </div>
 </div>
 
@@ -619,15 +619,17 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <script src="js/main.js"></script>
 <script src="js/gerama-features.js"></script>
 <script>
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// GERAMA URBAN MALL —�� Core JS
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// GERAMA URBAN MALL – Core JS
+// ============================================
 
 // Use centralized Supabase config from supabase-config.js
 var SUPA_URL = window.__SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
 var SUPA_KEY = window.__SUPABASE_KEY || '';
 
-// —��—�� HARDCODED SEED PRODUCTS (always shown, even before DB is set up) —��—��
+// ============================================
+// HARDCODED SEED PRODUCTS (always shown, even before DB is set up)
+// ============================================
 var SEED_PRODUCTS = [
   {
     id: 'seed-1',
@@ -684,9 +686,11 @@ function setMallDataNotice(message, kind) {
   notice.innerHTML = '<i class="fas fa-circle-info" style="margin-right:0.45rem;"></i>' + escHtml(message);
 }
 
-// —��—�� LOAD PRODUCTS —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// LOAD PRODUCTS
+// ============================================
 async function loadProducts() {
-  // Load from Supabase —�� fetch ALL products, filter approved client-side
+  // Load from Supabase – fetch ALL products, filter approved client-side
   // (avoids PostgREST column filter issues if status column has different type)
   var dbProducts = [];
   var cfg = getMallSupabaseConfig();
@@ -739,7 +743,9 @@ async function loadProducts() {
   renderProducts();
 }
 
-// —��—�� RENDER PRODUCTS —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// RENDER PRODUCTS
+// ============================================
 function renderProducts() {
   var grid = document.getElementById('productsGrid');
   if (!grid) return;
@@ -767,14 +773,14 @@ function renderProducts() {
       ? '<div class="seller-badge"><i class="fas fa-check-circle"></i> Verified</div>'
       : '';
     var oldPriceHtml = p.original_price && p.original_price > p.price
-      ? '<span class="product-price-old">GH₵��' + p.original_price + '</span><span class="product-discount">-' + discount + '</span>'
+      ? '<span class="product-price-old">GH₵' + p.original_price + '</span><span class="product-discount">-' + discount + '</span>'
       : '';
     var bulkHtml = p.bulk_note
       ? '<div style="font-size:0.7rem;color:#059669;font-weight:700;margin-bottom:0.4rem;background:#f0fdf4;padding:0.2rem 0.5rem;border-radius:6px;display:inline-block;"><i class="fas fa-tag"></i> ' + p.bulk_note + '</div>'
       : '';
     // Fake rating for visual appeal
     var rating = (4.2 + (p.id.toString().charCodeAt(0) % 8) * 0.1).toFixed(1);
-    var ratingHtml = '<div class="product-rating"><span class="stars">—��—��—��—��—��</span><span style="font-size:0.72rem;font-weight:700;color:#374151;">' + rating + '</span><span class="rating-count">(' + (10 + (p.id.toString().charCodeAt(0) % 40)) + ')</span></div>';
+    var ratingHtml = '<div class="product-rating"><span class="stars">★★★★★</span><span style="font-size:0.72rem;font-weight:700;color:#374151;">' + rating + '</span><span class="rating-count">(' + (10 + (p.id.toString().charCodeAt(0) % 40)) + ')</span></div>';
 
     return '<div class="product-card" onclick="openOrderModal(\'' + p.id + '\')">' +
       '<div class="product-img-wrap">' +
@@ -811,7 +817,9 @@ function setCategory(cat, btn) {
 
 function filterProducts() { renderProducts(); }
 
-// —��—�� ORDER MODAL —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// ORDER MODAL
+// ============================================
 function openOrderModal(productId) {
   var p = allProducts.find(function(x){ return String(x.id) === String(productId); });
   if (!p) return;
@@ -824,8 +832,8 @@ function openOrderModal(productId) {
   var preview = document.getElementById('orderPreview');
   preview.innerHTML = '<img src="' + (p.image_url||'https://via.placeholder.com/70') + '" alt="" onerror="this.src=\'https://via.placeholder.com/70\'">' +
     '<div><div class="name">' + escHtml(p.name) + '</div>' +
-    '<div class="price">GH₵��' + p.price + (p.original_price&&p.original_price>p.price?' <span style="text-decoration:line-through;color:#9ca3af;font-size:0.85rem;">GH₵��'+p.original_price+'</span>':'') + '</div>' +
-    '<div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem;">Seller: ' + escHtml(p.seller_name||'—��') + ' · ' + (p.seller_id||'') + '</div>' +
+    '<div class="price">GH₵' + p.price + (p.original_price&&p.original_price>p.price?' <span style="text-decoration:line-through;color:#9ca3af;font-size:0.85rem;">GH₵'+p.original_price+'</span>':'') + '</div>' +
+    '<div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem;">Seller: ' + escHtml(p.seller_name||'—') + ' · ' + (p.seller_id||'') + '</div>' +
     '</div>';
 
   // Colours
@@ -915,9 +923,9 @@ function validateOrder(e, type) {
     (selectedColour ? '🎨 *Colour:* ' + selectedColour + '\n' : '') +
     (selectedSize ? '📏 *Size:* ' + selectedSize + '\n' : '') +
     '🔢 *Quantity:* ' + currentQty + '\n' +
-    '💰 *Total:* GH₵��' + total + '\n' +
+    '💰 *Total:* GH₵' + total + '\n' +
     '📍 *Delivery:* ' + location + '\n' +
-    '—�� *Timeframe:* ' + timeframe + '\n' +
+    '⏰ *Timeframe:* ' + timeframe + '\n' +
     '👤 *Buyer:* ' + name + '\n' +
     '📞 *My Number:* ' + phone + '\n\n' +
     'Please confirm my order. Thank you! 🙏';
@@ -971,7 +979,9 @@ function closeOrderSuccess() {
   document.getElementById('orderSuccessModal').classList.remove('open');
 }
 
-// —��—�� SELL REQUEST —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// SELL REQUEST
+// ============================================
 function openSellModal() {
   document.getElementById('sellModal').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1004,14 +1014,14 @@ async function submitSellRequest() {
   }
 
   if (!name||!cat||isNaN(price)||!desc||!wa||!seller) { showStatus('Please fill in all required fields.','err'); return; }
-  if (price < 1) { showStatus('Price must be at least GH₵��1.','err'); return; }
-  showStatus('Submitting your listing—��','info');
+  if (price < 1) { showStatus('Price must be at least GH₵1.','err'); return; }
+  showStatus('Submitting your listing…','info');
 
   // Upload up to 3 images
   var imgUrls = [];
   if (files.length) {
     try {
-      showStatus('Uploading images—�� please wait.','info');
+      showStatus('Uploading images… please wait.','info');
       var sb = window.geramaSupabase;
       for (var fi = 0; fi < files.length; fi++) {
         var f = files[fi];
@@ -1026,7 +1036,7 @@ async function submitSellRequest() {
     } catch(e) {}
   }
 
-  showStatus('Saving your listing request—��','info');
+  showStatus('Saving your listing request…','info');
   try {
     var colourList = colors ? colors.split(',').map(function(c){return c.trim();}).filter(Boolean) : [];
     var sizeList   = sizes  ? sizes.split(',').map(function(s){return s.trim();}).filter(Boolean)  : [];
@@ -1045,14 +1055,16 @@ async function submitSellRequest() {
       })
     });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    showStatus('—�� Submitted! Admin will review within 24 hours. You will be contacted on WhatsApp.','ok');
+    showStatus('✓ Submitted! Admin will review within 24 hours. You will be contacted on WhatsApp.','ok');
     setTimeout(closeSellModal, 3000);
   } catch(e) {
-    showStatus('—�� Could not submit. Please try again or contact admin directly on WhatsApp: 0555749497','err');
+    showStatus('✗ Could not submit. Please try again or contact admin directly on WhatsApp: 0555749497','err');
   }
 }
 
-// —��—�� IMAGE LIGHTBOX —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// IMAGE LIGHTBOX
+// ============================================
 function openImgLightbox(src) {
   if (!src) return;
   document.getElementById('lightboxImg').src = src;
@@ -1062,12 +1074,14 @@ function closeImgLightbox() {
   document.getElementById('imgLightbox').classList.remove('open');
 }
 
-// —��—�� SELL REQUEST IMAGE PREVIEW —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// SELL REQUEST IMAGE PREVIEW
+// ============================================
 function previewSellImages(input) {
   var files = Array.from(input.files || []).slice(0, 3);
   var prevEl = document.getElementById('sellImgPreviews');
   var chosenEl = document.getElementById('sellFileChosen');
-  if (chosenEl) chosenEl.textContent = '—�� ' + files.length + ' image' + (files.length !== 1 ? 's' : '') + ' selected';
+  if (chosenEl) chosenEl.textContent = '📷 ' + files.length + ' image' + (files.length !== 1 ? 's' : '') + ' selected';
   if (!prevEl) return;
   prevEl.innerHTML = '';
   files.forEach(function(f) {
@@ -1082,7 +1096,9 @@ function previewSellImages(input) {
   });
 }
 
-// —��—�� TOGGLE COLOR/SIZE FIELDS based on category —��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// TOGGLE COLOR/SIZE FIELDS based on category
+// ============================================
 function toggleColorField() {
   var cat = document.getElementById('sellCategory').value;
   var needsColor = cat === 'fashion' || cat === 'accessories';
@@ -1092,7 +1108,9 @@ function toggleColorField() {
   if (sizeField)  sizeField.style.display  = cat === 'fashion' ? 'block' : 'none';
 }
 
-// —��—�� CART —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// CART
+// ============================================
 var cart = JSON.parse(localStorage.getItem('gerama_mall_cart') || '[]');
 
 function saveCart() { localStorage.setItem('gerama_mall_cart', JSON.stringify(cart)); updateCartUI(); }
@@ -1134,8 +1152,8 @@ function updateCartUI() {
       '<img src="'+(c.image||'https://via.placeholder.com/56')+'" alt="" onerror="this.src=\'https://via.placeholder.com/56\'">' +
       '<div class="cart-item-info">' +
         '<div class="cart-item-name">' + escHtml(c.name) + '</div>' +
-        '<div style="font-size:0.78rem;color:#6b7280;">Qty: '+c.qty+' · Seller: '+escHtml(c.seller||'—��')+'</div>' +
-        '<div class="cart-item-price">GH₵��' + (c.price * (c.qty||1)).toFixed(2) + '</div>' +
+        '<div style="font-size:0.78rem;color:#6b7280;">Qty: '+c.qty+' · Seller: '+escHtml(c.seller||'—')+'</div>' +
+        '<div class="cart-item-price">GH₵' + (c.price * (c.qty||1)).toFixed(2) + '</div>' +
       '</div>' +
       '<button class="cart-remove" onclick="removeFromCart(\''+c.id+'\')"><i class="fas fa-trash"></i></button>' +
     '</div>';
@@ -1145,13 +1163,13 @@ function updateCartUI() {
 function checkoutCart() {
   if (!cart.length) return;
   // Build a combined WhatsApp message for all cart items
-  var msg = '🛒 *GERAMA Urban Mall —�� Cart Order*\n\n';
+  var msg = '🛒 *GERAMA Urban Mall – Cart Order*\n\n';
   var total = 0;
   cart.forEach(function(c, i){
-    msg += (i+1)+'. ' + c.name + ' × ' + c.qty + ' = GH₵��' + (c.price * c.qty).toFixed(2) + '\n';
+    msg += (i+1)+'. ' + c.name + ' × ' + c.qty + ' = GH₵' + (c.price * c.qty).toFixed(2) + '\n';
     total += c.price * c.qty;
   });
-  msg += '\n💰 *Grand Total: GH₵��' + total.toFixed(2) + '*\n\nPlease confirm these orders. Thank you!';
+  msg += '\n💰 *Grand Total: GH₵' + total.toFixed(2) + '*\n\nPlease confirm these orders. Thank you!';
   var wa = '233555749497';
   window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
   toggleCart();
@@ -1173,7 +1191,9 @@ function closeAllDrawers() {
   if (ov) ov.classList.remove('open');
 }
 
-// —��—�� WISHLIST —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// WISHLIST
+// ============================================
 var wishlist = JSON.parse(localStorage.getItem('gerama_mall_wishlist') || '[]');
 
 function isWishlisted(id) { return wishlist.some(function(w){ return String(w.id) === String(id); }); }
@@ -1188,7 +1208,7 @@ function toggleWishlistItem(productId, btn) {
   } else {
     wishlist.push({ id: p.id, name: p.name, price: p.price, image: p.image_url, seller: p.seller_name });
     if (btn) btn.classList.add('wishlisted');
-    showToastMsg('Saved to wishlist —��');
+    showToastMsg('Saved to wishlist ✓');
   }
   localStorage.setItem('gerama_mall_wishlist', JSON.stringify(wishlist));
   updateWishlistUI();
