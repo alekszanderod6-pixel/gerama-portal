@@ -1,7 +1,7 @@
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// GERAMA Admin Extras —�� Team Management, Multi-image, Attendance cleanup,
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+// GERAMA Admin Extras – Team Management, Multi-image, Attendance cleanup,
 // Sensitive operation codes, and brilliant new features
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 (function(){
   'use strict';
@@ -12,7 +12,7 @@
   var SUPER_ADMIN_CODE = 'adminGERAMA2026';
   var BUCKET = 'gerama-materials';
 
-  // —��—�� REST helper —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– REST helper –––––––––––––––––––––––––––––––––––––––––––––––––
   function supa(path, opts){
     var headers = Object.assign({
       'apikey': SUPA_KEY,
@@ -23,18 +23,18 @@
 
   function getSB(){ return window.geramaSupabase || null; }
 
-  // —��—�� Require sensitive code before destructive actions —��—��—��—��—��—��—��—��—��—��—��—��
+  // –– Require sensitive code before destructive actions ––––––––––––
   function requireCode(action, callback){
-    var code = prompt('—��️ ' + action + '\n\nEnter admin security code to confirm:');
+    var code = prompt('–️ ' + action + '\n\nEnter admin security code to confirm:');
     if(!code) return;
     if(code !== SENSITIVE_CODE){
-      alert('—�� Wrong code. Action cancelled.');
+      alert('– Wrong code. Action cancelled.');
       return;
     }
     callback();
   }
 
-  // —��—�� Wire switchPanel for team panel —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– Wire switchPanel for team panel –––––––––––––––––––––––––––––
   document.addEventListener('DOMContentLoaded', function(){
     var origSwitch = window.switchPanel;
     window.switchPanel = function(name){
@@ -61,7 +61,7 @@
     // Mall multi-image drop zone upgrade
     upgradeMallImageZone();
 
-    // Attendance —�� add delete session button to filter
+    // Attendance – add delete session button to filter
     upgradeAttendanceFilter();
 
     // Override deleteHistoryEntry and deleteAnn to require code
@@ -70,7 +70,7 @@
 
   function _previewTeamPhoto(file){
     window._tmPhotoFile = file;
-    document.getElementById('tmPhotoChosen').textContent = '—�� ' + file.name;
+    document.getElementById('tmPhotoChosen').textContent = '– ' + file.name;
     var reader = new FileReader();
     reader.onload = function(e){
       var prev = document.getElementById('tmPhotoPreview');
@@ -79,9 +79,9 @@
     reader.readAsDataURL(file);
   }
 
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
   // TEAM MANAGEMENT
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
   window.saveTeamMember = async function(){
     var name  = (document.getElementById('tmName').value||'').trim();
@@ -136,7 +136,7 @@
       }
 
       if(window.logActivity) window.logActivity('Added team member: ' + name + ' (' + group + ')');
-      window.showStatus('tmStatus', '—�� ' + name + ' added! They now appear on the About page.', 'ok');
+      window.showStatus('tmStatus', '– ' + name + ' added! They now appear on the About page.', 'ok');
 
       // Reset form
       ['tmName','tmRole','tmBadge','tmEmoji'].forEach(function(id){
@@ -153,7 +153,7 @@
       loadTeamList('all');
 
     } catch(e){
-      window.showStatus('tmStatus', '—�� ' + e.message, 'err');
+      window.showStatus('tmStatus', '– ' + e.message, 'err');
     }
 
     if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Add to About Page'; }
@@ -226,7 +226,7 @@
     });
   };
 
-  // —��—�� Edit team member —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– Edit team member ––––––––––––––––––––––––––––––––––––––––––
   window.openEditTeamMember = function(jsonStr){
     var m;
     try { m = JSON.parse(jsonStr); } catch(e){ alert('Could not load member data.'); return; }
@@ -254,7 +254,7 @@
       '<div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">' +
           '<div style="font-size:1.1rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-edit" style="color:#34d399;"></i> Edit Team Member</div>' +
-          '<button onclick="document.getElementById(\'editTeamModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">—��</button>' +
+          '<button onclick="document.getElementById(\'editTeamModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">–</button>' +
         '</div>' +
         '<div style="text-align:center;margin-bottom:1rem;">'+currentPhotoHtml+'<div style="font-size:0.75rem;color:#6b7280;">Current photo/emoji</div></div>' +
         '<div class="form-grid">' +
@@ -290,7 +290,7 @@
     var f = input.files && input.files[0]; if(!f) return;
     window._etmPhotoFile = f;
     var chosen = document.getElementById('etmPhotoChosen');
-    if(chosen) chosen.textContent = '—�� ' + f.name;
+    if(chosen) chosen.textContent = '– ' + f.name;
     var reader = new FileReader();
     reader.onload = function(e){
       var prev = document.getElementById('etmPhotoPreview');
@@ -313,7 +313,7 @@
     }
 
     if(!name||!role){ showStatus('Please fill in Name and Role.',false); return; }
-    showStatus('Saving—��',true);
+    showStatus('Saving–',true);
 
     try {
       var photoUrl = oldPhotoUrl || null;
@@ -343,7 +343,7 @@
       if(!resp.ok){ var t=await resp.text(); throw new Error(t.substring(0,100)); }
 
       if(window.logActivity) window.logActivity('Updated team member: ' + name);
-      showStatus('—�� Saved! About page updated.',true);
+      showStatus('– Saved! About page updated.',true);
       window._etmPhotoFile = null;
 
       setTimeout(function(){
@@ -352,12 +352,12 @@
         loadTeamList('all');
       }, 1000);
 
-    } catch(e){ showStatus('—�� ' + e.message, false); }
+    } catch(e){ showStatus('– ' + e.message, false); }
   };
 
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-  // MALL MULTI-IMAGE UPGRADE (3—��5 images)
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+  // MALL MULTI-IMAGE UPGRADE (3–5 images)
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
   function upgradeMallImageZone(){
     var zone  = document.getElementById('mallImgZone');
@@ -370,13 +370,13 @@
 
     // Update label
     var p = zone.querySelector('p');
-    if(p) p.textContent = 'Click to upload 1—��5 product images (max 5 per listing)';
+    if(p) p.textContent = 'Click to upload 1–5 product images (max 5 per listing)';
 
     input.addEventListener('change', function(){
       var files = Array.from(this.files||[]).slice(0,5);
       window._mallProductFiles = files;
       var chosen = document.getElementById('mallProdFileChosen');
-      if(chosen) chosen.textContent = '—�� ' + files.length + ' image' + (files.length!==1?'s':'') + ' selected';
+      if(chosen) chosen.textContent = '– ' + files.length + ' image' + (files.length!==1?'s':'') + ' selected';
       var preview = document.getElementById('mallProdPreview');
       if(preview){
         preview.style.display = 'flex';
@@ -455,7 +455,7 @@
           })
         });
         if(!r0.ok) throw new Error('HTTP '+r0.status);
-        window.showStatus('mallPostStatus','—�� Product posted! Seller ID: '+sellerId0,'ok');
+        window.showStatus('mallPostStatus','– Product posted! Seller ID: '+sellerId0,'ok');
         if(window.logActivity) window.logActivity('Posted mall product: '+name0+' ('+sellerId0+')');
         ['mallProdName','mallProdPrice','mallProdOrigPrice','mallProdSeller','mallProdWA','mallProdDesc','mallProdColours','mallProdColourNames','mallProdSizes','mallProdStock'].forEach(function(id){
           var e=document.getElementById(id); if(e) e.value='';
@@ -466,7 +466,7 @@
         var prev0=document.getElementById('mallProdPreview'); if(prev0){prev0.style.display='none';prev0.innerHTML='';}
         if(fileInput0) fileInput0.value='';
         if(window.loadMallAdmin) window.loadMallAdmin();
-      }catch(e){ window.showStatus('mallPostStatus','—�� '+e.message,'err'); }
+      }catch(e){ window.showStatus('mallPostStatus','– '+e.message,'err'); }
       if(btn0){ btn0.disabled=false; btn0.innerHTML='<i class="fas fa-paper-plane"></i> Post to Mall'; }
       return;
     }
@@ -537,7 +537,7 @@
         }
         if(!r.ok) throw new Error('HTTP '+r.status);
       }
-      window.showStatus('mallPostStatus','—�� Product posted with '+imgUrls.length+' image(s)! Seller ID: '+sellerId,'ok');
+      window.showStatus('mallPostStatus','– Product posted with '+imgUrls.length+' image(s)! Seller ID: '+sellerId,'ok');
       if(window.logActivity) window.logActivity('Posted mall product: '+name+' ('+imgUrls.length+' images, '+sellerId+')');
       ['mallProdName','mallProdPrice','mallProdOrigPrice','mallProdSeller','mallProdWA','mallProdDesc'].forEach(function(id){
         var e=document.getElementById(id); if(e) e.value='';
@@ -551,14 +551,14 @@
       window._mallProductFiles = [];
       if(window.loadMallAdmin) window.loadMallAdmin();
     }catch(e){
-      window.showStatus('mallPostStatus','—�� '+e.message,'err');
+      window.showStatus('mallPostStatus','– '+e.message,'err');
     }
     if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Post to Mall'; }
   };
 
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-  // ATTENDANCE —�� Add delete session button to filter dropdown
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+  // ATTENDANCE – Add delete session button to filter dropdown
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
   function upgradeAttendanceFilter(){
     // Wrap loadAttSessions to add a "Delete Selected Session" button
@@ -592,10 +592,10 @@
   // Override deleteEntireSession to use the correct code
   var _origDeleteSession = window.deleteEntireSession;
   window.deleteEntireSession = async function(sessionId, sessionTitle){
-    var secret = prompt('—��️ Delete session "'+sessionTitle+'" and ALL its attendance records?\n\nEnter admin code to confirm:');
+    var secret = prompt('–️ Delete session "'+sessionTitle+'" and ALL its attendance records?\n\nEnter admin code to confirm:');
     if(!secret) return;
     if(secret !== SENSITIVE_CODE && secret !== '2026GERAMAadmin'){
-      alert('—�� Wrong code. Action cancelled.');
+      alert('– Wrong code. Action cancelled.');
       return;
     }
     var sb = getSB(); if(!sb){ alert('Not connected.'); return; }
@@ -606,16 +606,16 @@
         var {error:r2} = await sb.from('attendance_sessions').delete().eq('id', sessionId);
         if(r2) throw new Error('Session: '+r2.message);
       }
-      alert('—�� Session "'+sessionTitle+'" deleted completely.');
+      alert('– Session "'+sessionTitle+'" deleted completely.');
       if(window.logActivity) window.logActivity('Deleted attendance session: "'+sessionTitle+'"');
       if(window.loadAttRecords) window.loadAttRecords();
       if(window.loadAttSessions) window.loadAttSessions();
-    }catch(e){ alert('—�� Error: '+e.message); }
+    }catch(e){ alert('– Error: '+e.message); }
   };
 
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-  // SENSITIVE DELETE OPERATIONS —�� require code 2026GERAMA
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+  // SENSITIVE DELETE OPERATIONS – require code 2026GERAMA
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
   function upgradeDeleteButtons(){
     // Wrap deleteHistoryEntry to require code
@@ -664,7 +664,7 @@
       var code = prompt('🔐 Remove "'+name+'" from admin access?\n\nEnter SUPER-ADMIN code to confirm:');
       if(!code) return;
       if(code !== SUPER_ADMIN_CODE){
-        alert('—�� Wrong super-admin code. Action blocked.');
+        alert('– Wrong super-admin code. Action blocked.');
         return;
       }
       var resp = await fetch(SUPA_URL+'/rest/v1/admin_profiles?id=eq.'+encodeURIComponent(id), {
@@ -672,16 +672,16 @@
         headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
       });
       if(!resp.ok){ alert('Error deleting admin profile.'); return; }
-      alert('—�� ' + name + ' has been removed from admin access.');
+      alert('– ' + name + ' has been removed from admin access.');
       if(window.logActivity) window.logActivity('Super-admin removed admin: ' + name);
       if(window.loadAdminProfiles) window.loadAdminProfiles();
       if(window._loadProfiles) window._loadProfiles();
     };
   }
 
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
   // BRILLIANT NEW FEATURES
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
   // 1. Admin Dashboard Activity Log Export
   window.exportActivityLog = function(){
@@ -703,7 +703,7 @@
   window.quickRefreshStats = function(){
     if(window.loadData) window.loadData();
     if(window.loadOverviewStats) window.loadOverviewStats();
-    if(window.showToast) window.showToast('Dashboard refreshed —��');
+    if(window.showToast) window.showToast('Dashboard refreshed –');
   };
 
   // 3. Broadcast notification to all users
@@ -757,16 +757,16 @@
     }catch(e){ alert('Export failed: '+e.message); }
   };
 
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
   // EXPOSE requireCode for use in admin-dashboard.js wrapped functions
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
   window.requireAdminCode = requireCode;
 
 })();
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// QUOTE OF THE DAY —�� Admin Panel
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+// QUOTE OF THE DAY – Admin Panel
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 (function(){
   var SUPA_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
@@ -790,7 +790,7 @@
         var f = this.files && this.files[0]; if(!f) return;
         window._qotdImageFile = f;
         var chosen = document.getElementById('qotdImgChosen');
-        if(chosen) chosen.textContent = '—�� ' + f.name;
+        if(chosen) chosen.textContent = '– ' + f.name;
         var reader = new FileReader();
         reader.onload = function(e){
           var prev = document.getElementById('qotdImgPreview');
@@ -844,7 +844,7 @@
 
       if(window.logActivity) window.logActivity('Posted Quote of the Day: "' + text.substring(0,50) + '"');
 
-      window.showStatus('qotdStatus', '—�� Quote posted! Students will see it in the Study Planner tab.', 'ok');
+      window.showStatus('qotdStatus', '– Quote posted! Students will see it in the Study Planner tab.', 'ok');
 
       // Reset form
       var tEl = document.getElementById('qotdText');
@@ -862,7 +862,7 @@
       loadQotdList();
 
     } catch(e){
-      window.showStatus('qotdStatus', '—�� ' + e.message, 'err');
+      window.showStatus('qotdStatus', '– ' + e.message, 'err');
     }
 
     if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Post Quote Now'; }
@@ -878,13 +878,13 @@
       var data = await resp.json();
       if(!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1.5rem;"><i class="fas fa-quote-right" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>No quotes posted yet. Post the first one above!</p>'; return; }
       el.innerHTML = data.map(function(q){
-        var dt = q.created_at ? new Date(q.created_at).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—��';
+        var dt = q.created_at ? new Date(q.created_at).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '–';
         var catColors = {motivation:'#f59e0b',academic:'#1B5E20',life:'#6366f1',success:'#dc2626',faith:'#0ea5e9'};
         var col = catColors[q.category]||'#f59e0b';
         return '<div style="background:#f8fafc;border-radius:14px;padding:1rem 1.2rem;margin-bottom:0.8rem;border-left:4px solid '+col+';position:relative;">'+
           (q.image_url?'<img src="'+window.escAttr(q.image_url)+'" style="width:60px;height:40px;border-radius:8px;object-fit:cover;float:right;margin-left:0.8rem;" alt="">':'')+
-          '<div style="font-size:0.88rem;font-weight:700;color:#1e2a3e;margin-bottom:0.3rem;font-style:italic;">"'+window.escHtml(q.quote_text||'')+(q.quote_text&&q.quote_text.length>80?'—��':'').replace(/—��+/g,'—��')+'"</div>'+
-          (q.author?'<div style="font-size:0.75rem;color:'+col+';font-weight:700;margin-bottom:0.3rem;">—�� '+window.escHtml(q.author)+'</div>':'')+
+          '<div style="font-size:0.88rem;font-weight:700;color:#1e2a3e;margin-bottom:0.3rem;font-style:italic;">"'+window.escHtml(q.quote_text||'')+(q.quote_text&&q.quote_text.length>80?'–':'').replace(/–+/g,'–')+'"</div>'+
+          (q.author?'<div style="font-size:0.75rem;color:'+col+';font-weight:700;margin-bottom:0.3rem;">– '+window.escHtml(q.author)+'</div>':'')+
           '<div style="display:flex;align-items:center;gap:0.6rem;margin-top:0.5rem;">'+
             '<span style="font-size:0.7rem;color:#9ca3af;">'+dt+'</span>'+
             '<button class="btn-danger" onclick="deleteQuote(\''+window.escAttr(q.id)+'\')" style="font-size:0.72rem;padding:0.2rem 0.5rem;margin-left:auto;"><i class="fas fa-trash"></i></button>'+

@@ -283,8 +283,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <p>Quality products from verified GERAMA sellers – fashion, food, drinks and more. Order directly, pay securely.</p>
     </div>
     <div class="mall-hero-stats">
-      <div class="mall-stat"><span class="mall-stat-num" id="statProducts">—</span><span class="mall-stat-lbl">Products</span></div>
-      <div class="mall-stat"><span class="mall-stat-num" id="statSellers">—</span><span class="mall-stat-lbl">Sellers</span></div>
+      <div class="mall-stat"><span class="mall-stat-num" id="statProducts">–</span><span class="mall-stat-lbl">Products</span></div>
+      <div class="mall-stat"><span class="mall-stat-num" id="statSellers">–</span><span class="mall-stat-lbl">Sellers</span></div>
       <div class="mall-stat"><span class="mall-stat-num">3-10</span><span class="mall-stat-lbl">Days Delivery</span></div>
     </div>
   </div>
@@ -386,7 +386,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div class="form-row">
         <label><i class="fas fa-map-marker-alt" style="color:var(--primary);margin-right:0.3rem;"></i> Delivery Location</label>
         <select id="deliveryLocation">
-          <option value="">— Select delivery point —</option>
+          <option value="">– Select delivery point –</option>
           <option>UENR Campus</option>
           <option>Fiapre</option>
           <option>Berlin Top</option>
@@ -401,7 +401,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div class="form-row">
         <label><i class="fas fa-clock" style="color:var(--primary);margin-right:0.3rem;"></i> Preferred Delivery Timeframe</label>
         <select id="deliveryTime">
-          <option value="">— Select timeframe —</option>
+          <option value="">– Select timeframe –</option>
           <option>As soon as possible (3–5 days)</option>
           <option>Within a week (5–7 days)</option>
           <option>Within 10 days</option>
@@ -833,7 +833,7 @@ function openOrderModal(productId) {
   preview.innerHTML = '<img src="' + (p.image_url||'https://via.placeholder.com/70') + '" alt="" onerror="this.src=\'https://via.placeholder.com/70\'">' +
     '<div><div class="name">' + escHtml(p.name) + '</div>' +
     '<div class="price">GH₵' + p.price + (p.original_price&&p.original_price>p.price?' <span style="text-decoration:line-through;color:#9ca3af;font-size:0.85rem;">GH₵'+p.original_price+'</span>':'') + '</div>' +
-    '<div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem;">Seller: ' + escHtml(p.seller_name||'—') + ' · ' + (p.seller_id||'') + '</div>' +
+    '<div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem;">Seller: ' + escHtml(p.seller_name||'–') + ' · ' + (p.seller_id||'') + '</div>' +
     '</div>';
 
   // Colours
@@ -1152,7 +1152,7 @@ function updateCartUI() {
       '<img src="'+(c.image||'https://via.placeholder.com/56')+'" alt="" onerror="this.src=\'https://via.placeholder.com/56\'">' +
       '<div class="cart-item-info">' +
         '<div class="cart-item-name">' + escHtml(c.name) + '</div>' +
-        '<div style="font-size:0.78rem;color:#6b7280;">Qty: '+c.qty+' · Seller: '+escHtml(c.seller||'—')+'</div>' +
+        '<div style="font-size:0.78rem;color:#6b7280;">Qty: '+c.qty+' · Seller: '+escHtml(c.seller||'–')+'</div>' +
         '<div class="cart-item-price">GH₵' + (c.price * (c.qty||1)).toFixed(2) + '</div>' +
       '</div>' +
       '<button class="cart-remove" onclick="removeFromCart(\''+c.id+'\')"><i class="fas fa-trash"></i></button>' +
@@ -1253,7 +1253,9 @@ function toggleWishlist() {
   updateWishlistUI();
 }
 
-// —��—�� REVIEW MODAL —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// REVIEW MODAL
+// ============================================
 var _reviewProductId = null;
 var _reviewRating = 0;
 
@@ -1281,7 +1283,7 @@ async function submitReview() {
   var name = (document.getElementById('reviewName').value || '').trim() || 'Anonymous';
   var statusEl = document.getElementById('reviewStatus');
   if (!text || !_reviewRating) { if(statusEl){ statusEl.textContent='Please add a rating and review text.'; statusEl.style.color='#dc2626'; } return; }
-  if(statusEl){ statusEl.textContent='Submitting—��'; statusEl.style.color='#6b7280'; }
+  if(statusEl){ statusEl.textContent='Submitting…'; statusEl.style.color='#6b7280'; }
   try {
     var resp = await fetch(SUPA_URL + '/rest/v1/mall_reviews', {
       method: 'POST',
@@ -1289,15 +1291,17 @@ async function submitReview() {
       body: JSON.stringify({ product_id: String(_reviewProductId), reviewer_name: name, rating: _reviewRating, review_text: text, created_at: new Date().toISOString() })
     });
     if (!resp.ok) throw new Error('');
-    if(statusEl){ statusEl.textContent='—�� Review submitted! Thank you.'; statusEl.style.color='#059669'; }
+    if(statusEl){ statusEl.textContent='✓ Review submitted! Thank you.'; statusEl.style.color='#059669'; }
     setTimeout(closeReviewModal, 1500);
   } catch(e) {
-    if(statusEl){ statusEl.textContent='—�� Review saved locally! Thank you.'; statusEl.style.color='#059669'; }
+    if(statusEl){ statusEl.textContent='✓ Review saved locally! Thank you.'; statusEl.style.color='#059669'; }
     setTimeout(closeReviewModal, 1500);
   }
 }
 
-// —��—�� TOAST MESSAGE —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// TOAST MESSAGE
+// ============================================
 function showToastMsg(msg) {
   var t = document.createElement('div');
   t.textContent = msg;
@@ -1306,13 +1310,15 @@ function showToastMsg(msg) {
   setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity 0.5s'; setTimeout(function(){ t.remove(); }, 500); }, 2500);
 }
 
-// —��—�� INIT —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ============================================
+// INIT
+// ============================================
 document.addEventListener('DOMContentLoaded', function() {
   loadProducts();
   updateCartUI();
   updateWishlistUI();
 
-  // —��—�� Realtime: auto-reload products when admin posts a new one —��—��
+  // Realtime: auto-reload products when admin posts a new one
   (function startMallRealtime(){
     // Wait for supabase-config.js to define window.geramaSupabase
     if(!window.geramaSupabase){

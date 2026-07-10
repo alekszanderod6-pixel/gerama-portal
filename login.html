@@ -217,7 +217,7 @@
                             window.location.href = 'login.html';
                             return;
                         }
-                        // Use Supabase as source of truth — overrides any stale localStorage
+                        // Use Supabase as source of truth – overrides any stale localStorage
                         const meta = data.user.user_metadata || {};
                         profileData = {
                             email:        email,
@@ -229,7 +229,7 @@
                             img:          JSON.parse(localStorage.getItem('gerama_profile') || '{}').img || null
                         };
                     } else {
-                        // No Supabase record yet — create one
+                        // No Supabase record yet – create one
                         const meta = data.user.user_metadata || {};
                         const existingProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
                         profileData = {
@@ -251,7 +251,7 @@
                         }, { onConflict: 'email' });
                     }
                 } catch(e) {
-                    // Supabase unreachable — use what we have
+                    // Supabase unreachable – use what we have
                     const meta = data.user.user_metadata || {};
                     const existingProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
                     profileData = {
@@ -300,7 +300,7 @@
                 msg.style.borderRadius = '10px';
                 msg.innerText = '✅ Account created! Sign in with your email and password below.';
             }
-            // Coming from a password reset — pre-fill a helpful message
+            // Coming from a password reset – pre-fill a helpful message
             if (params.get('reset') === 'success') {
                 var msg2 = document.getElementById('errorMsg');
                 msg2.style.color = '#065f46';

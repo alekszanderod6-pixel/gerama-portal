@@ -23,7 +23,7 @@
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script src="js/onesignal-init.js" defer></script>
 <style>
-/* —— GERAMA CONNECT —— GREEN/GOLD BRAND THEME —— */
+/* –– GERAMA CONNECT –– GREEN/GOLD BRAND THEME –– */
 :root{
   --green:#1B5E20;--green-dark:#0a2f1f;--green-mid:#2E7D32;--green-light:#e8f5e9;--green-xlight:#f1f8f2;
   --gold:#FFC107;--gold-dark:#e6a800;--gold-light:#fef9e7;
@@ -39,7 +39,7 @@
 html{overflow-x:hidden;scroll-behavior:smooth;}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
 
-/* —— HEADER —— matches main site —— */
+/* –– HEADER –– matches main site –– */
 .site-header{position:sticky;top:0;z-index:1000;background:linear-gradient(135deg,#0a2f1f,#1B5E20);backdrop-filter:blur(12px);padding:0 4%;display:flex;align-items:center;justify-content:space-between;height:62px;box-shadow:0 2px 20px rgba(10,47,31,0.35);}
 .header-logo{display:flex;align-items:center;gap:8px;text-decoration:none;flex-shrink:0;}
 .header-logo img{height:36px;border-radius:8px;}
@@ -53,7 +53,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .menu-toggle-btn:hover{background:rgba(255,255,255,0.12);}
 @media(max-width:640px){.header-nav{display:none;}}
 
-/* —— STORIES BAR —— */
+/* –– STORIES BAR –– */
 .stories-bar{background:white;padding:0.9rem 4%;border-bottom:1px solid var(--border-light);overflow-x:auto;display:flex;gap:1rem;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
 .stories-bar::-webkit-scrollbar{display:none;}
 .story-item{display:flex;flex-direction:column;align-items:center;gap:0.35rem;flex-shrink:0;cursor:pointer;}
@@ -66,7 +66,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .story-name{font-size:0.65rem;font-weight:600;color:var(--text);max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
 .story-add-btn{position:absolute;bottom:0;right:0;width:20px;height:20px;background:#FFC107;border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:#0a2f1f;font-weight:800;}
 
-/* —— TAB BAR —— */
+/* –– TAB BAR –– */
 .connect-tabs{background:white;border-bottom:2px solid var(--border-light);position:sticky;top:62px;z-index:100;display:flex;justify-content:center;gap:0;overflow-x:auto;scrollbar-width:none;}
 .connect-tabs::-webkit-scrollbar{display:none;}
 .ctab{flex:1;min-width:68px;padding:0.75rem 0.5rem 0.6rem;font-size:0.7rem;font-weight:700;color:var(--muted);border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:0.2rem;font-family:'Inter',sans-serif;position:relative;white-space:nowrap;}
@@ -77,14 +77,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .ctab .tab-dot.show{display:block;}
 @media(max-width:480px){.ctab{min-width:56px;font-size:0.62rem;padding:0.6rem 0.25rem 0.5rem;}}
 
-/* —— TAB SECTIONS —— */
+/* –– TAB SECTIONS –– */
 .connect-section{display:none;padding-bottom:80px;}
 .connect-section.active{display:block;}
 #sec-dms{padding-bottom:0;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
 .connect-section.active{animation:fadeUp 0.22s ease;}
 
-/* —— PEOPLE / MEMBERS —— */
+/* –– PEOPLE / MEMBERS –– */
 .people-header{padding:1rem 4% 0.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
 .people-search{display:flex;align-items:center;gap:0.5rem;background:white;border:2px solid var(--border);border-radius:30px;padding:0.5rem 1rem;flex:1;max-width:400px;transition:border 0.2s;}
 .people-search:focus-within{border-color:var(--green);}
@@ -105,7 +105,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .people-card .pc-dm-btn:hover{background:linear-gradient(135deg,#2E7D32,#388E3C);transform:translateY(-1px);}
 .online-dot{position:absolute;top:0.65rem;right:0.65rem;width:9px;height:9px;background:#22c55e;border-radius:50%;border:2px solid white;box-shadow:0 0 0 2px rgba(34,197,94,0.25);}
 
-/* —— DM / CHAT —— */
+/* –– DM / CHAT –– */
 .chat-layout{display:flex;height:calc(100vh - 186px);background:white;}
 .chat-sidebar{width:285px;border-right:1px solid var(--border-light);overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;}
 .chat-list-header{padding:0.85rem 1rem;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--green-xlight),white);}
@@ -155,7 +155,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .chat-placeholder i{font-size:3rem;margin-bottom:1rem;opacity:0.25;color:var(--green);}
 .chat-placeholder p{font-size:0.92rem;}
 
-/* —— GROUPS / STUDY —— */
+/* –– GROUPS / STUDY –– */
 .groups-list{padding:0.85rem 4%;}
 .group-chat-card{background:white;border-radius:var(--radius-sm);padding:1rem 1.2rem;margin-bottom:0.8rem;box-shadow:var(--shadow-card);border:1px solid var(--border-light);display:flex;align-items:center;gap:0.8rem;cursor:pointer;transition:all 0.2s;}
 .group-chat-card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(27,94,32,0.12);}
@@ -165,7 +165,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .gcc-preview{font-size:0.75rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:0.15rem;}
 .gcc-badge{font-size:0.65rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:10px;white-space:nowrap;flex-shrink:0;}
 
-/* —— REELS —— */
+/* –– REELS –– */
 .reels-upload-bar{padding:0.85rem 4%;background:white;border-bottom:1px solid var(--border-light);}
 .reels-feed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.7rem;padding:0.85rem 4%;}
 @media(max-width:900px){.reels-feed-grid{grid-template-columns:repeat(2,1fr);}}
@@ -187,7 +187,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .reel-btn:hover{background:var(--green-light);color:var(--green);}
 .reel-btn.liked{color:#ef4444;}
 
-/* —— STATUS VIEWER MODAL —— */
+/* –– STATUS VIEWER MODAL –– */
 .status-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:5000;align-items:center;justify-content:center;}
 .status-modal.open{display:flex;}
 .status-viewer{position:relative;width:100%;max-width:360px;height:100vh;max-height:700px;display:flex;flex-direction:column;background:#000;}
@@ -210,7 +210,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .status-reply input::placeholder{color:rgba(255,255,255,0.5);}
 .status-reply button{background:var(--green);border:none;border-radius:50%;width:34px;height:34px;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 
-/* —— POST STATUS FORM —— */
+/* –– POST STATUS FORM –– */
 .post-status-area{padding:0.85rem 4%;background:white;border-bottom:1px solid var(--border-light);}
 .ps-compose{display:flex;align-items:flex-start;gap:0.7rem;background:var(--green-xlight);border-radius:var(--radius-sm);padding:0.85rem;}
 .ps-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;font-size:0.9rem;overflow:hidden;}
@@ -223,7 +223,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .ps-submit{background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.38rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;margin-left:auto;font-family:'Inter',sans-serif;transition:all 0.2s;}
 .ps-submit:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(27,94,32,0.3);}
 
-/* —— CALL / JITSI —— */
+/* –– CALL / JITSI –– */
 .call-launch-area{padding:2rem 4%;text-align:center;}
 .call-hero{background:linear-gradient(135deg,#0a2f1f,#1B5E20);border-radius:var(--radius);padding:2.5rem 2rem;color:white;margin-bottom:1.5rem;position:relative;overflow:hidden;}
 .call-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:rgba(255,193,7,0.07);border-radius:50%;}
@@ -237,7 +237,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .call-btn h4{font-size:0.88rem;font-weight:800;color:var(--text);margin-bottom:0.2rem;}
 .call-btn p{font-size:0.72rem;color:var(--muted);line-height:1.4;}
 
-/* —— BOTTOM NAV (mobile) —— */
+/* –– BOTTOM NAV (mobile) –– */
 .site-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:2px solid var(--border-light);z-index:400;box-shadow:0 -4px 20px rgba(27,94,32,0.08);}
 .site-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.45rem 0.2rem;color:#9ca3af;text-decoration:none;font-size:0.56rem;font-weight:600;gap:0.18rem;transition:all 0.2s;border:none;background:none;cursor:pointer;}
 .site-bnav-item i{font-size:1.05rem;}
@@ -245,12 +245,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .site-bnav-item.active i{transform:scale(1.1);}
 @media(max-width:640px){.site-bottom-nav{display:flex;}body{padding-bottom:60px;}}
 
-/* —— FAB —— floating compose button (mobile) —— */
+/* –– FAB –– floating compose button (mobile) –– */
 .connect-fab{display:none;position:fixed;bottom:72px;right:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#FFC107,#e6a800);color:#0a2f1f;border:none;box-shadow:0 6px 20px rgba(255,193,7,0.5);cursor:pointer;font-size:1.3rem;align-items:center;justify-content:center;z-index:390;transition:all 0.25s;}
 .connect-fab:hover{transform:scale(1.1);}
 @media(max-width:640px){.connect-fab{display:flex;}}
 
-/* —— STUDY GROUP CARDS —— */
+/* –– STUDY GROUP CARDS –– */
 .study-group-card{background:white;border-radius:var(--radius-sm);overflow:hidden;box-shadow:var(--shadow-card);border:1px solid var(--border-light);margin-bottom:1rem;transition:box-shadow 0.2s;}
 .study-group-card:hover{box-shadow:0 6px 20px rgba(27,94,32,0.1);}
 .sgc-header{padding:0.95rem 1.1rem;display:flex;align-items:center;gap:0.7rem;cursor:pointer;user-select:none;transition:background 0.15s;}
@@ -276,7 +276,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .my-group-banner .mgb-sub{font-size:0.75rem;opacity:0.82;margin-top:0.15rem;}
 .groups-summary-bar{margin:0.3rem 4% 0.8rem;padding:0.6rem 1rem;background:var(--gold-light);border:1px solid rgba(255,193,7,0.3);border-radius:var(--radius-sm);font-size:0.8rem;font-weight:600;color:#92400e;display:flex;align-items:center;gap:0.5rem;}
 
-/* —��—�� MOBILE RESPONSIVE —��—�� */
+/* –– MOBILE RESPONSIVE –– */
 @media(max-width:640px){
   .people-header{padding:0.7rem 3% 0.3rem;flex-direction:column;align-items:stretch;gap:0.4rem;}
   .people-search{max-width:100%;width:100%;}
@@ -318,7 +318,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   .people-card .pc-avatar{width:46px;height:46px;}
 }
 
-/* —��—�� MISC —��—�� */
+/* –– MISC –– */
 .empty-state{text-align:center;padding:3rem 1rem;color:var(--muted);}
 .empty-state i{font-size:3rem;margin-bottom:1rem;display:block;opacity:0.25;color:var(--green);}
 .empty-state p{font-size:0.9rem;}
@@ -328,7 +328,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:#0a2f1f;color:white;padding:0.6rem 1.3rem;border-radius:30px;font-size:0.82rem;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;box-shadow:0 6px 20px rgba(10,47,31,0.4);}
 .toast.show{opacity:1;}
 
-/* —��—�� WHATSAPP-STYLE MESSAGES —��—�� */
+/* –– WHATSAPP-STYLE MESSAGES –– */
 .msg-row{display:flex;align-items:flex-end;gap:0.4rem;position:relative;}
 .msg-row.mine{flex-direction:row-reverse;}
 /* Outer wrap: row so menu btn sits beside bubble */
@@ -344,7 +344,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 .msg-row.mine .msg-bubble.msg-deleted{background:rgba(27,94,32,0.12)!important;color:#6b7280!important;}
 .msg-meta{font-size:0.63rem;color:var(--muted);margin-top:0.15rem;display:flex;align-items:center;gap:0.25rem;padding:0 0.1rem;}
 .msg-row.mine .msg-meta{justify-content:flex-end;color:rgba(255,255,255,0.55);}
-/* WhatsApp-style ticks —�� single grey, double blue-green when read */
+/* WhatsApp-style ticks – single grey, double blue-green when read */
 .msg-tick{font-size:0.75rem;line-height:1;letter-spacing:-0.05em;margin-left:0.15rem;}
 .msg-tick.read{color:#4ade80;}
 .msg-menu-btn{background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.72rem;padding:0.25rem;border-radius:6px;flex-shrink:0;transition:all 0.15s;align-self:center;opacity:0;}
@@ -371,7 +371,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 /* Image in chat */
 .msg-img{max-width:220px;max-height:220px;border-radius:12px;object-fit:cover;cursor:pointer;display:block;}
 @media(max-width:480px){.msg-img{max-width:160px;max-height:160px;}}
-/* —��—�� PUSH-STYLE NOTIFICATION —��—�� */
+/* –– PUSH-STYLE NOTIFICATION –– */
 .push-notif{position:fixed;top:74px;right:14px;z-index:9800;background:white;border-radius:18px;box-shadow:0 8px 32px rgba(27,94,32,0.22);border:1px solid #c8e6c9;max-width:300px;padding:0.7rem 1rem;display:flex;align-items:flex-start;gap:0.7rem;cursor:pointer;transform:translateX(320px);transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden;}
 .push-notif.show{transform:translateX(0);}
 .push-notif-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:0.95rem;overflow:hidden;}
@@ -408,7 +408,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 
 <!-- Sidebar injected by main.js -->
 
-<!-- —��—�� HEADER —��—�� -->
+<!-- –– HEADER –– -->
 <header class="site-header">
   <button class="menu-toggle-btn" id="menuToggle2" aria-label="Open menu"><i class="fas fa-bars"></i></button>
   <a href="index.html" class="header-logo">
@@ -427,7 +427,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   </nav>
 </header>
 
-<!-- —��—�� STATUS STORIES BAR —��—�� -->
+<!-- –– STATUS STORIES BAR –– -->
 <div class="stories-bar" id="storiesBar">
   <div class="story-item" onclick="openPostStatus()">
     <div class="story-ring add-new" style="position:relative;">
@@ -438,7 +438,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   </div>
 </div>
 
-<!-- —��—�� TABS —��—�� -->
+<!-- –– TABS –– -->
 <div class="connect-tabs" id="connectTabs">
   <button class="ctab active" onclick="showConnectTab('people')" id="ctab-people">
     <i class="fas fa-users"></i><span>Members</span>
@@ -459,15 +459,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   </button>
 </div>
 
-<!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+<!-- –––––––––––––––––––––––––––––––––––––– -->
 <!-- TAB: PEOPLE / DISCOVER               -->
-<!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+<!-- –––––––––––––––––––––––––––––––––––––– -->
 <div class="connect-section active" id="sec-people">
   <div class="people-header">
     <div style="font-size:1rem;font-weight:800;color:var(--text);">👥 Discover Members <span id="onlineCount" style="font-size:0.72rem;font-weight:600;color:#22c55e;background:#dcfce7;padding:0.1rem 0.5rem;border-radius:10px;margin-left:0.4rem;display:none;"><span class="topbar-online-dot"></span><span id="onlineCountNum">0</span> online</span></div>
     <div class="people-search">
       <i class="fas fa-search"></i>
-      <input type="text" id="memberSearch" placeholder="Search by name, program—��" oninput="filterMembers(this.value)">
+      <input type="text" id="memberSearch" placeholder="Search by name, program–" oninput="filterMembers(this.value)">
     </div>
   </div>
   <div style="padding:0 4% 0.3rem;display:flex;gap:0.5rem;flex-wrap:wrap;" id="memberFilters">
@@ -479,14 +479,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   </div>
   <div class="people-grid" id="peopleGrid">
     <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);">
-      <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;margin-bottom:0.5rem;display:block;"></i>Loading members—��
+      <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;margin-bottom:0.5rem;display:block;"></i>Loading members–
     </div>
   </div>
 </div>
 
-<!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+<!-- –––––––––––––––––––––––––––––––––––––– -->
 <!-- TAB: DIRECT MESSAGES                  -->
-<!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+<!-- –––––––––––––––––––––––––––––––––––––– -->
 <div class="connect-section" id="sec-dms">
   <div class="chat-layout">
     <!-- Left: thread list -->
@@ -496,7 +496,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
         <button onclick="openNewDM()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(27,94,32,0.35);" title="New Message"><i class="fas fa-plus"></i></button>
       </div>
       <div class="chat-search">
-        <input type="text" id="dmSearch" placeholder="Search messages—��" oninput="filterDMs(this.value)">
+        <input type="text" id="dmSearch" placeholder="Search messages–" oninput="filterDMs(this.value)">
       </div>
       <div id="dmThreadList">
         <div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:0.82rem;">
@@ -516,9 +516,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   </div>
 </div>
 
-<!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+<!-- –––––––––––––––––––––––––––––––––––––– -->
 <!-- TAB: STUDY GROUPS                     -->
-<!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+<!-- –––––––––––––––––––––––––––––––––––––– -->
 <div class="connect-section" id="sec-groups">
   <div class="sec-title" style="padding:0.8rem 4% 0.5rem;">
     <span>📚 L100 Study Groups</span>
@@ -542,21 +542,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   </div>
   <div class="groups-list" id="groupChatsList">
     <div style="text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem;">
-      <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading groups—��
+      <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading groups–
     </div>
   </div>
 </div>
 
-<!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+<!-- –––––––––––––––––––––––––––––––––––––– -->
 <!-- TAB: REELS                            -->
-<!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+<!-- –––––––––––––––––––––––––––––––––––––– -->
 <div class="connect-section" id="sec-reels">
   <div class="reels-upload-bar">
     <div style="display:flex;align-items:center;gap:0.8rem;">
       <div class="ps-av" id="reelUploaderAv">?</div>
       <div style="flex:1;">
         <div style="font-size:0.88rem;font-weight:700;color:var(--text);">Share a Reel</div>
-        <div style="font-size:0.72rem;color:var(--muted);">Short videos —�� tutorials, tips, campus life (max 50MB)</div>
+        <div style="font-size:0.72rem;color:var(--muted);">Short videos – tutorials, tips, campus life (max 50MB)</div>
       </div>
       <button onclick="openReelUpload()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.5rem 1.1rem;border-radius:20px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;box-shadow:0 3px 10px rgba(27,94,32,0.3);">
         <i class="fas fa-plus"></i> Post Reel
@@ -565,19 +565,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   </div>
   <div class="reels-feed-grid" id="reelsFeedGrid">
     <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);">
-      <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading reels—��
+      <i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading reels–
     </div>
   </div>
 </div>
 
-<!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+<!-- –––––––––––––––––––––––––––––––––––––– -->
 <!-- TAB: CALLS                            -->
-<!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+<!-- –––––––––––––––––––––––––––––––––––––– -->
 <div class="connect-section" id="sec-calls">
   <div class="call-launch-area">
     <div class="call-hero">
       <h2>📞 GERAMA Group Calls</h2>
-      <p>Start or join a study session, group call, or tutorial with your classmates —�� powered by Jitsi Meet. No downloads needed.</p>
+      <p>Start or join a study session, group call, or tutorial with your classmates – powered by Jitsi Meet. No downloads needed.</p>
     </div>
     <div class="call-btns" id="callBtns">
       <div class="call-btn" onclick="launchJitsiCall('gerama-study-room-general')">
@@ -591,7 +591,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
         <p>Level 100 students</p>
       </div>
       <div class="call-btn" onclick="launchJitsiCall('gerama-l200-room')">
-        <div class="cb-icon">—��</div>
+        <div class="cb-icon">–</div>
         <h4>L200 Study Room</h4>
         <p>Level 200 students</p>
       </div>
@@ -607,17 +607,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
       </div>
     </div>
     <p style="font-size:0.75rem;color:var(--muted);margin-top:1.2rem;">
-      <i class="fas fa-info-circle"></i> Calls open in a new tab via Jitsi Meet —�� free, no account needed. Share the room name with your study group.
+      <i class="fas fa-info-circle"></i> Calls open in a new tab via Jitsi Meet – free, no account needed. Share the room name with your study group.
     </p>
   </div>
 </div>
 
-<!-- —��—�� FLOATING COMPOSE BUTTON (mobile FAB) —��—�� -->
+<!-- –– FLOATING COMPOSE BUTTON (mobile FAB) –– -->
 <button class="connect-fab" onclick="openNewDM()" title="New Message" aria-label="New Message">
-  —��️
+  –️
 </button>
 
-<!-- —��—�� MOBILE BOTTOM NAV —��—�� -->
+<!-- –– MOBILE BOTTOM NAV –– -->
 <nav class="site-bottom-nav">
   <button class="site-bnav-item" onclick="showConnectTab('people');setActiveBnav(this)"><i class="fas fa-users"></i><span>Members</span></button>
   <button class="site-bnav-item active" onclick="showConnectTab('dms');setActiveBnav(this)"><i class="fas fa-comment-dots"></i><span>Chats</span></button>
@@ -626,7 +626,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   <button class="site-bnav-item" onclick="showConnectTab('calls');setActiveBnav(this)"><i class="fas fa-video"></i><span>Calls</span></button>
 </nav>
 
-<!-- —��—�� STATUS VIEWER MODAL —��—�� -->
+<!-- –– STATUS VIEWER MODAL –– -->
 <div class="status-modal" id="statusModal">
   <div class="status-viewer" id="statusViewer">
     <div class="status-progress-bar" id="statusProgressBar"></div>
@@ -640,18 +640,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
     </div>
     <div class="status-content" id="statusContent"></div>
     <div class="status-reply">
-      <input type="text" id="statusReplyInput" placeholder="Reply to this status—��">
+      <input type="text" id="statusReplyInput" placeholder="Reply to this status–">
       <button onclick="sendStatusReply()"><i class="fas fa-paper-plane"></i></button>
     </div>
   </div>
 </div>
 
-<!-- —��—�� POST STATUS MODAL —��—�� -->
+<!-- –– POST STATUS MODAL –– -->
 <div id="postStatusModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5001;align-items:center;justify-content:center;padding:1rem;">
   <div style="background:white;border-radius:24px;padding:1.8rem;width:100%;max-width:420px;box-shadow:0 25px 60px rgba(0,0,0,0.3);">
     <div style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;">
       <span>📸 Post a Status</span>
-      <button onclick="closePostStatus()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);">—��</button>
+      <button onclick="closePostStatus()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);">–</button>
     </div>
     <p style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.5;">Statuses disappear after <strong>24 hours</strong>. Members who follow you will see it.</p>
     <div style="display:flex;gap:0.5rem;margin-bottom:0.8rem;flex-wrap:wrap;" id="statusTypeSwitch">
@@ -661,7 +661,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
     </div>
     <!-- Text status -->
     <div id="statusTextArea">
-      <textarea id="statusTextInput" placeholder="What's on your mind? A tip, update, or shoutout—��" style="width:100%;border:2px solid #c8e6c9;border-radius:14px;padding:0.8rem;font-family:'Inter',sans-serif;font-size:0.9rem;resize:none;min-height:80px;outline:none;margin-bottom:0.5rem;"></textarea>
+      <textarea id="statusTextInput" placeholder="What's on your mind? A tip, update, or shoutout–" style="width:100%;border:2px solid #c8e6c9;border-radius:14px;padding:0.8rem;font-family:'Inter',sans-serif;font-size:0.9rem;resize:none;min-height:80px;outline:none;margin-bottom:0.5rem;"></textarea>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.8rem;" id="statusBgPicker">
         <div onclick="setStatusBg(this,'linear-gradient(135deg,#1B5E20,#2E7D32)')" style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1B5E20,#2E7D32);cursor:pointer;border:2px solid transparent;" class="sbg-opt"></div>
         <div onclick="setStatusBg(this,'linear-gradient(135deg,#1B5E20,#2E7D32)')" style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1B5E20,#2E7D32);cursor:pointer;border:2px solid transparent;" class="sbg-opt"></div>
@@ -678,7 +678,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
         <img id="statusPhotoPreview" style="display:none;max-width:100%;border-radius:10px;margin-top:0.5rem;" alt="">
       </div>
       <input type="file" id="statusPhotoInput" accept="image/*" style="display:none;" onchange="previewStatusPhoto(this)">
-      <input type="text" id="statusPhotoCaption" placeholder="📝 Add a caption—��" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;margin-top:0.5rem;transition:border 0.2s;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#c8e6c9'">
+      <input type="text" id="statusPhotoCaption" placeholder="📝 Add a caption–" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;margin-top:0.5rem;transition:border 0.2s;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#c8e6c9'">
     </div>
     <!-- Video status -->
     <div id="statusVideoArea" style="display:none;">
@@ -688,7 +688,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
         <video id="statusVideoPreview" style="display:none;max-width:100%;border-radius:10px;margin-top:0.6rem;max-height:220px;" controls playsinline></video>
       </div>
       <input type="file" id="statusVideoInput" accept="video/*" style="display:none;" onchange="previewStatusVideo(this)">
-      <input type="text" id="statusVideoCaption" placeholder="📝 Add a caption—��" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;margin-top:0.5rem;transition:border 0.2s;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#c8e6c9'">
+      <input type="text" id="statusVideoCaption" placeholder="📝 Add a caption–" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;margin-top:0.5rem;transition:border 0.2s;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#c8e6c9'">
     </div>
     <div id="statusPostMsg" style="font-size:0.82rem;min-height:1rem;margin-bottom:0.5rem;color:#1B5E20;"></div>
     <button onclick="postStatus()" style="width:100%;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.75rem;border-radius:16px;font-size:0.92rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;">
@@ -697,28 +697,28 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   </div>
 </div>
 
-<!-- —��—�� NEW DM MODAL —��—�� -->
+<!-- –– NEW DM MODAL –– -->
 <div id="newDMModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:5002;align-items:center;justify-content:center;padding:1rem;">
   <div style="background:white;border-radius:24px;padding:1.8rem;width:100%;max-width:400px;box-shadow:0 25px 60px rgba(0,0,0,0.3);">
     <div style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;">
       <span>💬 New Message</span>
-      <button onclick="closeNewDM()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;">—��</button>
+      <button onclick="closeNewDM()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;">–</button>
     </div>
     <div style="display:flex;align-items:center;gap:0.5rem;background:#f1f8f2;border-radius:12px;padding:0.5rem 0.8rem;margin-bottom:0.8rem;">
       <i class="fas fa-search" style="color:#1B5E20;"></i>
-      <input type="text" id="newDMSearch" placeholder="Search members—��" oninput="searchNewDM(this.value)"
+      <input type="text" id="newDMSearch" placeholder="Search members–" oninput="searchNewDM(this.value)"
         style="border:none;background:transparent;font-family:'Inter',sans-serif;font-size:0.88rem;flex:1;outline:none;">
     </div>
     <div id="newDMResults" style="max-height:280px;overflow-y:auto;"></div>
   </div>
 </div>
 
-<!-- —��—�� REEL UPLOAD MODAL —��—�� -->
+<!-- –– REEL UPLOAD MODAL –– -->
 <div id="reelUploadModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:5003;align-items:center;justify-content:center;padding:1rem;">
   <div style="background:white;border-radius:24px;padding:1.8rem;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,0.3);">
     <div style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;">
       <span>🎬 Post a Reel</span>
-      <button onclick="closeReelUpload()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;">—��</button>
+      <button onclick="closeReelUpload()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;">–</button>
     </div>
     <div style="border:2.5px dashed #a5d6a7;border-radius:14px;padding:1.5rem;text-align:center;cursor:pointer;margin-bottom:0.8rem;" onclick="document.getElementById('reelVideoInput').click()">
       <i class="fas fa-video" style="font-size:1.8rem;color:#1B5E20;margin-bottom:0.3rem;display:block;"></i>
@@ -726,7 +726,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
       <video id="reelVideoPreview" style="display:none;max-width:100%;border-radius:10px;margin-top:0.5rem;" controls></video>
     </div>
     <input type="file" id="reelVideoInput" accept="video/*" style="display:none;" onchange="previewReel(this)">
-    <textarea id="reelCaption" placeholder="Caption (optional)—��" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;resize:none;min-height:60px;outline:none;margin-bottom:0.6rem;"></textarea>
+    <textarea id="reelCaption" placeholder="Caption (optional)–" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;resize:none;min-height:60px;outline:none;margin-bottom:0.6rem;"></textarea>
     <input type="text" id="reelCourse" placeholder="Course tag (e.g. Applied Electricity)" style="width:100%;border:2px solid #c8e6c9;border-radius:12px;padding:0.6rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;margin-bottom:0.8rem;">
     <div id="reelUploadMsg" style="font-size:0.82rem;min-height:1rem;margin-bottom:0.5rem;color:#1B5E20;"></div>
     <button id="reelSubmitBtn" onclick="submitReel()" style="width:100%;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.75rem;border-radius:16px;font-size:0.92rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;">
@@ -735,7 +735,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   </div>
 </div>
 
-<!-- —��—�� JITSI CALL MODAL —��—�� -->
+<!-- –– JITSI CALL MODAL –– -->
 <div id="jitsiModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:6000;flex-direction:column;">
   <div style="display:flex;align-items:center;justify-content:space-between;padding:0.8rem 1.2rem;background:#0a2f1f;">
     <div style="color:white;font-weight:800;font-size:0.95rem;display:flex;align-items:center;gap:0.5rem;">
@@ -748,12 +748,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   <iframe id="jitsiFrame" style="flex:1;border:none;" allow="camera;microphone;fullscreen;display-capture"></iframe>
 </div>
 
-<!-- —��—�� IMAGE CROP MODAL —��—�� -->
+<!-- –– IMAGE CROP MODAL –– -->
 <div id="cropModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:6500;flex-direction:column;align-items:center;justify-content:center;padding:1rem;">
   <div style="background:white;border-radius:20px;overflow:hidden;width:100%;max-width:480px;max-height:90vh;display:flex;flex-direction:column;">
     <div style="padding:1rem 1.2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8f5e9;">
-      <div style="font-size:0.95rem;font-weight:800;color:#1e2a3e;">—��️ Crop Photo</div>
-      <button onclick="closeCropModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6b7280;">—��</button>
+      <div style="font-size:0.95rem;font-weight:800;color:#1e2a3e;">–️ Crop Photo</div>
+      <button onclick="closeCropModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6b7280;">–</button>
     </div>
     <div style="flex:1;overflow:hidden;min-height:260px;background:#f1f8f2;display:flex;align-items:center;justify-content:center;">
       <img id="cropImage" style="max-width:100%;max-height:360px;display:block;" alt="crop">
@@ -765,16 +765,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   </div>
 </div>
 
-<!-- —��—�� TOAST —��—�� -->
+<!-- –– TOAST –– -->
 <div class="toast" id="toast"></div>
 
 <script src="js/main.js"></script>
 <script src="js/gerama-features.js"></script>
 
 <script>
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// GERAMA CONNECT —�� Full JavaScript
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––
+// GERAMA CONNECT – Full JavaScript
+// –––––––––––––––––––––––––––––––––––––––––––––––––––
 'use strict';
 
 var _sb  = null;
@@ -791,7 +791,7 @@ var _allMembers = [];
 var _statusInterval = null;
 var _sentMsgIds = {}; // tracks message IDs we already appended optimistically
 
-// —��—�� Helpers —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Helpers ––––––––––––––––––––––––––––––––––––––––––
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function timeAgo(iso){
   if(!iso) return '';
@@ -808,7 +808,7 @@ function toast(msg,dur){
   setTimeout(function(){el.classList.remove('show');},dur||2200);
 }
 
-// —��—�� Tab switching —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Tab switching –––––––––––––––––––––––––––––––––––––
 function showConnectTab(tab){
   document.querySelectorAll('.connect-section').forEach(function(s){s.classList.remove('active');});
   document.querySelectorAll('.ctab').forEach(function(b){b.classList.remove('active');});
@@ -826,7 +826,7 @@ function setActiveBnav(el){
   el.classList.add('active');
 }
 
-// —��—�� Init —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Init –––––––––––––––––––––––––––––––––––––––––––––
 (function waitInit(){
   if(window.geramaSupabase){
     _sb=window.geramaSupabase;
@@ -862,9 +862,9 @@ function setActiveBnav(el){
   } else { setTimeout(waitInit,200); }
 })();
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // STORIES / STATUS
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 async function loadStories(){
   if(!_sb) return;
   var bar=document.getElementById('storiesBar'); if(!bar) return;
@@ -895,7 +895,7 @@ async function openStoryViewer(authorEmail){
   modal.classList.add('open');
   renderStorySlide(data,idx);
 
-  // —��—�� Record that current user viewed this status —��—��
+  // –– Record that current user viewed this status ––
   if(_me.email && authorEmail !== _me.email){
     data.forEach(function(s){
       _sb.from('connect_status_views').upsert({
@@ -907,7 +907,7 @@ async function openStoryViewer(authorEmail){
     });
   }
 
-  // —��—�� Show viewers list if it's MY status —��—��
+  // –– Show viewers list if it's MY status ––
   if(authorEmail === _me.email){
     _loadMyStatusViewers(data[0] && data[0].id);
   }
@@ -1033,7 +1033,7 @@ function previewStatusVideo(inp){
   var prev=document.getElementById('statusVideoPreview');
   var lbl=document.getElementById('statusVideoLabel');
   if(prev){prev.src=URL.createObjectURL(f);prev.style.display='block';}
-  if(lbl) lbl.textContent='—�� '+f.name+(f.size>50*1024*1024?' —�� —��️ may be too large':'');
+  if(lbl) lbl.textContent='– '+f.name+(f.size>50*1024*1024?' – –️ may be too large':'');
 }
 function closeCropModal(){
   document.getElementById('cropModal').style.display='none';
@@ -1049,7 +1049,7 @@ function applyCrop(){
       var prev=document.getElementById('statusPhotoPreview');
       var lbl=document.getElementById('statusPhotoLabel');
       if(prev){prev.src=URL.createObjectURL(file);prev.style.display='block';}
-      if(lbl) lbl.textContent='—�� Photo cropped & ready';
+      if(lbl) lbl.textContent='– Photo cropped & ready';
     }
     closeCropModal();
   },'image/jpeg',0.9);
@@ -1059,7 +1059,7 @@ async function postStatus(){
   var photoVisible=document.getElementById('statusPhotoArea').style.display!=='none';
   var videoVisible=document.getElementById('statusVideoArea').style.display!=='none';
   var msg=document.getElementById('statusPostMsg');
-  msg.textContent='Posting—��';
+  msg.textContent='Posting–';
   var record={author_email:_me.email,author_name:_me.name,author_img:_me.img||null,expires_at:new Date(Date.now()+86400000).toISOString(),created_at:new Date().toISOString()};
   if(photoVisible){
     if(!_statusPhotoFile){msg.textContent='Please choose a photo.';return;}
@@ -1073,7 +1073,7 @@ async function postStatus(){
     if(!_statusVideoFile){msg.textContent='Please choose a video.';return;}
     if(_statusVideoFile.size>50*1024*1024){msg.textContent='Video too large. Max 50MB.';return;}
     record.type='video';
-    msg.textContent='Uploading video—��';
+    msg.textContent='Uploading video–';
     var vpath='statuses/vid-'+_me.email.replace(/[^a-z0-9]/gi,'-')+'-'+Date.now()+'.'+(_statusVideoFile.name.split('.').pop()||'mp4');
     var vup=await _sb.storage.from('gerama-materials').upload(vpath,_statusVideoFile,{upsert:true,contentType:_statusVideoFile.type});
     if(vup.error){msg.textContent='Video upload failed: '+vup.error.message;return;}
@@ -1086,20 +1086,20 @@ async function postStatus(){
   }
   var {error}=await _sb.from('connect_statuses').insert(record);
   if(error){msg.textContent='Error: '+error.message;return;}
-  msg.textContent='—�� Status posted! Visible for 24h.';
+  msg.textContent='– Status posted! Visible for 24h.';
   _statusPhotoFile=null; _statusVideoFile=null;
   setTimeout(closePostStatus,1200);
   loadStories();
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // PEOPLE / DISCOVER
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 var _memberLevelFilter='all';
 
 async function loadMembers(){
   var grid=document.getElementById('peopleGrid'); if(!grid||!_sb) return;
-  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading members—��</div>';
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading members–</div>';
   try{
     var {data,error}=await _sb.from('user_profiles').select('email,full_name,program,level,img_url,group_name').order('full_name');
     if(error) throw error;
@@ -1147,9 +1147,9 @@ function filterByLevel(lvl,btn){
   renderMemberGrid(_allMembers);
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // DIRECT MESSAGES
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 function dmThreadKey(a,b){return [a,b].sort().join('__');}
 
 async function loadDMThreads(){
@@ -1197,7 +1197,7 @@ async function loadDMThreads(){
         '<div class="ct-preview">'+(t.sender_email===_me.email?'<span style="color:#9ca3af;">You: </span>':'')+esc(preview)+'</div></div>'+
       '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.25rem;flex-shrink:0;">'+
         '<div class="ct-time">'+timeAgo(t.created_at)+'</div>'+
-        (unread?'<div class="ct-unread" style="min-width:18px;text-align:center;">—��</div>':'')+'</div>'+
+        (unread?'<div class="ct-unread" style="min-width:18px;text-align:center;">–</div>':'')+'</div>'+
       '<button onclick="event.stopPropagation();hideDMThread(\''+esc(email)+'\')" title="Delete conversation" style="position:absolute;top:0.4rem;right:0.3rem;background:none;border:none;color:#9ca3af;font-size:0.72rem;cursor:pointer;padding:0.2rem;opacity:0;transition:opacity 0.2s;" class="thread-del-btn"><i class="fas fa-times"></i></button>'+
     '</div>';
   }).join('');
@@ -1240,12 +1240,12 @@ async function renderChatWindow(email,name){
     '<div id="chatReplyBar" style="display:none;padding:0.4rem 1rem;background:#f0fdf4;border-top:1px solid #c8e6c9;align-items:center;gap:0.5rem;">'+
       '<i class="fas fa-reply" style="color:#1B5E20;font-size:0.8rem;flex-shrink:0;"></i>'+
       '<div id="chatReplyText" style="flex:1;font-size:0.78rem;color:#374151;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>'+
-      '<button onclick="clearReply()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.9rem;flex-shrink:0;padding:0;">—��</button>'+
+      '<button onclick="clearReply()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.9rem;flex-shrink:0;padding:0;">–</button>'+
     '</div>'+
     '<div class="chat-input-wrap">'+
       '<button class="chat-emoji-btn" onclick="toggleEmojiPicker()" title="Emoji"><i class="fas fa-smile"></i></button>'+
       '<label class="chat-attach-btn2" title="Send image" style="cursor:pointer;"><i class="fas fa-image"></i><input type="file" id="chatImgInput" accept="image/*" style="display:none;" onchange="sendImageMsg(\''+esc(email)+'\',\''+esc(name||email)+'\',this)"></label>'+
-      '<textarea id="chatInput" placeholder="Message '+esc(name||email)+'—��" rows="1"'+
+      '<textarea id="chatInput" placeholder="Message '+esc(name||email)+'–" rows="1"'+
         ' onkeydown="chatKeydown(event,\''+esc(email)+'\',\''+esc(name||email)+'\')"'+
         ' oninput="onChatInputChange(\''+esc(email)+'\')"></textarea>'+
       '<button class="chat-send-btn" onclick="sendDM(\''+esc(email)+'\',\''+esc(name||email)+'\')"><i class="fas fa-paper-plane"></i></button>'+
@@ -1258,7 +1258,7 @@ async function renderChatWindow(email,name){
   // Render emoji picker
   var ep=document.getElementById('emojiPickerPanel');
   if(ep){
-    var emojis=['😀','😂','😍','🥰','😎','🤩','🙏','👏','🔥','—��','💯','🎉','📚','💡','—��','🚀','—��️','💚','👍','🤝','😅','😭','🥺','😤','🤔','💪','🎓','📝','—��','—��'];
+    var emojis=['😀','😂','😍','🥰','😎','🤩','🙏','👏','🔥','–','💯','🎉','📚','💡','–','🚀','–️','💚','👍','🤝','😅','😭','🥺','😤','🤔','💪','🎓','📝','–','–'];
     ep.innerHTML=emojis.map(function(e){return '<button onclick="insertEmoji(\''+e+'\')" style="background:none;border:none;font-size:1.2rem;cursor:pointer;transition:transform 0.15s;padding:0.2rem;" onmouseover="this.style.transform=\'scale(1.4)\'" onmouseout="this.style.transform=\'\'">'+e+'</button>';}).join('');
   }
 
@@ -1279,7 +1279,7 @@ function clearChatView(){
   document.querySelectorAll('.chat-thread').forEach(function(el){el.classList.remove('active');});
 }
 
-// —��—�� Realtime subscription for active DM —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Realtime subscription for active DM ––––––––––––––––––––
 function startRealtimeForDM(email){
   if(_dmRealtimeSub&&_sb) _sb.removeChannel(_dmRealtimeSub);
   _dmRealtimeSub=_sb.channel('dm-'+dmThreadKey(_me.email,email)+'-'+Date.now())
@@ -1290,7 +1290,7 @@ function startRealtimeForDM(email){
       if(m.id&&_sentMsgIds[m.id]){ delete _sentMsgIds[m.id]; return; }
       if(m.id&&document.querySelector('[data-msgid="'+m.id+'"]')) return;
       appendMessage(m);
-      // Mark as read with full receipt fields so sender sees —��—��
+      // Mark as read with full receipt fields so sender sees ––
       if(m.sender_email!==_me.email&&_sb){
         _sb.from('connect_messages')
           .update({is_read:true, is_read_by_recipient:true, read_at:new Date().toISOString()})
@@ -1311,7 +1311,7 @@ function startRealtimeForDM(email){
     .subscribe();
 }
 
-// —��—�� Global realtime: notifications for messages when NOT in a chat —��—��
+// –– Global realtime: notifications for messages when NOT in a chat ––
 var _globalRealtimeSub=null;
 function startGlobalRealtime(){
   // Retry until both _sb and _me.email are ready
@@ -1331,7 +1331,7 @@ function startGlobalRealtime(){
     }).subscribe();
 }
 
-// —��—�� Typing indicator —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Typing indicator ––––––––––––––––––––––––––––––––––––––––––
 var _typingTimeout=null;
 var _lastTypedEmail=null;
 function onChatInputChange(recipientEmail){
@@ -1344,7 +1344,7 @@ function onChatInputChange(recipientEmail){
   _typingTimeout=setTimeout(function(){_lastTypedEmail=null;},3000);
 }
 
-// —��—�� Push notification popup —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Push notification popup –––––––––––––––––––––––––––––––––––
 var _notifQueue=[];
 var _notifShowing=false;
 function showPushNotification(m){
@@ -1367,7 +1367,7 @@ function _processNotifQueue(){
       '<div class="push-notif-name">'+esc(m.sender_name||m.sender_email||'Someone')+'</div>'+
       '<div class="push-notif-text">'+esc((m.text||'📎 Attachment').substring(0,55))+'</div>'+
     '</div>'+
-    '<button class="push-notif-close" onclick="this.closest(\'.push-notif\').remove();_notifShowing=false;_processNotifQueue();">—��</button>';
+    '<button class="push-notif-close" onclick="this.closest(\'.push-notif\').remove();_notifShowing=false;_processNotifQueue();">–</button>';
   notif.onclick=function(e){
     if(e.target.classList.contains('push-notif-close')) return;
     openDMWith(m.sender_email,m.sender_name||m.sender_email);
@@ -1386,7 +1386,7 @@ function _processNotifQueue(){
   },4500);
 }
 
-// —��—�� Unread badge counter —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Unread badge counter ––––––––––––––––––––––––––––––––––––––
 var _unreadCount=0;
 function updateUnreadBadge(delta){
   _unreadCount=Math.max(0,_unreadCount+delta);
@@ -1416,7 +1416,7 @@ async function loadUnreadCount(){
   }catch(e){}
 }
 
-// —��—�� Emoji picker toggle —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Emoji picker toggle –––––––––––––––––––––––––––––––––––––––
 function toggleEmojiPicker(){
   var ep=document.getElementById('emojiPickerPanel');
   if(!ep) return;
@@ -1433,12 +1433,12 @@ function insertEmoji(emoji){
   if(ep) ep.style.display='none';
 }
 
-// —��—�� Send image in chat —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Send image in chat ––––––––––––––––––––––––––––––––––––––––
 async function sendImageMsg(email,name,input){
   var f=input.files&&input.files[0]; if(!f) return;
   if(!_sb||!_me.email){toast('Please log in');return;}
   if(f.size>8*1024*1024){toast('Image too large. Max 8MB.');return;}
-  toast('Uploading image—��');
+  toast('Uploading image–');
   var ext=f.name.split('.').pop().toLowerCase();
   var path='dm-images/'+_me.email.replace(/[^a-z0-9]/gi,'-')+'-'+Date.now()+'.'+ext;
   var up=await _sb.storage.from('gerama-materials').upload(path,f,{upsert:true,contentType:f.type});
@@ -1457,7 +1457,7 @@ async function sendImageMsg(email,name,input){
   loadDMThreads();
 }
 
-// —��—�� View image fullscreen —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– View image fullscreen –––––––––––––––––––––––––––––––––––––
 function viewImg(url){
   var ov=document.createElement('div');
   ov.className='img-viewer-overlay';
@@ -1466,7 +1466,7 @@ function viewImg(url){
   document.body.appendChild(ov);
 }
 
-// —��—�� Reply to message —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Reply to message ––––––––––––––––––––––––––––––––––––––––––
 var _replyToMsg=null;
 function replyToMsg(msgId,msgText){
   _replyToMsg={id:msgId,text:msgText};
@@ -1497,7 +1497,7 @@ async function refreshDMMessages(email){
     .map(function(m){ return m.id; });
 
   if(unreadIds.length>0){
-    // Batch update —�� split into chunks of 10 if needed
+    // Batch update – split into chunks of 10 if needed
     for(var i=0;i<unreadIds.length;i+=20){
       var chunk=unreadIds.slice(i,i+20);
       _sb.from('connect_messages')
@@ -1535,8 +1535,8 @@ function buildMsgHtml(m,mine){
   var tickHtml='';
   if(mine&&!deleted){
     var isRead=m.read_at||m.is_read_by_recipient||m.is_read;
-    // WhatsApp style: —�� sent, —��—�� grey delivered, —��—�� green read
-    tickHtml='<span class="msg-tick'+(isRead?' read':'')+'">'+( isRead?'—��—��':'—��')+'</span>';
+    // WhatsApp style: – sent, –– grey delivered, –– green read
+    tickHtml='<span class="msg-tick'+(isRead?' read':'')+'">'+( isRead?'––':'–')+'</span>';
   }
   var menuBtn='<button class="msg-menu-btn" onclick="openMsgMenu(event,\''+esc(m.id||'')+'\',\''+esc((m.text||'').replace(/'/g,''))+'\','+mine+',\''+esc(m.created_at||'')+'\')"><i class="fas fa-chevron-down"></i></button>';
   var bubbleContent='';
@@ -1658,7 +1658,7 @@ function appendMessage(m,tempId){
   container.scrollTop=container.scrollHeight;
 }
 
-// —��—�� Message context menu (recall / edit / delete) —��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Message context menu (recall / edit / delete) –––––––––––––
 var _msgMenuTarget=null;
 function openMsgMenu(e,msgId,msgText,isMine,createdAt){
   e.stopPropagation();
@@ -1702,7 +1702,7 @@ function openMsgMenu(e,msgId,msgText,isMine,createdAt){
 }
 function closeMsgMenu(){var m=document.getElementById('msgCtxMenu');if(m)m.remove();}
 
-// —��—�� Reaction picker —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Reaction picker ––––––––––––––––––––––––––––––––––––––––––––
 function showReactionPicker(msgId){
   var row=document.querySelector('[data-msgid="'+msgId+'"]');
   if(!row) return;
@@ -1715,7 +1715,7 @@ function showReactionPicker(msgId){
   var rect=row.getBoundingClientRect();
   pop.style.top=(rect.top-50)+'px';
   pop.style.left=Math.max(10,rect.left)+'px';
-  ['👍','—��️','😂','😮','😢','🔥','🙏','💯'].forEach(function(emoji){
+  ['👍','–️','😂','😮','😢','🔥','🙏','💯'].forEach(function(emoji){
     var btn=document.createElement('button');
     btn.style.cssText='background:none;border:none;font-size:1.3rem;cursor:pointer;padding:0.15rem;transition:transform 0.15s;';
     btn.textContent=emoji;
@@ -1764,7 +1764,7 @@ async function editMsg(){
     if(bubble) bubble.innerHTML=autoLink(esc(newText))+'<span style="font-size:0.58rem;opacity:0.65;margin-left:0.3rem;font-style:italic;">edited</span>';
     row.setAttribute('data-msgtext',newText);
   }
-  toast('Message edited —��');
+  toast('Message edited –');
 }
 
 async function recallMsg(){
@@ -1872,16 +1872,16 @@ function filterDMs(q){
   });
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // STUDY GROUPS (L100 only, from gerama_groups/gerama_group_members)
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 async function loadGroupChats(){
   if(!_sb) return;
   var list=document.getElementById('groupChatsList'); if(!list) return;
   var banner=document.getElementById('myGroupBanner');
   var noticeEl=document.getElementById('notL100Notice');
   var totalBadge=document.getElementById('groupsTotalBadge');
-  list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading groups—��</div>';
+  list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading groups–</div>';
 
   try {
     // Load groups
@@ -1897,7 +1897,7 @@ async function loadGroupChats(){
     var {data:allMems}=await _sb.from('gerama_group_members').select('*');
     allMems=allMems||[];
 
-    // —��—�� DEDUPLICATE: if a user_email appears more than once, keep only the first (oldest assigned_at) —��—��
+    // –– DEDUPLICATE: if a user_email appears more than once, keep only the first (oldest assigned_at) ––
     var seenEmails={};
     var dedupedMems=[];
     allMems.forEach(function(m){
@@ -2031,15 +2031,15 @@ function scrollToMyGroup(){
   if(list) list.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // REELS
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 async function loadReels(){
   var grid=document.getElementById('reelsFeedGrid'); if(!grid||!_sb) return;
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i></div>';
   var {data}=await _sb.from('reels').select('*').eq('status','active').order('created_at',{ascending:false}).limit(30);
   data=data||[];
-  if(!data.length){grid.innerHTML='<div style="grid-column:1/-1;" class="empty-state"><i class="fas fa-film"></i><p>No reels yet —�� be the first to post!</p></div>';return;}
+  if(!data.length){grid.innerHTML='<div style="grid-column:1/-1;" class="empty-state"><i class="fas fa-film"></i><p>No reels yet – be the first to post!</p></div>';return;}
   grid.innerHTML=data.map(function(r){
     return '<div class="reel-card">'+
       '<div class="reel-video-wrap">'+
@@ -2094,7 +2094,7 @@ async function submitReel(){
   if(!_sb||!_me.email){toast('Please log in');return;}
   var btn=document.getElementById('reelSubmitBtn');
   var msg=document.getElementById('reelUploadMsg');
-  btn.disabled=true; btn.textContent='Uploading—��';
+  btn.disabled=true; btn.textContent='Uploading–';
   if(_reelFile.size>50*1024*1024){msg.textContent='Video too large. Max 50MB.';btn.disabled=false;btn.innerHTML='<i class="fas fa-upload"></i> Post Reel';return;}
   var ext=_reelFile.name.split('.').pop();
   var path='reels/'+Date.now()+'-'+Math.random().toString(36).slice(2)+'.'+ext;
@@ -2103,7 +2103,7 @@ async function submitReel(){
   var videoUrl=_sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
   var {error}=await _sb.from('reels').insert({author_name:_me.name,author_email:_me.email,caption:document.getElementById('reelCaption').value.trim()||null,course:document.getElementById('reelCourse').value.trim()||null,video_url:videoUrl,storage_path:path,likes:0,status:'active',created_at:new Date().toISOString()});
   if(error){msg.textContent='Save failed: '+error.message;btn.disabled=false;btn.innerHTML='<i class="fas fa-upload"></i> Post Reel';return;}
-  msg.textContent='—�� Reel posted!';
+  msg.textContent='– Reel posted!';
   document.getElementById('reelCaption').value='';
   document.getElementById('reelCourse').value='';
   _reelFile=null;
@@ -2111,9 +2111,9 @@ async function submitReel(){
   btn.disabled=false; btn.innerHTML='<i class="fas fa-upload"></i> Post Reel';
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// CALLS —�� Jitsi
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
+// CALLS – Jitsi
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 function launchJitsiCall(roomName){
   var clean=(roomName||'gerama-room').toLowerCase().replace(/[^a-z0-9-]/g,'');
   var modal=document.getElementById('jitsiModal');
@@ -2143,11 +2143,11 @@ function sendStatusReply(){
   inp.value='';
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// SUPABASE SETUP SQL —�� shown on first visit
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
+// SUPABASE SETUP SQL – shown on first visit
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 var CONNECT_SQL = `-- GERAMA Connect: Run once in Supabase SQL Editor
--- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+-- –––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 -- 1. Status / Stories (24h)
 CREATE TABLE IF NOT EXISTS connect_statuses (
@@ -2242,9 +2242,9 @@ function showSetupSQL(){
 }
 function copySetupSQL(){
   navigator.clipboard.writeText(CONNECT_SQL).then(function(){
-    toast('SQL copied! Paste it in Supabase —�� SQL Editor and run.',3000);
+    toast('SQL copied! Paste it in Supabase – SQL Editor and run.',3000);
   }).catch(function(){
-    toast('Copy failed —�� please select and copy manually.');
+    toast('Copy failed – please select and copy manually.');
   });
 }
 
@@ -2259,9 +2259,9 @@ function copySetupSQL(){
   }, 3000);
 })();
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// ONLINE PRESENCE —�� track & display who's online
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
+// ONLINE PRESENCE – track & display who's online
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 var _presenceChannel = null;
 var _onlineEmails = new Set();
 
@@ -2328,9 +2328,9 @@ function updateOnlineUI(){
   }
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // MESSAGE SEARCH across all conversations
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 var _msgSearchTimeout = null;
 
 function openMsgSearch(){
@@ -2343,10 +2343,10 @@ function openMsgSearch(){
     '<div style="background:white;border-radius:20px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,0.25);overflow:hidden;">' +
       '<div style="padding:1rem 1.2rem;border-bottom:1px solid #e8f5e9;display:flex;align-items:center;gap:0.6rem;">' +
         '<i class="fas fa-search" style="color:#1B5E20;font-size:1rem;"></i>' +
-        '<input id="msgSearchInput" type="text" placeholder="Search messages—��" autofocus' +
+        '<input id="msgSearchInput" type="text" placeholder="Search messages–" autofocus' +
           ' style="flex:1;border:none;outline:none;font-family:Inter,sans-serif;font-size:0.95rem;"' +
           ' oninput="doMsgSearch(this.value)">' +
-        '<button onclick="document.getElementById(\'msgSearchOverlay\').remove()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:1.1rem;padding:0.2rem;line-height:1;">—��</button>' +
+        '<button onclick="document.getElementById(\'msgSearchOverlay\').remove()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:1.1rem;padding:0.2rem;line-height:1;">–</button>' +
       '</div>' +
       '<div id="msgSearchResults" style="max-height:60vh;overflow-y:auto;padding:0.3rem 0;">' +
         '<div style="text-align:center;padding:2rem;color:#9ca3af;font-size:0.85rem;"><i class="fas fa-comment-dots" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>Type to search messages</div>' +
@@ -2401,9 +2401,9 @@ async function doMsgSearch(q){
   }, 350);
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// IMPROVED DM THREAD LIST —�� avatars from user_profiles
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
+// IMPROVED DM THREAD LIST – avatars from user_profiles
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 function buildThreadAvatar(email, name){
   var member = _allMembers.find(function(m){ return m.email === email; });
   if(member && member.img_url){
@@ -2412,9 +2412,9 @@ function buildThreadAvatar(email, name){
   return esc((name || email || '?').charAt(0).toUpperCase());
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // VOICE NOTE RECORDING
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 var _mediaRecorder = null;
 var _audioChunks = [];
 var _recordingTimer = null;
@@ -2448,7 +2448,7 @@ async function startVoiceRecording(email, name){
       if(_recordingSecs >= 120){ stopVoiceRecording(); return; } // max 2 min
       updateRecordBtn(true);
     }, 1000);
-    toast('🎙️ Recording—�� tap mic again to stop');
+    toast('🎙️ Recording– tap mic again to stop');
   } catch(e){
     toast('Microphone access denied');
   }
@@ -2477,7 +2477,7 @@ function updateRecordBtn(recording){
 
 async function sendVoiceMsg(blob, email, name){
   if(!_sb || !_me.email){ toast('Please log in'); return; }
-  toast('Sending voice note—��');
+  toast('Sending voice note–');
   var duration = _recordingSecs; // capture before reset
   var path = 'voice-notes/'+_me.email.replace(/[^a-z0-9]/gi,'-')+'-'+Date.now()+'.webm';
   var up = await _sb.storage.from('gerama-materials').upload(path, blob, {upsert:true, contentType:'audio/webm'});
@@ -2502,11 +2502,11 @@ async function sendVoiceMsg(blob, email, name){
   loadDMThreads();
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // WIRE PRESENCE + SEARCH into renderChatWindow & loadMembers
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
-// Hook presence dots into renderMemberGrid —�� store data-email on cards
+// Hook presence dots into renderMemberGrid – store data-email on cards
 var _origRenderMemberGrid = renderMemberGrid;
 renderMemberGrid = function(list){
   _origRenderMemberGrid(list);
@@ -2543,7 +2543,7 @@ renderChatWindow = async function(email, name){
     micBtn.onclick = function(){ startVoiceRecording(email, name); };
     wrap.appendChild(micBtn);
   }
-  // Add refresh button to topbar actions —�� always remove old one first to fix stale closure
+  // Add refresh button to topbar actions – always remove old one first to fix stale closure
   var oldRef = document.getElementById('chatRefreshBtn');
   if(oldRef) oldRef.remove();
   var actions = document.querySelector('.chat-topbar-actions');

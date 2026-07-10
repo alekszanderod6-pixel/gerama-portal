@@ -148,10 +148,10 @@
             <div class="step-dot" id="dot3"></div>
         </div>
 
-        <!-- LOADING — shown while checking URL token -->
+        <!-- LOADING – shown while checking URL token -->
         <div id="loadingScreen" class="loading-overlay" style="display:none;">
             <i class="fas fa-circle-notch spin"></i>
-            <div style="color:#6b7280;font-size:0.9rem;">Verifying your reset link—</div>
+            <div style="color:#6b7280;font-size:0.9rem;">Verifying your reset link–</div>
         </div>
 
         <!-- STEP 1: Enter email -->
@@ -170,18 +170,18 @@
             <div class="back-link"><a href="login.html"><i class="fas fa-arrow-left"></i> Back to Sign In</a></div>
         </div>
 
-        <!-- STEP 2: Email sent — waiting for user to click link -->
+        <!-- STEP 2: Email sent – waiting for user to click link -->
         <div class="step" id="step2">
             <div class="email-sent-icon">📧</div>
             <div class="step-title" style="text-align:center;">Check your email</div>
             <div class="step-sub" style="text-align:center;">
                 We sent a reset link to <strong id="emailDisplay" style="color:#1B5E20;"></strong>.<br><br>
-                Click the link in that email — it will bring you <strong>back to this page</strong> automatically to set your new password.
+                Click the link in that email – it will bring you <strong>back to this page</strong> automatically to set your new password.
             </div>
             <div class="info-box">
                 <strong>❓ Don't see the email?</strong><br>
                 · Check your <strong>Spam / Junk</strong> folder<br>
-                · Allow 1—2 minutes for delivery<br>
+                · Allow 1–2 minutes for delivery<br>
                 · The link expires after <strong>1 hour</strong>
             </div>
             <button class="btn btn-ghost" onclick="resendLink()" id="resendBtn">
@@ -194,7 +194,7 @@
         <!-- STEP 3: Set new password (shown after clicking email link) -->
         <div class="step" id="step3">
             <div class="step-title">🔐 Set your new password</div>
-            <div class="step-sub">Your identity is verified. Choose a strong new password — this is what you'll use to sign in from now on.</div>
+            <div class="step-sub">Your identity is verified. Choose a strong new password – this is what you'll use to sign in from now on.</div>
             <div class="form-group pw-wrap">
                 <label for="newPassword">New Password</label>
                 <input type="password" id="newPassword" placeholder="At least 6 characters"
@@ -251,7 +251,7 @@
 
 var currentEmail = '';
 
-// —— Helpers ——
+// –– Helpers ––
 function showMsg(id, text, type) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -316,7 +316,7 @@ function restartFlow() {
     if (history.replaceState) history.replaceState(null, '', window.location.pathname);
 }
 
-// —— Password strength ——
+// –– Password strength ––
 function checkPwStrength(val) {
     var fill = document.getElementById('pwFill');
     var hint = document.getElementById('pwHint');
@@ -339,7 +339,7 @@ function checkPwStrength(val) {
     hint.style.color = colors[Math.max(score-1,0)];
 }
 
-// —— Wait for Supabase ——
+// –– Wait for Supabase ––
 function waitForSupa(timeout) {
     return new Promise(function(resolve, reject) {
         var waited = 0;
@@ -357,7 +357,7 @@ function waitForSupa(timeout) {
     });
 }
 
-// —— STEP 1: Send reset link ——
+// –– STEP 1: Send reset link ––
 async function sendResetLink() {
     var email = (document.getElementById('resetEmail').value || '').trim().toLowerCase();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -373,7 +373,7 @@ async function sendResetLink() {
     try {
         var sb = await waitForSupa();
 
-        // Build the redirect URL — must be the full absolute URL of THIS page
+        // Build the redirect URL – must be the full absolute URL of THIS page
         // so the email link brings the user back here to step 3
         var redirectUrl = window.location.origin +
             (window.location.pathname.includes('reset-code.html')
@@ -389,7 +389,7 @@ async function sendResetLink() {
             if (errMsg.toLowerCase().includes('rate limit') || errMsg.toLowerCase().includes('too many')) {
                 showMsg('msg1', '⚠️ Too many requests. Please wait a few minutes and try again.', 'error');
             } else if (errMsg.toLowerCase().includes('not found') || errMsg.toLowerCase().includes('no user')) {
-                // Don't reveal if email exists or not — show generic success
+                // Don't reveal if email exists or not – show generic success
                 // (security best practice)
                 currentEmail = email;
                 document.getElementById('emailDisplay').textContent = email;
@@ -416,7 +416,7 @@ async function sendResetLink() {
     }
 }
 
-// —— Resend link ——
+// –– Resend link ––
 async function resendLink() {
     if (!currentEmail) { restartFlow(); return; }
     var btn = document.getElementById('resendBtn');
@@ -439,7 +439,7 @@ async function resendLink() {
     }, 3000);
 }
 
-// —— STEP 3: Set new password ——
+// –– STEP 3: Set new password ––
 async function resetPassword() {
     var newPw  = document.getElementById('newPassword').value;
     var confPw = document.getElementById('confirmNewPassword').value;
@@ -496,9 +496,9 @@ async function resetPassword() {
     }
 }
 
-// —— DETECT REDIRECT FROM EMAIL LINK ——
-// Supabase v2 PKCE flow: email link — ?code=xxx — we exchange for session
-// Supabase v1 / implicit flow: email link — #access_token=xxx&type=recovery
+// –– DETECT REDIRECT FROM EMAIL LINK ––
+// Supabase v2 PKCE flow: email link – ?code=xxx – we exchange for session
+// Supabase v1 / implicit flow: email link – #access_token=xxx&type=recovery
 (function detectResetToken() {
     var hash   = window.location.hash   || '';
     var search = window.location.search || '';
@@ -507,9 +507,9 @@ async function resetPassword() {
     var isImplicit  = hash.includes('type=recovery') || hash.includes('access_token');
     var hasToken    = isPKCE || isImplicit;
 
-    if (!hasToken) return; // normal page load — show step 1
+    if (!hasToken) return; // normal page load – show step 1
 
-    // Token detected — show loading while we process it
+    // Token detected – show loading while we process it
     document.getElementById('step1').classList.remove('active');
     document.getElementById('stepsIndicator').style.display = 'none';
     document.getElementById('loadingScreen').style.display = 'block';
@@ -539,10 +539,10 @@ async function resetPassword() {
                 }
             }
 
-            // All good — show the new password form
+            // All good – show the new password form
             document.getElementById('stepsIndicator').style.display = 'flex';
             showStep(3);
-            showMsg('msg3', '✅ Identity confirmed — please set your new password below.', 'success');
+            showMsg('msg3', '✅ Identity confirmed – please set your new password below.', 'success');
 
         } catch (err) {
             console.warn('[GERAMA] Reset token error:', err.message);

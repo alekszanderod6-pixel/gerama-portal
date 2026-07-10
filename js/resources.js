@@ -1,23 +1,23 @@
 // GERAMA resources logic
 
 // ============================================================
-// GERAMA Resources Page —�� resources.js
+// GERAMA Resources Page – resources.js
 // Author: Alexander O. Dwumaah
 // ============================================================
 // This file powers the entire Resources page:
-//   1. MATERIALS DATABASE  —�� all files mapped by level & course
-//   2. EXPLORE LOGIC       —�� level buttons, type tabs, rendering
-//   3. SEARCH              —�� live filter across courses & files
-//   4. DOWNLOAD / VIEW     —�� open GitHub raw URLs in new tab
-//   5. UPLOAD FORM         —�� drag-drop, validation, submission
-//   6. EXPLORE/UPLOAD TABS —�� main section switcher
+//   1. MATERIALS DATABASE  – all files mapped by level & course
+//   2. EXPLORE LOGIC       – level buttons, type tabs, rendering
+//   3. SEARCH              – live filter across courses & files
+//   4. DOWNLOAD / VIEW     – open GitHub raw URLs in new tab
+//   5. UPLOAD FORM         – drag-drop, validation, submission
+//   6. EXPLORE/UPLOAD TABS – main section switcher
 // ============================================================
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // 1. CONFIGURATION
 // Base URL for all raw files on GitHub.
 // Every file path in materialsDB is relative to this base.
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 const GITHUB_BASE =
   "https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/materials/";
 
@@ -40,7 +40,7 @@ function fileIcon(filename) {
   return "📁";
 }
 
-// —��—��—�� BOOKMARKS —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––– BOOKMARKS –––––––––––––––––––––––––––––––––––––––––––––––––––
 function toggleBookmark(url, name, btn) {
   var bookmarks = JSON.parse(localStorage.getItem('gerama_bookmarks')||'[]');
   var idx = bookmarks.findIndex(function(b){ return b.url === url; });
@@ -70,11 +70,11 @@ function applyBookmarkStates() {
   });
 }
 
-// —��—��—�� DOWNLOAD FILE HELPER —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// ––– DOWNLOAD FILE HELPER –––––––––––––––––––––––––––––––––––––––––
 // Fetches the file as a blob and triggers a real Save dialog.
-// This ensures clicking Download never just opens the file —��
+// This ensures clicking Download never just opens the file –
 // it always prompts the user to save it locally.
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 function downloadFile(url, filename) {
   // Show a brief loading indicator on the button if possible
   fetch(url)
@@ -98,7 +98,7 @@ function downloadFile(url, filename) {
     });
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // 2. MATERIALS DATABASE
 // Structure: materialsDB[LEVEL][COURSE] = { sem, slides, books, pastq, videos }
 // sem: "1" = Semester 1, "2" = Semester 2
@@ -107,20 +107,20 @@ function downloadFile(url, filename) {
 //   materials/l100/semester-2/<course>/...
 //   materials/l200/semester-1/<course>/...
 //   materials/l200/semester-2/<course>/...
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 const materialsDB = {
 
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-  // L100 —�� FIRST YEAR  (new semester-based folder layout)
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+  // L100 – FIRST YEAR  (new semester-based folder layout)
+  // ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
   // Courses: Engineering Maths 1, Engineering Maths 2,
   //          Applied Electricity (Basic Electronics),
   //          Basic Mechanics, Intro to Computer Programming,
   //          French, African Studies
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
   L100: {
 
-    // —��—�� Engineering Mathematics 1 —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Engineering Mathematics 1 ––––––––––––––––––––––––––
     // Semester 1
     "Engineering Mathematics 1": {
       sem: "1",
@@ -134,7 +134,7 @@ const materialsDB = {
       videos: []
     },
 
-    // —��—�� Engineering Mathematics 2 —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Engineering Mathematics 2 ––––––––––––––––––––––––––
     // Semester 2
     "Engineering Mathematics 2": {
       sem: "2",
@@ -146,7 +146,7 @@ const materialsDB = {
       videos: []
     },
 
-    // —��—�� Applied Electricity —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Applied Electricity ––––––––––––––––––––––––––––––––
     // Semester 1
     "Applied Electricity": {
       sem: "1",
@@ -158,17 +158,17 @@ const materialsDB = {
       ],
       pastq: [],
       videos: [
-        { name: "Superposition Theorem —�� Example 1 (Aleks)", file: "l100/semester-1/applied-electricity/videos/superposition-theorem-applied-electricity-example1-by-aleks.mp4" },
-        { name: "Superposition Theorem —�� Example 2 (Aleks)", file: "l100/semester-1/applied-electricity/videos/superposition-theorem-applied-electricity-example2-by-aleks.mp4" }
+        { name: "Superposition Theorem – Example 1 (Aleks)", file: "l100/semester-1/applied-electricity/videos/superposition-theorem-applied-electricity-example1-by-aleks.mp4" },
+        { name: "Superposition Theorem – Example 2 (Aleks)", file: "l100/semester-1/applied-electricity/videos/superposition-theorem-applied-electricity-example2-by-aleks.mp4" }
       ]
     },
 
-    // —��—�� Basic Electronics —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Basic Electronics ––––––––––––––––––––––––––––––––––
     // Semester 2
     "Basic Electronics": {
       sem: "2",
       slides: [
-        { name: "Diode Applications —�� Part 2 (Slides)",   file: "l100/semester-2/basic-electronics/slides/basic-electronics-diode-applications-part2.pptx" }
+        { name: "Diode Applications – Part 2 (Slides)",   file: "l100/semester-2/basic-electronics/slides/basic-electronics-diode-applications-part2.pptx" }
       ],
       books: [
         { name: "Basic Electronics Textbook 1",            file: "l100/semester-2/basic-electronics/books/basic-electronics1.pdf" }
@@ -181,22 +181,22 @@ const materialsDB = {
       videos: []
     },
 
-    // —��—�� Basic Mechanics —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Basic Mechanics ––––––––––––––––––––––––––––––––––––
     // Semester 1
     "Basic Mechanics": {
       sem: "2",
       slides: [
         { name: "Basic Mechanics Slides (Aleks)",          file: "l100/semester-2/basic_mechanics/slides/basic_mechanics_aleks_slides.pptx" },
-        { name: "Engineering Mechanics Lecture L4—��L6",     file: "l100/semester-2/basic_mechanics/slides/engineering_mechanics_lecture_presentation_l4_l5_l6.pptx" }
+        { name: "Engineering Mechanics Lecture L4–L6",     file: "l100/semester-2/basic_mechanics/slides/engineering_mechanics_lecture_presentation_l4_l5_l6.pptx" }
       ],
       books: [
         { name: "Solution Manual A (Hibbeler)",            file: "l100/semester-2/basic_mechanics/books/solution_manual_A.pdf" }
       ],
       pastq: [
-        { name: "Hibbeler ISM —�� Chapter 1",                file: "l100/semester-2/basic_mechanics/questions/95628-hibbeler_ism_01.pdf" },
-        { name: "Hibbeler ISM —�� Chapter 4",                file: "l100/semester-2/basic_mechanics/questions/95631-hibbeler_ism_04.pdf" },
-        { name: "Hibbeler ISM —�� Chapter 10",               file: "l100/semester-2/basic_mechanics/questions/95637-hibbeler_ism_10.pdf" },
-        { name: "Hibbeler ISM —�� Chapter 5",                file: "l100/semester-2/basic_mechanics/questions/9789810682460_s-hibbeler_ism_05.pdf" },
+        { name: "Hibbeler ISM – Chapter 1",                file: "l100/semester-2/basic_mechanics/questions/95628-hibbeler_ism_01.pdf" },
+        { name: "Hibbeler ISM – Chapter 4",                file: "l100/semester-2/basic_mechanics/questions/95631-hibbeler_ism_04.pdf" },
+        { name: "Hibbeler ISM – Chapter 10",               file: "l100/semester-2/basic_mechanics/questions/95637-hibbeler_ism_10.pdf" },
+        { name: "Hibbeler ISM – Chapter 5",                file: "l100/semester-2/basic_mechanics/questions/9789810682460_s-hibbeler_ism_05.pdf" },
         { name: "Assignment 3",                            file: "l100/semester-2/basic_mechanics/questions/assignment-3.pdf" },
         { name: "Assignment 3 & 4 Combined",               file: "l100/semester-2/basic_mechanics/questions/assignment-3and-4.pdf" },
         { name: "Assignment 4",                            file: "l100/semester-2/basic_mechanics/questions/assignment-4.pdf" },
@@ -205,7 +205,7 @@ const materialsDB = {
       videos: []
     },
 
-    // —��—�� Introduction to Computer Programming —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Introduction to Computer Programming –––––––––––––––
     // Semester 2
     "Introduction to Computer Programming": {
       sem: "2",
@@ -215,41 +215,41 @@ const materialsDB = {
         { name: "Mid-Sem Passco 2021",                     file: "l100/semester-2/computer-programming/passco/midsem-passqo-2021.pdf" },
         { name: "Passco 2021",                             file: "l100/semester-2/computer-programming/passco/passco-2021.pdf" },
         { name: "Trial 1",                                 file: "l100/semester-2/computer-programming/passco/trial_1.pdf" },
-        { name: "Past Question —�� Page 1",                  file: "l100/semester-2/computer-programming/passco/programming1.jpeg" },
-        { name: "Past Question —�� Page 2",                  file: "l100/semester-2/computer-programming/passco/programming2.jpeg" },
-        { name: "Past Question —�� Page 3",                  file: "l100/semester-2/computer-programming/passco/programming3.jpeg" },
-        { name: "Past Question —�� Page 4",                  file: "l100/semester-2/computer-programming/passco/programming4.jpeg" },
-        { name: "Past Question —�� Page 5",                  file: "l100/semester-2/computer-programming/passco/programming5.jpeg" },
-        { name: "Past Question —�� Page 6",                  file: "l100/semester-2/computer-programming/passco/programming6.jpeg" },
-        { name: "Past Question —�� Page 7",                  file: "l100/semester-2/computer-programming/passco/programming7.jpeg" },
-        { name: "Past Question —�� Page 8",                  file: "l100/semester-2/computer-programming/passco/programming8.jpeg" },
-        { name: "Past Question —�� Page 9",                  file: "l100/semester-2/computer-programming/passco/programming9.jpeg" },
-        { name: "Past Question —�� Page 10",                 file: "l100/semester-2/computer-programming/passco/programming10.jpeg" },
-        { name: "Past Question —�� Page 11",                 file: "l100/semester-2/computer-programming/passco/programming11.jpeg" },
-        { name: "Past Question —�� Page 13",                 file: "l100/semester-2/computer-programming/passco/programming13.jpeg" },
-        { name: "Past Question —�� Page 14",                 file: "l100/semester-2/computer-programming/passco/programming14.jpeg" },
-        { name: "Past Question —�� Page 15",                 file: "l100/semester-2/computer-programming/passco/programming15.jpeg" },
-        { name: "Past Question —�� Page 16",                 file: "l100/semester-2/computer-programming/passco/programming16.jpeg" },
-        { name: "Past Question —�� Page 17",                 file: "l100/semester-2/computer-programming/passco/programming17.jpeg" },
-        { name: "Past Question —�� Page 18",                 file: "l100/semester-2/computer-programming/passco/programming18.jpeg" },
-        { name: "Past Question —�� Page 19",                 file: "l100/semester-2/computer-programming/passco/programming19.jpeg" },
-        { name: "Past Question —�� Page 20",                 file: "l100/semester-2/computer-programming/passco/programming20.jpeg" },
-        { name: "Past Question —�� Page 21",                 file: "l100/semester-2/computer-programming/passco/programming21.jpeg" },
-        { name: "Past Question —�� Page 22",                 file: "l100/semester-2/computer-programming/passco/programming22.jpg" },
-        { name: "Past Question —�� Page 23",                 file: "l100/semester-2/computer-programming/passco/programming23.jpg" },
-        { name: "Past Question —�� Page 24",                 file: "l100/semester-2/computer-programming/passco/programming24.jpg" },
-        { name: "Past Question —�� Page 25",                 file: "l100/semester-2/computer-programming/passco/programming25.jpg" },
-        { name: "Past Question —�� Page 26",                 file: "l100/semester-2/computer-programming/passco/programming26.jpg" },
-        { name: "Past Question —�� Page 27",                 file: "l100/semester-2/computer-programming/passco/programming27.jpg" },
-        { name: "Past Question —�� Page 28",                 file: "l100/semester-2/computer-programming/passco/programming28.jpg" },
-        { name: "Past Question —�� Page 29",                 file: "l100/semester-2/computer-programming/passco/programming29.jpg" },
-        { name: "Past Question —�� Page 30",                 file: "l100/semester-2/computer-programming/passco/programming30.jpg" },
-        { name: "Past Question —�� Page 31",                 file: "l100/semester-2/computer-programming/passco/programming31.jpg" }
+        { name: "Past Question – Page 1",                  file: "l100/semester-2/computer-programming/passco/programming1.jpeg" },
+        { name: "Past Question – Page 2",                  file: "l100/semester-2/computer-programming/passco/programming2.jpeg" },
+        { name: "Past Question – Page 3",                  file: "l100/semester-2/computer-programming/passco/programming3.jpeg" },
+        { name: "Past Question – Page 4",                  file: "l100/semester-2/computer-programming/passco/programming4.jpeg" },
+        { name: "Past Question – Page 5",                  file: "l100/semester-2/computer-programming/passco/programming5.jpeg" },
+        { name: "Past Question – Page 6",                  file: "l100/semester-2/computer-programming/passco/programming6.jpeg" },
+        { name: "Past Question – Page 7",                  file: "l100/semester-2/computer-programming/passco/programming7.jpeg" },
+        { name: "Past Question – Page 8",                  file: "l100/semester-2/computer-programming/passco/programming8.jpeg" },
+        { name: "Past Question – Page 9",                  file: "l100/semester-2/computer-programming/passco/programming9.jpeg" },
+        { name: "Past Question – Page 10",                 file: "l100/semester-2/computer-programming/passco/programming10.jpeg" },
+        { name: "Past Question – Page 11",                 file: "l100/semester-2/computer-programming/passco/programming11.jpeg" },
+        { name: "Past Question – Page 13",                 file: "l100/semester-2/computer-programming/passco/programming13.jpeg" },
+        { name: "Past Question – Page 14",                 file: "l100/semester-2/computer-programming/passco/programming14.jpeg" },
+        { name: "Past Question – Page 15",                 file: "l100/semester-2/computer-programming/passco/programming15.jpeg" },
+        { name: "Past Question – Page 16",                 file: "l100/semester-2/computer-programming/passco/programming16.jpeg" },
+        { name: "Past Question – Page 17",                 file: "l100/semester-2/computer-programming/passco/programming17.jpeg" },
+        { name: "Past Question – Page 18",                 file: "l100/semester-2/computer-programming/passco/programming18.jpeg" },
+        { name: "Past Question – Page 19",                 file: "l100/semester-2/computer-programming/passco/programming19.jpeg" },
+        { name: "Past Question – Page 20",                 file: "l100/semester-2/computer-programming/passco/programming20.jpeg" },
+        { name: "Past Question – Page 21",                 file: "l100/semester-2/computer-programming/passco/programming21.jpeg" },
+        { name: "Past Question – Page 22",                 file: "l100/semester-2/computer-programming/passco/programming22.jpg" },
+        { name: "Past Question – Page 23",                 file: "l100/semester-2/computer-programming/passco/programming23.jpg" },
+        { name: "Past Question – Page 24",                 file: "l100/semester-2/computer-programming/passco/programming24.jpg" },
+        { name: "Past Question – Page 25",                 file: "l100/semester-2/computer-programming/passco/programming25.jpg" },
+        { name: "Past Question – Page 26",                 file: "l100/semester-2/computer-programming/passco/programming26.jpg" },
+        { name: "Past Question – Page 27",                 file: "l100/semester-2/computer-programming/passco/programming27.jpg" },
+        { name: "Past Question – Page 28",                 file: "l100/semester-2/computer-programming/passco/programming28.jpg" },
+        { name: "Past Question – Page 29",                 file: "l100/semester-2/computer-programming/passco/programming29.jpg" },
+        { name: "Past Question – Page 30",                 file: "l100/semester-2/computer-programming/passco/programming30.jpg" },
+        { name: "Past Question – Page 31",                 file: "l100/semester-2/computer-programming/passco/programming31.jpg" }
       ],
       videos: []
     },
 
-    // —��—�� French (L100) —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– French (L100) ––––––––––––––––––––––––––––––––––––––
     "French": {
       sem: "1",
       slides: [],
@@ -262,7 +262,7 @@ const materialsDB = {
       videos: []
     },
 
-    // —��—�� African Studies —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– African Studies ––––––––––––––––––––––––––––––––––––
     "African Studies": {
       sem: "2",
       slides: [
@@ -274,49 +274,49 @@ const materialsDB = {
     }
   }, // end L100
 
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-  // L200 —�� SECOND YEAR COURSES
+  // ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+  // L200 – SECOND YEAR COURSES
   // Courses: Differential Equations & Applications,
   //          Digital Logic Design, Electrical Machines & Transformers,
   //          French, Linear Algebra for Engineers,
   //          Solid State Electronics
-  // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
   L200: {
 
-    // —��—�� Differential Equations & Applications —��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Differential Equations & Applications ––––––––––––––
     // Semester 1
     "Differential Equations & Applications": {
       sem: "2",
       slides: [],
       books: [
         { name: "A-Level Core Pure Maths",                 file: "l200/semester-2/differentials-equations/books-notes/a-level-core-pure-maths.pdf" },
-        { name: "Engineering Mathematics —�� K.A. Stroud",   file: "l200/semester-2/differentials-equations/books-notes/engineering-mathematics-by-k-a-stroud.pdf" },
+        { name: "Engineering Mathematics – K.A. Stroud",   file: "l200/semester-2/differentials-equations/books-notes/engineering-mathematics-by-k-a-stroud.pdf" },
         { name: "Engineering Mathematics (General)",       file: "l200/semester-2/differentials-equations/books-notes/engineering-mathematics.pdf" },
         { name: "Higher Engineering Mathematics",          file: "l200/semester-2/differentials-equations/books-notes/higher-engineering-mathematics.pdf" }
       ],
       pastq: [
         { name: "Assignment 1",                            file: "l200/semester-2/differentials-equations/past-questions-or-passco/assignment1.pdf" },
         { name: "DE Question Bank (Aleks)",                file: "l200/semester-2/differentials-equations/past-questions-or-passco/de-questions-bank-by-aleks.pdf" },
-        { name: "Past Question —�� Scan 1",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_125805.jpg" },
-        { name: "Past Question —�� Scan 2",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130357.jpg" },
-        { name: "Past Question —�� Scan 3",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130406.jpg" },
-        { name: "Past Question —�� Scan 4",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130414.jpg" },
-        { name: "Past Question —�� Scan 5",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130422.jpg" },
-        { name: "Past Question —�� Scan 6",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130428.jpg" },
-        { name: "Past Question —�� Scan 7",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130442.jpg" },
-        { name: "Past Question —�� Scan 8",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130448.jpg" },
-        { name: "Past Question —�� Scan 9",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130458.jpg" },
-        { name: "Past Question —�� Scan 10",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img20190123_130504.jpg" },
-        { name: "Past Question —�� Scan 11",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130516.jpg" },
-        { name: "Past Question —�� Scan 12",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130523.jpg" },
-        { name: "Past Question —�� Scan 13",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130532.jpg" },
-        { name: "Past Question —�� Scan 14",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130537.jpg" },
-        { name: "Past Question —�� Scan 15",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130554.jpg" }
+        { name: "Past Question – Scan 1",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_125805.jpg" },
+        { name: "Past Question – Scan 2",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130357.jpg" },
+        { name: "Past Question – Scan 3",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130406.jpg" },
+        { name: "Past Question – Scan 4",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130414.jpg" },
+        { name: "Past Question – Scan 5",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130422.jpg" },
+        { name: "Past Question – Scan 6",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130428.jpg" },
+        { name: "Past Question – Scan 7",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130442.jpg" },
+        { name: "Past Question – Scan 8",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130448.jpg" },
+        { name: "Past Question – Scan 9",                  file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130458.jpg" },
+        { name: "Past Question – Scan 10",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img20190123_130504.jpg" },
+        { name: "Past Question – Scan 11",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130516.jpg" },
+        { name: "Past Question – Scan 12",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130523.jpg" },
+        { name: "Past Question – Scan 13",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130532.jpg" },
+        { name: "Past Question – Scan 14",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130537.jpg" },
+        { name: "Past Question – Scan 15",                 file: "l200/semester-2/differentials-equations/past-questions-or-passco/img_20190123_130554.jpg" }
       ],
       videos: []
     },
 
-    // —��—�� Digital Logic Design —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Digital Logic Design –––––––––––––––––––––––––––––––
     // Semester 1
     "Digital Logic Design": {
       sem: "2",
@@ -326,35 +326,35 @@ const materialsDB = {
       videos: []
     },
 
-    // —��—�� Electrical Machines & Transformers —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Electrical Machines & Transformers –––––––––––––––––
     // Semester 2
     "Electrical Machines & Transformers": {
       sem: "1",
       slides: [
-        { name: "DC Machines —�� Lecture 1",                 file: "l200/semester-1/electrical-machines-transformers/slides/lecture 1_dc-machines.pdf" },
+        { name: "DC Machines – Lecture 1",                 file: "l200/semester-1/electrical-machines-transformers/slides/lecture 1_dc-machines.pdf" },
         { name: "Transformers (Lecture Notes)",            file: "l200/semester-1/electrical-machines-transformers/slides/transformers_.pdf" },
         { name: "Transformer Tap-Changing & Auto",         file: "l200/semester-1/electrical-machines-transformers/slides/transformer_tap-changing _auto.pptx" }
       ],
       books: [
-        { name: "Transformers —�� EEE Technology",           file: "l200/semester-1/electrical-machines-transformers/books-notes/transformers-eee-technology-electrical-and-electronic-principles.pdf" },
+        { name: "Transformers – EEE Technology",           file: "l200/semester-1/electrical-machines-transformers/books-notes/transformers-eee-technology-electrical-and-electronic-principles.pdf" },
         { name: "32 Transformers Reference",               file: "l200/semester-1/electrical-machines-transformers/books-notes/32-transformers.pdf" }
       ],
       pastq: [
         { name: "Transformers 2020 Exams",                 file: "l200/semester-1/electrical-machines-transformers/questions/transformers-2020-exams.pdf" },
         { name: "Transformers Question Bank",              file: "l200/semester-1/electrical-machines-transformers/questions/transformers-questions-bank.pdf" },
-        { name: "Exam Scan —�� Sheet 1",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1619.jpg" },
-        { name: "Exam Scan —�� Sheet 2",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1620.jpg" },
-        { name: "Exam Scan —�� Sheet 3",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1622.jpg" },
-        { name: "Exam Scan —�� Sheet 4",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1631.jpg" },
-        { name: "Exam Scan —�� Sheet 5",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1632.jpg" },
-        { name: "Exam Scan —�� Sheet 6",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1633.jpg" },
-        { name: "Exam Scan —�� Sheet 7",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag_20180920_122255.jpg" },
-        { name: "Exam Scan —�� Sheet 8",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag-20180912-WA0021.jpg" }
+        { name: "Exam Scan – Sheet 1",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1619.jpg" },
+        { name: "Exam Scan – Sheet 2",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1620.jpg" },
+        { name: "Exam Scan – Sheet 3",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1622.jpg" },
+        { name: "Exam Scan – Sheet 4",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1631.jpg" },
+        { name: "Exam Scan – Sheet 5",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1632.jpg" },
+        { name: "Exam Scan – Sheet 6",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag1633.jpg" },
+        { name: "Exam Scan – Sheet 7",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag_20180920_122255.jpg" },
+        { name: "Exam Scan – Sheet 8",                     file: "l200/semester-1/electrical-machines-transformers/questions/imag-20180912-WA0021.jpg" }
       ],
       videos: []
     },
 
-    // —��—�� French (L200) —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– French (L200) ––––––––––––––––––––––––––––––––––––––
     "French": {
       sem: "1",
       slides: [],
@@ -365,7 +365,7 @@ const materialsDB = {
       videos: []
     },
 
-    // —��—�� Linear Algebra for Engineers —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Linear Algebra for Engineers –––––––––––––––––––––––
     "Linear Algebra for Engineers": {
       sem: "2",
       slides: [],
@@ -373,112 +373,112 @@ const materialsDB = {
       // Large collection of scanned past question pages
       pastq: [
         { name: "Algebra Assignment 1",                    file: "l200/semester-2/linear-algebra/questions/algebra-assignment1.pdf" },
-        { name: "Past Question —�� Page 1",                  file: "l200/semester-2/linear-algebra/questions/im1.jpg" },
-        { name: "Past Question —�� Page 2",                  file: "l200/semester-2/linear-algebra/questions/im2.jpg" },
-        { name: "Past Question —�� Page 3",                  file: "l200/semester-2/linear-algebra/questions/im3.jpg" },
-        { name: "Past Question —�� Page 4",                  file: "l200/semester-2/linear-algebra/questions/im4.jpg" },
-        { name: "Past Question —�� Page 5",                  file: "l200/semester-2/linear-algebra/questions/im5.jpg" },
-        { name: "Past Question —�� Page 6",                  file: "l200/semester-2/linear-algebra/questions/im6.jpg" },
-        { name: "Past Question —�� Page 7",                  file: "l200/semester-2/linear-algebra/questions/im7.jpg" },
-        { name: "Past Question —�� Page 8",                  file: "l200/semester-2/linear-algebra/questions/im8.jpg" },
-        { name: "Past Question —�� Page 9",                  file: "l200/semester-2/linear-algebra/questions/im9.jpg" },
-        { name: "Past Question —�� Page 10",                 file: "l200/semester-2/linear-algebra/questions/im10.jpg" },
-        { name: "Past Question —�� Page 11",                 file: "l200/semester-2/linear-algebra/questions/im11.jpg" },
-        { name: "Past Question —�� Page 12",                 file: "l200/semester-2/linear-algebra/questions/im12.jpg" },
-        { name: "Past Question —�� Page 13",                 file: "l200/semester-2/linear-algebra/questions/im13.jpg" },
-        { name: "Past Question —�� Page 14",                 file: "l200/semester-2/linear-algebra/questions/im14.jpg" },
-        { name: "Past Question —�� Page 15",                 file: "l200/semester-2/linear-algebra/questions/im15.jpg" },
-        { name: "Past Question —�� Page 16",                 file: "l200/semester-2/linear-algebra/questions/im16.jpg" },
-        { name: "Past Question —�� Page 17",                 file: "l200/semester-2/linear-algebra/questions/im17.jpg" },
-        { name: "Past Question —�� Page 18",                 file: "l200/semester-2/linear-algebra/questions/im18.jpg" },
-        { name: "Past Question —�� Page 19",                 file: "l200/semester-2/linear-algebra/questions/im19.jpg" },
-        { name: "Past Question —�� Page 20",                 file: "l200/semester-2/linear-algebra/questions/im20.jpg" },
-        { name: "Past Question —�� Page 21",                 file: "l200/semester-2/linear-algebra/questions/im21.jpg" },
-        { name: "Past Question —�� Page 22",                 file: "l200/semester-2/linear-algebra/questions/im22.jpg" },
-        { name: "Past Question —�� Page 23",                 file: "l200/semester-2/linear-algebra/questions/im23.jpg" },
-        { name: "Past Question —�� Page 24",                 file: "l200/semester-2/linear-algebra/questions/im24.jpg" },
-        { name: "Past Question —�� Page 25",                 file: "l200/semester-2/linear-algebra/questions/im25.jpg" },
-        { name: "Past Question —�� Page 26",                 file: "l200/semester-2/linear-algebra/questions/im26.jpg" },
-        { name: "Past Question —�� Page 27",                 file: "l200/semester-2/linear-algebra/questions/im27.jpg" },
-        { name: "Past Question —�� Page 28",                 file: "l200/semester-2/linear-algebra/questions/im28.jpg" },
-        { name: "Past Question —�� Page 29",                 file: "l200/semester-2/linear-algebra/questions/im29.jpg" },
-        { name: "Past Question —�� Page 30",                 file: "l200/semester-2/linear-algebra/questions/im30.jpg" },
-        { name: "Past Question —�� Page 31",                 file: "l200/semester-2/linear-algebra/questions/im31.jpg" },
-        { name: "Past Question —�� Page 32",                 file: "l200/semester-2/linear-algebra/questions/im32.jpg" },
-        { name: "Past Question —�� Page 33",                 file: "l200/semester-2/linear-algebra/questions/im33.jpg" },
-        { name: "Past Question —�� Page 34",                 file: "l200/semester-2/linear-algebra/questions/im34.jpg" },
-        { name: "Past Question —�� Page 35",                 file: "l200/semester-2/linear-algebra/questions/im35.jpg" },
-        { name: "Past Question —�� Page 36",                 file: "l200/semester-2/linear-algebra/questions/im36.jpg" },
-        { name: "Past Question —�� Page 37",                 file: "l200/semester-2/linear-algebra/questions/im37.jpg" },
-        { name: "Past Question —�� Page 38",                 file: "l200/semester-2/linear-algebra/questions/im38.jpg" },
-        { name: "Past Question —�� Page 39",                 file: "l200/semester-2/linear-algebra/questions/im39.jpg" },
-        { name: "Past Question —�� Page 40",                 file: "l200/semester-2/linear-algebra/questions/im40.jpg" },
-        { name: "Past Question —�� Page 41",                 file: "l200/semester-2/linear-algebra/questions/im41.jpg" },
-        { name: "Past Question —�� Page 42",                 file: "l200/semester-2/linear-algebra/questions/im42.jpg" },
-        { name: "Past Question —�� Page 43",                 file: "l200/semester-2/linear-algebra/questions/im43.jpg" },
-        { name: "Past Question —�� Page 44",                 file: "l200/semester-2/linear-algebra/questions/im44.jpg" },
-        { name: "Past Question —�� Page 45",                 file: "l200/semester-2/linear-algebra/questions/im45.jpg" },
-        { name: "Past Question —�� Page 46",                 file: "l200/semester-2/linear-algebra/questions/im46.jpg" },
-        { name: "Past Question —�� Page 47",                 file: "l200/semester-2/linear-algebra/questions/im47.jpg" }
+        { name: "Past Question – Page 1",                  file: "l200/semester-2/linear-algebra/questions/im1.jpg" },
+        { name: "Past Question – Page 2",                  file: "l200/semester-2/linear-algebra/questions/im2.jpg" },
+        { name: "Past Question – Page 3",                  file: "l200/semester-2/linear-algebra/questions/im3.jpg" },
+        { name: "Past Question – Page 4",                  file: "l200/semester-2/linear-algebra/questions/im4.jpg" },
+        { name: "Past Question – Page 5",                  file: "l200/semester-2/linear-algebra/questions/im5.jpg" },
+        { name: "Past Question – Page 6",                  file: "l200/semester-2/linear-algebra/questions/im6.jpg" },
+        { name: "Past Question – Page 7",                  file: "l200/semester-2/linear-algebra/questions/im7.jpg" },
+        { name: "Past Question – Page 8",                  file: "l200/semester-2/linear-algebra/questions/im8.jpg" },
+        { name: "Past Question – Page 9",                  file: "l200/semester-2/linear-algebra/questions/im9.jpg" },
+        { name: "Past Question – Page 10",                 file: "l200/semester-2/linear-algebra/questions/im10.jpg" },
+        { name: "Past Question – Page 11",                 file: "l200/semester-2/linear-algebra/questions/im11.jpg" },
+        { name: "Past Question – Page 12",                 file: "l200/semester-2/linear-algebra/questions/im12.jpg" },
+        { name: "Past Question – Page 13",                 file: "l200/semester-2/linear-algebra/questions/im13.jpg" },
+        { name: "Past Question – Page 14",                 file: "l200/semester-2/linear-algebra/questions/im14.jpg" },
+        { name: "Past Question – Page 15",                 file: "l200/semester-2/linear-algebra/questions/im15.jpg" },
+        { name: "Past Question – Page 16",                 file: "l200/semester-2/linear-algebra/questions/im16.jpg" },
+        { name: "Past Question – Page 17",                 file: "l200/semester-2/linear-algebra/questions/im17.jpg" },
+        { name: "Past Question – Page 18",                 file: "l200/semester-2/linear-algebra/questions/im18.jpg" },
+        { name: "Past Question – Page 19",                 file: "l200/semester-2/linear-algebra/questions/im19.jpg" },
+        { name: "Past Question – Page 20",                 file: "l200/semester-2/linear-algebra/questions/im20.jpg" },
+        { name: "Past Question – Page 21",                 file: "l200/semester-2/linear-algebra/questions/im21.jpg" },
+        { name: "Past Question – Page 22",                 file: "l200/semester-2/linear-algebra/questions/im22.jpg" },
+        { name: "Past Question – Page 23",                 file: "l200/semester-2/linear-algebra/questions/im23.jpg" },
+        { name: "Past Question – Page 24",                 file: "l200/semester-2/linear-algebra/questions/im24.jpg" },
+        { name: "Past Question – Page 25",                 file: "l200/semester-2/linear-algebra/questions/im25.jpg" },
+        { name: "Past Question – Page 26",                 file: "l200/semester-2/linear-algebra/questions/im26.jpg" },
+        { name: "Past Question – Page 27",                 file: "l200/semester-2/linear-algebra/questions/im27.jpg" },
+        { name: "Past Question – Page 28",                 file: "l200/semester-2/linear-algebra/questions/im28.jpg" },
+        { name: "Past Question – Page 29",                 file: "l200/semester-2/linear-algebra/questions/im29.jpg" },
+        { name: "Past Question – Page 30",                 file: "l200/semester-2/linear-algebra/questions/im30.jpg" },
+        { name: "Past Question – Page 31",                 file: "l200/semester-2/linear-algebra/questions/im31.jpg" },
+        { name: "Past Question – Page 32",                 file: "l200/semester-2/linear-algebra/questions/im32.jpg" },
+        { name: "Past Question – Page 33",                 file: "l200/semester-2/linear-algebra/questions/im33.jpg" },
+        { name: "Past Question – Page 34",                 file: "l200/semester-2/linear-algebra/questions/im34.jpg" },
+        { name: "Past Question – Page 35",                 file: "l200/semester-2/linear-algebra/questions/im35.jpg" },
+        { name: "Past Question – Page 36",                 file: "l200/semester-2/linear-algebra/questions/im36.jpg" },
+        { name: "Past Question – Page 37",                 file: "l200/semester-2/linear-algebra/questions/im37.jpg" },
+        { name: "Past Question – Page 38",                 file: "l200/semester-2/linear-algebra/questions/im38.jpg" },
+        { name: "Past Question – Page 39",                 file: "l200/semester-2/linear-algebra/questions/im39.jpg" },
+        { name: "Past Question – Page 40",                 file: "l200/semester-2/linear-algebra/questions/im40.jpg" },
+        { name: "Past Question – Page 41",                 file: "l200/semester-2/linear-algebra/questions/im41.jpg" },
+        { name: "Past Question – Page 42",                 file: "l200/semester-2/linear-algebra/questions/im42.jpg" },
+        { name: "Past Question – Page 43",                 file: "l200/semester-2/linear-algebra/questions/im43.jpg" },
+        { name: "Past Question – Page 44",                 file: "l200/semester-2/linear-algebra/questions/im44.jpg" },
+        { name: "Past Question – Page 45",                 file: "l200/semester-2/linear-algebra/questions/im45.jpg" },
+        { name: "Past Question – Page 46",                 file: "l200/semester-2/linear-algebra/questions/im46.jpg" },
+        { name: "Past Question – Page 47",                 file: "l200/semester-2/linear-algebra/questions/im47.jpg" }
       ],
       videos: []
     },
 
-    // —��—�� Solid State Electronics —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– Solid State Electronics ––––––––––––––––––––––––––––
     "Solid State Electronics": {
       sem: "1",
       slides: [
         { name: "Introduction to Solid State Electronics",       file: "l200/semester-1/solid-state-electronics/slides/introduction-01.pptx" },
-        { name: "Lect 1 —�� Fundamentals of Semiconductors",       file: "l200/semester-1/solid-state-electronics/slides/lect1-fundamentals-of-semiconductors.pptx" },
-        { name: "Lect 2 —�� Fundamentals of Semiconductors",       file: "l200/semester-1/solid-state-electronics/slides/lect2-fundamentals of semiconductors.pptx" },
-        { name: "Lect 3 —�� Carrier Flow",                         file: "l200/semester-1/solid-state-electronics/slides/lect3-carrier-flow.pptx" },
-        { name: "Lect 4 —�� PN Junction",                          file: "l200/semester-1/solid-state-electronics/slides/lect4-pnjunction.pptx" },
-        { name: "Lect 5 —�� PN Junction (cont.)",                  file: "l200/semester-1/solid-state-electronics/slides/lect5-pn-junction.pptx" },
-        { name: "Lect 6 —�� Metal-Semiconductor Junction",         file: "l200/semester-1/solid-state-electronics/slides/lect6-metal-semiconductor-junction.pptx" }
+        { name: "Lect 1 – Fundamentals of Semiconductors",       file: "l200/semester-1/solid-state-electronics/slides/lect1-fundamentals-of-semiconductors.pptx" },
+        { name: "Lect 2 – Fundamentals of Semiconductors",       file: "l200/semester-1/solid-state-electronics/slides/lect2-fundamentals of semiconductors.pptx" },
+        { name: "Lect 3 – Carrier Flow",                         file: "l200/semester-1/solid-state-electronics/slides/lect3-carrier-flow.pptx" },
+        { name: "Lect 4 – PN Junction",                          file: "l200/semester-1/solid-state-electronics/slides/lect4-pnjunction.pptx" },
+        { name: "Lect 5 – PN Junction (cont.)",                  file: "l200/semester-1/solid-state-electronics/slides/lect5-pn-junction.pptx" },
+        { name: "Lect 6 – Metal-Semiconductor Junction",         file: "l200/semester-1/solid-state-electronics/slides/lect6-metal-semiconductor-junction.pptx" }
       ],
       books: [
-        { name: "Solid State Electronic Devices —�� 6th Ed.",      file: "l200/semester-1/solid-state-electronics/books/solid-state-electronic-devices-6th-edition.pdf" }
+        { name: "Solid State Electronic Devices – 6th Ed.",      file: "l200/semester-1/solid-state-electronics/books/solid-state-electronic-devices-6th-edition.pdf" }
       ],
       pastq: [
         { name: "Solid State Exams 2021",                        file: "l200/semester-1/solid-state-electronics/passco/solid-state-exams-2021.pdf" },
         { name: "Solid State Mid-Sem 2021",                      file: "l200/semester-1/solid-state-electronics/passco/solid-state-misdsem-2021.pdf" },
         { name: "Solid State Questions Bank",                    file: "l200/semester-1/solid-state-electronics/passco/solid-state-questions.pdf" },
-        { name: "Exam Scan —�� Sheet 1",                           file: "l200/semester-1/solid-state-electronics/passco/img_20180920_121523.jpg" },
-        { name: "Exam Scan —�� Sheet 2",                           file: "l200/semester-1/solid-state-electronics/passco/img_20180920_121639.jpg" },
-        { name: "Exam Scan —�� Sheet 3",                           file: "l200/semester-1/solid-state-electronics/passco/img_20180920_122101.jpg" },
-        { name: "Exam Scan —�� Sheet 4",                           file: "l200/semester-1/solid-state-electronics/passco/img_20180920_122201.jpg" },
-        { name: "Exam Scan —�� Sheet 5",                           file: "l200/semester-1/solid-state-electronics/passco/img_20180920_122224.jpg" },
-        { name: "Exam Scan —�� Sheet 6",                           file: "l200/semester-1/solid-state-electronics/passco/img-20151103-WA0002.jpg" },
-        { name: "Exam Scan —�� Sheet 7",                           file: "l200/semester-1/solid-state-electronics/passco/img-20180912-WA0015.jpg" },
-        { name: "Exam Scan —�� Sheet 8",                           file: "l200/semester-1/solid-state-electronics/passco/img-20180912-WA0016.jpg" },
-        { name: "Exam Scan —�� Sheet 9",                           file: "l200/semester-1/solid-state-electronics/passco/img-20180912-WA0017.jpg" },
-        { name: "Exam Scan —�� Sheet 10",                          file: "l200/semester-1/solid-state-electronics/passco/img-20180912-WA0018.jpg" }
+        { name: "Exam Scan – Sheet 1",                           file: "l200/semester-1/solid-state-electronics/passco/img_20180920_121523.jpg" },
+        { name: "Exam Scan – Sheet 2",                           file: "l200/semester-1/solid-state-electronics/passco/img_20180920_121639.jpg" },
+        { name: "Exam Scan – Sheet 3",                           file: "l200/semester-1/solid-state-electronics/passco/img_20180920_122101.jpg" },
+        { name: "Exam Scan – Sheet 4",                           file: "l200/semester-1/solid-state-electronics/passco/img_20180920_122201.jpg" },
+        { name: "Exam Scan – Sheet 5",                           file: "l200/semester-1/solid-state-electronics/passco/img_20180920_122224.jpg" },
+        { name: "Exam Scan – Sheet 6",                           file: "l200/semester-1/solid-state-electronics/passco/img-20151103-WA0002.jpg" },
+        { name: "Exam Scan – Sheet 7",                           file: "l200/semester-1/solid-state-electronics/passco/img-20180912-WA0015.jpg" },
+        { name: "Exam Scan – Sheet 8",                           file: "l200/semester-1/solid-state-electronics/passco/img-20180912-WA0016.jpg" },
+        { name: "Exam Scan – Sheet 9",                           file: "l200/semester-1/solid-state-electronics/passco/img-20180912-WA0017.jpg" },
+        { name: "Exam Scan – Sheet 10",                          file: "l200/semester-1/solid-state-electronics/passco/img-20180912-WA0018.jpg" }
       ],
       videos: []
     }
   }, // end L200
 
-  // L300 and L400 —�� placeholder, materials to be added
+  // L300 and L400 – placeholder, materials to be added
   L300: {},
   L400: {}
 
 }; // end materialsDB
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // 3. STATE VARIABLES
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 let currentLevel   = null;
 let currentType    = "slides";
 let currentSem     = "all";   // "all" | "1" | "2"
 let currentCourses = {};
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // 4. RENDER COURSES
 // Builds course cards for the selected level + type.
 // Each card shows the course name and lists all materials
 // under it with Download and View buttons on the right.
 // Courses with zero items for the current type are hidden.
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 function renderCourses(filterText) {
   const container = document.getElementById("coursesContainer");
   if (!container) return;
@@ -492,7 +492,7 @@ function renderCourses(filterText) {
   courseNames.forEach(function(courseName) {
     const courseData = currentCourses[courseName];
 
-    // —��—�� SEMESTER FILTER —��—��
+    // –– SEMESTER FILTER ––
     // Each course has a `sem` property: "1", "2", or undefined (both).
     // If the user picked Sem 1 or Sem 2, skip courses that don't match.
     if (currentSem !== "all") {
@@ -503,7 +503,7 @@ function renderCourses(filterText) {
 
     const materials  = (courseData && courseData[currentType]) || [];
 
-    // Filter by search query —�� match course name OR any material name
+    // Filter by search query – match course name OR any material name
     const courseMatch = courseName.toLowerCase().includes(query);
     const filteredMaterials = query
       ? materials.filter(function(m) {
@@ -525,21 +525,21 @@ function renderCourses(filterText) {
       const icon = m.supabase ? fileIcon(m.name) : fileIcon(m.file);
       const ext  = (m.supabase ? m.name : m.file).split('.').pop().toLowerCase();
 
-      // —��—�� VIEW URL —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+      // –– VIEW URL ––––––––––––––––––––––––––––––––––––––––––––––
       // Always open in Google Docs Viewer so the browser shows the
       // file inline instead of downloading it.
-      // Images (jpg/jpeg/png) open directly —�� browsers render them natively.
-      // MP4 videos open directly —�� browsers play them natively.
-      // Everything else (PDF, PPT, PPTX, DOC) —�� Google Docs Viewer.
+      // Images (jpg/jpeg/png) open directly – browsers render them natively.
+      // MP4 videos open directly – browsers play them natively.
+      // Everything else (PDF, PPT, PPTX, DOC) – Google Docs Viewer.
       var viewUrl;
       var isImage = ['jpg','jpeg','png','gif','webp'].indexOf(ext) !== -1;
       var isVideo = ext === 'mp4';
 
       if (isImage || isVideo) {
-        // Images and videos render natively in a new tab —�� no download triggered
+        // Images and videos render natively in a new tab – no download triggered
         viewUrl = rawUrl;
       } else {
-        // PDF, PPT, PPTX, DOC, etc. —�� Google Docs Viewer opens them inline
+        // PDF, PPT, PPTX, DOC, etc. – Google Docs Viewer opens them inline
         viewUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(rawUrl);
       }
 
@@ -602,7 +602,7 @@ function renderCourses(filterText) {
             '<i class="fas fa-chevron-down chevron"></i>' +
           '</span>' +
         '</div>' +
-        // Materials list —�� open by default so user sees content immediately
+        // Materials list – open by default so user sees content immediately
         '<div class="course-materials show">' +
           rowsHtml +
         '</div>' +
@@ -622,11 +622,11 @@ function renderCourses(filterText) {
   container.innerHTML = html;
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // 5. TOGGLE COURSE CARD (accordion)
 // Called when the user clicks a course header.
 // Rotates the chevron and shows/hides the materials list.
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 function toggleCourse(headerEl) {
   const body = headerEl.nextElementSibling; // .course-materials
   const isOpen = body.classList.contains("show");
@@ -634,12 +634,12 @@ function toggleCourse(headerEl) {
   headerEl.classList.toggle("open", !isOpen);
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // 6. LOAD LEVEL
 // Called when the user clicks a level button.
 // Loads static DB courses, then merges in any admin-uploaded
 // materials from Supabase (if connected) so they appear live.
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 function loadLevel(level) {
   currentLevel   = level;
   currentCourses = JSON.parse(JSON.stringify(materialsDB[level] || {})); // deep copy
@@ -659,15 +659,15 @@ function loadLevel(level) {
   fetchSupabaseMaterials(level);
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // FETCH SUPABASE MATERIALS
 // Queries the "materials" table for approved entries at this level.
 // Merges them into currentCourses so they appear alongside the
-// static GitHub materials —�� no page reload needed.
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// static GitHub materials – no page reload needed.
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 function fetchSupabaseMaterials(level) {
   var sb = window.geramaSupabase;
-  if (!sb) return; // Supabase not loaded —�� static DB only
+  if (!sb) return; // Supabase not loaded – static DB only
 
   sb.from('materials')
     .select('*')
@@ -690,7 +690,7 @@ function fetchSupabaseMaterials(level) {
           currentCourses[course][type] = [];
         }
 
-        // Add the material —�� use file_url or telegram_url directly
+        // Add the material – use file_url or telegram_url directly
         // Mark it so renderCourses knows to use the URL as-is (not prepend GITHUB_BASE)
         var matUrl = row.file_url || row.telegram_url || row.gdrive_url || '';
         // If this is a telegram-type entry, prefer telegram_url
@@ -712,15 +712,15 @@ function fetchSupabaseMaterials(level) {
       var q = document.getElementById("courseSearchInput");
       renderCourses(q ? q.value : "");
     })
-    .catch(function() { /* silent fail —�� static DB still works */ });
+    .catch(function() { /* silent fail – static DB still works */ });
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// 7. EVENT LISTENERS —�� set up after DOM is ready
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+// 7. EVENT LISTENERS – set up after DOM is ready
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 document.addEventListener("DOMContentLoaded", function () {
 
-  // —��—�� Level buttons —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– Level buttons ––––––––––––––––––––––––––––––––––––––
   document.querySelectorAll(".level-btn").forEach(function(btn) {
     btn.addEventListener("click", function() {
       // Remove active from all, add to clicked
@@ -732,7 +732,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // —��—�� Type tabs (Slides / Books / Past Q / Videos) —��—��—��—��—��—��—��
+  // –– Type tabs (Slides / Books / Past Q / Videos) –––––––
   document.querySelectorAll(".type-tab").forEach(function(tab) {
     tab.addEventListener("click", function() {
       document.querySelectorAll(".type-tab").forEach(function(t) {
@@ -746,7 +746,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // —��—�� Semester tabs (All / Sem 1 / Sem 2) —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– Semester tabs (All / Sem 1 / Sem 2) –––––––––––––––
   document.querySelectorAll(".sem-tab").forEach(function(tab) {
     tab.addEventListener("click", function() {
       document.querySelectorAll(".sem-tab").forEach(function(t) {
@@ -759,7 +759,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // —��—�� Live search input —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– Live search input ––––––––––––––––––––––––––––––––––
   // Filters course cards and material rows in real time
   const searchInput = document.getElementById("courseSearchInput");
   if (searchInput) {
@@ -768,7 +768,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // —��—�� Main section switcher: Explore —�� Videos —�� Software —�� Upload —��—��
+  // –– Main section switcher: Explore – Videos – Software – Upload ––
   const exploreBtn     = document.getElementById("exploreMainBtn");
   const videosBtn      = document.getElementById("videosMainBtn");
   const softwareBtn    = document.getElementById("softwareMainBtn");
@@ -794,7 +794,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if(softwareBtn) softwareBtn.addEventListener("click", function() { showSection("software"); });
   if(uploadBtn)   uploadBtn.addEventListener("click",   function() { showSection("upload"); });
 
-  // —��—�� File drop zone —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– File drop zone –––––––––––––––––––––––––––––––––––––
   // Clicking the zone opens the hidden file input
   const dropZone = document.getElementById("dropZone");
   const fileInput = document.getElementById("upFile");
@@ -807,7 +807,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Show selected file name
     fileInput.addEventListener("change", function() {
       if (this.files[0]) {
-        fileNameDisplay.textContent = "—�� " + this.files[0].name;
+        fileNameDisplay.textContent = "– " + this.files[0].name;
         dropZone.classList.add("drag-over");
       }
     });
@@ -828,13 +828,13 @@ document.addEventListener("DOMContentLoaded", function () {
         const dt = new DataTransfer();
         dt.items.add(file);
         fileInput.files = dt.files;
-        fileNameDisplay.textContent = "—�� " + file.name;
+        fileNameDisplay.textContent = "– " + file.name;
         dropZone.classList.add("drag-over");
       }
     });
   }
 
-  // —��—�� Upload form submission —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– Upload form submission –––––––––––––––––––––––––––––
   const uploadForm = document.getElementById("uploadForm");
   if (uploadForm) {
     uploadForm.addEventListener("submit", function(e) {
@@ -853,7 +853,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // File size check —�� 50 MB limit
+      // File size check – 50 MB limit
       if (file.size > 50 * 1024 * 1024) {
         alert("File is too large. Maximum allowed size is 50 MB.");
         return;
@@ -876,10 +876,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 }); // end DOMContentLoaded
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // 8. RESET UPLOAD FORM
 // Called by the "Submit Another" button in the success state.
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 function resetUploadForm() {
   const uploadForm = document.getElementById("uploadForm");
   const successBox = document.getElementById("uploadSuccess");
@@ -893,12 +893,12 @@ function resetUploadForm() {
   if (fileNameDisplay) fileNameDisplay.textContent = "";
 }
 
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // 9. LOAD ADMIN-UPLOADED SOFTWARE
 // Fetches software entries from Supabase "software" table
 // (type = "file" for direct uploads, type = "telegram" for links)
 // and renders them in the #adminSoftwareGrid container.
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 var _adminSoftwareLoaded = false;
 
 function loadAdminSoftware() {
@@ -957,7 +957,7 @@ function loadAdminSoftware() {
       html += '</div>';
       grid.innerHTML = html;
     })
-    .catch(function() { /* silent —�� no admin software yet */ });
+    .catch(function() { /* silent – no admin software yet */ });
 }
 
 function loadVideosByLevel(level) {

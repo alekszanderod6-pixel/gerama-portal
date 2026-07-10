@@ -75,7 +75,7 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 /* Cards */
 .card{padding:1rem;border-radius:12px;}
 .card-title{font-size:0.92rem;}
-/* ALL form grids: SINGLE column on mobile — this is the critical fix */
+/* ALL form grids: SINGLE column on mobile – this is the critical fix */
 .form-grid{grid-template-columns:1fr !important;}
 .form-field.full{grid-column:auto !important;}
 /* Quick actions grid: 2 columns on mobile is fine */
@@ -110,7 +110,7 @@ table{min-width:500px;}
 .bnav-item.active{color:#1B5E20;}
 @media(max-width:640px){.mobile-bottom-nav{display:flex;}}
 
-/* —— EXTRA SHARED STYLES —— */
+/* –– EXTRA SHARED STYLES –– */
 .sub-card{background:#f8fafc;border-radius:12px;padding:1.2rem;margin-bottom:1rem;border:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;}
 .sub-info{flex:1;min-width:0;}
 .sub-info strong{display:block;font-size:0.95rem;color:#1e2a3e;margin-bottom:0.3rem;word-break:break-word;}
@@ -134,7 +134,7 @@ tr:hover td{background:#fafcfa;}
 .drop-zone p{color:#555;font-size:0.9rem;margin:0;}
 .file-chosen{font-weight:600;color:#1B5E20;margin-top:0.5rem;font-size:0.88rem;}
 
-/* —— ADMIN LOGIN OVERLAY —— */
+/* –– ADMIN LOGIN OVERLAY –– */
 #geramaAdminGate{position:fixed;inset:0;background:linear-gradient(135deg,#061a0f,#0a2f1f,#071208);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:2.5rem 1.5rem 3rem;font-family:'Inter',sans-serif;}
 .ag-logo{display:flex;align-items:center;gap:12px;margin-bottom:1.8rem;}
 .ag-logo img{height:48px;border-radius:10px;border:2px solid rgba(255,193,7,0.4);}
@@ -170,7 +170,7 @@ tr:hover td{background:#fafcfa;}
 </head>
 <body>
 
-<!-- —— NETFLIX-STYLE ADMIN GATE — overlays dashboard, removed on login —— -->
+<!-- –– NETFLIX-STYLE ADMIN GATE – overlays dashboard, removed on login –– -->
 <div id="geramaAdminGate">
   <div class="ag-logo">
     <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA">
@@ -180,11 +180,11 @@ tr:hover td{background:#fafcfa;}
   <div class="ag-sub">Select your profile · then enter your password</div>
   <div class="ag-grid" id="agGrid">
     <div style="color:rgba(255,255,255,0.35);text-align:center;padding:1.5rem 0;font-size:0.85rem;width:100%;">
-      <i class="fas fa-circle-notch fa-spin" style="font-size:1.8rem;display:block;margin-bottom:0.6rem;opacity:0.5;"></i>Loading profiles—
+      <i class="fas fa-circle-notch fa-spin" style="font-size:1.8rem;display:block;margin-bottom:0.6rem;opacity:0.5;"></i>Loading profiles–
     </div>
   </div>
   <div style="margin-top:2rem;color:rgba(255,255,255,0.2);font-size:0.72rem;text-align:center;max-width:420px;">
-    New admin? Click <strong style="color:rgba(255,193,7,0.5);">+ Add Profile</strong> — you'll need the invite code from Alexander.
+    New admin? Click <strong style="color:rgba(255,193,7,0.5);">+ Add Profile</strong> – you'll need the invite code from Alexander.
   </div>
 </div>
 <!-- PIN MODAL -->
@@ -210,7 +210,7 @@ tr:hover td{background:#fafcfa;}
   <div class="ag-create-box">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">
       <div style="color:white;font-size:1rem;font-weight:800;"><i class="fas fa-user-plus" style="color:#FFC107;margin-right:0.5rem;"></i>Create Admin Profile</div>
-      <button onclick="document.getElementById('agCreateModal').classList.remove('open')" style="background:rgba(255,255,255,0.1);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;">—</button>
+      <button onclick="document.getElementById('agCreateModal').classList.remove('open')" style="background:rgba(255,255,255,0.1);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;">–</button>
     </div>
     <p style="color:rgba(255,255,255,0.45);font-size:0.8rem;margin-bottom:1.2rem;line-height:1.6;">New admin? Fill in your details. You need the invite code from Alexander. Already have a profile? Enter your email to set/reset your password.</p>
     <div class="ag-field"><label>Invite Code *</label><input type="password" id="agCpCode" placeholder="Get from Alexander"></div>
@@ -235,7 +235,7 @@ tr:hover td{background:#fafcfa;}
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 <div style="display:flex;min-height:100vh;">
 <div class="dash-sidebar" id="dashSidebar">
-  <button id="sidebarClose" style="display:none;position:absolute;top:0.8rem;right:0.8rem;background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;align-items:center;justify-content:center;z-index:10;">—</button>
+  <button id="sidebarClose" style="display:none;position:absolute;top:0.8rem;right:0.8rem;background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;align-items:center;justify-content:center;z-index:10;">–</button>
   <div class="sidebar-logo">
     <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA">
     <span>GERAMA<br>Admin Panel</span>
@@ -307,49 +307,49 @@ tr:hover td{background:#fafcfa;}
     <!-- Live stats row 1: core -->
     <div class="stats-row">
       <div class="stat-box" style="border-top:3px solid #1B5E20;">
-        <div class="num" id="statMaterials">—</div><div class="lbl">📚 Materials Live</div>
+        <div class="num" id="statMaterials">–</div><div class="lbl">📚 Materials Live</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #f59e0b;">
-        <div class="num" id="statPending">—</div><div class="lbl">📥 Pending Reviews</div>
+        <div class="num" id="statPending">–</div><div class="lbl">📥 Pending Reviews</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #6366f1;">
-        <div class="num" id="statAnn">—</div><div class="lbl">📢 Announcements</div>
+        <div class="num" id="statAnn">–</div><div class="lbl">📢 Announcements</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #dc2626;cursor:pointer;" onclick="switchPanel('grades')" title="View ungraded submissions">
-        <div class="num" id="statUngradedCount" style="color:#dc2626;">—</div><div class="lbl">— Ungraded Work</div>
+        <div class="num" id="statUngradedCount" style="color:#dc2626;">–</div><div class="lbl">– Ungraded Work</div>
       </div>
     </div>
     <!-- Live stats row 2: visitors -->
     <div class="stats-row" style="margin-top:0;">
       <div class="stat-box" style="border-top:3px solid #0ea5e9;">
-        <div class="num" id="statVisitsToday" style="color:#0ea5e9;">—</div><div class="lbl">👁 Visits Today</div>
+        <div class="num" id="statVisitsToday" style="color:#0ea5e9;">–</div><div class="lbl">👁 Visits Today</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #8b5cf6;">
-        <div class="num" id="statVisitsWeek" style="color:#8b5cf6;">—</div><div class="lbl">📅 This Week</div>
+        <div class="num" id="statVisitsWeek" style="color:#8b5cf6;">–</div><div class="lbl">📅 This Week</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #dc2626;">
-        <div class="num" id="statVisitsTotal" style="color:#dc2626;">—</div><div class="lbl">🌍 All-Time Visits</div>
+        <div class="num" id="statVisitsTotal" style="color:#dc2626;">–</div><div class="lbl">🌍 All-Time Visits</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #f59e0b;">
-        <div class="num" id="statClassReqs" style="color:#f59e0b;">—</div><div class="lbl">🙋 Class Requests</div>
+        <div class="num" id="statClassReqs" style="color:#f59e0b;">–</div><div class="lbl">🙋 Class Requests</div>
       </div>
     </div>
     <!-- Live stats row 3: content -->
     <div class="stats-row" style="margin-top:0;">
       <div class="stat-box" style="border-top:3px solid #6366f1;">
-        <div class="num" id="statQuizzes" style="color:#6366f1;">—</div><div class="lbl">🧠 Active Quizzes</div>
+        <div class="num" id="statQuizzes" style="color:#6366f1;">–</div><div class="lbl">🧠 Active Quizzes</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #1B5E20;">
-        <div class="num" id="statAssignments" style="color:#1B5E20;">—</div><div class="lbl">📝 Assignments</div>
+        <div class="num" id="statAssignments" style="color:#1B5E20;">–</div><div class="lbl">📝 Assignments</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #0ea5e9;">
-        <div class="num" id="statClasses" style="color:#0ea5e9;">—</div><div class="lbl">🎥 Classes</div>
+        <div class="num" id="statClasses" style="color:#0ea5e9;">–</div><div class="lbl">🎥 Classes</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #dc2626;">
-        <div class="num" id="statQuizPending" style="color:#dc2626;">—</div><div class="lbl">— Quiz Requests</div>
+        <div class="num" id="statQuizPending" style="color:#dc2626;">–</div><div class="lbl">– Quiz Requests</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #059669;cursor:pointer;" onclick="switchPanel('grades')" title="All submitted assignments">
-        <div class="num" id="statApproved" style="color:#059669;">—</div><div class="lbl">📬 Total Submissions</div>
+        <div class="num" id="statApproved" style="color:#059669;">–</div><div class="lbl">📬 Total Submissions</div>
       </div>
     </div>
 
@@ -377,15 +377,15 @@ tr:hover td{background:#fafcfa;}
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.9rem;">
         <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:1rem;">
           <div style="font-size:0.8rem;font-weight:800;color:#FFC107;margin-bottom:0.45rem;letter-spacing:0.04em;text-transform:uppercase;">Portal Pulse</div>
-          <div id="adminPulseSummary" style="font-size:0.92rem;line-height:1.7;color:rgba(255,255,255,0.86);">Loading live system pulse—</div>
+          <div id="adminPulseSummary" style="font-size:0.92rem;line-height:1.7;color:rgba(255,255,255,0.86);">Loading live system pulse–</div>
         </div>
         <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:1rem;">
           <div style="font-size:0.8rem;font-weight:800;color:#34d399;margin-bottom:0.45rem;letter-spacing:0.04em;text-transform:uppercase;">Priority Now</div>
-          <div id="adminPriorityList" style="display:flex;flex-direction:column;gap:0.45rem;font-size:0.9rem;color:rgba(255,255,255,0.86);">Loading priorities—</div>
+          <div id="adminPriorityList" style="display:flex;flex-direction:column;gap:0.45rem;font-size:0.9rem;color:rgba(255,255,255,0.86);">Loading priorities–</div>
         </div>
         <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:1rem;">
           <div style="font-size:0.8rem;font-weight:800;color:#93c5fd;margin-bottom:0.45rem;letter-spacing:0.04em;text-transform:uppercase;">Momentum</div>
-          <div id="adminMomentumList" style="display:flex;flex-direction:column;gap:0.45rem;font-size:0.9rem;color:rgba(255,255,255,0.86);">Loading momentum—</div>
+          <div id="adminMomentumList" style="display:flex;flex-direction:column;gap:0.45rem;font-size:0.9rem;color:rgba(255,255,255,0.86);">Loading momentum–</div>
         </div>
       </div>
     </div>
@@ -393,12 +393,12 @@ tr:hover td{background:#fafcfa;}
     <!-- Quick Announcement Broadcaster -->
     <div class="card" style="background:linear-gradient(135deg,#fffbeb,white);border:1px solid #fde68a;">
       <div class="card-title"><i class="fas fa-broadcast-tower" style="color:#f59e0b;"></i> Quick Broadcast to All Students</div>
-      <p style="color:#6b7280;font-size:0.85rem;margin-bottom:1rem;">Post an urgent announcement visible to every student instantly — no navigation needed.</p>
+      <p style="color:#6b7280;font-size:0.85rem;margin-bottom:1rem;">Post an urgent announcement visible to every student instantly – no navigation needed.</p>
       <div style="display:flex;flex-direction:column;gap:0.6rem;">
         <input type="text" id="quickAnnTitle" placeholder="Title (e.g. Class Tomorrow Postponed)" maxlength="100"
           style="padding:0.65rem 0.9rem;border:2px solid #fcd34d;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:white;"
           onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#fcd34d'">
-        <textarea id="quickAnnMsg" placeholder="Message body—" rows="2"
+        <textarea id="quickAnnMsg" placeholder="Message body–" rows="2"
           style="padding:0.65rem 0.9rem;border:2px solid #fcd34d;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;background:white;"
           onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='#fcd34d'"></textarea>
         <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
@@ -419,7 +419,7 @@ tr:hover td{background:#fafcfa;}
     <div class="card">
       <div class="card-title"><i class="fas fa-search" style="color:#6366f1;"></i> Quick Member Lookup</div>
       <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
-        <input type="text" id="quickMemberSearch" placeholder="Search by name, email or index number—��" autocomplete="off"
+        <input type="text" id="quickMemberSearch" placeholder="Search by name, email or index number–" autocomplete="off"
           style="flex:1;min-width:200px;padding:0.6rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;"
           onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e5e7eb'"
           oninput="quickMemberLookup(this.value)">
@@ -443,7 +443,7 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field"><label>Semester *</label><select id="matSem"><option value="1">Semester 1</option><option value="2">Semester 2</option></select></div>
         <div class="form-field full"><label>Course Name *</label><input type="text" id="matCourse" placeholder="e.g. Applied Electricity"></div>
         <div class="form-field"><label>Material Type *</label><select id="matType"><option value="slides">Slides</option><option value="books">Books</option><option value="pastq">Past Q</option><option value="videos">Videos</option></select></div>
-        <div class="form-field full"><label>Display Name *</label><input type="text" id="matName" placeholder="e.g. Applied Electricity Handout —�� Week 3"></div>
+        <div class="form-field full"><label>Display Name *</label><input type="text" id="matName" placeholder="e.g. Applied Electricity Handout – Week 3"></div>
         <div class="form-field full"><label>Description</label><input type="text" id="matDesc" placeholder="Brief description of this material"></div>
 
         <!-- Source type toggle -->
@@ -464,7 +464,7 @@ tr:hover td{background:#fafcfa;}
 
         <!-- File upload -->
         <div class="form-field full" id="matFileField">
-          <label>File * (PDF, PPT, PPTX, MP4 —�� max 50 MB)</label>
+          <label>File * (PDF, PPT, PPTX, MP4 – max 50 MB)</label>
           <div class="drop-zone" id="matDropZone"><i class="fas fa-cloud-upload-alt"></i><p>Drag &amp; drop your file here, or <strong>click to browse</strong></p><p class="file-chosen" id="matFileChosen"></p><input type="file" id="matFile" accept=".pdf,.ppt,.pptx,.mp4" style="display:none;"></div>
         </div>
 
@@ -472,7 +472,7 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field full" id="matTelegramField" style="display:none;">
           <label>Telegram Message Link *</label>
           <input type="url" id="matTelegramUrl" placeholder="https://t.me/channel/123 or https://t.me/c/...">
-          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;"><i class="fab fa-telegram" style="color:#0088cc;"></i> Right-click any message in your Telegram channel —�� Copy Message Link —�� paste here. Students will tap to open in Telegram.</small>
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;"><i class="fab fa-telegram" style="color:#0088cc;"></i> Right-click any message in your Telegram channel – Copy Message Link – paste here. Students will tap to open in Telegram.</small>
         </div>
 
         <!-- Website / video / external link -->
@@ -496,7 +496,7 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field full"><label>Description *</label><textarea id="swDesc" rows="2" placeholder="What it does and which courses use it..."></textarea></div>
         <div class="form-field full"><label>Why students should learn it</label><input type="text" id="swWhy" placeholder="e.g. Industry-standard tool..."></div>
         <div class="form-field"><label>File Size (display only)</label><input type="text" id="swSize" placeholder="e.g. ~50 MB"></div>
-        <div class="form-field"><label>Is the file zipped?</label><select id="swZipped"><option value="false">No</option><option value="true">Yes —�� ZIP</option></select></div>
+        <div class="form-field"><label>Is the file zipped?</label><select id="swZipped"><option value="false">No</option><option value="true">Yes – ZIP</option></select></div>
         <div class="form-field full">
           <label>Source Type *</label>
           <div style="display:flex;gap:1rem;flex-wrap:wrap;">
@@ -505,7 +505,7 @@ tr:hover td{background:#fafcfa;}
           </div>
         </div>
         <div class="form-field full" id="swFileField">
-          <label>Setup File (.exe, .zip, .msi —�� max 50 MB)</label>
+          <label>Setup File (.exe, .zip, .msi – max 50 MB)</label>
           <div class="drop-zone" id="swDropZone"><i class="fas fa-cloud-upload-alt"></i><p>Drag &amp; drop or click to browse</p><p class="file-chosen" id="swFileChosen"></p><input type="file" id="swFile" accept=".exe,.zip,.msi,.rar,.7z" style="display:none;"></div>
         </div>
         <div class="form-field full" id="swTelegramField" style="display:none;">
@@ -528,10 +528,10 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field"><label>Priority</label><select id="annPriority"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select></div>
         <div class="form-field full"><label>Message *</label><textarea id="annMessage" rows="3" placeholder="Write your announcement here..."></textarea></div>
         <div class="form-field full">
-          <label>Images (optional —�� up to 5 images, stored as compressed previews)</label>
+          <label>Images (optional – up to 5 images, stored as compressed previews)</label>
           <div class="drop-zone" id="annDropZone" style="padding:1rem;">
             <i class="fas fa-images"></i>
-            <p>Attach up to 5 images —�� tap or drag &amp; drop</p>
+            <p>Attach up to 5 images – tap or drag &amp; drop</p>
             <p class="file-chosen" id="annFileChosen"></p>
             <input type="file" id="annImage" accept="image/*" multiple style="display:none;">
           </div>
@@ -551,18 +551,18 @@ tr:hover td{background:#fafcfa;}
     <div class="card">
       <div class="card-title"><i class="fas fa-plus-circle"></i> Post New Assignment</div>
       <div class="form-grid">
-        <div class="form-field"><label>Assignment Title *</label><input type="text" id="asgTitle" placeholder="e.g. Circuit Analysis —�� Problem Set 2"></div>
+        <div class="form-field"><label>Assignment Title *</label><input type="text" id="asgTitle" placeholder="e.g. Circuit Analysis – Problem Set 2"></div>
         <div class="form-field"><label>Course *</label><input type="text" id="asgCourse" placeholder="e.g. Applied Electricity"></div>
         <div class="form-field"><label>Tutor Name</label><input type="text" id="asgTutor" placeholder="e.g. Edem H.K Prince"></div>
         <div class="form-field"><label>Marks / Points</label><input type="number" id="asgPoints" placeholder="e.g. 20"></div>
         <div class="form-field full"><label>Description / Instructions *</label><textarea id="asgDesc" rows="4" placeholder="Describe the assignment..."></textarea></div>
         <div class="form-field"><label>Deadline *</label><input type="datetime-local" id="asgDeadline"></div>
-        <div class="form-field full"><label>External Link (optional —�� Google Forms, PDF URL)</label><input type="url" id="asgLink" placeholder="https://forms.gle/..."></div>
+        <div class="form-field full"><label>External Link (optional – Google Forms, PDF URL)</label><input type="url" id="asgLink" placeholder="https://forms.gle/..."></div>
         <div class="form-field full">
-          <label>Attach Assignment File (optional —�� PDF, DOCX, image)</label>
+          <label>Attach Assignment File (optional – PDF, DOCX, image)</label>
           <div class="drop-zone" id="asgDropZone" style="padding:1.2rem;">
             <i class="fas fa-paperclip"></i>
-            <p>Upload assignment sheet —�� students can download it</p>
+            <p>Upload assignment sheet – students can download it</p>
             <p class="file-chosen" id="asgFileChosen"></p>
             <input type="file" id="asgFile" accept=".pdf,.doc,.docx,.pptx,.jpg,.jpeg,.png" style="display:none;">
           </div>
@@ -597,15 +597,15 @@ tr:hover td{background:#fafcfa;}
     </div>
     <script>
     (function(){
-      // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-      // LOAD GRADES PANEL —�� fetches all assignment_submissions and
+      // ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+      // LOAD GRADES PANEL – fetches all assignment_submissions and
       // renders them grouped by course with inline grading UI.
-      // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+      // ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
       window.loadGradesPanel = async function() {
         window._gradesPanelFromDashboard = true;
         var wrap = document.getElementById('gradesTableWrap');
         if (!wrap) return;
-        wrap.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2.5rem;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.6rem;"></i> Loading submissions—��</p>';
+        wrap.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2.5rem;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.6rem;"></i> Loading submissions–</p>';
 
         // Wait up to 8s for Supabase SDK
         var waited = 0;
@@ -618,7 +618,7 @@ tr:hover td{background:#fafcfa;}
         if (!sb) {
           wrap.innerHTML = '<div style="text-align:center;padding:2rem;color:#9ca3af;">' +
             '<p>Supabase not connected. Please refresh the page.</p>' +
-            '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;">—�� Retry</button></div>';
+            '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;">– Retry</button></div>';
           return;
         }
 
@@ -632,7 +632,7 @@ tr:hover td{background:#fafcfa;}
               '<i class="fas fa-inbox" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i>' +
               '<p style="font-size:1rem;font-weight:600;">No submissions yet.</p>' +
               '<p style="font-size:0.82rem;margin-top:0.4rem;">Students haven\'t submitted any assignments yet.</p>' +
-              '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;">—�� Refresh</button>' +
+              '<button onclick="loadGradesPanel()" style="margin-top:1rem;background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.85rem;font-family:\'Inter\',sans-serif;">– Refresh</button>' +
             '</div>';
             return;
           }
@@ -662,14 +662,14 @@ tr:hover td{background:#fafcfa;}
           var isRLS = err.message && (err.message.toLowerCase().includes('rls') || err.message.includes('row-level') || err.message.includes('42501') || err.message.includes('permission'));
           var esc = window.escHtml ? window.escHtml : function(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); };
           wrap.innerHTML = '<div style="background:#fee2e2;color:#991b1b;padding:1.4rem;border-radius:12px;font-size:0.9rem;">' +
-            '<strong>' + (isRLS ? '🔒 Permission denied' : '—�� Error') + ':</strong> ' + esc(err.message) + '<br><br>' +
+            '<strong>' + (isRLS ? '🔒 Permission denied' : '– Error') + ':</strong> ' + esc(err.message) + '<br><br>' +
             (isRLS ? '<div style="background:#fef2f2;padding:0.8rem;border-radius:8px;font-size:0.8rem;font-family:monospace;margin-bottom:0.8rem;white-space:pre-wrap;">-- Run in Supabase SQL Editor:\nCREATE POLICY IF NOT EXISTS "Anon read submissions"\n  ON assignment_submissions FOR SELECT USING (true);\nCREATE POLICY IF NOT EXISTS "Anon update submissions"\n  ON assignment_submissions FOR UPDATE USING (true);</div>' : '') +
-            '<button onclick="loadGradesPanel()" style="background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:600;font-family:\'Inter\',sans-serif;">—�� Retry</button>' +
+            '<button onclick="loadGradesPanel()" style="background:#1B5E20;color:white;border:none;padding:0.5rem 1.2rem;border-radius:20px;cursor:pointer;font-size:0.88rem;font-weight:600;font-family:\'Inter\',sans-serif;">– Retry</button>' +
           '</div>';
         }
       };
 
-      // —��—�� Inline fallback renderer (used if admin-dashboard.js _renderSubmissions not yet loaded) —��—��
+      // –– Inline fallback renderer (used if admin-dashboard.js _renderSubmissions not yet loaded) ––
       function _inlineRender(data, wrap) {
         var esc = window.escHtml ? window.escHtml : function(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
         var byCourse = {};
@@ -693,17 +693,17 @@ tr:hover td{background:#fafcfa;}
           var cg = subs.filter(function(s){ return s.score!==null&&s.score!==undefined&&s.score!==''; }).length;
           var rows = subs.map(function(s) {
             var sid = String(s.id).replace(/[^a-z0-9]/gi,'');
-            var dt = s.submitted_at ? new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—��';
+            var dt = s.submitted_at ? new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '–';
             var cur = (s.score!==null&&s.score!==undefined&&s.score!=='') ? s.score : '';
             var pts = s._points;
             var scoreCell = cur !== ''
               ? '<span style="background:#d1fae5;color:#065f46;font-size:0.82rem;font-weight:800;padding:0.2rem 0.6rem;border-radius:10px;">' + cur + (pts ? '/' + pts : '') + '</span>'
               : '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:10px;">Ungraded</span>';
             return '<tr>' +
-              '<td><strong style="font-size:0.88rem;">' + esc(s.student_name||'—��') + '</strong>' +
+              '<td><strong style="font-size:0.88rem;">' + esc(s.student_name||'–') + '</strong>' +
               '<div style="font-size:0.75rem;color:#6b7280;">' + esc(s.student_email||'') + '</div>' +
               (s.index_number ? '<div style="font-size:0.7rem;color:#1B5E20;font-weight:600;">' + esc(s.index_number) + '</div>' : '') + '</td>' +
-              '<td style="font-size:0.82rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(s.assignment_title||'—��') + '</td>' +
+              '<td style="font-size:0.82rem;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(s.assignment_title||'–') + '</td>' +
               '<td style="font-size:0.78rem;color:#6b7280;white-space:nowrap;">' + dt + '</td>' +
               '<td>' + (s.file_url ? '<a href="' + esc(s.file_url) + '" target="_blank" style="color:#1B5E20;font-size:0.8rem;font-weight:600;"><i class="fas fa-download"></i> File</a>' : '<span style="color:#9ca3af;font-size:0.78rem;">No file</span>') + '</td>' +
               '<td>' + scoreCell + '</td>' +
@@ -763,7 +763,7 @@ tr:hover td{background:#fafcfa;}
     </script>
   </div>
 
-  <!-- SUBMISSIONS & GRADES PANEL —�� removed duplicate, kept first instance above -->
+  <!-- SUBMISSIONS & GRADES PANEL – removed duplicate, kept first instance above -->
 
   <div class="panel" id="panel-quizrequests">
     <div class="card">
@@ -781,13 +781,13 @@ tr:hover td{background:#fafcfa;}
     </div>
   </div>
 
-  <!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  <!-- –––––––––––––––––––––––––––––––––––––––––––––––––––––––
        GERAMA CONNECT ADMIN PANEL
-  —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+  ––––––––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <div class="panel" id="panel-connect">
     <!-- Connect overview -->
     <div class="card">
-      <div class="card-title"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> GERAMA Connect —�� Admin Controls</div>
+      <div class="card-title"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> GERAMA Connect – Admin Controls</div>
       <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Monitor chats, statuses, group chats and user activity on GERAMA Connect. Block or flag suspicious users.</p>
       <!-- Migration reminder -->
       <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:0.82rem;color:#166534;display:flex;align-items:flex-start;gap:0.6rem;">
@@ -814,10 +814,10 @@ CREATE POLICY "Auth update messages" ON connect_messages FOR UPDATE
 -- Enable realtime for live chat (if not already):
 ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.8rem;margin-bottom:1.5rem;" id="connectStats">
-        <div class="stat-box" style="border-top:3px solid #0ea5e9;"><div class="num" id="cStatMsg" style="color:#0ea5e9;">—��</div><div class="lbl">Messages Sent</div></div>
-        <div class="stat-box" style="border-top:3px solid #7c3aed;"><div class="num" id="cStatStatus" style="color:#7c3aed;">—��</div><div class="lbl">Active Statuses</div></div>
-        <div class="stat-box" style="border-top:3px solid #1B5E20;"><div class="num" id="cStatGroups" style="color:#1B5E20;">—��</div><div class="lbl">Group Chats</div></div>
-        <div class="stat-box" style="border-top:3px solid #dc2626;"><div class="num" id="cStatBlocked" style="color:#dc2626;">—��</div><div class="lbl">Blocked Users</div></div>
+        <div class="stat-box" style="border-top:3px solid #0ea5e9;"><div class="num" id="cStatMsg" style="color:#0ea5e9;">–</div><div class="lbl">Messages Sent</div></div>
+        <div class="stat-box" style="border-top:3px solid #7c3aed;"><div class="num" id="cStatStatus" style="color:#7c3aed;">–</div><div class="lbl">Active Statuses</div></div>
+        <div class="stat-box" style="border-top:3px solid #1B5E20;"><div class="num" id="cStatGroups" style="color:#1B5E20;">–</div><div class="lbl">Group Chats</div></div>
+        <div class="stat-box" style="border-top:3px solid #dc2626;"><div class="num" id="cStatBlocked" style="color:#dc2626;">–</div><div class="lbl">Blocked Users</div></div>
       </div>
       <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;">
         <button class="btn-primary" onclick="loadConnectStats()" style="font-size:0.82rem;padding:0.5rem 1rem;"><i class="fas fa-sync-alt"></i> Refresh Stats</button>
@@ -844,15 +844,15 @@ ALTER PUBLICATION supabase_realtime ADD TABLE connect_messages;</pre>
     </div>
   </div>
 
-  <!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  <!-- –––––––––––––––––––––––––––––––––––––––––––––––––––––––
        URBAN MALL ADMIN PANEL
-  —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+  ––––––––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <div class="panel" id="panel-mall">
 
     <!-- SQL SETUP CARD (shown if table missing) -->
     <div class="card" id="mallSqlSetupCard" style="display:none;border:2px solid #fde68a;background:#fffbeb;">
-      <div class="card-title" style="color:#92400e;"><i class="fas fa-database" style="color:#f59e0b;"></i> —��️ Mall Tables Not Found —�� Run Setup SQL</div>
-      <p style="font-size:0.85rem;color:#92400e;margin-bottom:1rem;line-height:1.6;">The <code>mall_products</code> table doesn't exist yet in your Supabase project. Copy the SQL below and run it in your <strong>Supabase —�� SQL Editor</strong>.</p>
+      <div class="card-title" style="color:#92400e;"><i class="fas fa-database" style="color:#f59e0b;"></i> –️ Mall Tables Not Found – Run Setup SQL</div>
+      <p style="font-size:0.85rem;color:#92400e;margin-bottom:1rem;line-height:1.6;">The <code>mall_products</code> table doesn't exist yet in your Supabase project. Copy the SQL below and run it in your <strong>Supabase – SQL Editor</strong>.</p>
       <div style="position:relative;">
         <pre id="mallSetupSqlPre" style="background:#1e2a3e;color:#e5e7eb;padding:1rem;border-radius:10px;font-size:0.78rem;overflow-x:auto;line-height:1.7;white-space:pre-wrap;word-break:break-all;">-- GERAMA Mall Tables Setup
 CREATE TABLE IF NOT EXISTS mall_products (
@@ -940,7 +940,7 @@ CREATE TABLE IF NOT EXISTS tshirt_interest (
 ALTER TABLE tshirt_interest ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read tshirt_interest" ON tshirt_interest FOR SELECT USING (true);
 CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true) WITH CHECK (true);</pre>
-        <button onclick="navigator.clipboard.writeText(document.getElementById('mallSetupSqlPre').textContent).then(function(){alert('—�� SQL copied! Paste it in Supabase —�� SQL Editor —�� Run.');})" style="position:absolute;top:0.5rem;right:0.5rem;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.3rem 0.7rem;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-copy"></i> Copy SQL</button>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('mallSetupSqlPre').textContent).then(function(){alert('– SQL copied! Paste it in Supabase – SQL Editor – Run.');})" style="position:absolute;top:0.5rem;right:0.5rem;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;padding:0.3rem 0.7rem;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-copy"></i> Copy SQL</button>
       </div>
       <a href="https://app.supabase.com" target="_blank" style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:0.8rem;background:#1B5E20;color:white;padding:0.5rem 1.2rem;border-radius:20px;font-size:0.82rem;font-weight:700;text-decoration:none;"><i class="fas fa-external-link-alt"></i> Open Supabase Dashboard</a>
     </div>
@@ -967,7 +967,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           </select>
         </div>
         <div class="form-field"><label>Price (GH₵��) *</label><input type="number" id="mallProdPrice" placeholder="48" min="1"></div>
-        <div class="form-field"><label>Original Price (GH₵��) —�� if discounted</label><input type="number" id="mallProdOrigPrice" placeholder="60" min="1"></div>
+        <div class="form-field"><label>Original Price (GH₵��) – if discounted</label><input type="number" id="mallProdOrigPrice" placeholder="60" min="1"></div>
         <div class="form-field"><label>Seller Name *</label><input type="text" id="mallProdSeller" placeholder="e.g. Aleks ZanderOD"></div>
         <div class="form-field"><label>Seller WhatsApp *</label><input type="tel" id="mallProdWA" placeholder="0551234567"></div>
         <div class="form-field"><label>Colours (comma-separated hex or names)</label><input type="text" id="mallProdColours" placeholder="white,#8B4513,#1B5E20"></div>
@@ -1013,7 +1013,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
 
     <!-- 👕 T-SHIRT INTEREST PANEL -->
     <div class="card" style="border-top:4px solid #FFC107;">
-      <div class="card-title"><i class="fas fa-tshirt" style="color:#FFC107;"></i> GERAMA T-Shirt —�� Interest List <span id="tshirtBadge" style="background:#FFC107;color:#0a2f1f;border-radius:20px;padding:0.1rem 0.6rem;font-size:0.72rem;font-weight:800;margin-left:0.5rem;"></span></div>
+      <div class="card-title"><i class="fas fa-tshirt" style="color:#FFC107;"></i> GERAMA T-Shirt – Interest List <span id="tshirtBadge" style="background:#FFC107;color:#0a2f1f;border-radius:20px;padding:0.1rem 0.6rem;font-size:0.72rem;font-weight:800;margin-left:0.5rem;"></span></div>
       <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Members who registered interest in the GERAMA T-Shirt. You can also post an announcement about the T-Shirt below.</p>
 
       <!-- Post T-shirt announcement -->
@@ -1043,7 +1043,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
   </div>
 
   <script>
-  // —��—�� MALL ADMIN —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– MALL ADMIN ––––––––––––––––––––––––––––––––––––––––––
   var MALL_URL = window.__SUPABASE_URL || 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
   var MALL_KEY = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
 
@@ -1057,7 +1057,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     loadMallProducts();
     loadMallOrders();
     window.loadTshirtInterest();
-    // Check if tables exist —�� show SQL card if not
+    // Check if tables exist – show SQL card if not
     try {
       var r = await mallFetch('mall_products?select=id&limit=1');
       var card = document.getElementById('mallSqlSetupCard');
@@ -1083,8 +1083,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       el.innerHTML = data.map(function(r) {
         var badge2 = r.status==='approved'?'<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Approved</span>':r.status==='rejected'?'<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Rejected</span>':'<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Pending</span>';
         return '<div class="sub-card">'+
-          '<div class="sub-info"><strong>'+window.escHtml(r.product_name||'—��')+' '+badge2+'</strong>'+
-          '<div class="sub-meta"><b>Seller:</b> '+window.escHtml(r.seller_name||'—��')+' · '+window.escHtml(r.seller_whatsapp||'—��')+' | <b>Cat:</b> '+window.escHtml(r.category||'—��')+' | <b>Price:</b> GH₵��'+r.price+'</div>'+
+          '<div class="sub-info"><strong>'+window.escHtml(r.product_name||'–')+' '+badge2+'</strong>'+
+          '<div class="sub-meta"><b>Seller:</b> '+window.escHtml(r.seller_name||'–')+' · '+window.escHtml(r.seller_whatsapp||'–')+' | <b>Cat:</b> '+window.escHtml(r.category||'–')+' | <b>Price:</b> GH₵��'+r.price+'</div>'+
           '<div class="sub-meta" style="margin-top:0.2rem;">'+window.escHtml((r.description||'').substring(0,100))+'</div></div>'+
           '<div class="sub-actions">'+
             (r.status==='pending'?'<button class="btn-success" onclick="approveMallRequest(\''+r.id+'\',\''+window.escAttr(JSON.stringify(r))+'\')"><i class="fas fa-check"></i> Approve</button>':'') +
@@ -1110,8 +1110,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       })});
       // Update request status
       await mallFetch('mall_seller_requests?id=eq.'+id, {method:'PATCH',headers:{'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({status:'approved',seller_id:sellerId})});
-      window.logActivity('Approved mall seller request: '+d.product_name+' —�� '+sellerId);
-      alert('—�� Approved! Product is now live. Seller ID: '+sellerId);
+      window.logActivity('Approved mall seller request: '+d.product_name+' – '+sellerId);
+      alert('– Approved! Product is now live. Seller ID: '+sellerId);
       loadMallRequests(); loadMallProducts();
     } catch(e) { alert('Error: '+e.message); }
   };
@@ -1137,11 +1137,11 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
             : '<div style="width:48px;height:48px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-size:1.2rem;"><i class="fas fa-image"></i></div>';
           return '<tr>'+
             '<td>'+imgHtml+'</td>'+
-            '<td><strong>'+window.escHtml(p.name||'—��')+'</strong>'+(p.badge?'<br><span style="background:#fee2e2;color:#dc2626;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:8px;">'+window.escHtml(p.badge)+'</span>':'')+'</td>'+
-            '<td>'+window.escHtml(p.category||'—��')+'</td>'+
+            '<td><strong>'+window.escHtml(p.name||'–')+'</strong>'+(p.badge?'<br><span style="background:#fee2e2;color:#dc2626;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:8px;">'+window.escHtml(p.badge)+'</span>':'')+'</td>'+
+            '<td>'+window.escHtml(p.category||'–')+'</td>'+
             '<td>GH₵��'+p.price+(p.original_price?'<br><small style="text-decoration:line-through;color:#9ca3af;">GH₵��'+p.original_price+'</small>':'')+'</td>'+
-            '<td>'+window.escHtml(p.seller_name||'—��')+'<br><small style="color:#6b7280;">'+window.escHtml(p.seller_whatsapp||'')+'</small></td>'+
-            '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(p.seller_id||'—��')+'</span></td>'+
+            '<td>'+window.escHtml(p.seller_name||'–')+'<br><small style="color:#6b7280;">'+window.escHtml(p.seller_whatsapp||'')+'</small></td>'+
+            '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(p.seller_id||'–')+'</span></td>'+
             '<td style="white-space:nowrap;">'+
               '<button class="btn-gold" style="font-size:0.72rem;padding:0.25rem 0.6rem;margin-right:0.3rem;" onclick="openEditMallProduct(\''+p.id+'\')"><i class="fas fa-edit"></i> Edit</button>'+
               '<button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="deleteMallProduct(\''+p.id+'\')"><i class="fas fa-trash"></i></button>'+
@@ -1169,14 +1169,14 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       if (!data||!data.length) { el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No orders yet.</p>'; return; }
       el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Product</th><th>Buyer</th><th>Phone</th><th>Qty</th><th>Total</th><th>Location</th><th>Date</th></tr></thead><tbody>'+
         data.map(function(o){
-          var dt = o.ordered_at ? new Date(o.ordered_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—��';
+          var dt = o.ordered_at ? new Date(o.ordered_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '–';
           return '<tr>'+
-            '<td>'+window.escHtml(o.product_name||'—��')+'<br><small style="color:#9ca3af;">'+window.escHtml(o.seller_id||'')+'</small></td>'+
-            '<td>'+window.escHtml(o.buyer_name||'—��')+'</td>'+
-            '<td>'+window.escHtml(o.buyer_phone||'—��')+'</td>'+
+            '<td>'+window.escHtml(o.product_name||'–')+'<br><small style="color:#9ca3af;">'+window.escHtml(o.seller_id||'')+'</small></td>'+
+            '<td>'+window.escHtml(o.buyer_name||'–')+'</td>'+
+            '<td>'+window.escHtml(o.buyer_phone||'–')+'</td>'+
             '<td>'+o.quantity+'</td>'+
             '<td>GH₵��'+o.total_price+'</td>'+
-            '<td style="font-size:0.8rem;">'+window.escHtml(o.delivery_location||'—��')+'</td>'+
+            '<td style="font-size:0.8rem;">'+window.escHtml(o.delivery_location||'–')+'</td>'+
             '<td style="font-size:0.78rem;white-space:nowrap;">'+dt+'</td>'+
           '</tr>';
         }).join('')+
@@ -1190,7 +1190,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     var chosen = document.getElementById('mallProdFileChosen');
     var preview = document.getElementById('mallProdPreview');
     var previewImg = document.getElementById('mallProdPreviewImg');
-    if (chosen) chosen.textContent = '—�� ' + file.name;
+    if (chosen) chosen.textContent = '– ' + file.name;
     if (file.type.startsWith('image/') && preview && previewImg) {
       var reader = new FileReader();
       reader.onload = function(e) { previewImg.src = e.target.result; preview.style.display = 'block'; };
@@ -1235,11 +1235,11 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           if (!upRes.error) {
             imgUrl = sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
           } else {
-            window.showStatus('mallPostStatus','—��️ Image upload failed: '+upRes.error.message+'. Posting without image.','info');
+            window.showStatus('mallPostStatus','–️ Image upload failed: '+upRes.error.message+'. Posting without image.','info');
           }
         }
       } catch(e) {
-        window.showStatus('mallPostStatus','—��️ Image upload error. Posting without image.','info');
+        window.showStatus('mallPostStatus','–️ Image upload error. Posting without image.','info');
       }
     }
 
@@ -1262,7 +1262,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         })
       });
       if (!r.ok) throw new Error('HTTP '+r.status);
-      window.showStatus('mallPostStatus','—�� Product posted! Seller ID: '+sellerId,'ok');
+      window.showStatus('mallPostStatus','– Product posted! Seller ID: '+sellerId,'ok');
       window.logActivity('Posted mall product: '+name+' ('+sellerId+')');
       // Clear form
       ['mallProdName','mallProdPrice','mallProdOrigPrice','mallProdSeller','mallProdWA','mallProdDesc','mallProdColours','mallProdColourNames','mallProdSizes','mallProdStock'].forEach(function(id){
@@ -1275,12 +1275,12 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       if(fileInput) fileInput.value='';
       loadMallProducts();
     } catch(e) {
-      window.showStatus('mallPostStatus','—�� '+e.message,'err');
+      window.showStatus('mallPostStatus','– '+e.message,'err');
     }
     if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Post to Mall'; }
   };
 
-  // —��—�� EDIT PRODUCT —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– EDIT PRODUCT ––––––––––––––––––––––––––––––––––––––––––
   window.openEditMallProduct = async function(id) {
     // Fetch product
     var r = await mallFetch('mall_products?id=eq.'+id+'&select=*');
@@ -1299,8 +1299,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     modal.innerHTML =
       '<div style="background:white;border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,0.3);">'+
         '<div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;padding:1.2rem 1.5rem;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between;">'+
-          '<div><strong style="font-size:1rem;">—��️ Edit Product</strong><div style="font-size:0.82rem;opacity:0.8;margin-top:0.2rem;">'+window.escHtml(p.name)+'</div></div>'+
-          '<button onclick="document.getElementById(\'mallEditModal\').remove()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;">—��</button>'+
+          '<div><strong style="font-size:1rem;">–️ Edit Product</strong><div style="font-size:0.82rem;opacity:0.8;margin-top:0.2rem;">'+window.escHtml(p.name)+'</div></div>'+
+          '<button onclick="document.getElementById(\'mallEditModal\').remove()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;">–</button>'+
         '</div>'+
         '<div style="padding:1.5rem;">'+
           '<div class="form-grid">'+
@@ -1324,7 +1324,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
                 '<i class="fas fa-cloud-upload-alt"></i><p>Click to upload new image or video</p>'+
                 '<p class="file-chosen" id="editFileChosen"></p>'+
               '</div>'+
-              '<input type="file" id="editProdFile" accept="image/*,video/*" style="display:none;" onchange="document.getElementById(\'editFileChosen\').textContent=\'—�� \'+this.files[0].name">'+
+              '<input type="file" id="editProdFile" accept="image/*,video/*" style="display:none;" onchange="document.getElementById(\'editFileChosen\').textContent=\'– \'+this.files[0].name">'+
             '</div>'+
           '</div>'+
           '<div id="editStatus" style="display:none;padding:0.6rem 1rem;border-radius:10px;font-size:0.87rem;margin-bottom:0.8rem;"></div>'+
@@ -1378,15 +1378,15 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         body:JSON.stringify(updates)
       });
       if (!r.ok) throw new Error('HTTP '+r.status);
-      setStatus('—�� Product updated successfully!','ok');
+      setStatus('– Product updated successfully!','ok');
       window.logActivity('Edited mall product: '+name);
       setTimeout(function(){ document.getElementById('mallEditModal').remove(); loadMallProducts(); }, 1500);
     } catch(e) {
-      setStatus('—�� '+e.message,'err');
+      setStatus('– '+e.message,'err');
     }
   };
 
-  // Hook into switchPanel —�� deferred until admin-dashboard.js has loaded
+  // Hook into switchPanel – deferred until admin-dashboard.js has loaded
   document.addEventListener('DOMContentLoaded', function(){
     var _o = window.switchPanel;
     window.switchPanel = function(name) {
@@ -1395,7 +1395,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     };
   });
 
-  // —��—�� T-SHIRT INTEREST ADMIN FUNCTIONS —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  // –– T-SHIRT INTEREST ADMIN FUNCTIONS ––––––––––––––––––––––
 
   window.loadTshirtInterest = async function() {
     var el = document.getElementById('tshirtInterestList');
@@ -1415,14 +1415,14 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           '<th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Size Pref.</th><th>Colour Pref.</th><th>Date</th>' +
         '</tr></thead><tbody>' +
         data.map(function(m, i) {
-          var dt = m.registered_at ? new Date(m.registered_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '—��';
+          var dt = m.registered_at ? new Date(m.registered_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '–';
           return '<tr>' +
             '<td>' + (i+1) + '</td>' +
-            '<td><strong>' + window.escHtml(m.full_name||'—��') + '</strong></td>' +
-            '<td style="font-size:0.8rem;color:#6b7280;">' + window.escHtml(m.user_email||'—��') + '</td>' +
-            '<td>' + window.escHtml(m.phone||'—��') + '</td>' +
-            '<td><span style="background:#fef3c7;color:#92400e;font-size:0.75rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">' + window.escHtml(m.size_preference||'—��') + '</span></td>' +
-            '<td>' + window.escHtml(m.colour_preference||'—��') + '</td>' +
+            '<td><strong>' + window.escHtml(m.full_name||'–') + '</strong></td>' +
+            '<td style="font-size:0.8rem;color:#6b7280;">' + window.escHtml(m.user_email||'–') + '</td>' +
+            '<td>' + window.escHtml(m.phone||'–') + '</td>' +
+            '<td><span style="background:#fef3c7;color:#92400e;font-size:0.75rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">' + window.escHtml(m.size_preference||'–') + '</span></td>' +
+            '<td>' + window.escHtml(m.colour_preference||'–') + '</td>' +
             '<td style="font-size:0.78rem;white-space:nowrap;">' + dt + '</td>' +
           '</tr>';
         }).join('') +
@@ -1474,18 +1474,18 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         created_at: new Date().toISOString()
       });
       if (error) throw new Error(error.message);
-      setAnnStatus('—�� Announcement posted! Students will see it on the homepage.', true);
+      setAnnStatus('– Announcement posted! Students will see it on the homepage.', true);
       window.logActivity('Posted T-Shirt announcement: ' + title);
       document.getElementById('tshirtAnnTitle').value = '';
       document.getElementById('tshirtAnnMsg').value = '';
-    } catch(e) { setAnnStatus('—�� ' + e.message, false); }
+    } catch(e) { setAnnStatus('– ' + e.message, false); }
   };
 
   </script>
 
-  <!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  <!-- –––––––––––––––––––––––––––––––––––––––
        ADMIN PROFILES PANEL
-  —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+  ––––––––––––––––––––––––––––––––––––––– -->
   <div class="panel" id="panel-adminprofiles">
     <div class="card">
       <div class="card-title"><i class="fas fa-id-badge" style="color:#a78bfa;"></i> My Admin Profile</div>
@@ -1518,13 +1518,13 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     </div>
   </div>
 
-  <!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  <!-- –––––––––––––––––––––––––––––––––––––––
        MANAGE TEAM PANEL (GERAMA/26 & About Page)
-  —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+  ––––––––––––––––––––––––––––––––––––––– -->
   <div class="panel" id="panel-team">
     <div class="card">
       <div class="card-title"><i class="fas fa-users-cog" style="color:#34d399;"></i> Add Team Member</div>
-      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Add people to the About page —�� Founding Team, GERAMA/25, GERAMA/26 tutors &amp; leadership, or Media Team. After making anyone a tutor in Study Groups, also add them here with their batch label (e.g. <em>GERAMA TEAM A Tutor</em>).</p>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1.2rem;">Add people to the About page – Founding Team, GERAMA/25, GERAMA/26 tutors &amp; leadership, or Media Team. After making anyone a tutor in Study Groups, also add them here with their batch label (e.g. <em>GERAMA TEAM A Tutor</em>).</p>
       <div class="form-grid">
         <div class="form-field"><label>Full Name *</label><input type="text" id="tmName" placeholder="e.g. Edem H.K Prince"></div>
         <div class="form-field"><label>Role / Position *</label><input type="text" id="tmRole" placeholder="e.g. Lead Tutor · Electrical Engineering"></div>
@@ -1538,7 +1538,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           </select>
         </div>
         <div class="form-field full">
-          <label>Batch / Team Label <small style="font-weight:400;color:#6b7280;">(e.g. GERAMA TEAM A Tutor —�� shown as a badge on their profile card)</small></label>
+          <label>Batch / Team Label <small style="font-weight:400;color:#6b7280;">(e.g. GERAMA TEAM A Tutor – shown as a badge on their profile card)</small></label>
           <input type="text" id="tmBadge" placeholder="e.g. GERAMA TEAM A Tutor">
         </div>
         <div class="form-field"><label>Emoji (shown if no photo)</label><input type="text" id="tmEmoji" value="👤" maxlength="4" style="font-size:1.2rem;"></div>
@@ -1574,9 +1574,9 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     </div>
   </div>
 
-  <!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  <!-- –––––––––––––––––––––––––––––––––––––––
        QUOTE OF THE DAY PANEL
-  —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+  ––––––––––––––––––––––––––––––––––––––– -->
   <div class="panel" id="panel-quotes">
     <div class="card">
       <div class="card-title"><i class="fas fa-quote-right" style="color:#f59e0b;"></i> Post Quote of the Day</div>
@@ -1614,12 +1614,12 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     </div>
   </div>
 
-  <!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  <!-- –––––––––––––––––––––––––––––––––––––––––––––––––––––––
        DID YOU KNOW PANEL
-  —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+  ––––––––––––––––––––––––––––––––––––––– -->
   <div class="panel" id="panel-diyk">
     <div class="card">
-      <div class="card-title"><i class="fas fa-lightbulb" style="color:#0ea5e9;"></i> Did You Know —�� Manage Facts</div>
+      <div class="card-title"><i class="fas fa-lightbulb" style="color:#0ea5e9;"></i> Did You Know – Manage Facts</div>
       <p style="color:#6b7280;font-size:0.85rem;margin-bottom:1.2rem;">Post engineering facts that appear in the Planner's "Did You Know" section. Review user submissions and add your own.</p>
 
       <!-- Post new fact -->
@@ -1656,20 +1656,20 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     </div>
   </div>
 
-  <!-- —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+  <!-- –––––––––––––––––––––––––––––––––––––––––––––––––––––––
        OPPORTUNITIES PANEL
-  —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—�� -->
+  ––––––––––––––––––––––––––––––––––––––– -->
   <div class="panel" id="panel-opportunities">
     <div class="card">
-      <div class="card-title"><i class="fas fa-briefcase" style="color:#6366f1;"></i> Opportunities —�� Post &amp; Manage</div>
+      <div class="card-title"><i class="fas fa-briefcase" style="color:#6366f1;"></i> Opportunities – Post &amp; Manage</div>
       <p style="color:#6b7280;font-size:0.85rem;margin-bottom:1.2rem;">Post internship, NSS, scholarship and job opportunities for GERAMA members. Review user submissions and track applications.</p>
 
       <!-- Stats row -->
       <div class="stats-row" style="margin-bottom:1.5rem;">
-        <div class="stat-box" style="border-top:3px solid #6366f1;"><div class="num" id="oppStatTotal" style="color:#6366f1;">—��</div><div class="lbl">Total Posted</div></div>
-        <div class="stat-box" style="border-top:3px solid #f59e0b;"><div class="num" id="oppStatPending" style="color:#f59e0b;">—��</div><div class="lbl">Pending Review</div></div>
-        <div class="stat-box" style="border-top:3px solid #059669;"><div class="num" id="oppStatViews" style="color:#059669;">—��</div><div class="lbl">Total Views</div></div>
-        <div class="stat-box" style="border-top:3px solid #dc2626;"><div class="num" id="oppStatApplied" style="color:#dc2626;">—��</div><div class="lbl">Applications Tracked</div></div>
+        <div class="stat-box" style="border-top:3px solid #6366f1;"><div class="num" id="oppStatTotal" style="color:#6366f1;">–</div><div class="lbl">Total Posted</div></div>
+        <div class="stat-box" style="border-top:3px solid #f59e0b;"><div class="num" id="oppStatPending" style="color:#f59e0b;">–</div><div class="lbl">Pending Review</div></div>
+        <div class="stat-box" style="border-top:3px solid #059669;"><div class="num" id="oppStatViews" style="color:#059669;">–</div><div class="lbl">Total Views</div></div>
+        <div class="stat-box" style="border-top:3px solid #dc2626;"><div class="num" id="oppStatApplied" style="color:#dc2626;">–</div><div class="lbl">Applications Tracked</div></div>
       </div>
 
       <!-- Post new opportunity -->
@@ -1693,7 +1693,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           <div class="form-field"><label>Deadline (optional)</label><input type="date" id="adminOppDeadline"></div>
           <div class="form-field full"><label>Description / Eligibility</label><textarea id="adminOppDesc" rows="4" placeholder="Describe the opportunity, eligibility criteria, what to submit, contacts, etc."></textarea></div>
           <div class="form-field full">
-            <label>Image —�� Company logo or flyer (optional)</label>
+            <label>Image – Company logo or flyer (optional)</label>
             <div class="drop-zone" id="adminOppImgZone" onclick="document.getElementById('adminOppImgFile').click()">
               <i class="fas fa-image" style="color:#6366f1;font-size:1.5rem;display:block;margin-bottom:0.4rem;"></i>
               <p>Click to upload image (JPG/PNG, max 5MB)</p>
@@ -1749,7 +1749,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     <div class="card">
       <div class="card-title"><i class="fas fa-clipboard-check" style="color:#059669;"></i> Generate Attendance Code</div>
       <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#166534;line-height:1.6;">
-        <strong>How it works:</strong> Generate a random code, share it with students during a live class. Set a time window —�� students enter the code in their Classroom —�� Attendance tab to mark themselves present and earn 1 point.
+        <strong>How it works:</strong> Generate a random code, share it with students during a live class. Set a time window – students enter the code in their Classroom – Attendance tab to mark themselves present and earn 1 point.
       </div>
       <div class="form-grid">
         <div class="form-field full">
@@ -1759,7 +1759,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           </select>
           <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Select a class to auto-fill the title, or leave blank to enter manually.</small>
         </div>
-        <div class="form-field full"><label>Class Title (Optional)</label><input type="text" id="attClassTitle" placeholder="e.g. Basic Electronics —�� Tutorial 3"></div>
+        <div class="form-field full"><label>Class Title (Optional)</label><input type="text" id="attClassTitle" placeholder="e.g. Basic Electronics – Tutorial 3"></div>
         <div class="form-field"><label>Valid For (minutes) *</label><input type="number" id="attDuration" value="15" min="1" max="120" placeholder="e.g. 15"></div>
         <div class="form-field">
           <label>Target Group <span style="color:#ef4444;">*</span></label>
@@ -1806,7 +1806,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       <!-- Add attendance row (hidden by default) -->
       <div id="addAttRow" style="display:none;background:#f0fdf4;border:2px solid #86efac;border-radius:12px;padding:1.2rem;margin-bottom:1rem;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;flex-wrap:wrap;gap:0.5rem;">
-          <div style="font-size:0.88rem;font-weight:700;color:#166534;"><i class="fas fa-lock" style="margin-right:0.4rem;"></i>Manual Attendance Entry —�� Admin Verification Required</div>
+          <div style="font-size:0.88rem;font-weight:700;color:#166534;"><i class="fas fa-lock" style="margin-right:0.4rem;"></i>Manual Attendance Entry – Admin Verification Required</div>
           <div id="addAttSessionTag" style="display:none;background:#1B5E20;color:white;font-size:0.78rem;font-weight:700;padding:0.25rem 0.8rem;border-radius:20px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
         </div>
         <!-- Hidden fields for session linking -->
@@ -1824,7 +1824,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           <input type="number" id="addAttPoints" value="1" min="1" max="10" placeholder="Points" style="padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;">
           <div style="grid-column:1/-1;">
             <input type="password" id="addAttSecret" placeholder="Admin secret code (2026GERAMA) *" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #fcd34d;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;box-sizing:border-box;background:#fffbeb;">
-            <div style="font-size:0.75rem;color:#92400e;margin-top:0.3rem;"><i class="fas fa-shield-alt"></i> Code: 2026GERAMA —�� required to prevent unauthorised changes</div>
+            <div style="font-size:0.75rem;color:#92400e;margin-top:0.3rem;"><i class="fas fa-shield-alt"></i> Code: 2026GERAMA – required to prevent unauthorised changes</div>
           </div>
         </div>
         <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
@@ -1875,7 +1875,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       </div>
 
       <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#92400e;" id="clsHintBox">
-        <strong><i class="fas fa-video"></i> Powered by Jitsi Meet —�� free, no account needed.</strong> A unique meeting link is generated automatically.
+        <strong><i class="fas fa-video"></i> Powered by Jitsi Meet – free, no account needed.</strong> A unique meeting link is generated automatically.
       </div>
 
       <div class="form-grid">
@@ -1980,7 +1980,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     <div class="card">
       <div class="card-title"><i class="fas fa-layer-group" style="color:#FFC107;"></i> Study Groups Management</div>
       <p style="color:#6b7280;font-size:0.88rem;margin-bottom:0.5rem;">
-        Organise registered members into Gerama Teams (A—��F). Each group holds up to 25 members with 2—��3 assigned tutors.
+        Organise registered members into Gerama Teams (A–F). Each group holds up to 25 members with 2–3 assigned tutors.
         Members can see their group name in their personal dashboard.
       </p>
       <div id="groupsContainer"><p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading groups...</p></div>
@@ -2004,10 +2004,10 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
 
   <div class="panel" id="panel-visitors">
     <div class="stats-row" style="margin-bottom:1.5rem;">
-      <div class="stat-box" style="border-top:3px solid #6366f1;"><div class="num" id="vsToday" style="color:#6366f1;">—��</div><div class="lbl">Today</div></div>
-      <div class="stat-box" style="border-top:3px solid #0ea5e9;"><div class="num" id="vsWeek" style="color:#0ea5e9;">—��</div><div class="lbl">This Week</div></div>
-      <div class="stat-box" style="border-top:3px solid #f59e0b;"><div class="num" id="vsMonth" style="color:#f59e0b;">—��</div><div class="lbl">This Month</div></div>
-      <div class="stat-box" style="border-top:3px solid #10b981;"><div class="num" id="vsTotal" style="color:#10b981;">—��</div><div class="lbl">All Time</div></div>
+      <div class="stat-box" style="border-top:3px solid #6366f1;"><div class="num" id="vsToday" style="color:#6366f1;">–</div><div class="lbl">Today</div></div>
+      <div class="stat-box" style="border-top:3px solid #0ea5e9;"><div class="num" id="vsWeek" style="color:#0ea5e9;">–</div><div class="lbl">This Week</div></div>
+      <div class="stat-box" style="border-top:3px solid #f59e0b;"><div class="num" id="vsMonth" style="color:#f59e0b;">–</div><div class="lbl">This Month</div></div>
+      <div class="stat-box" style="border-top:3px solid #10b981;"><div class="num" id="vsTotal" style="color:#10b981;">–</div><div class="lbl">All Time</div></div>
     </div>
     <div class="card">
       <div class="card-title"><i class="fas fa-chart-bar"></i> Page Breakdown</div>
@@ -2054,7 +2054,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       </div>
 
       <div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.2rem;font-size:0.85rem;color:#5b21b6;line-height:1.6;">
-        <strong><i class="fas fa-random"></i> Anti-copy shuffle:</strong> Add up to 3 different quiz links. Each student gets a <strong>random</strong> one —�� preventing copying.
+        <strong><i class="fas fa-random"></i> Anti-copy shuffle:</strong> Add up to 3 different quiz links. Each student gets a <strong>random</strong> one – preventing copying.
       </div>
       <div class="form-grid">
         <div class="form-field full"><label>Quiz Title *</label><input type="text" id="qzTitle" placeholder="e.g. Applied Electricity Mid-Semester Quiz"></div>
@@ -2075,7 +2075,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
             <input type="url" id="qzUrl1" placeholder="https://testmoz.com/q/... or https://forms.gle/...">
           </div>
           <div class="form-field full">
-            <label>Quiz Link 2 <span style="color:#6b7280;font-weight:400;">(optional —�� different version for shuffle)</span></label>
+            <label>Quiz Link 2 <span style="color:#6b7280;font-weight:400;">(optional – different version for shuffle)</span></label>
             <input type="url" id="qzUrl2" placeholder="https://forms.gle/... (optional)">
           </div>
           <div class="form-field full">
@@ -2138,9 +2138,9 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       <div class="card-title"><i class="fas fa-file-import" style="color:#059669;"></i> Import Quiz Scores from External Platform</div>
       <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">Finished a quiz on Testmoz, Google Forms or any platform? Import scores in 2 steps: download CSV from the platform, then upload it here.</p>
       <div style="background:#f0fdf4;border:1px solid #c8e6c9;border-radius:12px;padding:0.9rem 1rem;margin-bottom:1rem;font-size:0.83rem;color:#1B5E20;">
-        <strong>📋 How to export from Testmoz:</strong> Open your quiz —�� Results tab —�� Download CSV<br>
-        <strong>📋 How to export from Google Forms:</strong> Open responses —�� Spreadsheet icon —�� File —�� Download —�� CSV<br>
-        <strong>Format needed:</strong> A column with student <strong>name or email</strong> and a column with their <strong>score</strong> —�� any column order is fine, system auto-detects both.
+        <strong>📋 How to export from Testmoz:</strong> Open your quiz – Results tab – Download CSV<br>
+        <strong>📋 How to export from Google Forms:</strong> Open responses – Spreadsheet icon – File – Download – CSV<br>
+        <strong>Format needed:</strong> A column with student <strong>name or email</strong> and a column with their <strong>score</strong> – any column order is fine, system auto-detects both.
       </div>
       <div class="form-grid">
         <div class="form-field full"><label>Select Quiz to Import Scores For</label>
@@ -2150,13 +2150,13 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           <label>Upload CSV File <span style="color:#6b7280;font-weight:400;">(from Testmoz, Google Sheets, Excel, etc.)</span></label>
           <div class="drop-zone" style="padding:1.2rem;" id="csvDropZone" onclick="document.getElementById('csvFileInput').click()">
             <i class="fas fa-file-csv" style="color:#059669;"></i>
-            <p>Click to upload CSV file —�� or drag and drop</p>
+            <p>Click to upload CSV file – or drag and drop</p>
             <p class="file-chosen" id="csvFileChosen"></p>
           </div>
           <input type="file" id="csvFileInput" accept=".csv,.txt" style="display:none;" onchange="loadCsvFile(this)">
         </div>
         <div class="form-field full">
-          <label>Or paste CSV data directly <span style="color:#6b7280;font-weight:400;">(name or email + score —�� one per line)</span></label>
+          <label>Or paste CSV data directly <span style="color:#6b7280;font-weight:400;">(name or email + score – one per line)</span></label>
           <textarea id="importCsvData" rows="6" placeholder="name,score&#10;Kofi Mensah,18&#10;Amara Boateng,20&#10;john@gmail.com,15" style="font-family:monospace;font-size:0.85rem;"></textarea>
         </div>
         <div class="form-field">
@@ -2168,7 +2168,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           <input type="text" id="importScoreCol" placeholder="e.g. Score or 2">
         </div>
         <div class="form-field full">
-          <label>Date Students Participated <span style="color:#6b7280;font-weight:400;">(shown on student dashboard —�� leave blank to use today)</span></label>
+          <label>Date Students Participated <span style="color:#6b7280;font-weight:400;">(shown on student dashboard – leave blank to use today)</span></label>
           <input type="date" id="importParticipatedDate" style="max-width:260px;">
         </div>
       </div>
@@ -2195,7 +2195,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     </div>
   </div>
 
-  <!-- —��—��—�� SCORE IMPORT PANEL (inside quizzes —�� accessed via button) —��—��—�� -->
+  <!-- ––– SCORE IMPORT PANEL (inside quizzes – accessed via button) ––– -->
   <!-- Injected dynamically -->
 
 </div><!-- end dash-main -->
@@ -2214,7 +2214,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
 <script src="js/admin-extras.js"></script>
 <script src="js/admin-gate.js"></script>
 <script>
-// —��—�� Wire switchPanel for quotes panel —��—��
+// –– Wire switchPanel for quotes panel ––
 (function(){
   var _origSw = window.switchPanel;
   window.switchPanel = function(name){
@@ -2223,7 +2223,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
   };
 })();
 
-// —��—�� Admin Notification Bell + Pending Submissions Badge —��—��
+// –– Admin Notification Bell + Pending Submissions Badge ––
 (function(){
   var SUPA = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
   var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
@@ -2295,7 +2295,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     }
   });
 
-  // —��—�� Pending submissions checker —�� pushes bell notifications only (badge removed) —��—��
+  // –– Pending submissions checker – pushes bell notifications only (badge removed) ––
   async function checkPendingSubmissions(){
     try{
       var resp=await fetch(SUPA+'/rest/v1/assignment_submissions?select=id&score=is.null&order=submitted_at.desc',{
@@ -2327,7 +2327,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
     }catch(e){}
   }
 
-  // —��—�� Real-time submissions listener via Supabase —��—��
+  // –– Real-time submissions listener via Supabase ––
   function startSubmissionsRealtime(){
     var sb=window.geramaSupabase; if(!sb) return;
     sb.channel('admin-submissions-live')
@@ -2365,7 +2365,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
   });
 })();
 
-// —��—�� Quick Broadcast function —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– Quick Broadcast function ––––––––––––––––––––––––––––––––––––––
 window.quickBroadcast = async function(){
   var title   = (document.getElementById('quickAnnTitle').value||'').trim();
   var msg     = (document.getElementById('quickAnnMsg').value||'').trim();
@@ -2378,7 +2378,7 @@ window.quickBroadcast = async function(){
   var SUPA = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
   var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
 
-  if(statusEl){statusEl.textContent='Broadcasting—��';statusEl.style.color='#6b7280';}
+  if(statusEl){statusEl.textContent='Broadcasting–';statusEl.style.color='#6b7280';}
 
   try{
     var resp = await fetch(SUPA+'/rest/v1/announcements',{
@@ -2387,14 +2387,14 @@ window.quickBroadcast = async function(){
       body: JSON.stringify({title:title, message:msg, priority:priority, created_at:new Date().toISOString()})
     });
     if(!resp.ok) throw new Error('HTTP '+resp.status);
-    if(statusEl){statusEl.textContent='—�� Broadcast sent! All students will see it on their next page load.';statusEl.style.color='#059669';}
+    if(statusEl){statusEl.textContent='– Broadcast sent! All students will see it on their next page load.';statusEl.style.color='#059669';}
     document.getElementById('quickAnnTitle').value='';
     document.getElementById('quickAnnMsg').value='';
     if(window.logActivity) window.logActivity('Quick broadcast: "'+title+'" ['+priority+']');
     if(window.loadData) window.loadData();
     setTimeout(function(){ if(statusEl)statusEl.textContent=''; }, 5000);
   }catch(e){
-    if(statusEl){statusEl.textContent='—�� '+e.message;statusEl.style.color='#dc2626';}
+    if(statusEl){statusEl.textContent='– '+e.message;statusEl.style.color='#dc2626';}
   }
 };
 </script>

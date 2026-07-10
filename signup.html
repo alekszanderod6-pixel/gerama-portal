@@ -218,7 +218,7 @@
 </div>
 
 <script>
-// —— PASSWORD STRENGTH ——
+// –– PASSWORD STRENGTH ––
 document.getElementById('password').addEventListener('input', function() {
     var val = this.value;
     var fill = document.getElementById('strengthFill');
@@ -239,7 +239,7 @@ document.getElementById('password').addEventListener('input', function() {
     label.style.color = colors[score-1] || colors[0];
 });
 
-// —— SIGNUP FORM SUBMIT ——
+// –– SIGNUP FORM SUBMIT ––
 document.getElementById('form').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -253,7 +253,7 @@ document.getElementById('form').addEventListener('submit', async function(e) {
     var statusMsg      = document.getElementById('statusMsg');
     var submitBtn      = document.getElementById('submitBtn');
 
-    // —— CLIENT-SIDE VALIDATION ——
+    // –– CLIENT-SIDE VALIDATION ––
     if (!fullName)    { showMsg('Please enter your full name.', 'error'); return; }
     if (!program)     { showMsg('Please select your program.', 'error'); return; }
     if (!level)       { showMsg('Please select your academic level.', 'error'); return; }
@@ -269,7 +269,7 @@ document.getElementById('form').addEventListener('submit', async function(e) {
         return;
     }
 
-    // —— SUPABASE CHECK ——
+    // –– SUPABASE CHECK ––
     if (typeof window.geramaSupabase === 'undefined') {
         showMsg('Authentication service not ready. Please refresh the page.', 'error'); return;
     }
@@ -314,7 +314,7 @@ document.getElementById('form').addEventListener('submit', async function(e) {
             return;
         }
 
-        // —— SUCCESS —— email confirmation is OFF so session is active immediately ——
+        // –– SUCCESS –– email confirmation is OFF so session is active immediately ––
         var phone = document.getElementById('phone') ? document.getElementById('phone').value.trim() : '';
         localStorage.setItem('gerama_profile', JSON.stringify({
             name: fullName, program: program, level: level, img: null, phone: phone, email: email
@@ -333,7 +333,7 @@ document.getElementById('form').addEventListener('submit', async function(e) {
         } catch(e) { /* non-critical */ }
 
         if (data.session) {
-            // Logged in immediately — link to OneSignal, then go to site
+            // Logged in immediately – link to OneSignal, then go to site
             sessionStorage.setItem('gerama_loggedIn', 'true');
             localStorage.setItem('gerama_loggedIn', 'true'); // persist for PWA cold-opens
             // Link Supabase user to OneSignal for targeted push notifications

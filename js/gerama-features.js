@@ -1,11 +1,11 @@
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // GERAMA Brilliant Features v1.0
 // Grade sparkline · Class reminders · Emoji reactions
 // Mall new-arrival toasts · Attendance streak
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 'use strict';
 
-// —��—�� 1. GRADE SPARKLINE —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– 1. GRADE SPARKLINE –––––––––––––––––––––––––––––––––––––––––
 // Renders a tiny inline SVG trend line inside the grades card on dashboard.
 window.renderGradeSparkline = function(grades) {
   var el = document.getElementById('gradeSpark');
@@ -15,7 +15,7 @@ window.renderGradeSparkline = function(grades) {
     .filter(function(g){ return g.score !== null && g.score !== undefined; })
     .map(function(g){ return parseFloat(g.score) || 0; })
     .slice(0, 10)
-    .reverse(); // oldest —�� newest left-to-right
+    .reverse(); // oldest – newest left-to-right
 
   if (scores.length < 2) return;
 
@@ -41,10 +41,10 @@ window.renderGradeSparkline = function(grades) {
     '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="display:block;">' +
     polyline + dot +
     '</svg>';
-  el.title = 'Grade trend (last ' + scores.length + ' grades). ' + (trend === '#059669' ? '—�� Improving' : '—�� Declining');
+  el.title = 'Grade trend (last ' + scores.length + ' grades). ' + (trend === '#059669' ? '– Improving' : '– Declining');
 };
 
-// Hook into existing loadDashboardData —�� append sparkline after grades render
+// Hook into existing loadDashboardData – append sparkline after grades render
 (function patchDashGrades(){
   var orig = window.renderGrades;
   if (typeof orig !== 'function') {
@@ -67,7 +67,7 @@ window.renderGradeSparkline = function(grades) {
   };
 })();
 
-// —��—�� 2. CLASS REMINDER (Browser Notification) —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– 2. CLASS REMINDER (Browser Notification) –––––––––––––––––––
 // Adds a "🔔 Remind me" button to upcoming class cards.
 // When clicked, schedules a browser notification 15 min before class.
 window.scheduleClassReminder = function(classId, classTitle, scheduledAt) {
@@ -82,7 +82,7 @@ window.scheduleClassReminder = function(classId, classTitle, scheduledAt) {
     var delay     = remindAt - now;
 
     if (delay <= 0) {
-      alert('This class starts in less than 15 minutes —�� reminder not needed!'); return;
+      alert('This class starts in less than 15 minutes – reminder not needed!'); return;
     }
 
     // Persist reminder in localStorage
@@ -109,7 +109,7 @@ window.scheduleClassReminder = function(classId, classTitle, scheduledAt) {
     }
 
     var eta = Math.round(delay / 60000);
-    alert('—�� Reminder set! We\'ll notify you ' + (eta > 60 ? Math.round(eta/60) + ' hour(s)' : eta + ' minute(s)') + ' before the class starts.');
+    alert('– Reminder set! We\'ll notify you ' + (eta > 60 ? Math.round(eta/60) + ' hour(s)' : eta + ' minute(s)') + ' before the class starts.');
   });
 };
 
@@ -151,7 +151,7 @@ window.scheduleClassReminder = function(classId, classTitle, scheduledAt) {
       if (c.status === 'live' || c.status === 'ended') return;
       var dt = new Date(c.scheduled_at);
       if (dt.getTime() < Date.now()) return; // already past
-      // Find the card —�� match by title text (safest without adding data-id to HTML)
+      // Find the card – match by title text (safest without adding data-id to HTML)
       var cards = document.querySelectorAll('.class-card');
       cards.forEach(function(card) {
         var titleEl = card.querySelector('.class-title');
@@ -167,7 +167,7 @@ window.scheduleClassReminder = function(classId, classTitle, scheduledAt) {
         btn.innerHTML = '<i class="fas fa-bell"></i> ' + (alreadySet ? 'Reminder set' : 'Remind me');
         btn.disabled = alreadySet;
         btn.onclick = function() {
-          window.scheduleClassReminder(c.id, c.course + ' —�� ' + c.topic, c.scheduled_at);
+          window.scheduleClassReminder(c.id, c.course + ' – ' + c.topic, c.scheduled_at);
         };
         var actionsEl = card.querySelector('.class-actions');
         if (actionsEl) actionsEl.appendChild(btn);
@@ -176,10 +176,10 @@ window.scheduleClassReminder = function(classId, classTitle, scheduledAt) {
   };
 })();
 
-// —��—�� 3. EMOJI REACTIONS ON DM MESSAGES —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// Adds a quick-react bar (👍—��️😂😮😢) that floats when hovering a message bubble.
-// Reactions are stored per-message in localStorage (client-side only —�� no DB change needed).
-var REACT_EMOJIS = ['👍','—��️','😂','😮','😢','🔥'];
+// –– 3. EMOJI REACTIONS ON DM MESSAGES –––––––––––––––––––––––––
+// Adds a quick-react bar (👍–️😂😮😢) that floats when hovering a message bubble.
+// Reactions are stored per-message in localStorage (client-side only – no DB change needed).
+var REACT_EMOJIS = ['👍','–️','😂','😮','😢','🔥'];
 
 window.toggleReactBar = function(msgId, anchorEl) {
   var existing = document.getElementById('reactBar-' + msgId);
@@ -295,10 +295,10 @@ window.renderReactions = function(msgId) {
   };
 })();
 
-// —��—�� 4. MALL NEW-ARRIVAL TOAST —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– 4. MALL NEW-ARRIVAL TOAST ––––––––––––––––––––––––––––––––––
 // Shows a toast notification at the bottom of the page when a new
 // product arrives via realtime. Already handled in mall.html realtime
-// callback —�� we just provide the toast utility here.
+// callback – we just provide the toast utility here.
 window.showMallToast = function(productName, sellerName) {
   var existing = document.getElementById('mallToast');
   if (existing) existing.remove();
@@ -322,8 +322,8 @@ window.showMallToast = function(productName, sellerName) {
   }, 5000);
 };
 
-// —��—�� 5. ATTENDANCE STREAK BADGE —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// Computes how many consecutive weeks the student attended —��1 class,
+// –– 5. ATTENDANCE STREAK BADGE –––––––––––––––––––––––––––––––––
+// Computes how many consecutive weeks the student attended –1 class,
 // then injects a "🔥 X-week streak" badge on the dashboard attendance stat box.
 window.computeAttendanceStreak = function(records) {
   if (!records || !records.length) return 0;
@@ -360,7 +360,7 @@ window.computeAttendanceStreak = function(records) {
   window.loadDashboardData = async function() {
     await orig();
     // After data loads, attendance records are fetched inside loadDashboardData.
-    // We re-fetch them here for the streak calc (lightweight —�� limit 50).
+    // We re-fetch them here for the streak calc (lightweight – limit 50).
     try {
       var sb = window.geramaSupabase;
       if (!sb) return;
@@ -384,7 +384,7 @@ window.computeAttendanceStreak = function(records) {
   };
 })();
 
-// —��—�� 6. SMART GRADE SUMMARY (% band) —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –– 6. SMART GRADE SUMMARY (% band) ––––––––––––––––––––––––––––
 // After grades load on the dashboard, show a smart summary line:
 // e.g. "Averaging 72% · 3 A grades · You're doing great! 💪"
 window.showGradeSummaryLine = function(grades) {
@@ -405,7 +405,7 @@ window.showGradeSummaryLine = function(grades) {
   if (!count) return;
 
   var avg = Math.round(total / count);
-  var msg = avg >= 70 ? "You're doing great! 💪" : avg >= 50 ? "Keep pushing —�� you're almost there! 📚" : "Review your weak areas —�� you can do this! 🌱";
+  var msg = avg >= 70 ? "You're doing great! 💪" : avg >= 50 ? "Keep pushing – you're almost there! 📚" : "Review your weak areas – you can do this! 🌱";
   var color = avg >= 70 ? '#059669' : avg >= 50 ? '#d97706' : '#dc2626';
 
   var line = document.createElement('div');
@@ -428,4 +428,4 @@ window.showGradeSummaryLine = function(grades) {
   };
 })();
 
-console.log('[GERAMA] Brilliant features loaded —��');
+console.log('[GERAMA] Brilliant features loaded –');

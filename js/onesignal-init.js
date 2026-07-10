@@ -1,8 +1,8 @@
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// GERAMA Portal —�� OneSignal Web Push Notifications
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+// GERAMA Portal – OneSignal Web Push Notifications
 // App ID: 9aa2964d-5435-492c-9dd8-7c873d371976
 // Fixed: removed duplicate IIFE that was causing double-init bug
-// —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 (function () {
     'use strict';
@@ -18,7 +18,7 @@
     var isPWA = window.matchMedia('(display-mode: standalone)').matches ||
                 window.navigator.standalone === true;
 
-    // —��—�� 1. Initialize OneSignal (ONCE) —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– 1. Initialize OneSignal (ONCE) ––––––––––––––––––––––––––––
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function (OneSignal) {
         try {
@@ -26,7 +26,7 @@
                 appId: ONESIGNAL_APP_ID,
                 safari_web_id: 'web.onesignal.auto.4924b4f0-134c-425c-876d-dc71d8371c02',
                 allowLocalhostAsSecureOrigin: true,
-                // Disable the built-in iframe bell —�� it breaks on iOS PWA.
+                // Disable the built-in iframe bell – it breaks on iOS PWA.
                 // We inject our own native bell button below instead.
                 notifyButton: { enable: false },
                 promptOptions: {
@@ -34,7 +34,7 @@
                 }
             });
 
-            console.log('[GERAMA] OneSignal initialized —��');
+            console.log('[GERAMA] OneSignal initialized –');
 
             _tryAutoLink();
 
@@ -48,7 +48,7 @@
         }
     });
 
-    // —��—�� 2. Link Supabase UUID + email to OneSignal —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– 2. Link Supabase UUID + email to OneSignal ––––––––––––––––
     // Called after login, signup, and on every page load for active sessions.
     window.geramaLinkOneSignal = async function () {
         try {
@@ -65,7 +65,7 @@
                 if (userEmail && window.OneSignal.User && window.OneSignal.User.addEmail) {
                     await window.OneSignal.User.addEmail(userEmail);
                 }
-                console.log('[GERAMA] OneSignal linked —�� user:', userId, 'email:', userEmail);
+                console.log('[GERAMA] OneSignal linked – user:', userId, 'email:', userEmail);
             } else {
                 OneSignalDeferred.push(async function (OneSignal) {
                     try {
@@ -81,7 +81,7 @@
         }
     };
 
-    // —��—�� 3. Logout cleanup —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– 3. Logout cleanup –––––––––––––––––––––––––––––––––––––––––
     window.geramaLogoutOneSignal = async function () {
         try {
             if (typeof window.OneSignal !== 'undefined' && window.OneSignal.logout) {
@@ -105,7 +105,7 @@
         attempt(20);
     }
 
-    // —��—�� 4. Native bell button (works on iOS PWA —�� no iframe) —��—��—��—��—��—��
+    // –– 4. Native bell button (works on iOS PWA – no iframe) ––––––
     function _injectNativeBell(OneSignal) {
         if (document.getElementById('geramaNativeBell')) return;
 
@@ -145,9 +145,9 @@
                     await OneSignal.Notifications.requestPermission();
                     window.geramaLinkOneSignal && window.geramaLinkOneSignal();
                     bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-                    bell.title = 'GERAMA notifications ON —�� tap to manage';
+                    bell.title = 'GERAMA notifications ON – tap to manage';
                     var tip = document.createElement('div');
-                    tip.textContent = '—�� Alerts ON';
+                    tip.textContent = '– Alerts ON';
                     tip.style.cssText = [
                         'position:fixed', 'bottom:134px', 'right:10px', 'z-index:8001',
                         'background:#059669', 'color:white',
@@ -169,7 +169,7 @@
                 var optedIn = await OneSignal.User.PushSubscription.optedIn;
                 if (optedIn) {
                     bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-                    bell.title = 'GERAMA notifications ON —�� tap to manage';
+                    bell.title = 'GERAMA notifications ON – tap to manage';
                 }
             } catch (e) {}
         }
@@ -178,7 +178,7 @@
         setTimeout(_updateBellState, 1000);
     }
 
-    // —��—�� 5. Smart subscribe banner —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+    // –– 5. Smart subscribe banner –––––––––––––––––––––––––––––––––
     async function _maybeShowBanner(OneSignal) {
         try {
             var dismissed = parseInt(localStorage.getItem('gerama_notif_dismissed') || '0');
@@ -210,7 +210,7 @@
         if (!('Notification' in window) || Notification.permission === 'denied') return;
 
         var subtext = isPWA
-            ? 'Get instant GERAMA alerts on your phone —�� even when the app is closed.'
+            ? 'Get instant GERAMA alerts on your phone – even when the app is closed.'
             : 'Get alerts on this device. For background notifications, save to homescreen first.';
 
         var banner = document.createElement('div');
@@ -287,13 +287,13 @@
                 '<div style="flex:1;min-width:0;">' +
                     '<div style="font-size:0.88rem;font-weight:800;margin-bottom:0.3rem;">Get GERAMA notifications on iPhone</div>' +
                     '<div style="font-size:0.78rem;opacity:0.9;line-height:1.6;">' +
-                        '1. Tap the <strong>Share</strong> button <span style="font-size:1rem;">—��️</span> at the bottom of Safari<br>' +
+                        '1. Tap the <strong>Share</strong> button <span style="font-size:1rem;">–️</span> at the bottom of Safari<br>' +
                         '2. Scroll down and tap <strong>"Add to Home Screen"</strong><br>' +
                         '3. Open the GERAMA app from your home screen<br>' +
                         '4. Tap <strong>"Allow"</strong> when prompted for notifications' +
                     '</div>' +
                 '</div>' +
-                '<button id="geramaIOSDismiss" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Inter,sans-serif;line-height:1;">—��</button>' +
+                '<button id="geramaIOSDismiss" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Inter,sans-serif;line-height:1;">–</button>' +
             '</div>';
 
         document.body.appendChild(banner);

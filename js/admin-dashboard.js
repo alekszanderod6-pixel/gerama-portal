@@ -1,4 +1,4 @@
-/* GERAMA Admin Dashboard — extracted JS — v2026.06.20 */
+/* GERAMA Admin Dashboard – extracted JS – v2026.06.20 */
 
 (function(){
   'use strict';
@@ -309,7 +309,7 @@
     }
 
     tbody.innerHTML = materialsHistory.map(function(m,i){
-      var d = m.date ? new Date(m.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      var d = m.date ? new Date(m.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '–';
       var statusBadge = m.status === 'approved'
         ? '<span class="badge badge-approved">live</span>'
         : '<span class="badge badge-pending">'+window.escHtml(m.status||'pending')+'</span>';
@@ -694,7 +694,7 @@
           '<div class="sub-info">' +
             '<strong>' + window.escHtml(sw.name||'Software') + typeTag + zipTag + '</strong>' +
             '<div class="sub-meta">' +
-              '<b>Category:</b> ' + window.escHtml(sw.category||'—') +
+              '<b>Category:</b> ' + window.escHtml(sw.category||'–') +
               (sw.file_size ? ' &nbsp;|&nbsp; <b>Size:</b> ' + window.escHtml(sw.file_size) : '') + '<br>' +
               '<a href="' + window.escAttr(sw.file_url||'#') + '" target="_blank" style="color:#1B5E20;font-size:0.8rem;">' +
                 '<i class="fas fa-external-link-alt"></i> View / Test Link</a>' +
@@ -737,13 +737,13 @@
       var totalRes  = await safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}); });
 
       var setEl = function(id,val){ var e=document.getElementById(id); if(e) e.textContent=val||0; };
-      // Only update the visitor-panel specific elements (NOT the overview stat boxes — those are handled by loadOverviewStats)
+      // Only update the visitor-panel specific elements (NOT the overview stat boxes – those are handled by loadOverviewStats)
       setEl('vsToday',  todayRes.count||0);
       setEl('vsWeek',   weekRes.count||0);
       setEl('vsMonth',  monthRes.count||0);
       setEl('vsTotal',  totalRes.count||0);
 
-      // Page breakdown — fetch limited rows for display only
+      // Page breakdown – fetch limited rows for display only
       var {data:all} = await sb.from('page_views').select('page').limit(1000);
       var pageCounts = {};
       (all||[]).forEach(function(v){
@@ -832,7 +832,7 @@
     var weekStart  = new Date(now.getTime() - 7*24*60*60*1000).toISOString();
     var set = function(id, val){ var e=document.getElementById(id); if(e) e.textContent = (val!==null&&val!==undefined) ? val : '0'; };
 
-    // Run every query independently — one failure never blocks others
+    // Run every query independently – one failure never blocks others
     var safe = async function(fn){ try{ return await fn(); }catch(e){ return {count:0,data:[]}; } };
 
     var [todayRes, weekRes, totalRes, quizRes, asgRes, clsRes, clsReqRes, qrRes, subRes, userRes, matRes, annRes, ungradedRes] = await Promise.all([
@@ -863,7 +863,7 @@
     set('statMaterials',   matRes.count||0);
     set('statAnn',         annRes.count||0);
     set('statApproved',    subRes.count||0);  // reuse "Approved Subs" box for total submissions
-    // Ungraded count — clickable red stat box
+    // Ungraded count – clickable red stat box
     var ungradedCount = ungradedRes.count || 0;
     set('statUngradedCount', ungradedCount);
     var ugBox = document.getElementById('statUngradedCount');
@@ -1261,7 +1261,7 @@ window.loadQzList = async function(){
       '<div class="sub-info">'+
         '<strong>'+window.escHtml(q.title)+badge+'</strong>'+
         '<div class="sub-meta">'+
-          '<b>Course:</b> '+window.escHtml(q.course||'—')+
+          '<b>Course:</b> '+window.escHtml(q.course||'–')+
           ' | <b>Deadline:</b> '+dl+
           (q.duration_mins?' | <b>Time:</b> '+q.duration_mins+' min':'')+
           (q.points?' | <b>Marks:</b> '+q.points:'')+
@@ -1293,7 +1293,7 @@ window.deleteQuiz = async function(id){
   window.showStatus('quizStatus','Quiz deleted.','ok');
 };
 
-// Toggle quiz grades drawer — shows all student_grades for that quiz title
+// Toggle quiz grades drawer – shows all student_grades for that quiz title
 window.toggleQzGrades = async function(quizId, quizTitle){
   var drawer = document.getElementById('qzgrades-'+quizId);
   if(!drawer) return;
@@ -1321,11 +1321,11 @@ window.toggleQzGrades = async function(quizId, quizTitle){
   '</div>' +
   '<div class="tbl-wrap"><table style="min-width:340px;"><thead><tr style="background:#f0fdf4;"><th style="font-size:0.75rem;">Student</th><th style="font-size:0.75rem;">Email</th><th style="font-size:0.75rem;">Score</th><th style="font-size:0.75rem;">Graded</th></tr></thead><tbody>' +
   data.map(function(g){
-    var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '—';
+    var dt = g.graded_at ? new Date(g.graded_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '–';
     var scoreColor = (g.score>=70)?'#059669':(g.score>=50)?'#d97706':'#dc2626';
     return '<tr>' +
-      '<td style="font-size:0.82rem;font-weight:600;">'+window.escHtml(g.student_name||'—')+'</td>' +
-      '<td style="font-size:0.75rem;color:#6b7280;">'+window.escHtml(g.student_email||'—')+'</td>' +
+      '<td style="font-size:0.82rem;font-weight:600;">'+window.escHtml(g.student_name||'–')+'</td>' +
+      '<td style="font-size:0.75rem;color:#6b7280;">'+window.escHtml(g.student_email||'–')+'</td>' +
       '<td><strong style="color:'+scoreColor+';">'+g.score+'</strong></td>' +
       '<td style="font-size:0.72rem;color:#9ca3af;white-space:nowrap;">'+dt+'</td>' +
     '</tr>';
@@ -1384,7 +1384,7 @@ window.closeAllExpiredQuizzes = async function(){
   window.loadQzList();
 };
 
-// Publish quiz — click handler
+// Publish quiz – click handler
 document.addEventListener('click', function(e){
   if(e.target.id === 'publishQuizBtn' || e.target.closest('#publishQuizBtn')) publishQuiz();
 });
@@ -1475,10 +1475,10 @@ async function publishQuiz(){
     };
 
     var {error} = await sb.from('quizzes').insert(record);
-    if(error) throw new Error(error.message + (error.details ? ' — '+error.details : ''));
+    if(error) throw new Error(error.message + (error.details ? ' – '+error.details : ''));
 
     var modeLabel = isPdf ? 'PDF Upload' : isPaper ? 'Question Paper ('+JSON.parse(paperQuestions).length+' questions)' : 'Link'+(links.length>1?' ('+links.length+' versions)':'');
-    window.logActivity('Published quiz: '+title+' — '+modeLabel);
+    window.logActivity('Published quiz: '+title+' – '+modeLabel);
     window.showStatus('quizStatus','✅ Quiz published! Students can now '+(isPaper?'open the question paper':isPdf?'download the PDF':'take it')+' on the Classroom page.','ok');
 
     // Clear form
@@ -1522,13 +1522,13 @@ window.loadAsgList = async function(){
   if(error||!data||!data.length){ el.innerHTML='<p style="color:#9ca3af;text-align:center;padding:1rem;">No assignments posted yet.</p>'; return; }
   var now = Date.now();
   el.innerHTML = data.map(function(a){
-    var dl = a.deadline ? new Date(a.deadline).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+    var dl = a.deadline ? new Date(a.deadline).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '–';
     var isPast = a.deadline && new Date(a.deadline).getTime() < now;
     var badge = isPast ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;margin-left:0.4rem;">Closed</span>'
                        : '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;margin-left:0.4rem;">Active</span>';
     return '<div class="sub-card">'+
       '<div class="sub-info"><strong>'+window.escHtml(a.title)+badge+'</strong>'+
-      '<div class="sub-meta"><b>Course:</b> '+window.escHtml(a.course||'—')+' | <b>Deadline:</b> '+dl+(a.points?' | <b>Marks:</b> '+a.points:'')+'</div></div>'+
+      '<div class="sub-meta"><b>Course:</b> '+window.escHtml(a.course||'–')+' | <b>Deadline:</b> '+dl+(a.points?' | <b>Marks:</b> '+a.points:'')+'</div></div>'+
       '<div class="sub-actions">'+
         '<button class="btn-gold" style="font-size:0.78rem;padding:0.35rem 0.8rem;" onclick="extendAsgDeadline(\''+a.id+'\')"><i class="fas fa-clock"></i> Extend</button>'+
         '<button class="btn-danger" onclick="deleteAssignment(\''+a.id+'\')"><i class="fas fa-trash"></i></button>'+
@@ -1626,7 +1626,7 @@ window._renderSubmissions = function(data, el){
     var pendingCount = subs.length - gradedCount;
 
     var rows = subs.map(function(s){
-      var dt   = s.submitted_at ? new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      var dt   = s.submitted_at ? new Date(s.submitted_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '–';
       var cur  = (s.score!==null&&s.score!==undefined&&s.score!=='') ? s.score : '';
       var sid  = String(s.id).replace(/[^a-z0-9]/gi,'');
       var badge = cur!==''
@@ -1634,7 +1634,7 @@ window._renderSubmissions = function(data, el){
         : '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:10px;">⏳ Ungraded</span>';
       return '<tr>'+
         '<td>'+
-          '<strong style="font-size:0.88rem;">'+window.escHtml(s.student_name||'—')+'</strong>'+
+          '<strong style="font-size:0.88rem;">'+window.escHtml(s.student_name||'–')+'</strong>'+
           '<div style="font-size:0.75rem;color:#6b7280;">'+window.escHtml(s.student_email||'')+'</div>'+
           (s.index_number?'<div style="font-size:0.7rem;color:#1B5E20;font-weight:600;">'+window.escHtml(s.index_number)+'</div>':'')+
         '</td>'+
@@ -1642,7 +1642,7 @@ window._renderSubmissions = function(data, el){
         '<td>'+
           (s.file_url
             ? '<a href="'+window.escAttr(s.file_url)+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;font-weight:600;white-space:nowrap;"><i class="fas fa-download"></i> File</a>'
-            : '<span style="color:#9ca3af;font-size:0.78rem;">—</span>')+
+            : '<span style="color:#9ca3af;font-size:0.78rem;">–</span>')+
         '</td>'+
         '<td>'+badge+'</td>'+
         '<td>'+
@@ -1817,7 +1817,7 @@ window.gradeSubmission = async function(btn){
       var subRes = await sb.from('assignment_submissions').select('student_name,submitted_at').eq('id',subId).maybeSingle();
       if(subRes && subRes.data && subRes.data.student_name) studentNameVal = subRes.data.student_name;
 
-      // Upsert grade atomically — no more delete+insert race
+      // Upsert grade atomically – no more delete+insert race
       await window.upsertStudentGrade({
         student_email:    email,
         student_name:     studentNameVal || null,
@@ -1952,7 +1952,7 @@ window.toggleClsPlatform = function(){
     if(virtualInfo) virtualInfo.style.display = 'none';
     if(googleMeetField) googleMeetField.style.display = 'block';
     if(hintBox){
-      hintBox.innerHTML = '<strong><i class="fab fa-google"></i> Google Meet — reliable video conferencing.</strong> Paste your custom Google Meet link.';
+      hintBox.innerHTML = '<strong><i class="fab fa-google"></i> Google Meet – reliable video conferencing.</strong> Paste your custom Google Meet link.';
       hintBox.style.background = '#e8f0fe';
       hintBox.style.borderColor = '#4285F4';
       hintBox.style.color = '#1967d2';
@@ -1961,7 +1961,7 @@ window.toggleClsPlatform = function(){
     if(virtualInfo) virtualInfo.style.display = 'block';
     if(googleMeetField) googleMeetField.style.display = 'none';
     if(hintBox){
-      hintBox.innerHTML = '<strong><i class="fas fa-video"></i> Powered by Jitsi Meet — free, no account needed.</strong> A unique meeting link is generated automatically.';
+      hintBox.innerHTML = '<strong><i class="fas fa-video"></i> Powered by Jitsi Meet – free, no account needed.</strong> A unique meeting link is generated automatically.';
       hintBox.style.background = '#fffbeb';
       hintBox.style.borderColor = '#fcd34d';
       hintBox.style.color = '#92400e';
@@ -2108,13 +2108,13 @@ window.loadClsList = async function(){
     var deleteBtn = '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')" style="font-size:0.78rem;padding:0.4rem 0.7rem;"><i class="fas fa-trash"></i></button>';
 
     var locationInfo = isInPerson
-      ? '<br><i class="fas fa-map-marker-alt" style="color:#dc2626;margin-right:0.3rem;"></i><strong>Venue:</strong> '+window.escHtml(c.venue||'—')+
+      ? '<br><i class="fas fa-map-marker-alt" style="color:#dc2626;margin-right:0.3rem;"></i><strong>Venue:</strong> '+window.escHtml(c.venue||'–')+
         (c.map_link?'&nbsp;<a href="'+window.escAttr(c.map_link)+'" target="_blank" style="color:#4285F4;font-size:0.8rem;"><i class="fab fa-google"></i> View Map</a>':'')
       : (meetLink?'<br><a href="'+window.escAttr(meetLink)+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;"><i class="fas fa-link"></i> '+window.escHtml(meetLink.substring(0,55))+'</a>':'');
 
     return '<div class="sub-card" style="'+(isLive?'border-left:4px solid #dc2626;background:linear-gradient(135deg,#fff5f5,#fff);':'')+'">'+
       '<div class="sub-info">'+
-        '<strong>'+window.escHtml(c.course)+' — '+window.escHtml(c.topic)+' '+badge+typeBadge+'</strong>'+
+        '<strong>'+window.escHtml(c.course)+' – '+window.escHtml(c.topic)+' '+badge+typeBadge+'</strong>'+
         '<div class="sub-meta"><b>When:</b> '+dt+(c.tutor?' | <b>Tutor:</b> '+window.escHtml(c.tutor):'')+
         (c.session_type?' | <b>Type:</b> '+window.escHtml(c.session_type === 'mentorship' ? 'Mentorship' : 'Classroom'):'')+
         (c.target_group?' | <b>Group:</b> '+window.escHtml(c.target_group):' | <b>Group:</b> All')+
@@ -2150,7 +2150,7 @@ window.setClassStatus = async function(id, status){
   var dbStatus = status === 'upcoming' ? 'upcoming' : status;
   var {error} = await sb.from('classes').update({status: dbStatus}).eq('id', id);
   if(error){ alert('Error: '+error.message); return; }
-  var label = status==='live' ? '🔴 Class is now LIVE!' : status==='ended' ? '✅ Class ended — moved to history.' : '📅 Class reopened.';
+  var label = status==='live' ? '🔴 Class is now LIVE!' : status==='ended' ? '✅ Class ended – moved to history.' : '📅 Class reopened.';
   window.logActivity(label+' ('+id+')');
   window.loadClsList();
 };
@@ -2163,7 +2163,7 @@ window.deleteClass = async function(id){
 };
 
 // ─── EDIT SCHEDULED CLASS ─────────────────────────────────────────────────────
-// Allows changing venue, date/time, tutor, description — the meeting link is
+// Allows changing venue, date/time, tutor, description – the meeting link is
 // shown for reference only and is NEVER modified here.
 window.openEditClassModal = function(classId) {
   var c = (window._adminClassCache || {})[classId];
@@ -2199,10 +2199,10 @@ window.openEditClassModal = function(classId) {
         '<button onclick="document.getElementById(\'editClassModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">✕</button>' +
       '</div>' +
 
-      // Course + Topic (read-only — they identify the class)
+      // Course + Topic (read-only – they identify the class)
       '<div style="background:#f0fdf4;border:1px solid #c8e6c9;border-radius:12px;padding:0.9rem 1.1rem;margin-bottom:1.2rem;">' +
         '<div style="font-size:0.78rem;font-weight:700;color:#1B5E20;margin-bottom:0.3rem;"><i class="fas fa-lock" style="margin-right:0.3rem;"></i>Class Identity (read-only)</div>' +
-        '<div style="font-size:0.9rem;font-weight:700;color:#1e2a3e;">' + window.escHtml(c.course) + ' — ' + window.escHtml(c.topic) + '</div>' +
+        '<div style="font-size:0.9rem;font-weight:700;color:#1e2a3e;">' + window.escHtml(c.course) + ' – ' + window.escHtml(c.topic) + '</div>' +
       '</div>' +
 
       // Meeting link shown for reference, not editable
@@ -2330,8 +2330,8 @@ window.loadClassRequests = async function(){
               : r.status==='rejected' ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Rejected</span>'
               : '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Pending</span>';
     return '<div class="sub-card">'+
-      '<div class="sub-info"><strong>'+window.escHtml(r.course)+' — '+window.escHtml(r.topic)+' '+badge+'</strong>'+
-      '<div class="sub-meta"><b>By:</b> '+window.escHtml(r.requester_name||'—')+' ('+window.escHtml(r.requester_email||'—')+')<br><b>Proposed:</b> '+dt+'</div></div>'+
+      '<div class="sub-info"><strong>'+window.escHtml(r.course)+' – '+window.escHtml(r.topic)+' '+badge+'</strong>'+
+      '<div class="sub-meta"><b>By:</b> '+window.escHtml(r.requester_name||'–')+' ('+window.escHtml(r.requester_email||'–')+')<br><b>Proposed:</b> '+dt+'</div></div>'+
       '<div class="sub-actions">'+
         (r.status==='pending'?'<button class="btn-success" onclick="approveClassRequest(\''+r.id+'\',\''+window.escAttr(r.course)+'\',\''+window.escAttr(r.topic)+'\',\''+window.escAttr(r.scheduled_at)+'\',\''+window.escAttr(r.requester_email||'')+'\')"><i class="fas fa-check"></i> Approve</button>':'')+
         (r.status==='pending'?'<button class="btn-danger" onclick="rejectClassRequest(\''+r.id+'\')"><i class="fas fa-times"></i> Reject</button>':'')+
@@ -2392,7 +2392,7 @@ window.loadPotwList = async function(){
     return '<div style="display:flex;align-items:center;gap:0.9rem;padding:0.9rem 1rem;background:white;border-radius:14px;border:1px solid #e8f5e9;margin-bottom:0.7rem;box-shadow:0 2px 8px rgba(0,0,0,0.04);">'+
       photoHtml+
       '<div style="flex:1;min-width:0;">'+
-        '<div style="font-size:0.92rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem;">'+window.escHtml(p.name||'—')+badge+'</div>'+
+        '<div style="font-size:0.92rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem;">'+window.escHtml(p.name||'–')+badge+'</div>'+
         (p.role?'<div style="font-size:0.78rem;color:#1B5E20;font-weight:600;margin-top:0.1rem;">'+window.escHtml(p.role)+'</div>':'')+
         '<div style="font-size:0.78rem;color:#6b7280;margin-top:0.15rem;line-height:1.5;word-break:break-word;">'+window.escHtml((p.bio||'').substring(0,90))+(p.bio&&p.bio.length>90?'…':'')+'</div>'+
         (dt?'<div style="font-size:0.68rem;color:#9ca3af;margin-top:0.2rem;">'+dt+'</div>':'')+
@@ -2503,16 +2503,16 @@ window.loadQuizRequests = async function(){
     var badge = r.status==='approved' ? '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Approved</span>'
               : r.status==='rejected' ? '<span style="background:#fee2e2;color:#991b1b;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Rejected</span>'
               : '<span style="background:#ede9fe;color:#5b21b6;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">Pending</span>';
-    var dt = r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    var dt = r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '–';
     var linkOrFile = r.file_url
       ? '<a href="'+window.escAttr(r.file_url)+'" target="_blank" style="color:#dc2626;font-size:0.82rem;"><i class="fas fa-file-pdf"></i> View Uploaded PDF</a>'
-      : (r.quiz_url ? '<a href="'+window.escAttr(r.quiz_url)+'" target="_blank" style="color:#6366f1;font-size:0.82rem;"><i class="fas fa-external-link-alt"></i> Preview Quiz Link</a>' : '—');
+      : (r.quiz_url ? '<a href="'+window.escAttr(r.quiz_url)+'" target="_blank" style="color:#6366f1;font-size:0.82rem;"><i class="fas fa-external-link-alt"></i> Preview Quiz Link</a>' : '–');
     return '<div class="sub-card">'+
       '<div class="sub-info">'+
         '<strong>'+window.escHtml(r.title||'Untitled Quiz')+' '+badge+'</strong>'+
         '<div class="sub-meta">'+
-          '<b>Submitted by:</b> '+window.escHtml(r.submitted_by||'—')+' ('+window.escHtml(r.email||'—')+')<br>'+
-          '<b>Course:</b> '+window.escHtml(r.course||'—')+' | <b>Date:</b> '+dt+'<br>'+
+          '<b>Submitted by:</b> '+window.escHtml(r.submitted_by||'–')+' ('+window.escHtml(r.email||'–')+')<br>'+
+          '<b>Course:</b> '+window.escHtml(r.course||'–')+' | <b>Date:</b> '+dt+'<br>'+
           linkOrFile+
           (r.description?'<br><span style="color:#374151;font-size:0.82rem;">'+window.escHtml(r.description)+'</span>':'')+
         '</div>'+
@@ -2576,7 +2576,7 @@ window.generateAttendanceCode = async function(){
   // Close any existing active sessions first (best-effort, don't block on error)
   try { await sb.from('attendance_sessions').update({is_active:false}).eq('is_active',true); } catch(e){}
 
-  // Insert the new session — only include columns that definitely exist
+  // Insert the new session – only include columns that definitely exist
   var insertPayload = {
     code:       code,
     class_title: title,
@@ -2589,7 +2589,7 @@ window.generateAttendanceCode = async function(){
   var data, error;
   var res1 = await sb.from('attendance_sessions').insert({...insertPayload, duration_mins: duration}).select().single();
   if(res1.error && (res1.error.message.includes('duration_mins') || res1.error.code === '42703')) {
-    // Column doesn't exist — insert without it
+    // Column doesn't exist – insert without it
     var res2 = await sb.from('attendance_sessions').insert(insertPayload).select().single();
     data = res2.data; error = res2.error;
   } else {
@@ -2679,7 +2679,7 @@ window.loadAttRecords = async function(){
   }
 
   // Group by session
-  // Group by session — use session_id if available, fall back to class_title
+  // Group by session – use session_id if available, fall back to class_title
   var bySession = {};
   data.forEach(function(r){
     var key = r.session_id ? r.session_id : (r.class_title||'Unknown Session');
@@ -2693,13 +2693,13 @@ window.loadAttRecords = async function(){
     var sessionId = group.session_id;
     var records = group.records;
     var rows = records.map(function(r){
-      var dt = r.marked_at ? new Date(r.marked_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+      var dt = r.marked_at ? new Date(r.marked_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '–';
       return '<tr>'+
-        '<td><strong>'+window.escHtml(r.student_name||'—')+'</strong></td>'+
-        '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(r.student_email||'—')+'</td>'+
-        '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(r.student_phone||'—')+'</td>'+
+        '<td><strong>'+window.escHtml(r.student_name||'–')+'</strong></td>'+
+        '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(r.student_email||'–')+'</td>'+
+        '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(r.student_phone||'–')+'</td>'+
         '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
-        '<td style="font-size:0.78rem;color:#6b7280;">'+(r.location_name ? '<i class=\"fas fa-map-marker-alt\" style=\"color:#dc2626;margin-right:3px;\"></i> '+window.escHtml(r.location_name) : (r.latitude ? '<i class=\"fas fa-map-marker-alt\" style=\"color:#dc2626;margin-right:3px;\"></i> '+r.latitude.toFixed(4)+','+r.longitude.toFixed(4) : '—'))+'</td>'+
+        '<td style="font-size:0.78rem;color:#6b7280;">'+(r.location_name ? '<i class=\"fas fa-map-marker-alt\" style=\"color:#dc2626;margin-right:3px;\"></i> '+window.escHtml(r.location_name) : (r.latitude ? '<i class=\"fas fa-map-marker-alt\" style=\"color:#dc2626;margin-right:3px;\"></i> '+r.latitude.toFixed(4)+','+r.longitude.toFixed(4) : '–'))+'</td>'+
         '<td><span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.6rem;border-radius:20px;">+'+( r.points||1)+' pt</span></td>'+
         '<td><button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" data-attid="'+r.id+'" data-attname="'+window.escAttr(r.student_name||'')+'" onclick="removeAttRecord(this.getAttribute(\'data-attid\'),this.getAttribute(\'data-attname\'))" title="Remove (requires secret code)"><i class="fas fa-minus-circle"></i></button></td>'+
       '</tr>';
@@ -2747,11 +2747,11 @@ window.loadQzAttempts = async function(){
 
   el.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Student</th><th>Email</th><th>Quiz</th><th>Completed</th></tr></thead><tbody>'+
     data.map(function(a){
-      var quizTitle = (a.quizzes && a.quizzes.title) ? window.escHtml(a.quizzes.title) : '<span style="color:#9ca3af;">—</span>';
-      var dt = a.completed_at ? new Date(a.completed_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      var quizTitle = (a.quizzes && a.quizzes.title) ? window.escHtml(a.quizzes.title) : '<span style="color:#9ca3af;">–</span>';
+      var dt = a.completed_at ? new Date(a.completed_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '–';
       return '<tr>'+
-        '<td><strong>'+window.escHtml(a.student_name||'—')+'</strong></td>'+
-        '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(a.student_email||'—')+'</td>'+
+        '<td><strong>'+window.escHtml(a.student_name||'–')+'</strong></td>'+
+        '<td style="font-size:0.78rem;color:#6b7280;">'+window.escHtml(a.student_email||'–')+'</td>'+
         '<td>'+quizTitle+'</td>'+
         '<td style="font-size:0.8rem;white-space:nowrap;">'+dt+'</td>'+
       '</tr>';
@@ -2813,7 +2813,7 @@ window.loadUsers = async function(){
       '<th>Status</th><th>Actions</th>'+
     '</tr></thead><tbody>'+
     data.map(function(u){
-      var dt = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      var dt = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '–';
       var isActive = u.is_active !== false;
       var statusBadge = isActive
         ? '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Active</span>'
@@ -2831,11 +2831,11 @@ window.loadUsers = async function(){
         : '<span style="color:#9ca3af;font-size:0.78rem;">Not assigned</span>';
 
       return '<tr id="urow-'+safeId+'">'+
-        '<td><strong>'+window.escHtml(u.full_name||'—')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
-        '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'—')+'</td>'+
-        '<td style="font-size:0.8rem;">'+window.escHtml(u.phone||'—')+'</td>'+
-        '<td style="font-size:0.82rem;">'+window.escHtml(u.program||'—')+'</td>'+
-        '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(u.level||'—')+'</span></td>'+
+        '<td><strong>'+window.escHtml(u.full_name||'–')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
+        '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'–')+'</td>'+
+        '<td style="font-size:0.8rem;">'+window.escHtml(u.phone||'–')+'</td>'+
+        '<td style="font-size:0.82rem;">'+window.escHtml(u.program||'–')+'</td>'+
+        '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(u.level||'–')+'</span></td>'+
         '<td>'+
           '<div style="display:flex;gap:0.4rem;align-items:center;">'+
             '<input type="text" id="idx-'+safeId+'" value="'+window.escAttr(u.index_number||'')+'" placeholder="UETG/ENG/26/001" '+
@@ -2946,7 +2946,7 @@ window.reactivateUser = async function(email, safeId){
   window.loadUsers();
 };
 
-// ─── BLOCK USER (with reason — fraud/fake ID/suspicious activity) ─────────────
+// ─── BLOCK USER (with reason – fraud/fake ID/suspicious activity) ─────────────
 window.blockUser = async function(email, safeId, displayName){
   var reason = window.prompt(
     'Block "'+displayName+'" ('+email+')?\n\n'+
@@ -3035,7 +3035,7 @@ window.printUsersTable = function(){
     '.no-print{display:none;}'+
     '@media print{.no-print{display:none;}}'+
     '</style></head><body>'+
-    '<h2>GERAMA Registered Members — '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</h2>'+
+    '<h2>GERAMA Registered Members – '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})+'</h2>'+
     '<table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Program</th><th>Level</th><th>Index No.</th><th>Status</th></tr></thead><tbody>'+
     Array.from(el.querySelectorAll('tbody tr')).map(function(row, i){
       var cells = row.querySelectorAll('td');
@@ -3047,7 +3047,7 @@ window.printUsersTable = function(){
         '<td>'+cells[2].textContent+'</td>'+
         '<td>'+cells[3].textContent+'</td>'+
         '<td>'+cells[4].textContent+'</td>'+
-        '<td><strong>'+(cells[5].querySelector('input')?cells[5].querySelector('input').value:'—')+'</strong></td>'+
+        '<td><strong>'+(cells[5].querySelector('input')?cells[5].querySelector('input').value:'–')+'</strong></td>'+
         '<td>'+cells[6].textContent.trim()+'</td>'+
       '</tr>';
     }).join('')+
@@ -3110,7 +3110,7 @@ function renderUsersTable(data){
       '<th>Index Number</th><th>Group</th><th>Status</th><th>Actions</th>'+
     '</tr></thead><tbody>'+
     data.map(function(u){
-      var dt = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      var dt = u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '–';
       var isActive = u.is_active !== false;
       var statusBadge = isActive
         ? '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Active</span>'
@@ -3121,13 +3121,13 @@ function renderUsersTable(data){
       var groupBadge = gmInfo.groupName
         ? '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;white-space:nowrap;">'+window.escHtml(gmInfo.groupName)+'</span>'+
           (gmInfo.role==='tutor'?' <span style="background:#fef3c7;color:#92400e;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:10px;">Tutor</span>':'')
-        : '<span style="color:#9ca3af;font-size:0.78rem;">—</span>';
+        : '<span style="color:#9ca3af;font-size:0.78rem;">–</span>';
       return '<tr id="urow-'+safeId+'">'+
-        '<td><strong>'+window.escHtml(u.full_name||'—')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
-        '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'—')+'</td>'+
-        '<td style="font-size:0.8rem;">'+window.escHtml(u.phone||'—')+'</td>'+
-        '<td style="font-size:0.82rem;">'+window.escHtml(u.program||'—')+'</td>'+
-        '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(u.level||'—')+'</span></td>'+
+        '<td><strong>'+window.escHtml(u.full_name||'–')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
+        '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'–')+'</td>'+
+        '<td style="font-size:0.8rem;">'+window.escHtml(u.phone||'–')+'</td>'+
+        '<td style="font-size:0.82rem;">'+window.escHtml(u.program||'–')+'</td>'+
+        '<td><span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+window.escHtml(u.level||'–')+'</span></td>'+
         '<td>'+
           '<div style="display:flex;gap:0.4rem;align-items:center;">'+
             '<input type="text" id="idx-'+safeId+'" value="'+window.escAttr(u.index_number||'')+'" placeholder="UETG/ENG/26/001" '+
@@ -3221,7 +3221,7 @@ window.searchAttUser = async function(q){
     return '<div onclick="fillAttUser(\''+window.escAttr(u.full_name||'')+'\',\''+window.escAttr(u.email||'')+'\',\''+window.escAttr(u.index_number||'')+'\')" '+
       'style="padding:0.7rem 1rem;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:0.88rem;" '+
       'onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'white\'">'+
-      '<strong>'+window.escHtml(u.full_name||'—')+'</strong>'+
+      '<strong>'+window.escHtml(u.full_name||'–')+'</strong>'+
       (u.index_number?'<span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:10px;margin-left:0.5rem;">'+window.escHtml(u.index_number)+'</span>':'')+
       '<br><small style="color:#9ca3af;">'+window.escHtml(u.email||'')+(u.program?' · '+u.program:'')+' '+window.escHtml(u.level||'')+'</small>'+
     '</div>';
@@ -3333,7 +3333,7 @@ window.deleteEntireSession = async function(sessionId, sessionTitle){
       var {error: sesErr} = await sb.from('attendance_sessions').delete().eq('id', sessionId);
       if(sesErr) throw new Error('Session: '+sesErr.message);
     } else {
-      // No session_id — delete by class title
+      // No session_id – delete by class title
       var {error: recErr2} = await sb.from('attendance_records').delete().eq('class_title', sessionTitle);
       if(recErr2) throw new Error('Records: '+recErr2.message);
     }
@@ -3664,7 +3664,7 @@ window.loadContactMessages = async function(filter){
     // Build HTML using data-* attributes to avoid inline-quote issues
     var html = data.map(function(m){
       var safeId = String(m.id).replace(/[^a-z0-9]/gi,'');
-      var dt = m.sent_at ? new Date(m.sent_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+      var dt = m.sent_at ? new Date(m.sent_at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '–';
       var typeBadge = m.type==='assistance'
         ? '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">Assistance</span>'
         : '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.7rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">Contact</span>';
@@ -3673,10 +3673,10 @@ window.loadContactMessages = async function(filter){
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.8rem;flex-wrap:wrap;">'+
           '<div style="flex:1;min-width:0;">'+
             '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem;flex-wrap:wrap;">'+
-              '<strong>'+window.escHtml(m.name||'—')+'</strong>'+typeBadge+
+              '<strong>'+window.escHtml(m.name||'–')+'</strong>'+typeBadge+
               '<span style="font-size:0.75rem;color:#9ca3af;margin-left:auto;white-space:nowrap;">'+dt+'</span>'+
             '</div>'+
-            '<div style="font-size:0.82rem;color:#6b7280;margin-bottom:0.4rem;"><i class="fas fa-envelope" style="margin-right:0.3rem;"></i>'+window.escHtml(m.email||'—')+'</div>'+
+            '<div style="font-size:0.82rem;color:#6b7280;margin-bottom:0.4rem;"><i class="fas fa-envelope" style="margin-right:0.3rem;"></i>'+window.escHtml(m.email||'–')+'</div>'+
             (m.subject ? '<div style="font-size:0.85rem;font-weight:600;color:#374151;margin-bottom:0.3rem;">'+window.escHtml(m.subject)+'</div>' : '')+
             '<div style="font-size:0.88rem;color:#374151;background:#f8fafc;border-radius:10px;padding:0.7rem 0.9rem;border-left:4px solid #1B5E20;white-space:pre-wrap;line-height:1.6;margin-bottom:0.6rem;">'+window.escHtml(m.message||'')+'</div>'+
             (m.admin_reply ? '<div style="font-size:0.85rem;color:#065f46;background:#d1fae5;border-radius:10px;padding:0.6rem 0.9rem;border-left:4px solid #059669;margin-bottom:0.5rem;"><strong>✅ Admin replied:</strong><br>'+window.escHtml(m.admin_reply)+'</div>' : '')+
@@ -3774,7 +3774,7 @@ async function _doSendReply(msgId, toEmail, toName, replyText, btn, statusEl) {
 }
 
 window.sendContactReply = async function(msgId, toEmail, toName, safeId){
-  // Legacy — kept for backward compat
+  // Legacy – kept for backward compat
   var replyText = (document.getElementById('reply-text-'+safeId)||{value:''}).value.trim();
   var statusEl = document.getElementById('reply-status-'+safeId);
   if(!replyText){ if(statusEl){statusEl.textContent='Please type a reply.';statusEl.style.color='#f59e0b';} return; }
@@ -3808,7 +3808,7 @@ window.previewQzPdf = function(inp) {
   var f = inp.files && inp.files[0]; if(!f) return;
   _qzPdfFile = f;
   var chosen = document.getElementById('qzPdfChosen');
-  if(chosen) chosen.textContent = '✅ ' + f.name + (f.size > 20*1024*1024 ? ' — ⚠️ too large (max 20MB)' : '');
+  if(chosen) chosen.textContent = '✅ ' + f.name + (f.size > 20*1024*1024 ? ' – ⚠️ too large (max 20MB)' : '');
 };
 
 window.addQuestion = function() {
@@ -3948,7 +3948,7 @@ window.loadAdminProfiles = async function() {
         (p.bio  ? '<div style="font-size:0.8rem;color:#6b7280;margin-bottom:0.4rem;">'+window.escHtml(p.bio)+'</div>' : '')+
         (p.phone? '<div style="font-size:0.78rem;color:#374151;margin-bottom:0.2rem;"><i class="fas fa-phone" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.phone)+'</div>' : '')+
         (p.email? '<div style="font-size:0.78rem;color:#374151;margin-bottom:0.8rem;"><i class="fas fa-envelope" style="margin-right:0.3rem;color:#7c3aed;"></i>'+window.escHtml(p.email)+'</div>' : '')+
-        // Remove button — always visible, requires super-admin code
+        // Remove button – always visible, requires super-admin code
         (!isMe
           ? '<button onclick="deleteAdminProfile(\''+window.escAttr(p.id||'')+'\',\''+window.escAttr(p.name)+'\')" '+
             'style="width:100%;background:#fee2e2;color:#dc2626;border:none;padding:0.4rem 0.8rem;border-radius:8px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;justify-content:center;gap:0.4rem;" '+
@@ -4023,7 +4023,7 @@ window.loadCsvFile = function(input) {
   reader.readAsText(file);
 };
 
-// Smart CSV parser — auto-detects identifier (email OR name) and score columns
+// Smart CSV parser – auto-detects identifier (email OR name) and score columns
 function parseScoreCSV(csvText, identColHint, scoreColHint) {
   var lines = csvText.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
   if(!lines.length) return [];
@@ -4092,12 +4092,12 @@ window.previewCsvImport = function() {
   if(!prevEl) return;
   if(!parsed.length){
     prevEl.style.display='block';
-    prevEl.innerHTML='<p style="color:#dc2626;">No valid rows found. Check your CSV format — make sure there is a name or email column and a score column.</p>';
+    prevEl.innerHTML='<p style="color:#dc2626;">No valid rows found. Check your CSV format – make sure there is a name or email column and a score column.</p>';
     return;
   }
   var nameCount = parsed.filter(function(r){ return !r.isEmail; }).length;
   var emailCount = parsed.filter(function(r){ return r.isEmail; }).length;
-  var note = nameCount > 0 ? '<div style="font-size:0.78rem;color:#f59e0b;font-weight:600;margin-bottom:0.5rem;"><i class="fas fa-info-circle"></i> '+nameCount+' row(s) use student names — will be matched to registered email addresses automatically.</div>' : '';
+  var note = nameCount > 0 ? '<div style="font-size:0.78rem;color:#f59e0b;font-weight:600;margin-bottom:0.5rem;"><i class="fas fa-info-circle"></i> '+nameCount+' row(s) use student names – will be matched to registered email addresses automatically.</div>' : '';
   prevEl.style.display = 'block';
   prevEl.innerHTML = '<div style="font-weight:700;color:#1B5E20;margin-bottom:0.4rem;">Preview ('+parsed.length+' students detected, '+emailCount+' by email, '+nameCount+' by name):</div>' +
     note +
@@ -4138,7 +4138,7 @@ window.importScoresFromCSV = async function() {
   var nameRows  = parsed.filter(function(r){ return !r.isEmail; });
   var emailRows = parsed.filter(function(r){ return r.isEmail; });
 
-  // Resolve names to emails via user_profiles — fuzzy token matching
+  // Resolve names to emails via user_profiles – fuzzy token matching
   var nameMap = {}; // lowercase full_name → email
   var profiles = [];
   if(nameRows.length > 0){
@@ -4201,7 +4201,7 @@ window.importScoresFromCSV = async function() {
   if(!toImport.length){
     var skipMsg = 'No students matched. ';
     if(skipped.length) skipMsg += 'Could not find emails for: '+skipped.slice(0,5).join(', ')+(skipped.length>5?' …and '+(skipped.length-5)+' more':'');
-    skipMsg += ' — make sure names match the registered profile names exactly (or use emails instead).';
+    skipMsg += ' – make sure names match the registered profile names exactly (or use emails instead).';
     window.showStatus('importStatus', skipMsg, 'err');
     return;
   }
@@ -4226,7 +4226,7 @@ window.importScoresFromCSV = async function() {
   for(var i=0;i<toImport.length;i++){
     var row = toImport[i];
     try{
-      // Upsert atomically — prevents race condition from delete+insert
+      // Upsert atomically – prevents race condition from delete+insert
       await window.upsertStudentGrade({
         student_email:    row.email,
         assignment_title: qzTitle,
@@ -4251,7 +4251,7 @@ window.importScoresFromCSV = async function() {
 };
 
 // ============================================================
-//  GERAMA TEAM GROUPS MANAGEMENT (v2 — Group F, index numbers, balance, per-group export, tutor-on-top)
+//  GERAMA TEAM GROUPS MANAGEMENT (v2 – Group F, index numbers, balance, per-group export, tutor-on-top)
 //  Tables required in Supabase:
 //    gerama_groups  (id, name, color, created_at)
 //    gerama_group_members (id, group_id, user_email, user_name, role, index_number, gender, assigned_at)
@@ -4368,7 +4368,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
         '<div style="font-size:1.05rem;font-weight:800;color:#1B5E20;"><i class="fas fa-users-cog"></i> Gerama Study Groups <span style="font-size:0.75rem;font-weight:600;background:#dcfce7;color:#166534;padding:0.15rem 0.5rem;border-radius:8px;margin-left:0.3rem;">L100 Only</span></div>'+
         '<div style="font-size:0.82rem;color:#6b7280;margin-top:0.3rem;">'+
           '<span style="background:#e8f5e9;color:#1B5E20;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+uniqueMemberCount+' assigned (unique)</span>'+
-          (dupCount>0?'<span style="background:#fee2e2;color:#dc2626;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;" title="Same email assigned more than once — click Clean Duplicates to fix">⚠️ '+dupCount+' duplicate'+(dupCount!==1?'s':'')+' found</span>':'')+
+          (dupCount>0?'<span style="background:#fee2e2;color:#dc2626;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;" title="Same email assigned more than once – click Clean Duplicates to fix">⚠️ '+dupCount+' duplicate'+(dupCount!==1?'s':'')+' found</span>':'')+
           '<span style="background:#fef3c7;color:#92400e;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;margin-right:0.4rem;">'+unassignedL100.length+' L100 unassigned</span>'+
           '<span style="background:#dbeafe;color:#1d4ed8;padding:0.15rem 0.6rem;border-radius:10px;font-weight:700;">'+groups.length+' groups</span>'+
         '</div>'+
@@ -4377,9 +4377,9 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
         '<button onclick="window.showAddGroupModal()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-plus"></i> New Group</button>'+
         '<button onclick="window.randomlyAssignAll()" class="btn-gold" style="font-size:0.82rem;padding:0.45rem 1rem;"><i class="fas fa-random"></i> Auto-Assign L100</button>'+
         '<button onclick="window.openAttendanceShuffleModal()" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Fetch students from an attendance session and shuffle them into groups"><i class="fas fa-clipboard-check"></i> Shuffle by Attendance</button>'+
-        '<button onclick="window.cleanDuplicateMembers()" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Remove duplicate member entries — keeps one per email"'+(dupCount>0?' ':' disabled style="opacity:0.4;cursor:not-allowed;"')+'><i class="fas fa-broom"></i> Clean Duplicates'+(dupCount>0?' ('+dupCount+')':'')+'</button>'+
+        '<button onclick="window.cleanDuplicateMembers()" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Remove duplicate member entries – keeps one per email"'+(dupCount>0?' ':' disabled style="opacity:0.4;cursor:not-allowed;"')+'><i class="fas fa-broom"></i> Clean Duplicates'+(dupCount>0?' ('+dupCount+')':'')+'</button>'+
         '<button onclick="window.rebalanceGroups()" style="background:linear-gradient(135deg,#059669,#10b981);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Move excess members (>25) to Group F, gender-balanced"><i class="fas fa-balance-scale"></i> Rebalance</button>'+
-        '<button onclick="window.pushGroupsToAllProfiles()" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Force-sync group names into all user_profiles — so all students see their group immediately"><i class="fas fa-broadcast-tower"></i> Push Groups</button>'+
+        '<button onclick="window.pushGroupsToAllProfiles()" style="background:linear-gradient(135deg,#0369a1,#0ea5e9);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Force-sync group names into all user_profiles – so all students see their group immediately"><i class="fas fa-broadcast-tower"></i> Push Groups</button>'+
         '<button onclick="window.loadGroups()" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.45rem 0.9rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-sync-alt"></i> Refresh</button>'+
         '<button onclick="window.downloadGroupsCSV()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> Export All</button>'+
         '<button onclick="window.openIndexAssignModal()" style="background:linear-gradient(135deg,#92400e,#b45309);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;" title="Auto-assign index numbers only to registered members who are in a group"><i class="fas fa-id-badge"></i> Assign Index Nos.</button>'+
@@ -4388,7 +4388,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
 
   var groupsHtml = groups.map(function(group){
     var members = allMembers.filter(function(m){ return m.group_id === group.id; });
-    // Tutors on top, then regular members — each sorted by name
+    // Tutors on top, then regular members – each sorted by name
     var tutors = members.filter(function(m){ return m.role === 'tutor'; });
     var regulars = members.filter(function(m){ return m.role !== 'tutor'; });
     tutors.sort(function(a,b){ return (a.user_name||'').localeCompare(b.user_name||''); });
@@ -4404,19 +4404,19 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
     var femaleCount = members.filter(function(m){ var u=userMap[m.user_email]; return u && (u.gender||'').toLowerCase()==='female'; }).length;
     var maleCount = members.filter(function(m){ var u=userMap[m.user_email]; return u && (u.gender||'').toLowerCase()==='male'; }).length;
 
-    // Member rows — tutors rendered first
+    // Member rows – tutors rendered first
     var memberRows = sortedMembers.map(function(m, rowIdx){
       var isTutor = m.role === 'tutor';
       var roleBadge = isTutor
         ? '<span style="background:'+hexToRgba(color,0.15)+';color:'+color+';font-size:0.7rem;font-weight:800;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.3rem;"><i class="fas fa-chalkboard-teacher"></i> Tutor</span>'
         : '';
       var safeId = m.id.replace(/-/g,'');
-      // Get index number — from member record or from user_profiles
+      // Get index number – from member record or from user_profiles
       var userInfo = userMap[m.user_email] || {};
       var indexNum = m.index_number || userInfo.index_number || '';
       var indexBadge = indexNum
         ? '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:8px;margin-left:0.3rem;font-family:monospace;">'+window.escHtml(indexNum)+'</span>'
-        : '<span style="background:#f1f5f9;color:#9ca3af;font-size:0.68rem;padding:0.1rem 0.4rem;border-radius:8px;margin-left:0.3rem;" title="No index number yet">—</span>';
+        : '<span style="background:#f1f5f9;color:#9ca3af;font-size:0.68rem;padding:0.1rem 0.4rem;border-radius:8px;margin-left:0.3rem;" title="No index number yet">–</span>';
 
       // Row background: tutors get a subtle highlight
       var rowBg = isTutor ? hexToRgba(color, 0.04) : 'white';
@@ -4428,7 +4428,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
           window.escHtml((m.user_name||'?').charAt(0).toUpperCase())+
         '</div>'+
         '<div style="flex:1;min-width:0;">'+
-          '<div style="font-size:0.85rem;font-weight:600;color:#1e2a3e;">'+window.escHtml(m.user_name||m.user_email||'—')+roleBadge+indexBadge+'</div>'+
+          '<div style="font-size:0.85rem;font-weight:600;color:#1e2a3e;">'+window.escHtml(m.user_name||m.user_email||'–')+roleBadge+indexBadge+'</div>'+
           '<div style="font-size:0.72rem;color:#9ca3af;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+window.escHtml(m.user_email||'')+'</div>'+
         '</div>'+
         '<div style="display:flex;gap:0.3rem;flex-shrink:0;">'+
@@ -4498,7 +4498,7 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
         '</div>' : '')+
         // Members list
         (members.length ? memberRows : '<p style="color:#9ca3af;font-size:0.85rem;text-align:center;padding:1rem;">No members yet.</p>')+
-        // Add member form — typeahead search from registered members
+        // Add member form – typeahead search from registered members
         (!isFull
           ? '<div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid #f1f5f9;">'+
               '<div style="font-size:0.75rem;font-weight:700;color:#6b7280;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:0.04em;">Add Member</div>'+
@@ -4797,7 +4797,7 @@ window.pushGroupsToAllProfiles = async function(){
   }
 
   window.logActivity('Pushed group names to '+ok+' user profiles'+(fail>0?' ('+fail+' failed)':''));
-  alert('✅ Done! Group names pushed to '+ok+' student profile'+(ok!==1?'s':'')+'. Students will see their group on next login or page refresh.'+(fail>0?'\n⚠️ '+fail+' failed — check console.':''));
+  alert('✅ Done! Group names pushed to '+ok+' student profile'+(ok!==1?'s':'')+'. Students will see their group on next login or page refresh.'+(fail>0?'\n⚠️ '+fail+' failed – check console.':''));
   window.loadGroups();
 };
 
@@ -4919,7 +4919,7 @@ window.previewBulkAssign = function(groupId){
     html += notFound.map(function(r){
       return '<div style="font-size:0.78rem;color:#dc2626;display:flex;align-items:center;gap:0.4rem;padding:0.2rem 0;">'+
         '<i class="fas fa-user-times"></i>'+
-        '<span>'+window.escHtml(r.input)+' — not found in registered members</span>'+
+        '<span>'+window.escHtml(r.input)+' – not found in registered members</span>'+
       '</div>';
     }).join('');
     html += '</div>';
@@ -5162,7 +5162,7 @@ window.randomlyAssignAll = async function(){
   allMembers.forEach(function(m){ if(m.user_email) assignedEmailSet[m.user_email.toLowerCase().trim()] = true; });
 
   // ── Remove duplicate entries from gerama_group_members ──
-  // (same email assigned multiple times — keep first by assigned_at, delete rest)
+  // (same email assigned multiple times – keep first by assigned_at, delete rest)
   var emailFirstSeen = {};
   var duplicateIds = [];
   allMembers.forEach(function(m){
@@ -5201,7 +5201,7 @@ window.randomlyAssignAll = async function(){
     return;
   }
 
-  var skipMsg = l100Users.length < allUsers.length ? '\n\n(Non-L100 students are skipped — groups are L100 only for now)' : '';
+  var skipMsg = l100Users.length < allUsers.length ? '\n\n(Non-L100 students are skipped – groups are L100 only for now)' : '';
   if(!confirm('Auto-assign '+unassigned.length+' unassigned L100 member'+(unassigned.length!==1?'s':'')+' to groups (max '+GROUP_MAX+' per group, gender-balanced)?'+skipMsg)) return;
 
   // Separate by gender for balanced distribution
@@ -5274,7 +5274,7 @@ window.downloadGroupsCSV = function(){
     var idx = m.index_number || uInfo.index_number || '';
     var gender = uInfo.gender || '';
     return [
-      groupMap[m.group_id]||'—',
+      groupMap[m.group_id]||'–',
       m.user_name||'', idx, m.user_email||'',
       m.role||'member', gender,
       m.assigned_at ? new Date(m.assigned_at).toLocaleDateString('en-GB') : ''
@@ -5387,7 +5387,7 @@ window.rebalanceGroups = async function(){
         if(aIdx && !bIdx) return 1;
         return (a.user_name||'').localeCompare(b.user_name||'');
       });
-      // Pick `excess` members to move — gender-balanced: pick roughly equal males/females
+      // Pick `excess` members to move – gender-balanced: pick roughly equal males/females
       var females = members.filter(function(m){ return ((userMap[m.user_email]||{}).gender||'').toLowerCase()==='female'; });
       var males = members.filter(function(m){ return ((userMap[m.user_email]||{}).gender||'').toLowerCase()==='male'; });
       var others2 = members.filter(function(m){ var g=((userMap[m.user_email]||{}).gender||'').toLowerCase(); return g!=='female'&&g!=='male'; });
@@ -5480,7 +5480,7 @@ window.quickMemberLookup = async function(q) {
           '</div>' +
           '<div style="flex:1;min-width:0;">' +
             '<div style="font-size:0.88rem;font-weight:700;color:#1e2a3e;">' +
-              window.escHtml(u.full_name || '—') + groupBadge +
+              window.escHtml(u.full_name || '–') + groupBadge +
             '</div>' +
             '<div style="font-size:0.75rem;color:#6b7280;">' +
               window.escHtml(u.email) +
@@ -5515,10 +5515,10 @@ window.quickMemberLookup = async function(q) {
 
 // ─── LIVE OVERVIEW STATS (defined inside IIFE above, exposed as window.loadOverviewStats) ────
 // The canonical loadOverviewStats is already assigned to window inside the main IIFE.
-// Nothing extra needed here — admin-gate.js calls window.loadOverviewStats() after login.
+// Nothing extra needed here – admin-gate.js calls window.loadOverviewStats() after login.
 
 // ═══════════════════════════════════════════════════════════════
-// GERAMA CONNECT — Admin Panel Functions
+// GERAMA CONNECT – Admin Panel Functions
 // ═══════════════════════════════════════════════════════════════
 
 window.loadConnectStats = async function(){
@@ -5532,7 +5532,7 @@ window.loadConnectStats = async function(){
       sb.from('connect_groups').select('id',{count:'exact',head:true}),
       sb.from('user_profiles').select('id',{count:'exact',head:true}).eq('is_active',false)
     ]);
-    var counts = res.map(function(r){ return (r.status==='fulfilled' && r.value && r.value.count != null) ? r.value.count : '—'; });
+    var counts = res.map(function(r){ return (r.status==='fulfilled' && r.value && r.value.count != null) ? r.value.count : '–'; });
     ['cStatMsg','cStatStatus','cStatGroups','cStatBlocked'].forEach(function(id,i){
       var el = document.getElementById(id); if(el) el.textContent = counts[i];
     });
@@ -5551,7 +5551,7 @@ window.loadAdminConnectMessages = async function(){
 
   var {data,error} = await sb.from('connect_messages').select('*').order('created_at',{ascending:false}).limit(50);
   if(error||!data||!data.length){
-    el.innerHTML='<p style="color:#9ca3af;font-size:0.85rem;text-align:center;padding:1.5rem;">No messages yet — or table not set up. <a href="connect.html" target="_blank" style="color:#0ea5e9;">Open Connect to run setup SQL →</a></p>';
+    el.innerHTML='<p style="color:#9ca3af;font-size:0.85rem;text-align:center;padding:1.5rem;">No messages yet – or table not set up. <a href="connect.html" target="_blank" style="color:#0ea5e9;">Open Connect to run setup SQL →</a></p>';
     return;
   }
 
@@ -5640,9 +5640,9 @@ window.loadAdminConnectGroups = async function(){
       '<div class="sub-info">'+
         '<strong>'+window.escHtml(g.emoji||'💬')+' '+window.escHtml(g.name)+'</strong>'+
         '<div class="sub-meta">'+
-          '<b>Created by:</b> '+window.escHtml(g.created_by||'—')+' &nbsp;·&nbsp; '+
+          '<b>Created by:</b> '+window.escHtml(g.created_by||'–')+' &nbsp;·&nbsp; '+
           '<b>Members:</b> '+window.escHtml(g.member_count||0)+' &nbsp;·&nbsp; '+
-          '<b>Last msg:</b> '+window.escHtml((g.last_message||'—').substring(0,40))+'<br>'+
+          '<b>Last msg:</b> '+window.escHtml((g.last_message||'–').substring(0,40))+'<br>'+
           '<b>Created:</b> '+dt+
         '</div>'+
       '</div>'+
@@ -5666,7 +5666,7 @@ window.adminDeleteConnectGroup = async function(id,name){
 };
 
 // ══════════════════════════════════════════════════════════════
-// DID YOU KNOW — ADMIN
+// DID YOU KNOW – ADMIN
 // ══════════════════════════════════════════════════════════════
 
 window.loadDiykAdmin = async function() {
@@ -5761,7 +5761,7 @@ window.deleteDiyk = async function(id) {
 
 
 // ══════════════════════════════════════════════════════════════
-// OPPORTUNITIES — ADMIN
+// OPPORTUNITIES – ADMIN
 // ══════════════════════════════════════════════════════════════
 
 window.loadAdminOpportunities = async function() {
@@ -5815,11 +5815,11 @@ window.loadAdminOpportunities = async function() {
         listEl.innerHTML = '<div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Type</th><th>Location</th><th>Views</th><th>Applied</th><th>Deadline</th><th>Actions</th></tr></thead><tbody>' +
           approved.map(function(opp) {
             var oppApps = apps.filter(function(a){ return a.opportunity_id === opp.id; });
-            var deadline = opp.deadline ? new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+            var deadline = opp.deadline ? new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '–';
             return '<tr>' +
               '<td style="font-weight:600;">' + window.escHtml(opp.company||'') + '</td>' +
               '<td><span style="background:#ede9fe;color:#5b21b6;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;">' + window.escHtml(opp.type||'') + '</span></td>' +
-              '<td style="font-size:0.82rem;">' + window.escHtml(opp.location||'—') + '</td>' +
+              '<td style="font-size:0.82rem;">' + window.escHtml(opp.location||'–') + '</td>' +
               '<td style="text-align:center;">' + (opp.view_count||0) + '</td>' +
               '<td style="text-align:center;">' + oppApps.length + '</td>' +
               '<td style="font-size:0.82rem;">' + window.escHtml(deadline) + '</td>' +
@@ -5843,9 +5843,9 @@ window.loadAdminOpportunities = async function() {
           apps.map(function(a) {
             var date = new Date(a.applied_at||a.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
             return '<tr>' +
-              '<td>' + window.escHtml(a.user_name||'—') + '</td>' +
-              '<td style="font-size:0.82rem;">' + window.escHtml(a.user_email||'—') + '</td>' +
-              '<td>' + window.escHtml(oppMap[a.opportunity_id] || a.opportunity_id || '—') + '</td>' +
+              '<td>' + window.escHtml(a.user_name||'–') + '</td>' +
+              '<td style="font-size:0.82rem;">' + window.escHtml(a.user_email||'–') + '</td>' +
+              '<td>' + window.escHtml(oppMap[a.opportunity_id] || a.opportunity_id || '–') + '</td>' +
               '<td style="font-size:0.82rem;">' + window.escHtml(date) + '</td>' +
               '<td><span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;">' + window.escHtml(a.status||'applied') + '</span></td>' +
             '</tr>';
@@ -5863,9 +5863,9 @@ function _renderAdminOppCard(opp, showApprove) {
   return '<div class="sub-card">' +
     (opp.image_url ? '<img src="' + window.escAttr(opp.image_url) + '" style="width:60px;height:50px;object-fit:cover;border-radius:8px;flex-shrink:0;" alt="">' : '') +
     '<div class="sub-info">' +
-      '<strong>' + window.escHtml(opp.company||'') + ' — ' + window.escHtml(opp.location||'') + '</strong>' +
+      '<strong>' + window.escHtml(opp.company||'') + ' – ' + window.escHtml(opp.location||'') + '</strong>' +
       '<div class="sub-meta">' +
-        '<b>Type:</b> ' + window.escHtml(opp.type||'—') +
+        '<b>Type:</b> ' + window.escHtml(opp.type||'–') +
         (opp.deadline ? ' &nbsp;|&nbsp; <b>Deadline:</b> ' + new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '') +
         '<br><b>Submitted by:</b> ' + window.escHtml(opp.submitted_by||'Admin') + ' &nbsp;|&nbsp; ' + window.escHtml(date) +
         (opp.apply_link ? '<br><a href="' + window.escAttr(opp.apply_link) + '" target="_blank" style="color:#1B5E20;font-size:0.8rem;"><i class="fas fa-external-link-alt"></i> Apply Link</a>' : '') +
@@ -5940,7 +5940,7 @@ window.postAdminOpportunity = async function() {
       created_at: new Date().toISOString()
     });
     window.showStatus('adminOppStatus', '✅ Opportunity published and live!', 'ok');
-    window.logActivity('Posted opportunity: ' + company + ' — ' + type);
+    window.logActivity('Posted opportunity: ' + company + ' – ' + type);
     // Clear form
     ['adminOppCompany','adminOppLocation','adminOppLink','adminOppMode','adminOppDesc'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
     document.getElementById('adminOppType').value = '';
@@ -5973,7 +5973,7 @@ window.previewAdminOppImg = function(input) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Rules:
 //  1. Only assign to members who are IN a group (gerama_group_members).
-//  2. L100 tutor range UETG/ENG/26/001–012 is PROTECTED — never overwritten.
+//  2. L100 tutor range UETG/ENG/26/001–012 is PROTECTED – never overwritten.
 //  3. Members who already have an index number keep it (skip them).
 //  4. Format: UETG/ENG/<YY>/<NNN> where YY = intake year suffix, NNN = 3-digit seq.
 //  5. Year codes per level (detected from existing data, with sensible defaults):
@@ -6101,7 +6101,7 @@ window.runIndexPreview = async function() {
     if (!sb) { area.innerHTML = '<p style="color:#dc2626;">Not connected.</p>'; return; }
 
     try {
-        // Fresh fetch — include role from gerama_group_members to detect tutors
+        // Fresh fetch – include role from gerama_group_members to detect tutors
         var [profRes, gmRes] = await Promise.all([
             sb.from('user_profiles').select('email, full_name, level, index_number').eq('is_active', true),
             sb.from('gerama_group_members').select('user_email, group_id, role')
@@ -6123,7 +6123,7 @@ window.runIndexPreview = async function() {
         var yearCode = INDEX_YEAR_MAP['L100'] || '26'; // always '26' for L100
 
         // ── Categorise every L100 profile ──
-        // protected  : tutor-range numbers (001-012) — never touch
+        // protected  : tutor-range numbers (001-012) – never touch
         // willClear  : L100 with a non-protected index who is NOT in a group → set null
         // toAssign   : L100 in a group, no index yet (or will be cleared) → gets a new number
         // noGroup    : L100 not in a group, currently blank → stays blank (no action needed)
@@ -6140,7 +6140,7 @@ window.runIndexPreview = async function() {
             var inGroup = !!inGroupSet[k];
 
             if (u.index_number && _isProtectedIndex(u.index_number)) {
-                plan.protected.push(u);  // tutor 001-012 — untouched
+                plan.protected.push(u);  // tutor 001-012 – untouched
                 return;
             }
             if (inGroup) {
@@ -6187,7 +6187,7 @@ window.runIndexPreview = async function() {
                 '<span>Member</span><span>Will be assigned</span>' +
               '</div>';
             plan.toAssign.forEach(function(u) {
-                var idx = proposed[u.email] || '—';
+                var idx = proposed[u.email] || '–';
                 html += '<div style="display:grid;grid-template-columns:1fr 1fr;padding:0.32rem 0.8rem;border-top:1px solid #f1f5f9;font-size:0.82rem;">' +
                   '<span style="color:#1e2a3e;font-weight:600;">' + window.escHtml(u.full_name || u.email) + '</span>' +
                   '<span style="color:#b45309;font-family:monospace;font-weight:700;">' + window.escHtml(idx) + '</span>' +
@@ -6226,7 +6226,7 @@ window.runIndexPreview = async function() {
         if (!totalNew && !plan.willClear.length) {
             html = '<div style="text-align:center;padding:2rem;background:#f0fdf4;border-radius:12px;color:#059669;font-weight:700;">' +
               '<i class="fas fa-check-circle" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>' +
-              'Nothing to do — group members all have index numbers and no stale ones found.' +
+              'Nothing to do – group members all have index numbers and no stale ones found.' +
             '</div>';
         }
 
@@ -6246,7 +6246,7 @@ window.commitIndexAssignment = async function() {
     var willClear  = window._indexAssignWillClear || [];
 
     if ((!proposed || !Object.keys(proposed).length) && !willClear.length) {
-        setStatus('Run preview first — nothing to do.', false);
+        setStatus('Run preview first – nothing to do.', false);
         return;
     }
 
@@ -6264,7 +6264,7 @@ window.commitIndexAssignment = async function() {
     var cleared = 0, assigned = 0, errors = 0;
 
     // â”€â”€ STEP 1: Clear stale L100 index numbers (not in any group) â”€â”€
-    setStatus('Step 1/2 — clearing stale index numbers"¦', true);
+    setStatus('Step 1/2 – clearing stale index numbers"¦', true);
     for (var i = 0; i < willClear.length; i++) {
         try {
             var { error: ce } = await sb.from('user_profiles')
@@ -6287,7 +6287,7 @@ window.commitIndexAssignment = async function() {
     }
 
     // â”€â”€ STEP 3: Assign new numbers from 013 â”€â”€
-    setStatus('Step 2/2 — assigning new index numbers"¦', true);
+    setStatus('Step 2/2 – assigning new index numbers"¦', true);
     for (var k = 0; k < toAssignEmails.length; k++) {
         var email  = toAssignEmails[k];
         var newIdx = proposed[email];
@@ -6325,7 +6325,7 @@ window.commitIndexAssignment = async function() {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  ADD MEMBERS — TYPEAHEAD SEARCH  (per-group inline search box)
+//  ADD MEMBERS – TYPEAHEAD SEARCH  (per-group inline search box)
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Called on every keystroke in the per-group search box
@@ -6405,7 +6405,7 @@ window.addMemberToGroupSearch = async function(groupId) {
   var email = (input.dataset.selectedEmail || '').trim();
   var name  = (input.value || '').trim();
 
-  // Validate selection — must pick from dropdown, not freeform
+  // Validate selection – must pick from dropdown, not freeform
   if (!email) {
     alert('Please select a member from the dropdown list first.');
     input.focus();
@@ -6699,7 +6699,7 @@ window.openSubmissionAddModal = async function(groupId, groupName) {
       '<div style="margin-bottom:0.9rem;">' +
         '<label style="font-size:0.82rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Select Assignment or Quiz</label>' +
         '<select id="subAddSource" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:\'Inter\',sans-serif;" onfocus="this.style.borderColor=\'#c2410c\'" onblur="this.style.borderColor=\'#e5e7eb\'">' +
-          '<option value="">— Choose assignment or quiz —</option>' + allOptions +
+          '<option value="">– Choose assignment or quiz –</option>' + allOptions +
         '</select>' +
       '</div>' +
       '<button onclick="window.previewSubmissionAdd(\'' + window.escAttr(groupId) + '\')" style="background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;padding:0.6rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:\'Inter\',sans-serif;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.8rem;">' +
@@ -6876,7 +6876,7 @@ window.syncAllGradesToPortal = async function() {
 
   if (!confirm(
     'This will push ALL graded assignment submissions into student_grades so students can see their scores in the portal.\n\n' +
-    'Quiz scores imported via CSV are already in student_grades — only assignment submissions are synced here.\n\n' +
+    'Quiz scores imported via CSV are already in student_grades – only assignment submissions are synced here.\n\n' +
     'Continue?'
   )) return;
 
