@@ -351,7 +351,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <div class="modal-overlay" id="orderModal">
   <div class="modal-box">
     <div class="modal-header">
-      <button class="modal-close" onclick="closeOrderModal()">—</button>
+      <button class="modal-close" onclick="closeOrderModal()">×</button>
       <h3 id="orderModalTitle">Place Your Order</h3>
       <p>Fill in your details and contact the seller directly</p>
     </div>
@@ -375,7 +375,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div class="form-row">
         <label>Quantity</label>
         <div class="qty-row">
-          <button class="qty-btn" onclick="changeQty(-1)">—</button>
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
           <span class="qty-num" id="qtyNum">1</span>
           <button class="qty-btn" onclick="changeQty(1)">+</button>
           <span style="font-size:0.82rem;color:var(--muted);margin-left:0.5rem;" id="stockLabel"></span>
@@ -402,10 +402,10 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         <label><i class="fas fa-clock" style="color:var(--primary);margin-right:0.3rem;"></i> Preferred Delivery Timeframe</label>
         <select id="deliveryTime">
           <option value="">— Select timeframe —</option>
-          <option>As soon as possible (3—5 days)</option>
-          <option>Within a week (5—7 days)</option>
+          <option>As soon as possible (3–5 days)</option>
+          <option>Within a week (5–7 days)</option>
           <option>Within 10 days</option>
-          <option>Flexible — seller decides</option>
+          <option>Flexible – seller decides</option>
         </select>
       </div>
 
@@ -430,7 +430,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <!-- Delivery note -->
       <div class="delivery-info">
         <i class="fas fa-info-circle"></i>
-        <span>Items take <strong>3—10 days</strong> after order depending on availability. Payment is made directly to the seller via MoMo or cash on delivery. GERAMA Urban Mall facilitates the connection — always verify before paying large amounts.</span>
+        <span>Items take <strong>3–10 days</strong> after order depending on availability. Payment is made directly to the seller via MoMo or cash on delivery. GERAMA Urban Mall facilitates the connection – always verify before paying large amounts.</span>
       </div>
 
       <!-- Contact Buttons -->
@@ -453,7 +453,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <div class="modal-overlay" id="sellModal">
   <div class="sell-modal-box">
     <div class="modal-header">
-      <button class="modal-close" onclick="closeSellModal()">—</button>
+      <button class="modal-close" onclick="closeSellModal()">×</button>
       <h3>🛒 Sell on GERAMA Urban Mall</h3>
       <p>Submit a sample listing — admin will verify and approve you as a seller</p>
     </div>
@@ -477,19 +477,19 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
           <option value="other">📦 Others</option>
         </select>
       </div>
-      <!-- Color field — only shown for fashion/accessories -->
+      <!-- Color field – only shown for fashion/accessories -->
       <div class="form-row" id="sellColorField" style="display:none;">
         <label>Available Colours (comma-separated) <small style="font-weight:400;color:#6b7280;">optional</small></label>
         <input type="text" id="sellColors" placeholder="e.g. Red, Blue, Black, White">
       </div>
-      <!-- Size field — only shown for fashion -->
+      <!-- Size field – only shown for fashion -->
       <div class="form-row" id="sellSizeField" style="display:none;">
         <label>Available Sizes (comma-separated) <small style="font-weight:400;color:#6b7280;">optional</small></label>
         <input type="text" id="sellSizes" placeholder="e.g. S, M, L, XL, XXL">
       </div>
       <div class="form-row"><label>Price (GH₵) *</label><input type="number" id="sellPrice" placeholder="e.g. 48" min="1"></div>
-      <div class="form-row"><label>Original Price (GH₵) — if discounted</label><input type="number" id="sellOrigPrice" placeholder="e.g. 60" min="1"></div>
-      <div class="form-row"><label>Description *</label><textarea id="sellDesc" rows="3" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;" placeholder="Describe your product — colours, sizes, materials..."></textarea></div>
+      <div class="form-row"><label>Original Price (GH₵) – if discounted</label><input type="number" id="sellOrigPrice" placeholder="e.g. 60" min="1"></div>
+      <div class="form-row"><label>Description *</label><textarea id="sellDesc" rows="3" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;" placeholder="Describe your product – colours, sizes, materials..."></textarea></div>
       <div class="form-row">
         <label>Product Images (up to 3) <small style="font-weight:400;color:#6b7280;">First image = main display photo</small></label>
         <div class="drop-zone" style="padding:0.8rem;cursor:pointer;" onclick="document.getElementById('sellFile').click()">
@@ -517,7 +517,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <div class="cart-drawer" id="cartDrawer">
   <div class="cart-drawer-header">
     <div style="font-weight:800;font-size:1rem;display:flex;align-items:center;gap:0.6rem;"><i class="fas fa-shopping-cart"></i> My Cart <span id="cartBadge" style="background:rgba(255,255,255,0.25);padding:0.1rem 0.6rem;border-radius:20px;font-size:0.78rem;">0 items</span></div>
-    <button onclick="toggleCart()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">—</button>
+    <button onclick="toggleCart()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">×</button>
   </div>
   <div class="cart-drawer-body" id="cartBody">
     <div style="text-align:center;padding:3rem 1rem;color:#9ca3af;"><i class="fas fa-shopping-cart" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3;"></i><p style="font-weight:600;">Your cart is empty</p><small>Add products to get started</small></div>
@@ -561,8 +561,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <div class="modal-overlay" id="reviewModal">
   <div class="modal-box" style="max-width:440px;">
     <div class="modal-header">
-      <button class="modal-close" onclick="closeReviewModal()">—��</button>
-      <h3>—�� Leave a Review</h3>
+      <button class="modal-close" onclick="closeReviewModal()">×</button>
+      <h3>⭐ Leave a Review</h3>
       <p>Share your experience with this product</p>
     </div>
     <div class="modal-body">
@@ -570,11 +570,11 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <div class="form-row">
         <label>Your Rating *</label>
         <div class="star-rating-input" id="starRatingInput">
-          <span onclick="setRating(1)">—��</span>
-          <span onclick="setRating(2)">—��</span>
-          <span onclick="setRating(3)">—��</span>
-          <span onclick="setRating(4)">—��</span>
-          <span onclick="setRating(5)">—��</span>
+          <span onclick="setRating(1)">★</span>
+          <span onclick="setRating(2)">★</span>
+          <span onclick="setRating(3)">★</span>
+          <span onclick="setRating(4)">★</span>
+          <span onclick="setRating(5)">★</span>
         </div>
       </div>
       <div class="form-row">
@@ -595,7 +595,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
 <!-- IMAGE LIGHTBOX -->
 <div class="img-lightbox" id="imgLightbox" onclick="closeImgLightbox()">
-  <button class="img-lightbox-close" onclick="closeImgLightbox()">—��</button>
+  <button class="img-lightbox-close" onclick="closeImgLightbox()">×</button>
   <img id="lightboxImg" src="" alt="">
 </div>
 
@@ -628,8 +628,26 @@ var SUPA_URL = window.__SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL';
 var SUPA_KEY = window.__SUPABASE_KEY || '';
 
 // —��—�� HARDCODED SEED PRODUCTS (always shown, even before DB is set up) —��—��
-var SEED_PRODUCTS = [];
-    description: 'Fresh homemade creamy yoghurt —�� smooth, pink and delicious. Perfect for a healthy snack. Order 10 for just GH₵��70! Made fresh daily.',
+var SEED_PRODUCTS = [
+  {
+    id: 'seed-1',
+    name: 'Fresh Homemade Yoghurt',
+    seller: 'GERAMA Kitchen',
+    seller_phone: '+233240000000',
+    category: 'food',
+    price: 7,
+    original_price: null,
+    description: 'Fresh homemade creamy yoghurt – smooth, pink and delicious. Perfect for a healthy snack. Order 10 for just GH₵70! Made fresh daily.',
+    images: ['https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/yoghurt.jpg'],
+    colours: null,
+    sizes: null,
+    stock: 50,
+    badge: 'fresh',
+    rating: 4.8,
+    review_count: 12,
+    created_at: new Date().toISOString()
+  }
+];
 var currentCategory = 'all';
 var selectedColour = '';
 var selectedSize = '';

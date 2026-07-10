@@ -135,7 +135,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <h1>GERAMA Help Center</h1>
     <p>Step-by-step visual guides for every feature. Download as a picture, share with classmates, or watch video tutorials when available.</p>
     <div class="help-search-wrap">
-      <input type="search" id="helpSearch" placeholder="Search— e.g. 'join class', 'T-shirt', 'grades'" aria-label="Search tutorials">
+      <input type="search" id="helpSearch" placeholder="Search – e.g. 'join class', 'T-shirt', 'grades'" aria-label="Search tutorials">
       <button onclick="searchTutorials()"><i class="fas fa-search"></i> Search</button>
     </div>
     <div style="margin-top:1rem;font-size:0.8rem;opacity:0.6;">
@@ -199,7 +199,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
           </div>
           <div class="guide-card-steps" id="gcSteps"></div>
           <div class="guide-card-footer">
-            <div class="brand"><span>—��️</span> GERAMA Portal · UENR</div>
+            <div class="brand"><span>🌍</span> GERAMA Portal · UENR</div>
             <div class="tip" id="gcTip"></div>
           </div>
         </div>
@@ -230,7 +230,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 <script src="js/main.js"></script>
 <script>
 // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
-// GERAMA Help Center —�� Tutorial Data (22 guides)
+// GERAMA Help Center – Tutorial Data (22 guides)
 // Each guide has: id, cat, title, desc, icon, color, tip, steps[]
 // steps[]: { action, detail }
 // —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
@@ -241,23 +241,23 @@ var GUIDES = [
   id:'signup', cat:'getting-started', icon:'👤', color:'#1B5E20',
   title:'How to Create Your GERAMA Account',
   desc:'Join GERAMA in under 2 minutes. Set up your account and access everything.',
-  tip:'💡 Keep your secret code safe —�� you need it every time you sign in.',
+  tip:'💡 Keep your secret code safe – you need it every time you sign in.',
   tags:['sign up','register','join','create account','new student'],
   steps:[
-    {action:'Go to gerama.vercel.app', detail:'Open your browser and visit the GERAMA portal. Tap "Join Free —��" at the bottom of the screen.'},
+    {action:'Go to gerama.vercel.app', detail:'Open your browser and visit the GERAMA portal. Tap "Join Free" at the bottom of the screen.'},
     {action:'Click "Join GERAMA" on the login page', detail:'You\'ll see a link under the Sign In button that says "Join GERAMA". Tap it.'},
     {action:'Enter your student email', detail:'Use your UENR student email or personal email. This will be your login identity.'},
     {action:'Create a strong password', detail:'At least 8 characters. Mix letters and numbers for security.'},
     {action:'Get your GERAMA Secret Code', detail:'Contact your GERAMA rep or check the WhatsApp group for the current secret code.'},
     {action:'Tap "Create Account"', detail:'Your account is created instantly. You\'ll be redirected to the home page.'},
-    {action:'Complete your profile', detail:'Go to Dashboard —�� My Profile and fill in your name, program, and level.'}
+    {action:'Complete your profile', detail:'Go to Dashboard → My Profile and fill in your name, program, and level.'}
   ]
 },
 {
   id:'login', cat:'getting-started', icon:'🔐', color:'#0a2f1f',
   title:'How to Sign In to GERAMA',
   desc:'Access your account with your email, password, and secret code.',
-  tip:'💡 The secret code is shared by GERAMA reps —�� ask on the WhatsApp group if you don\'t have it.',
+  tip:'💡 The secret code is shared by GERAMA reps – ask on the WhatsApp group if you don\'t have it.',
   tags:['sign in','login','access','enter','secret code'],
   steps:[
     {action:'Open GERAMA and tap "Sign In"', detail:'Go to the portal and click the Sign In button or visit login.html directly.'},
@@ -265,12 +265,12 @@ var GUIDES = [
     {action:'Enter your password', detail:'Use the 👁 button to show/hide your password as you type.'},
     {action:'Enter the Secret Code', detail:'This is the shared GERAMA code. Tap the 👁 button to see it as you type.'},
     {action:'Tap "Sign In"', detail:'You\'ll be logged in and redirected to the homepage.'},
-    {action:'If it shakes —�� code is wrong', detail:'A shaking animation means the secret code is incorrect. Double-check it.'}
+    {action:'If it shakes – code is wrong', detail:'A shaking animation means the secret code is incorrect. Double-check it.'}
   ]
 },
 {
   id:'forgot-pw', cat:'account', icon:'🔑', color:'#dc2626',
-  title:'Forgot Password —�� How to Reset It',
+  title:'Forgot Password – How to Reset It',
   desc:'Locked out? Reset your password in 3 easy steps.',
   tip:'💡 Check your spam/junk folder if you don\'t see the reset email.',
   tags:['forgot password','reset','locked out','can\'t login'],
@@ -287,28 +287,28 @@ var GUIDES = [
 {
   id:'dashboard', cat:'dashboard', icon:'📊', color:'#6d28d9',
   title:'How to Use Your Dashboard',
-  desc:'Your personal hub —�� grades, stats, profile, quick links all in one place.',
+  desc:'Your personal hub – grades, stats, profile, quick links all in one place.',
   tip:'💡 Your 🔥 streak increases every day you visit the portal. Keep it going!',
   tags:['dashboard','profile','stats','streak','overview'],
   steps:[
-    {action:'Tap the menu icon (—��) in the top-left', detail:'This opens the side drawer from any page.'},
+    {action:'Tap the menu icon (☰) in the top-left', detail:'This opens the side drawer from any page.'},
     {action:'Tap "My Dashboard" in the menu', detail:'Or go directly to dashboard.html.'},
     {action:'See your stats at a glance', detail:'The hero section shows your name, program, level, and day streak 🔥.'},
-    {action:'Use Quick Access buttons', detail:'"📖 Resources", "—�� Assignments", "🧠 Quizzes", "—�� My Grades", "📡 Connect", "🌍 Opportunities Hub".'},
+    {action:'Use Quick Access buttons', detail:'"📖 Resources", "📝 Assignments", "🧠 Quizzes", "📊 My Grades", "📡 Connect", "🌍 Opportunities Hub".'},
     {action:'Check My Stats card', detail:'See total grades received, quizzes done, classes attended, and your study streak.'},
-    {action:'View your grade list', detail:'Scroll to the "—�� My Grades" card for a full list of scored assessments.'}
+    {action:'View your grade list', detail:'Scroll to the "📊 My Grades" card for a full list of scored assessments.'}
   ]
 },
 {
-  id:'profile', cat:'dashboard', icon:'—��️', color:'#7c3aed',
+  id:'profile', cat:'dashboard', icon:'👤', color:'#7c3aed',
   title:'How to Update Your Profile',
   desc:'Add your photo, program, level, and phone number to your GERAMA profile.',
   tip:'💡 Keeping your profile complete helps lecturers identify you in attendance records.',
   tags:['profile','photo','name','program','level','edit'],
   steps:[
-    {action:'Go to Dashboard', detail:'Tap the —�� menu and select "My Dashboard".'},
+    {action:'Go to Dashboard', detail:'Tap the ☰ menu and select "My Dashboard".'},
     {action:'Find the "My Profile" card on the left', detail:'Scroll down a bit after the Quick Access section.'},
-    {action:'Tap your photo circle to upload a photo', detail:'Tap the avatar circle —�� select a photo from your device. It uploads automatically.'},
+    {action:'Tap your photo circle to upload a photo', detail:'Tap the avatar circle – select a photo from your device. It uploads automatically.'},
     {action:'Fill in your Full Name', detail:'Enter your full name as it appears in your student records.'},
     {action:'Select your Engineering Program', detail:'Pick from: Mechanical, Electrical, Computer, Agricultural, Petroleum, Renewable Energy, Civil, or Environmental Engineering.'},
     {action:'Select your Academic Level', detail:'Choose L100, L200, L300, L400, Graduate, or Visitor.'},
@@ -317,21 +317,21 @@ var GUIDES = [
   ]
 },
 {
-  id:'grades', cat:'dashboard', icon:'—��', color:'#d97706',
+  id:'grades', cat:'dashboard', icon:'📊', color:'#d97706',
   title:'How to See Your Grades',
   desc:'Find all your grade records, scores, and average in one place.',
   tip:'💡 The sparkline trend arrow shows if your grades are improving 📈 or dropping 📉.',
   tags:['grades','marks','score','results','GPA','performance'],
   steps:[
-    {action:'Open your Dashboard', detail:'Go to dashboard.html or tap —�� —�� "My Dashboard".'},
-    {action:'Scroll to "—�� My Grades" card', detail:'It\'s in the right column of your dashboard.'},
+    {action:'Open your Dashboard', detail:'Go to dashboard.html or tap ☰ → "My Dashboard".'},
+    {action:'Scroll to "📊 My Grades" card', detail:'It\'s in the right column of your dashboard.'},
     {action:'See your grade list', detail:'Each entry shows course name, score, and date.'},
-    {action:'Check the grade summary line', detail:'A coloured bar shows your average % —�� green (70%+), orange (50—��69%), red (below 50%).'},
-    {action:'Click "View all —��"', detail:'Opens the full grade history.'},
-    {action:'Or go to Classroom —�� My Grades tab', detail:'The "—�� My Grades" tab in Classroom shows a detailed breakdown.'}
+    {action:'Check the grade summary line', detail:'A coloured bar shows your average % – green (70%+), orange (50–69%), red (below 50%).'},
+    {action:'Click "View all"', detail:'Opens the full grade history.'},
+    {action:'Or go to Classroom → My Grades tab', detail:'The "📊 My Grades" tab in Classroom shows a detailed breakdown.'}
   ]
 },
-// —��—�� CLASSROOM —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// —— CLASSROOM ——
 {
   id:'join-class', cat:'classroom', icon:'🖥️', color:'#1B5E20',
   title:'How to Join a Live Online Class',
@@ -342,23 +342,23 @@ var GUIDES = [
     {action:'Tap "Classroom" in the bottom nav or menu', detail:'Look for the chalkboard icon 📋 in the bottom navigation bar (mobile) or the sidebar menu.'},
     {action:'You\'re on the "Classes" tab by default', detail:'This shows all upcoming, live, and past classes.'},
     {action:'Find a class with "LIVE 🔴" or "Upcoming" badge', detail:'Live classes show in green. Upcoming shows countdown timer.'},
-    {action:'Tap the green "Join Class" button', detail:'This opens the meeting link —�� Zoom, Google Meet, or any link your lecturer set.'},
+    {action:'Tap the green "Join Class" button', detail:'This opens the meeting link – Zoom, Google Meet, or any link your lecturer set.'},
     {action:'The meeting opens in your browser or app', detail:'Allow camera/microphone when prompted.'},
     {action:'Set a reminder for upcoming classes', detail:'Tap "🔔 Remind me" on any upcoming class card to get a 15-minute alert.'}
   ]
 },
 {
-  id:'attendance', cat:'classroom', icon:'—��', color:'#059669',
+  id:'attendance', cat:'classroom', icon:'📋', color:'#059669',
   title:'How to Mark Your Attendance',
   desc:'Use the 8-character code your lecturer gives to mark yourself present.',
   tip:'💡 Attendance codes expire! Mark present as soon as your lecturer shares the code.',
   tags:['attendance','mark present','attendance code','class code','present'],
   steps:[
     {action:'Go to Classroom tab', detail:'Tap Classroom in the nav bar.'},
-    {action:'Tap the "Attendance" tab', detail:'It\'s the 5th tab in the classroom tab bar: —�� Attendance.'},
+    {action:'Tap the "Attendance" tab', detail:'It\'s the 5th tab in the classroom tab bar: 📋 Attendance.'},
     {action:'Get the code from your lecturer', detail:'Your lecturer will share an 8-character code during class (e.g. "EE3021A").'},
-    {action:'Type the code in the input box', detail:'The box says "Enter class code—��". It auto-capitalises.'},
-    {action:'Tap "—�� Mark Present"', detail:'The gold button submits your attendance. You\'ll see a success confirmation.'},
+    {action:'Type the code in the input box', detail:'The box says "Enter class code". It auto-capitalises.'},
+    {action:'Tap "✓ Mark Present"', detail:'The gold button submits your attendance. You\'ll see a success confirmation.'},
     {action:'Check your attendance count', detail:'The attendance count and points update immediately on screen.'}
   ]
 },
@@ -366,10 +366,10 @@ var GUIDES = [
   id:'assignments', cat:'classroom', icon:'📋', color:'#b45309',
   title:'How to Submit an Assignment',
   desc:'Find active assignments and submit your work before the deadline.',
-  tip:'💡 Watch the deadline badge —�� it turns red when less than 24 hours remain!',
+  tip:'💡 Watch the deadline badge – it turns red when less than 24 hours remain!',
   tags:['assignment','submit','deadline','homework','work'],
   steps:[
-    {action:'Go to Classroom —�� "Assignments" tab', detail:'Tap the —�� Tasks tab (second tab in the Classroom tab bar).'},
+    {action:'Go to Classroom → "Assignments" tab', detail:'Tap the 📝 Tasks tab (second tab in the Classroom tab bar).'},
     {action:'Find your active assignment', detail:'Assignment cards show the title, course, deadline badge (green/yellow/red), and brief.'},
     {action:'Read the assignment brief', detail:'Expand the card to see full instructions from your lecturer.'},
     {action:'Tap "Submit Assignment"', detail:'A form slides up asking for your name, answer/work, and optional file upload.'},
@@ -381,15 +381,15 @@ var GUIDES = [
   id:'quizzes', cat:'classroom', icon:'🧠', color:'#6d28d9',
   title:'How to Take a Quiz',
   desc:'Access live quizzes, answer all questions, and see your score instantly.',
-  tip:'💡 Quizzes are timed! Answer quickly —�� you can\'t go back after submitting.',
+  tip:'💡 Quizzes are timed! Answer quickly – you can\'t go back after submitting.',
   tags:['quiz','test','mcq','exam','questions','answers'],
   steps:[
-    {action:'Go to Classroom —�� "Quizzes" tab', detail:'Tap the 🧠 Quizzes tab (third tab in Classroom).'},
+    {action:'Go to Classroom → "Quizzes" tab', detail:'Tap the 🧠 Quizzes tab (third tab in Classroom).'},
     {action:'Check the stats bar', detail:'See: Total quizzes · Open Now · You\'ve Taken · Closing Soon.'},
     {action:'Find an "Open Now" quiz card', detail:'Active quizzes have a coloured badge and "Take Quiz" button.'},
     {action:'Tap "Take Quiz"', detail:'The quiz opens with all questions displayed.'},
     {action:'Select your answers', detail:'Tap your chosen option for each question.'},
-    {action:'Submit when done', detail:'Tap Submit —�� your score appears immediately with correct answers highlighted.'}
+    {action:'Submit when done', detail:'Tap Submit – your score appears immediately with correct answers highlighted.'}
   ]
 },
 {
@@ -399,7 +399,7 @@ var GUIDES = [
   tip:'💡 The planner reads your assignments and quizzes and auto-suggests study blocks!',
   tags:['planner','schedule','study plan','calendar','deadline'],
   steps:[
-    {action:'Go to Classroom —�� "Planner" tab', detail:'Tap the 📅 Planner tab in the Classroom tab bar.'},
+    {action:'Go to Classroom → "Planner" tab', detail:'Tap the 📅 Planner tab in the Classroom tab bar.'},
     {action:'View your current week', detail:'See all your upcoming assignments, quizzes, and classes in a timeline.'},
     {action:'Add a study block', detail:'Tap "+ Add Study Session" to block time for a specific course.'},
     {action:'Set reminders', detail:'Toggle the bell on any planner item to get a notification before the deadline.'},
@@ -410,40 +410,40 @@ var GUIDES = [
   id:'gethelp', cat:'classroom', icon:'🎓', color:'#065f46',
   title:'How to Request Academic Help',
   desc:'Struggling with a topic? Submit a help request directly to GERAMA.',
-  tip:'💡 Be specific about your course and what you don\'t understand —�� you\'ll get better help.',
+  tip:'💡 Be specific about your course and what you don\'t understand – you\'ll get better help.',
   tags:['help','academic','assistance','struggling','tutor','request'],
   steps:[
-    {action:'Go to Classroom —�� "Get Help" tab', detail:'Tap the 🎓 Get Help tab in the Classroom tab bar.'},
+    {action:'Go to Classroom → "Get Help" tab', detail:'Tap the 🎓 Get Help tab in the Classroom tab bar.'},
     {action:'Select your Academic Level', detail:'Choose L100, L200, etc. from the dropdown.'},
     {action:'Select your Engineering Program', detail:'Pick your specific programme.'},
     {action:'Enter the Course Name', detail:'e.g. "Engineering Mathematics 1" or "Applied Electricity".'},
     {action:'Describe what you need help with', detail:'Be specific: "I don\'t understand Laplace Transforms in Chapter 3".'},
-    {action:'Enter your email and tap "—�� Request Assistance"', detail:'A GERAMA rep will follow up via email or Connect.'}
+    {action:'Enter your email and tap "✓ Request Assistance"', detail:'A GERAMA rep will follow up via email or Connect.'}
   ]
 },
 {
   id:'qa', cat:'classroom', icon:'💬', color:'#0891b2',
   title:'How to Use the Q&A Board',
   desc:'Ask course questions, get answers from peers and lecturers.',
-  tip:'💡 Browse existing questions first —�� your question may already be answered!',
+  tip:'💡 Browse existing questions first – your question may already be answered!',
   tags:['Q&A','questions','ask','answers','discussion','board'],
   steps:[
-    {action:'Go to Classroom —�� "Q&A" tab', detail:'Tap the 💬 Q&A tab (second to last in Classroom).'},
+    {action:'Go to Classroom → "Q&A" tab', detail:'Tap the 💬 Q&A tab (second to last in Classroom).'},
     {action:'Browse existing questions', detail:'Scroll through the board to find answers others have already posted.'},
     {action:'Tap any question to expand it', detail:'See all replies and upvotes on that thread.'},
     {action:'Post a new question', detail:'Tap "+ Ask a Question" and type your question. Add course name for better reach.'},
     {action:'Reply to others', detail:'Tap "Reply" on any question to share what you know.'}
   ]
 },
-// —��—�� RESOURCES —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// —— RESOURCES ——
 {
   id:'resources', cat:'resources', icon:'📚', color:'#1e40af',
   title:'How to Find & Download Study Materials',
   desc:'Browse slides, past questions, books and videos by level and course.',
-  tip:'💡 Filter by your level (L100, L200—��) first —�� it saves a lot of scrolling.',
+  tip:'💡 Filter by your level (L100, L200–) first – it saves a lot of scrolling.',
   tags:['resources','materials','slides','past questions','books','download','study'],
   steps:[
-    {action:'Tap "Resources" in the sidebar menu', detail:'Open the —�� menu and tap "📖 Resources".'},
+    {action:'Tap "Resources" in the sidebar menu', detail:'Open the ☰ menu and tap "📖 Resources".'},
     {action:'Select your Level filter', detail:'Tap L100, L200, L300, or L400 to narrow results to your year.'},
     {action:'Select your Course', detail:'Use the course filter or search bar to find a specific subject.'},
     {action:'Filter by material type', detail:'Tap "Slides", "Books", "Past Questions", or "Videos" to filter what you need.'},
@@ -451,12 +451,12 @@ var GUIDES = [
     {action:'Upload your own materials', detail:'Tap "+ Upload Material" to share notes or past questions with your classmates. Goes for admin review.'}
   ]
 },
-// —��—�� MALL —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// —— MALL ——
 {
   id:'tshirt', cat:'mall', icon:'👕', color:'#0a2f1f',
   title:'How to Order the GERAMA T-Shirt',
   desc:'Register your interest and order the official GERAMA round neck t-shirt.',
-  tip:'💡 Sizes sell out fast —�� order early! Check the delivery timeline (3—��10 days).',
+  tip:'💡 Sizes sell out fast – order early! Check the delivery timeline (3–10 days).',
   tags:['t-shirt','tshirt','shirt','order','register','fashion','mall'],
   steps:[
     {action:'Go to the Mall page', detail:'Tap "🛍️ Urban Mall" in the sidebar menu or bottom nav.'},
@@ -464,7 +464,7 @@ var GUIDES = [
     {action:'Find "GERAMA Round Neck T-Shirt"', detail:'Tap the product card to open it.'},
     {action:'Tap "Order"', detail:'A modal opens: "Place Your Order".'},
     {action:'Select your colour and size', detail:'Tap your preferred colour swatch, then select S / M / L / XL / XXL.'},
-    {action:'Set quantity and enter delivery location', detail:'Use the —�� / + buttons. Enter where on campus to deliver.'},
+    {action:'Set quantity and enter delivery location', detail:'Use the − / + buttons. Enter where on campus to deliver.'},
     {action:'Enter your name and phone number', detail:'So the seller can identify your order.'},
     {action:'Tap "📲 Order via WhatsApp"', detail:'Opens WhatsApp with all your order details pre-filled. Just tap Send!'}
   ]
@@ -473,23 +473,23 @@ var GUIDES = [
   id:'mall-buy', cat:'mall', icon:'🛒', color:'#b45309',
   title:'How to Buy Items on the Mall',
   desc:'Browse products, add to cart, and contact sellers directly on the Urban Mall.',
-  tip:'💡 All sellers are verified GERAMA community members —�� 100% trusted.',
+  tip:'💡 All sellers are verified GERAMA community members – 100% trusted.',
   tags:['buy','mall','shop','product','cart','order','urban mall'],
   steps:[
     {action:'Go to Urban Mall', detail:'Tap "🛍️ Urban Mall" in the sidebar menu or from the home page.'},
     {action:'Browse by category', detail:'Use the pill filters: All · Fashion · Food & Drinks · Electronics · Books · Beauty · Health · Home & Living · Accessories · Services · Others.'},
     {action:'Search for specific items', detail:'Type in the search bar at the top of the mall.'},
     {action:'Tap a product card', detail:'See full details: description, price, seller, delivery info.'},
-    {action:'Tap —��️ to wishlist', detail:'Save items for later. View your wishlist via the heart icon in the toolbar.'},
+    {action:'Tap ❤️ to wishlist', detail:'Save items for later. View your wishlist via the heart icon in the toolbar.'},
     {action:'Tap "Order"', detail:'Select options (colour, size, qty, location) and order via WhatsApp or call the seller.'},
-    {action:'Add to cart for bulk checkout', detail:'Tap "+ Cart" on multiple items, then tap the 🛒 cart icon —�� "—�� Checkout All Items".'}
+    {action:'Add to cart for bulk checkout', detail:'Tap "+ Cart" on multiple items, then tap the 🛒 cart icon → "✓ Checkout All Items".'}
   ]
 },
 {
   id:'mall-sell', cat:'mall', icon:'💰', color:'#059669',
   title:'How to Sell Your Items on the Mall',
   desc:'List your products and reach every GERAMA student instantly.',
-  tip:'💡 Add 3 clear photos from different angles —�� more photos = more sales!',
+  tip:'💡 Add 3 clear photos from different angles – more photos = more sales!',
   tags:['sell','list item','product','seller','marketplace','campus sell'],
   steps:[
     {action:'Go to Urban Mall', detail:'Tap "🛍️ Urban Mall" from the sidebar or home page.'},
@@ -498,22 +498,22 @@ var GUIDES = [
     {action:'Set your Price', detail:'Enter price in GHS. Optionally add an original price to show a discount.'},
     {action:'Add up to 3 photos', detail:'Drag-and-drop or click to upload. Clear photos dramatically increase orders.'},
     {action:'Add your WhatsApp number', detail:'Buyers will contact you directly on WhatsApp.'},
-    {action:'Tap "—�� Submit for Review"', detail:'Admin reviews within 24 hours. Once approved, your product is live!'}
+    {action:'Tap "✓ Submit for Review"', detail:'Admin reviews within 24 hours. Once approved, your product is live!'}
   ]
 },
-// —��—�� CONNECT —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// —— CONNECT ——
 {
   id:'connect-dm', cat:'connect', icon:'📡', color:'#0ea5e9',
   title:'How to Message a Classmate (DMs)',
   desc:'Send private messages to any GERAMA member using Connect.',
-  tip:'💡 You can react to messages with emoji —�� hover or long-press a message to react.',
+  tip:'💡 You can react to messages with emoji – hover or long-press a message to react.',
   tags:['connect','message','DM','chat','classmate','private'],
   steps:[
     {action:'Tap "GERAMA Connect" in the menu', detail:'It has the satellite dish icon 📡. Or tap Connect in the bottom nav.'},
     {action:'You\'re on the "Members" tab by default', detail:'Browse all GERAMA members here.'},
     {action:'Find the person you want to message', detail:'Search by name or scroll through the members list.'},
     {action:'Tap the "💬 Message" button on their card', detail:'This opens a direct message conversation.'},
-    {action:'Type your message and tap the arrow button —��', detail:'Messages are delivered instantly.'},
+    {action:'Type your message and tap the arrow button →', detail:'Messages are delivered instantly.'},
     {action:'Send files or media', detail:'Tap the 📎 attachment icon to send images or files.'},
     {action:'React to messages', detail:'Hover (desktop) or long-press (mobile) any message to see the emoji reaction bar 😊.'}
   ]
@@ -521,14 +521,14 @@ var GUIDES = [
 {
   id:'connect-groups', cat:'connect', icon:'👥', color:'#7c3aed',
   title:'How to Join a Study Group',
-  desc:'Find your L100—��L400 study group and connect with your cohort.',
+  desc:'Find your L100–L400 study group and connect with your cohort.',
   tip:'💡 You\'re automatically added to your level\'s group. Look for it in the Groups tab.',
   tags:['study group','group','connect','classmates','level','cohort'],
   steps:[
     {action:'Go to GERAMA Connect', detail:'Tap "📡 GERAMA Connect" in the sidebar.'},
     {action:'Tap the "Groups" tab', detail:'Third tab in the Connect tab bar. Shows all available study groups.'},
     {action:'Find your group', detail:'Groups are organised by academic level (L100, L200, etc.).'},
-    {action:'Tap "—�� View" on your group card', detail:'Opens your group\'s dedicated chat.'},
+    {action:'Tap "→ View" on your group card', detail:'Opens your group\'s dedicated chat.'},
     {action:'Message your study group', detail:'Post questions, share notes, or just chat with your cohort.'},
     {action:'Start a group call', detail:'Tap "📹 Start Group Call" to video call everyone in the group.'}
   ]
@@ -537,7 +537,7 @@ var GUIDES = [
   id:'statuses', cat:'connect', icon:'📸', color:'#0369a1',
   title:'How to Post and View Statuses',
   desc:'Share moments, notes, or announcements as 24-hour status updates.',
-  tip:'💡 Statuses disappear after 24 hours —�� perfect for quick announcements or exam reminders.',
+  tip:'💡 Statuses disappear after 24 hours – perfect for quick announcements or exam reminders.',
   tags:['status','stories','post','share','moments','24 hours'],
   steps:[
     {action:'Go to GERAMA Connect', detail:'Tap "📡 GERAMA Connect".'},
@@ -549,39 +549,39 @@ var GUIDES = [
     {action:'Add text, photo, or video', detail:'Tap 📷 for photo, 🎨 to change background colour, 😊 for emoji. Tap "Post" to publish.'}
   ]
 },
-// —��—�� PRO TIPS —��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��—��
+// —— PRO TIPS ——
 {
   id:'navigation', cat:'getting-started', icon:'🗺️', color:'#1B5E20',
   title:'How to Navigate the GERAMA Portal',
   desc:'A full tour of every page and how to get around the portal quickly.',
-  tip:'💡 The bottom nav bar (mobile) and sidebar menu (—��) give you access to everything.',
+  tip:'💡 The bottom nav bar (mobile) and sidebar menu (☰) give you access to everything.',
   tags:['navigate','navigation','pages','menu','sidebar','bottom nav','tour','portal'],
   steps:[
-    {action:'Open the sidebar menu (—��)', detail:'Tap the hamburger menu icon (top-left on every page). This slides open the full navigation drawer.'},
+    {action:'Open the sidebar menu (☰)', detail:'Tap the hamburger menu icon (top-left on every page). This slides open the full navigation drawer.'},
     {action:'Home page (index.html)', detail:'Shows announcements, features overview, stats, and the Personality of the Week. Start here.'},
-    {action:'📖 Resources', detail:'Browse and download study materials —�� slides, books, past questions, and videos. Filter by L100—��L400.'},
+    {action:'📖 Resources', detail:'Browse and download study materials – slides, books, past questions, and videos. Filter by L100–L400.'},
     {action:'📋 Classroom', detail:'9 tabs: Classes · Assignments · Quizzes · My Grades · Attendance · Planner · Get Help · Q&A · Opportunities.'},
-    {action:'📊 My Dashboard', detail:'Your personal hub —�� profile, grades summary, streak tracker, quick access buttons, and stats.'},
-    {action:'📡 GERAMA Connect', detail:'Social hub —�� DMs, study group chats, 24h status stories, reels, and video calls.'},
-    {action:'🛍️ Urban Mall', detail:'Campus marketplace —�� buy/sell T-shirts, food, electronics, books, and more.'},
-    {action:'—��️ About & Contact', detail:'Learn about the GERAMA team, mission, and how to reach us.'},
+    {action:'📊 My Dashboard', detail:'Your personal hub – profile, grades summary, streak tracker, quick access buttons, and stats.'},
+    {action:'📡 GERAMA Connect', detail:'Social hub – DMs, study group chats, 24h status stories, reels, and video calls.'},
+    {action:'🛍️ Urban Mall', detail:'Campus marketplace – buy/sell T-shirts, food, electronics, books, and more.'},
+    {action:'ℹ️ About & Contact', detail:'Learn about the GERAMA team, mission, and how to reach us.'},
     {action:'Mobile bottom nav bar', detail:'On mobile, the 5 most-used pages are pinned to the bottom: Home · Resources · Classroom · Connect · Mall.'},
-    {action:'—�� Help button (this page)', detail:'The yellow —�� button (bottom-right, every page) brings you here. 22+ step-by-step guides available.'}
+    {action:'❓ Help button (this page)', detail:'The yellow ❓ button (bottom-right, every page) brings you here. 22+ step-by-step guides available.'}
   ]
 },
 {
-  id:'sidebar-features', cat:'getting-started', icon:'—��', color:'#0a2f1f',
+  id:'sidebar-features', cat:'getting-started', icon:'☰', color:'#0a2f1f',
   title:'What\'s Inside the Sidebar Menu',
-  desc:'Every feature hidden in the —�� menu —�� from dark mode to your streak.',
+  desc:'Every feature hidden in the ☰ menu – from dark mode to your streak.',
   tip:'💡 The sidebar shows your name, program, streak 🔥, and a live clock!',
   tags:['sidebar','menu','drawer','hamburger','features','clock','streak','dark mode','logout'],
   steps:[
-    {action:'Tap —�� (top-left) on any page', detail:'This opens the slide-out navigation drawer.'},
+    {action:'Tap ☰ (top-left) on any page', detail:'This opens the slide-out navigation drawer.'},
     {action:'Your profile is at the top', detail:'Shows your avatar, full name, program, index number, and today\'s date + live clock.'},
     {action:'Navigate to any page', detail:'All 8 main pages are listed: Home, Resources, Classroom, Dashboard, Connect, Mall, About, Contact.'},
-    {action:'🌙 Dark / —��️ Light toggle', detail:'Switch between dark and light mode instantly. Preference is saved permanently.'},
+    {action:'🌙 Dark / ☀️ Light toggle', detail:'Switch between dark and light mode instantly. Preference is saved permanently.'},
     {action:'🔥 Streak badge', detail:'Shows how many consecutive days you\'ve visited the portal. Build your streak!'},
-    {action:'—��️ Edit Profile button', detail:'Opens the profile editor to update your name, photo, program, level, and phone.'},
+    {action:'✏️ Edit Profile button', detail:'Opens the profile editor to update your name, photo, program, level, and phone.'},
     {action:'💛 Support GERAMA', detail:'Link to the support/contact page.'},
     {action:'Sign Out button (Logout)', detail:'Logs you out securely from all sessions.'}
   ]
@@ -590,28 +590,28 @@ var GUIDES = [
   id:'notifications-tip', cat:'tips', icon:'🔔', color:'#dc2626',
   title:'How to Enable Push Notifications',
   desc:'Get instant GERAMA alerts even when the app is closed.',
-  tip:'💡 On iPhone, add GERAMA to your home screen first (tap Share —�� "Add to Home Screen") before enabling notifications.',
+  tip:'💡 On iPhone, add GERAMA to your home screen first (tap Share → "Add to Home Screen") before enabling notifications.',
   tags:['notifications','alerts','push','subscribe','bell'],
   steps:[
     {action:'Look for the 🔔 bell button on any page', detail:'It\'s fixed at the bottom-right corner of every GERAMA page.'},
     {action:'Tap the bell button', detail:'If you\'re not subscribed, it asks for permission.'},
     {action:'Tap "Allow" when the browser asks', detail:'This is the browser\'s native permission prompt. You must Allow to receive push notifications.'},
-    {action:'Bell turns green = you\'re subscribed —��', detail:'You\'ll now receive alerts for new assignments, announcements, grades, and more.'},
-    {action:'To unsubscribe: tap bell again —�� tap OK to confirm', detail:'The bell turns grey. You won\'t get push notifications anymore.'},
-    {action:'iPhone users: add to home screen first', detail:'Tap the Share button —��️ in Safari —�� "Add to Home Screen" —�� Open from home screen —�� then enable notifications.'}
+    {action:'Bell turns green = you\'re subscribed ✓', detail:'You\'ll now receive alerts for new assignments, announcements, grades, and more.'}
+    {action:'To unsubscribe: tap bell again – tap OK to confirm', detail:'The bell turns grey. You won\'t get push notifications anymore.'},
+    {action:'iPhone users: add to home screen first', detail:'Tap the Share button ⬆️ in Safari → "Add to Home Screen" → Open from home screen → then enable notifications.'}
   ]
 },
 {
   id:'dark-mode', cat:'tips', icon:'🌙', color:'#374151',
   title:'How to Switch to Dark Mode',
-  desc:'Save your eyes at night —�� enable dark mode from the sidebar.',
+  desc:'Save your eyes at night – enable dark mode from the sidebar.',
   tip:'💡 Dark mode preference is saved. It stays on even after you close and reopen GERAMA.',
   tags:['dark mode','night mode','theme','eyes','light','dark'],
   steps:[
-    {action:'Tap the —�� menu icon', detail:'Open the sidebar drawer from any page.'},
+    {action:'Tap the ☰ menu icon', detail:'Open the sidebar drawer from any page.'},
     {action:'Find the "🌙 Dark" button at the bottom', detail:'It\'s in the drawer, above the logout button.'},
     {action:'Tap "🌙 Dark"', detail:'The entire portal switches to dark mode instantly.'},
-    {action:'To go back to light mode', detail:'Open the menu again —�� the button now says "—��️ Light". Tap it to switch back.'}
+    {action:'To go back to light mode', detail:'Open the menu again – the button now says "☀️ Light". Tap it to switch back.'}
   ]
 },
 {

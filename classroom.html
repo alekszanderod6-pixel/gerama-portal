@@ -485,7 +485,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <a href="index.html">Home</a>
     <a href="resources.html">Resources</a>
     <a href="classroom.html" class="active">Classroom</a>
-    <a href="connect.html" style="color:#0ea5e9;">?? Connect</a>
+    <a href="connect.html" style="color:#0ea5e9;">📡 Connect</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
   </nav>
@@ -898,7 +898,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div style="position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:rgba(255,255,255,0.07);border-radius:50%;pointer-events:none;"></div>
     <i class="fas fa-bell" style="font-size:1.4rem;margin-top:0.1rem;flex-shrink:0;"></i>
     <div style="flex:1;position:relative;">
-      <div style="font-weight:800;font-size:0.95rem;margin-bottom:0.3rem;" id="plannerReminderTitle">?? Time to Plan Your Day</div>
+      <div style="font-weight:800;font-size:0.95rem;margin-bottom:0.3rem;" id="plannerReminderTitle">⏰ Time to Plan Your Day</div>
       <div style="font-size:0.85rem;opacity:0.9;line-height:1.6;" id="plannerReminderMsg">Start by reviewing your goals for today and checking upcoming deadlines.</div>
       <div id="plannerSmartSuggestions" style="margin-top:0.8rem;display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
     </div>
@@ -917,7 +917,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div style="display:flex;align-items:flex-start;gap:0.8rem;cursor:pointer;" onclick="var g=document.getElementById('plannerGuideBody');g.style.display=g.style.display==='none'?'block':'none';this.querySelector('i.toggle').className='fas toggle fa-chevron-'+(g.style.display==='none'?'down':'up');">
       <i class="fas fa-map-signs" style="color:#f59e0b;font-size:1.1rem;margin-top:0.15rem;flex-shrink:0;"></i>
       <div style="flex:1;">
-        <div style="font-weight:800;font-size:0.92rem;color:#92400e;">?? How to use the Study Planner</div>
+        <div style="font-weight:800;font-size:0.92rem;color:#92400e;">📋 How to use the Study Planner</div>
         <div style="font-size:0.8rem;color:#b45309;margin-top:0.1rem;">Tap to expand 5 easy steps</div>
       </div>
       <i class="fas toggle fa-chevron-down" style="color:#d97706;margin-top:0.2rem;"></i>
@@ -942,7 +942,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         </div>
         <div style="display:flex;gap:0.8rem;align-items:flex-start;">
           <div style="width:28px;height:28px;border-radius:50%;background:#f59e0b;color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.82rem;flex-shrink:0;">5</div>
-          <div><strong style="font-size:0.88rem;color:#92400e;">Evening &amp; Morning Reminders</strong><br><span style="font-size:0.82rem;color:#b45309;">Every evening 812 pm: plan tomorrow's study session. Every morning 58 am: review today's goals. A ?? badge appears on the Planner tab to remind you.</span></div>
+          <div><strong style="font-size:0.88rem;color:#92400e;">Evening &amp; Morning Reminders</strong><br><span style="font-size:0.82rem;color:#b45309;">Every evening 812 pm: plan tomorrow's study session. Every morning 58 am: review today's goals. A ⏰ badge appears on the Planner tab to remind you.</span></div>
         </div>
       </div>
     </div>
@@ -982,16 +982,16 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <!-- Pomodoro Timer -->
     <div style="background:white;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;text-align:center;">
       <div style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:0.8rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;"><i class="fas fa-clock" style="color:#dc2626;"></i> Study Timer</div>
-      <div id="pomodoroMode" style="font-size:0.78rem;font-weight:700;color:#dc2626;background:#fee2e2;padding:0.2rem 0.8rem;border-radius:20px;display:inline-block;margin-bottom:1rem;">???? Focus Time</div>
+      <div id="pomodoroMode" style="font-size:0.78rem;font-weight:700;color:#dc2626;background:#fee2e2;padding:0.2rem 0.8rem;border-radius:20px;display:inline-block;margin-bottom:1rem;">🎯 Focus Time</div>
       <div id="pomodoroDisplay" style="font-size:3.5rem;font-weight:900;color:var(--text);line-height:1;margin-bottom:1rem;font-variant-numeric:tabular-nums;letter-spacing:-2px;">25:00</div>
       <div style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem;">
         <button id="pomodoroBtn" onclick="togglePomodoro()" style="background:linear-gradient(135deg,#dc2626,#b91c1c);color:white;border:none;padding:0.65rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 12px rgba(220,38,38,0.3);transition:all 0.2s;"><i class="fas fa-play"></i> Start</button>
         <button onclick="resetPomodoro()" style="background:#f1f5f9;color:var(--text);border:none;padding:0.65rem 1rem;border-radius:30px;font-weight:600;font-size:0.88rem;cursor:pointer;font-family:'Inter',sans-serif;"><i class="fas fa-redo"></i> Reset</button>
       </div>
       <div style="display:flex;gap:0.5rem;justify-content:center;">
-        <button onclick="setPomodoroMode('focus')" style="background:#fee2e2;color:#dc2626;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">???? 25 min</button>
-        <button onclick="setPomodoroMode('short')" style="background:#d1fae5;color:#065f46;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">? 5 min</button>
-        <button onclick="setPomodoroMode('long')" style="background:#dbeafe;color:#1d4ed8;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">?? 15 min</button>
+        <button onclick="setPomodoroMode('focus')" style="background:#fee2e2;color:#dc2626;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">🎯 25 min</button>
+        <button onclick="setPomodoroMode('short')" style="background:#d1fae5;color:#065f46;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">☕ 5 min</button>
+        <button onclick="setPomodoroMode('long')" style="background:#dbeafe;color:#1d4ed8;border:none;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:700;cursor:pointer;">🌴 15 min</button>
       </div>
       <div id="pomodoroSessions" style="margin-top:0.8rem;font-size:0.78rem;color:#9ca3af;"></div>
     </div>
@@ -1011,9 +1011,9 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
   <!-- Did You Know -->
   <div id="plannerDidYouKnowCard" style="background:linear-gradient(135deg,#e0f2fe,#f0f9ff);border:1px solid #bae6fd;border-radius:20px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,0.05);margin-top:1.2rem;position:relative;overflow:hidden;">
-    <div style="position:absolute;top:-10px;right:-5px;font-size:4rem;opacity:0.08;pointer-events:none;">??</div>
+    <div style="position:absolute;top:-10px;right:-5px;font-size:4rem;opacity:0.08;pointer-events:none;">💡</div>
     <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.9rem;flex-wrap:wrap;">
-      <span style="background:#0ea5e9;color:white;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">??</span>
+      <span style="background:#0ea5e9;color:white;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:0.9rem;flex-shrink:0;">💡</span>
       <div style="font-size:1rem;font-weight:800;color:#0c4a6e;">Did You Know?</div>
       <button onclick="refreshDidYouKnow()" style="margin-left:auto;background:none;border:none;color:#0284c7;font-size:0.78rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.3rem;"><i class="fas fa-lightbulb"></i> Next fact</button>
       <button onclick="var b=document.getElementById('diykShareBody');b.style.display=b.style.display==='none'?'block':'none';" style="background:rgba(14,165,233,0.1);border:1px solid #bae6fd;color:#0284c7;font-size:0.75rem;cursor:pointer;font-family:'Inter',sans-serif;padding:0.25rem 0.6rem;border-radius:20px;font-weight:600;"><i class="fas fa-plus"></i> Add a fact</button>
@@ -1022,7 +1022,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div id="diykSource" style="font-size:0.78rem;color:#0284c7;"></div>
     <!-- Contribute a Did You Know fact -->
     <div id="diykShareBody" style="display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid #bae6fd;">
-      <div style="font-size:0.82rem;font-weight:700;color:#075985;margin-bottom:0.6rem;">Share a fun engineering fact ??</div>
+      <div style="font-size:0.82rem;font-weight:700;color:#075985;margin-bottom:0.6rem;">Share a fun engineering fact 💡</div>
       <textarea id="diykInput" rows="2" placeholder="e.g. Did you know that concrete gains strength over time? A 50-year-old concrete structure is often stronger than when it was first built." maxlength="400"
         style="width:100%;padding:0.6rem 0.8rem;border:2px solid #bae6fd;border-radius:10px;font-size:0.87rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;box-sizing:border-box;"
         onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#bae6fd'"></textarea>
@@ -1348,7 +1348,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var dismissKey = 'planner_reminder_dismissed_' + h;
     if(isReminderHour && !localStorage.getItem(dismissKey) && badge){
       badge.style.display = 'flex';
-      badge.textContent = '??';
+      badge.textContent = '⏰';
     }
   }, 1000);
   setInterval(function(){
@@ -1358,7 +1358,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var dismissKey = 'planner_reminder_dismissed_' + h;
     if(badge){
       if(isReminderHour && !localStorage.getItem(dismissKey)){
-        badge.style.display = 'flex'; badge.textContent = '??';
+        badge.style.display = 'flex'; badge.textContent = '⏰';
       } else {
         badge.style.display = 'none';
       }
@@ -3486,7 +3486,7 @@ function checkPlannerReminder() {
   }
 
   // Show badge on Planner tab
-  if(badge) { badge.style.display = 'flex'; badge.textContent = '??'; }
+  if(badge) { badge.style.display = 'flex'; badge.textContent = '⏰'; }
 
   var plannerTab = document.getElementById('plannerTabBtn');
   var plannerBadgeEl = document.getElementById('plannerBadge');
