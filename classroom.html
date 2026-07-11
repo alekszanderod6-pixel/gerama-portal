@@ -1494,6 +1494,7 @@ function renderClasses(classes) {
         '<div><i class="fas fa-calendar"></i> '+dt.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div>'+
         '<div><i class="fas fa-clock"></i> '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})+'</div>'+
         (c.tutor ? '<div><i class="fas fa-user-tie"></i> '+escHtml(c.tutor)+'</div>' : '')+
+        (c.target_group ? '<div><i class="fas fa-users" style="color:#FFC107;"></i> '+escHtml(c.target_group)+'</div>' : '')+
         (isInPerson && c.venue ? '<div><i class="fas fa-map-marker-alt" style="color:#dc2626;"></i> '+escHtml(c.venue)+'</div>' : '')+
         (c.description ? '<div style="margin-top:0.4rem;color:#374151;">'+escHtml(c.description)+'</div>' : '')+
       '</div>'+
@@ -1640,6 +1641,7 @@ function renderAssignments(assignments, gradeMap) {
       '<div class="assign-meta">'+
         '<div><i class="fas fa-book"></i> '+escHtml(a.course||'General')+'</div>'+
         '<div><i class="fas fa-user-tie"></i> '+escHtml(a.tutor||'GERAMA Tutor')+'</div>'+
+        (a.target_group ? '<div><i class="fas fa-users" style="color:#FFC107;"></i> '+escHtml(a.target_group)+'</div>' : '')+
         (a.points ? '<div><i class="fas fa-star"></i> '+a.points+' marks</div>' : '')+
       '</div>'+
       (a.description ? '<div class="assign-desc">'+escHtml(a.description)+'</div>' : '')+
@@ -2822,6 +2824,7 @@ async function loadQuizzes() {
       '<div class="quiz-meta">'+
         (q.course ? '<div><i class="fas fa-book"></i> '+escHtml(q.course)+'</div>' : '')+
         ((q.posted_by||q.tutor) ? '<div><i class="fas fa-user-tie"></i> '+escHtml(q.posted_by||q.tutor)+'</div>' : '')+
+        (q.target_group ? '<div><i class="fas fa-users" style="color:#FFC107;"></i> '+escHtml(q.target_group)+'</div>' : '')+
       '</div>'+
       ((q.instructions||q.description) ? '<div class="quiz-desc">'+escHtml(q.instructions||q.description)+'</div>' : '')+
       (dlText ? '<div class="quiz-deadline '+dlClass+'"><i class="fas fa-calendar-times"></i> '+dlText+'</div>' : '')+
@@ -3290,6 +3293,7 @@ async function loadAttendance() {
       '<div class="attend-info">'+
         '<div class="attend-class-name">'+escHtml(r.class_title||'Class Session')+'</div>'+
         '<div class="attend-meta"><i class="fas fa-calendar" style="color:var(--primary);margin-right:0.3rem;"></i>'+dt+'</div>'+
+        (r.target_group ? '<div class="attend-meta"><i class="fas fa-users" style="color:#FFC107;margin-right:0.3rem;"></i>'+escHtml(r.target_group)+'</div>' : '')+
       '</div>'+
       '<span class="attend-points">+'+( r.points||1)+' pt</span>'+
     '</div>';

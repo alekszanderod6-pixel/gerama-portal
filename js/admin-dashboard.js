@@ -2561,6 +2561,7 @@ var _attTimer = null;
 window.generateAttendanceCode = async function(){
   var title    = document.getElementById('attClassTitle').value.trim();
   var duration = parseInt(document.getElementById('attDuration').value)||15;
+  var targetGroup = (document.getElementById('attGroup')||{}).value.trim() || null;
   if(!title){ window.showStatus('attStatus','Please enter a class title.','err'); return; }
 
   var sb = window.geramaSupabase; if(!sb){ window.showStatus('attStatus','Not connected.','err'); return; }
@@ -2582,7 +2583,8 @@ window.generateAttendanceCode = async function(){
     class_title: title,
     expires_at: expiresAt,
     is_active:  true,
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    target_group: targetGroup
   };
 
   // Try with duration_mins first, fall back without it if column doesn't exist
