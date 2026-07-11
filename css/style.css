@@ -1,5 +1,16 @@
 /* ========== GERAMA GLOBAL STYLES (MERGED) ========== */
 :root { --primary: #1B5E20; --primary-dark: #0a2f1f; --primary-light: #2E7D32; --accent: #FFC107; --accent-dark: #e6a800; --gray-bg: #f5f7fa; --shadow: 0 8px 32px rgba(0, 0, 0, 0.1); --border-radius: 24px; }
+
+/* Dark Mode Variables */
+[data-theme="dark"] {
+  --primary: #2E7D32;
+  --primary-dark: #1B5E20;
+  --primary-light: #4CAF50;
+  --accent: #FFD54F;
+  --accent-dark: #FFC107;
+  --gray-bg: #1a1a1a;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { overflow-x: hidden; width: 100%; }
 body {
@@ -10,12 +21,24 @@ body {
   width: 100%;
   max-width: 100vw;
   position: relative;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Mode Body */
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: #e0e0e0;
 }
 h1, h2, h3 { font-weight: 600; }
 .container { max-width: 1300px; margin: 0 auto; padding: 2rem; }
 
 /* Header */
-header { background: linear-gradient(135deg, #1B5E20, #2E7D32); color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
+header { background: linear-gradient(135deg, #1B5E20, #2E7D32); color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; transition: background 0.3s ease; }
+
+/* Dark Mode Header */
+[data-theme="dark"] header {
+  background: linear-gradient(135deg, #1B5E20, #2E7D32);
+}
 .logo-container { display: flex; align-items: center; gap: 12px; }
 .logo-container img { width: 55px; border-radius: 12px; }
 .logo-container h2 { font-size: 1.3rem; }
@@ -42,8 +65,18 @@ section, .section-wrap, .res-container, .contact-wrap, .who-section,
 
 /* Stats, Cards, Announcements */
 .stats-grid, .announcements-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; margin: 2rem 0; }
-.stat-card, .announcement-card { background: white; border-radius: 20px; padding: 1.5rem; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.stat-card, .announcement-card { background: white; border-radius: 20px; padding: 1.5rem; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: background 0.3s ease, box-shadow 0.3s ease; }
 .stat-number { font-size: 2rem; font-weight: 800; color: #1B5E20; }
+
+/* Dark Mode Cards */
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .announcement-card {
+  background: #2d2d2d;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+[data-theme="dark"] .stat-number {
+  color: #4CAF50;
+}
 
 /* –– SIDEBAR DRAWER ––
    z-index 3000 keeps it above the sticky header (z-index 1000).
@@ -52,16 +85,21 @@ section, .section-wrap, .res-container, .contact-wrap, .who-section,
 .sidebar-drawer {
   position: fixed; top: 0; left: -320px; width: 300px; max-width: 85vw;
   height: 100vh; background: #0a2f1f; z-index: 3000;
-  transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+  transition: left 0.3s cubic-bezier(0.4,0,0.2,1), background 0.3s ease;
   overflow-y: auto; overflow-x: hidden;
   box-shadow: 4px 0 30px rgba(0,0,0,0.35);
   will-change: left;
 }
 .sidebar-drawer.open { left: 0; }
-.drawer-header { background: #1B5E20; padding: 2rem 1rem 1.5rem; text-align: center; color: white; position: relative; }
+.drawer-header { background: #1B5E20; padding: 2rem 1rem 1.5rem; text-align: center; color: white; position: relative; transition: background 0.3s ease; }
 .drawer-header .profile-emoji { font-size: 3rem; margin-bottom: 0.5rem; display: block; }
 .drawer-nav a { display: flex; padding: 1rem 1.5rem; color: white; text-decoration: none; gap: 1rem; transition: 0.2s; align-items: center; }
 .drawer-nav a:hover, .drawer-nav a.active { background: rgba(255,193,7,0.2); border-left: 3px solid #FFC107; color: #FFC107; }
+
+/* Dark Mode Sidebar */
+[data-theme="dark"] .drawer-header {
+  background: #1B5E20;
+}
 .logout-drawer { background: #FFC107; color: #1B5E20; width: 90%; margin: 1rem auto; display: block; border: none; padding: 0.8rem; border-radius: 40px; font-weight: bold; cursor: pointer; }
 
 /* Overlay – blocks page interaction when sidebar is open */
@@ -147,6 +185,11 @@ html { scroll-behavior: smooth; }
 /* Remove outline for mouse users */
 :focus:not(:focus-visible) { outline: none; }
 
+/* Dark Mode Focus */
+[data-theme="dark"] :focus-visible {
+  outline: 3px solid #4CAF50;
+}
+
 /* –– IMPROVED BUTTON INTERACTIONS –– */
 button, .btn, a.btn-hero-primary, a.btn-hero-secondary, a.btn-cta {
   cursor: pointer;
@@ -158,6 +201,16 @@ button, .btn, a.btn-hero-primary, a.btn-hero-secondary, a.btn-cta {
 input, textarea, select {
   -webkit-appearance: none;
   appearance: none;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark Mode Inputs */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background: #2d2d2d;
+  color: #e0e0e0;
+  border-color: #4a4a4a;
 }
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {

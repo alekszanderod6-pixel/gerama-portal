@@ -1,7 +1,96 @@
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-// GERAMA Portal – Core: Sidebar, Profile, Auth Check
+// GERAMA Portal – Core: Sidebar, Profile, Auth Check, Dark Mode
 // Version: 2026.06 – cache-bust
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+// –– DARK MODE –––––––––––––––––––––––––––––––––––––––––––––––––––––––
+(function() {
+    // Check for saved preference or system preference
+    var savedTheme = localStorage.getItem('gerama_theme');
+    var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // Apply theme on load
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+    
+    // Toggle function
+    window.toggleDarkMode = function() {
+        var current = document.documentElement.getAttribute('data-theme');
+        var newTheme = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('gerama_theme', newTheme);
+    };
+    
+    // Add dark mode toggle to sidebar
+    document.addEventListener('DOMContentLoaded', function() {
+        var sidebar = document.querySelector('.sidebar-nav');
+        if (sidebar) {
+            var toggleBtn = document.createElement('div');
+            toggleBtn.className = 'nav-item';
+            toggleBtn.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+            toggleBtn.style.cursor = 'pointer';
+            toggleBtn.onclick = window.toggleDarkMode;
+            toggleBtn.id = 'darkModeToggle';
+            sidebar.appendChild(toggleBtn);
+            
+            // Update icon based on current theme
+            updateDarkModeIcon();
+        }
+    });
+    
+    function updateDarkModeIcon() {
+        var toggle = document.getElementById('darkModeToggle');
+        if (toggle) {
+            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            toggle.innerHTML = isDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
+        }
+    }
+    
+    // Listen for theme changes
+    var observer = new MutationObserver(updateDarkModeIcon);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+})();
+
+// –– OFFLINE/ONLINE INDICATOR –––––––––––––––––––––––––––––––––––––––––
+(function() {
+    // Create offline indicator
+    var indicator = document.createElement('div');
+    indicator.id = 'offlineIndicator';
+    indicator.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#dc2626;color:white;padding:0.5rem 1rem;border-radius:8px;font-size:0.85rem;font-weight:600;z-index:9999;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+    indicator.innerHTML = '<i class="fas fa-wifi"></i> You are offline. Some features may be limited.';
+    document.body.appendChild(indicator);
+    
+    // Update indicator based on connection status
+    function updateOnlineStatus() {
+        var isOnline = navigator.onLine;
+        indicator.style.display = isOnline ? 'none' : 'block';
+        if (isOnline) {
+            indicator.innerHTML = '<i class="fas fa-check-circle"></i> Back online!';
+            indicator.style.background = '#059669';
+            setTimeout(function() {
+                indicator.style.display = 'none';
+            }, 3000);
+        } else {
+            indicator.innerHTML = '<i class="fas fa-wifi"></i> You are offline. Some features may be limited.';
+            indicator.style.background = '#dc2626';
+        }
+    }
+    
+    // Listen for online/offline events
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    
+    // Check initial status
+    updateOnlineStatus();
+    
+    // Sync data when coming back online
+    window.addEventListener('online', function() {
+        if (typeof window.syncOfflineData === 'function') {
+            window.syncOfflineData();
+        }
+    });
+})();
 
 // Force fresh content check – unregister stale service workers
 // IMPORTANT: skip the OneSignal worker – unregistering it breaks push notifications

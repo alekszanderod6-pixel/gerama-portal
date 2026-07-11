@@ -1,5 +1,5 @@
-// GERAMA Service Worker – enables PWA install prompt and offline caching
-const CACHE_NAME = 'gerama-v1';
+// GERAMA Service Worker – enables PWA install prompt and offline caching
+const CACHE_NAME = 'gerama-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -7,13 +7,21 @@ const STATIC_ASSETS = [
   '/resources.html',
   '/contact.html',
   '/login.html',
+  '/signup.html',
+  '/dashboard.html',
+  '/classroom.html',
+  '/mall.html',
+  '/help.html',
   '/css/style.css',
   '/js/main.js',
   '/js/resources.js',
   '/js/supabase-config.js',
+  '/js/gerama-features.js',
+  '/js/onesignal-init.js',
   '/images/geramalogo.jpg',
   '/images/uenr logo.png',
-  '/images/aleks.jpg'
+  '/images/aleks.jpg',
+  '/manifest.json'
 ];
 
 // Install: cache static assets
@@ -47,7 +55,7 @@ self.addEventListener('fetch', function(event) {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET') return;
 
-  // For navigation requests (HTML pages) – network first, fallback to cache
+  // For navigation requests (HTML pages) – network first, fallback to cache
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(function() {
@@ -57,7 +65,7 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
-  // For everything else – stale-while-revalidate
+  // For everything else – stale-while-revalidate
   event.respondWith(
     caches.match(event.request).then(function(cached) {
       const networkFetch = fetch(event.request).then(function(response) {
@@ -74,4 +82,11 @@ self.addEventListener('fetch', function(event) {
       });
     })
   );
+});
+
+// Handle offline/online status messages
+self.addEventListener('message', function(event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
