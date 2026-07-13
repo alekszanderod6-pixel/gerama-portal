@@ -634,19 +634,18 @@ var SEED_PRODUCTS = [
   {
     id: 'seed-1',
     name: 'Fresh Homemade Yoghurt',
-    seller: 'GERAMA Kitchen',
-    seller_phone: '+233240000000',
+    seller_name: 'GERAMA Kitchen',
+    seller_id: 'gerama-kitchen',
     category: 'food',
     price: 7,
     original_price: null,
     description: 'Fresh homemade creamy yoghurt – smooth, pink and delicious. Perfect for a healthy snack. Order 10 for just GH₵70! Made fresh daily.',
-    images: ['https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/yoghurt.jpg'],
+    image_url: 'https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/yoghurt.jpg',
     colours: null,
+    colour_names: null,
     sizes: null,
-    stock: 50,
-    badge: 'fresh',
-    rating: 4.8,
-    review_count: 12,
+    badge: 'FRESH',
+    verified: true,
     created_at: new Date().toISOString()
   }
 ];
@@ -832,7 +831,7 @@ function openOrderModal(productId) {
   var preview = document.getElementById('orderPreview');
   preview.innerHTML = '<img src="' + (p.image_url||'https://via.placeholder.com/70') + '" alt="" onerror="this.src=\'https://via.placeholder.com/70\'">' +
     '<div><div class="name">' + escHtml(p.name) + '</div>' +
-    '<div class="price">GH₵ p.price + (p.original_price&&p.original_price>p.price?' <span style="text-decoration:line-through;color:#9ca3af;font-size:0.85rem;">GH₵ p.original_price+'</span>':'') + '</div>' +
+    '<div class="price">GH₵ ' + p.price + (p.original_price&&p.original_price>p.price?' <span style="text-decoration:line-through;color:#9ca3af;font-size:0.85rem;">GH₵ ' + p.original_price+'</span>':'') + '</div>' +
     '<div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem;">Seller: ' + escHtml(p.seller_name||'–') + ' · ' + (p.seller_id||'') + '</div>' +
     '</div>';
 
