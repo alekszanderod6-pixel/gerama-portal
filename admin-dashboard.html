@@ -266,6 +266,7 @@ tr:hover td{background:#fafcfa;}
     <div class="nav-item" data-panel="visitors" onclick="switchPanel('visitors')"><i class="fas fa-chart-line"></i> Visitor Stats</div>
     <div class="nav-item" data-panel="messages" onclick="switchPanel('messages')"><i class="fas fa-envelope" style="color:#3b82f6;"></i> Contact Messages <span id="msgBadge" style="background:#3b82f6;color:white;border-radius:20px;padding:0.1rem 0.5rem;font-size:0.72rem;margin-left:auto;display:none;"></span></div>
     <div class="nav-item" data-panel="users" onclick="switchPanel('users')"><i class="fas fa-users"></i> Registered Users</div>
+    <div class="nav-item" data-panel="activity" onclick="switchPanel('activity')"><i class="fas fa-chart-line" style="color:#059669;"></i> Active Members</div>
     <div class="nav-item" data-panel="groups" onclick="switchPanel('groups')"><i class="fas fa-layer-group" style="color:#FFC107;"></i> Study Groups</div>
     <div class="nav-item" data-panel="potw" onclick="switchPanel('potw')"><i class="fas fa-star"></i> Personality of Week</div>
     <div class="nav-item" data-panel="reels" onclick="switchPanel('reels')"><i class="fas fa-film"></i> Manage Reels</div>
@@ -1972,6 +1973,28 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         <button class="btn-gold" onclick="loadUsers()" style="padding:0.6rem 1rem;font-size:0.85rem;white-space:nowrap;"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
       <div id="usersList"><p style="color:#9ca3af;font-size:0.88rem;">Loading...</p></div>
+    </div>
+  </div>
+
+  <!-- ACTIVE MEMBERS PANEL -->
+  <div class="panel" id="panel-activity">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-chart-line" style="color:#059669;"></i> Active Members Report</div>
+      <p style="color:#6b7280;font-size:0.88rem;margin-bottom:1rem;">View members based on their activity - attendance, quizzes, or assignments. Assign study groups and index numbers to members.</p>
+      
+      <!-- Activity Type Selector -->
+      <div style="display:flex;gap:0.8rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <button class="btn-primary" id="actAttendance" onclick="loadActiveMembers('attendance')" style="padding:0.6rem 1.2rem;font-size:0.88rem;"><i class="fas fa-clipboard-check"></i> By Attendance</button>
+        <button class="btn-gold" id="actQuizzes" onclick="loadActiveMembers('quizzes')" style="padding:0.6rem 1.2rem;font-size:0.88rem;"><i class="fas fa-question-circle"></i> By Quizzes</button>
+        <button class="btn-primary" id="actAssignments" onclick="loadActiveMembers('assignments')" style="padding:0.6rem 1.2rem;font-size:0.88rem;background:#6366f1;"><i class="fas fa-tasks"></i> By Assignments</button>
+        <button onclick="loadActiveMembers('all')" style="background:#f1f5f9;color:#374151;border:1px solid #e5e7eb;padding:0.6rem 1.2rem;border-radius:10px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-left:auto;"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+
+      <!-- Stats Summary -->
+      <div id="activityStats" style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;"></div>
+
+      <!-- Members List -->
+      <div id="activeMembersList"><p style="color:#9ca3af;text-align:center;padding:2rem;">Select an activity type above to view active members.</p></div>
     </div>
   </div>
 

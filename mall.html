@@ -730,7 +730,8 @@ async function loadProducts() {
   }
 
   // DB products first (newest), then seed products at the end
-  allProducts = dbProducts.concat(SEED_PRODUCTS);
+  // If no DB products, still show seed products
+  allProducts = (dbProducts.length ? dbProducts : []).concat(SEED_PRODUCTS);
 
   // Update stats
   var sellers = new Set(allProducts.map(function(p){ return p.seller_id || p.seller_name; }));

@@ -198,6 +198,7 @@
     if(name === 'visitors' && window.loadVisitorStats) setTimeout(window.loadVisitorStats, 150);
     if(name === 'messages' && window.loadContactMessages) setTimeout(function(){ window.loadContactMessages('all'); }, 150);
     if(name === 'users') setTimeout(function(){ if(window.loadUsers) window.loadUsers(); }, 150);
+    if(name === 'activity') setTimeout(function(){ if(window.loadActiveMembers) window.loadActiveMembers('attendance'); }, 150);
     if(name === 'groups') setTimeout(function(){ if(window.loadGroups) window.loadGroups(); }, 150);
     if(name === 'potw' && window.loadPotwList) setTimeout(window.loadPotwList, 150);
     if(name === 'reels' && window.loadAdminReels) setTimeout(window.loadAdminReels, 150);

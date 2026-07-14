@@ -5,13 +5,15 @@
 
 // –– DARK MODE –––––––––––––––––––––––––––––––––––––––––––––––––––––––
 (function() {
-    // Check for saved preference or system preference
+    // Check for saved preference - default to light mode
     var savedTheme = localStorage.getItem('gerama_theme');
-    var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-    // Apply theme on load
-    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+    // Apply theme on load - only use dark if explicitly saved as dark
+    if (savedTheme === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+        // Default to light mode
+        document.documentElement.setAttribute('data-theme', 'light');
     }
     
     // Toggle function
