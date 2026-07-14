@@ -7048,6 +7048,286 @@ window.handleAttClassSelect = async function(){
   }
 };
 
+// ─── ACTIVE MEMBERS REPORT ────────────────────────────────────────────
+window.loadActiveMembers = async function(activityType){
+  var el = document.getElementById('activeMembersList');
+  var statsEl = document.getElementById('activityStats');
+  if(!el) return;
+  
+  var sb = window.geramaSupabase;
+  if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
+
+  // Update button states
+  ['actAttendance','actQuizzes','actAssignments'].forEach(function(id){
+    var btn = document.getElementById(id);
+    if(btn) btn.style.opacity = '0.6';
+  });
+  var activeBtn = document.getElementById(
+    activityType === 'attendance' ? 'actAttendance' : 
+    activityType === 'quizzes' ? 'actQuizzes' : 'actAssignments'
+  );
+  if(activeBtn) activeBtn.style.opacity = '1';
+
+  el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</p>';
+
+  try {
+    var membersData = [];
+    var stats = {};
+
+    if(activityType === 'attendance' || activityType === 'all'){
+      var {data: attData} = await sb.from('attendance_records')
+        .select('student_email, student_name, class_title, marked_at')
+        .order('marked_at', {ascending: false})
+        .limit(500);
+      
+      if(attData && attData.length){
+        var attMap = {};
+        attData.forEach(function(r){
+          var email = r.student_email;
+          if(!attMap[email]){
+            attMap[email] = {
+              email: email,
+              name: r.student_name || 'Unknown',
+              attendanceCount: 0,
+              lastAttendance: r.marked_at
+            };
+          }
+          attMap[email].attendanceCount++;
+          if(r.marked_at > attMap[email].lastAttendance){
+            attMap[email].lastAttendance = r.marked_at;
+          }
+        });
+        
+        Object.values(attMap).forEach(function(m){
+          membersData.push({
+            email: m.email,
+            name: m.name,
+            activityType: 'attendance',
+            count: m.attendanceCount,
+            lastActivity: m.lastAttendance,
+            details: m.attendanceCount + ' classes attended'
+          });
+        });
+        
+        stats.attendance = Object.keys(attMap).length;
+      }
+    }
+
+    if(activityType === 'quizzes' || activityType === 'all'){
+      var {data: quizData} = await sb.from('student_grades')
+        .select('student_email, student_name, assignment_title, participated_at, score')
+        .like('assignment_title', '%Quiz%')
+        .order('participated_at', {ascending: false})
+        .limit(500);
+      
+      if(quizData && quizData.length){
+        var quizMap = {};
+        quizData.forEach(function(r){
+          var email = r.student_email;
+          if(!quizMap[email]){
+            quizMap[email] = {
+              email: email,
+              name: r.student_name || 'Unknown',
+              quizCount: 0,
+              lastQuiz: r.participated_at
+            };
+          }
+          quizMap[email].quizCount++;
+          if(r.participated_at > quizMap[email].lastQuiz){
+            quizMap[email].lastQuiz = r.participated_at;
+          }
+        });
+        
+        Object.values(quizMap).forEach(function(m){
+          membersData.push({
+            email: m.email,
+            name: m.name,
+            activityType: 'quizzes',
+            count: m.quizCount,
+            lastActivity: m.lastQuiz,
+            details: m.quizCount + ' quizzes completed'
+          });
+        });
+        
+        stats.quizzes = Object.keys(quizMap).length;
+      }
+    }
+
+    if(activityType === 'assignments' || activityType === 'all'){
+      var {data: asgData} = await sb.from('assignment_submissions')
+        .select('student_email, student_name, assignment_title, submitted_at, score')
+        .order('submitted_at', {ascending: false})
+        .limit(500);
+      
+      if(asgData && asgData.length){
+        var asgMap = {};
+        asgData.forEach(function(r){
+          var email = r.student_email;
+          if(!asgMap[email]){
+            asgMap[email] = {
+              email: email,
+              name: r.student_name || 'Unknown',
+              asgCount: 0,
+              lastAsg: r.submitted_at
+            };
+          }
+          asgMap[email].asgCount++;
+          if(r.submitted_at > asgMap[email].lastAsg){
+            asgMap[email].lastAsg = r.submitted_at;
+          }
+        });
+        
+        Object.values(asgMap).forEach(function(m){
+          membersData.push({
+            email: m.email,
+            name: m.name,
+            activityType: 'assignments',
+            count: m.asgCount,
+            lastActivity: m.lastAsg,
+            details: m.asgCount + ' assignments submitted'
+          });
+        });
+        
+        stats.assignments = Object.keys(asgMap).length;
+      }
+    }
+
+    // Fetch user profiles to get index numbers and study groups
+    var {data: profiles} = await sb.from('user_profiles').select('email, index_number, full_name, program, level');
+    var profileMap = {};
+    (profiles || []).forEach(function(p){
+      profileMap[p.email] = p;
+    });
+
+    // Fetch group memberships
+    var {data: groupMembers} = await sb.from('gerama_group_members').select('user_email, group_id, gerama_groups(name)');
+    var groupMap = {};
+    (groupMembers || []).forEach(function(gm){
+      groupMap[gm.user_email] = (gm.gerama_groups && gm.gerama_groups.name) || gm.group_id;
+    });
+
+    // Fetch available groups for assignment dropdown
+    var {data: allGroups} = await sb.from('gerama_groups').select('id, name');
+    var groupOptions = (allGroups || []).map(function(g){ 
+      return '<option value="'+window.escAttr(g.name)+'">'+window.escHtml(g.name)+'</option>'; 
+    }).join('');
+
+    // Render stats
+    if(statsEl){
+      statsEl.innerHTML = 
+        (stats.attendance ? '<div style="background:#e8f5e9;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1B5E20;">'+stats.attendance+'</strong> <span style="color:#6b7280;">Attended Classes</span></div>' : '') +
+        (stats.quizzes ? '<div style="background:#fef3c7;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#92400e;">'+stats.quizzes+'</strong> <span style="color:#6b7280;">Quiz Takers</span></div>' : '') +
+        (stats.assignments ? '<div style="background:#dbeafe;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1d4ed8;">'+stats.assignments+'</strong> <span style="color:#6b7280;">Assignment Submitters</span></div>' : '');
+    }
+
+    if(!membersData.length){
+      el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;">No activity data found for this category.</p>';
+      return;
+    }
+
+    // Sort by count (most active first)
+    membersData.sort(function(a,b){ return b.count - a.count; });
+
+    // Render table
+    el.innerHTML = '<div class="tbl-wrap"><table><thead><tr>'+
+      '<th>Student Name</th><th>Email</th><th>Activity Type</th><th>Count</th>'+
+      '<th>Last Activity</th><th>Index Number</th><th>Study Group</th><th>Actions</th>'+
+    '</tr></thead><tbody>'+
+    membersData.map(function(m){
+      var profile = profileMap[m.email] || {};
+      var groupName = groupMap[m.email] || 'Not assigned';
+      var safeEmail = window.escAttr(m.email);
+      var safeId = (m.email||'').replace(/[^a-z0-9]/gi,'');
+      var lastDate = m.lastActivity ? new Date(m.lastActivity).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '–';
+      
+      var typeBadge = m.activityType === 'attendance' 
+        ? '<span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Attendance</span>'
+        : m.activityType === 'quizzes'
+        ? '<span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Quizzes</span>'
+        : '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.72rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;">Assignments</span>';
+
+      return '<tr>'+
+        '<td><strong>'+window.escHtml(m.name || profile.full_name || '–')+'</strong></td>'+
+        '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(m.email)+'</td>'+
+        '<td>'+typeBadge+'</td>'+
+        '<td><strong style="color:#1B5E20;">'+m.count+'</strong></td>'+
+        '<td style="font-size:0.8rem;">'+lastDate+'</td>'+
+        '<td>'+
+          '<div style="display:flex;gap:0.4rem;align-items:center;">'+
+            '<input type="text" id="act-idx-'+safeId+'" value="'+window.escAttr(profile.index_number||'')+'" placeholder="UETG/ENG/26/001" '+
+              'style="padding:0.3rem 0.5rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;width:140px;outline:none;" '+
+              'onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'">'+
+            '<button class="btn-primary" style="padding:0.3rem 0.6rem;font-size:0.72rem;white-space:nowrap;" onclick="saveIndexNumber(\''+safeEmail+'\',\'act-idx-'+safeId+'\')">'+
+              '<i class="fas fa-save"></i>'+
+            '</button>'+
+          '</div>'+
+        '</td>'+
+        '<td>'+
+          '<div style="display:flex;gap:0.4rem;align-items:center;">'+
+            '<select id="act-grp-'+safeId+'" style="padding:0.3rem 0.5rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;">'+
+              '<option value="">-- Assign Group --</option>'+
+              groupOptions+
+            '</select>'+
+            '<button class="btn-gold" style="padding:0.3rem 0.6rem;font-size:0.72rem;white-space:nowrap;" onclick="assignStudyGroup(\''+safeEmail+'\',\'act-grp-'+safeId+'\')">'+
+              '<i class="fas fa-check"></i>'+
+            '</button>'+
+          '</div>'+
+        '</td>'+
+        '<td>'+
+          '<button class="btn-primary" style="padding:0.3rem 0.6rem;font-size:0.72rem;" onclick="loadUsers();switchPanel(\'users\')">'+
+            '<i class="fas fa-user"></i> View Profile'+
+          '</button>'+
+        '</td>'+
+      '</tr>';
+    }).join('')+
+    '</tbody></table></div>';
+    
+  }catch(e){
+    console.error('Error loading active members:', e);
+    el.innerHTML = '<p style="color:#dc2626;text-align:center;padding:2rem;">Error loading data: '+e.message+'</p>';
+  }
+};
+
+// ─── ASSIGN STUDY GROUP TO MEMBER ─────────────────────────────────────
+window.assignStudyGroup = async function(email, selectId){
+  var select = document.getElementById(selectId);
+  if(!select) return;
+  var groupName = select.value;
+  if(!groupName){ alert('Please select a group.'); return; }
+  
+  var sb = window.geramaSupabase;
+  if(!sb){ alert('Not connected.'); return; }
+  
+  try{
+    // First, remove any existing group membership for this user
+    await sb.from('gerama_group_members').delete().eq('user_email', email);
+    
+    // Find the group ID
+    var {data: groupData} = await sb.from('gerama_groups').select('id').eq('name', groupName).maybeSingle();
+    if(!groupData || !groupData.id){
+      alert('Group not found.');
+      return;
+    }
+    
+    // Add new membership
+    var {error} = await sb.from('gerama_group_members').insert({
+      user_email: email,
+      group_id: groupData.id,
+      role: 'member',
+      joined_at: new Date().toISOString()
+    });
+    
+    if(error) throw error;
+    
+    alert('✅ Assigned to '+groupName+' successfully!');
+    window.logActivity('Assigned '+email+' to study group '+groupName);
+    loadActiveMembers('all'); // Refresh the list
+    
+  }catch(e){
+    alert('Error assigning group: '+e.message);
+  }
+};
+
 
 
 
