@@ -112,7 +112,7 @@
         if(sb){
           var ext = photoFile.name.split('.').pop().toLowerCase();
           var path = 'team-members/' + name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Date.now() + '.' + ext;
-          var upRes = await sb.storage.from(BUCKET).upload(path, photoFile, { upsert: true });
+          var upRes = await sb.storage.from(BUCKET).upload(path, photoFile, { upsert: true, cacheControl: '31536000' });
           if(!upRes.error){
             photoUrl = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
           }
@@ -325,7 +325,7 @@
         if(sb){
           var ext = newPhotoFile.name.split('.').pop().toLowerCase();
           var path = 'team-members/' + name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Date.now() + '.' + ext;
-          var up = await sb.storage.from(BUCKET).upload(path, newPhotoFile, {upsert:true});
+          var up = await sb.storage.from(BUCKET).upload(path, newPhotoFile, {upsert:true, cacheControl:'31536000'});
           if(!up.error) photoUrl = sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
         }
       }
@@ -433,7 +433,7 @@
         try{
           var ext0 = singleFile.name.split('.').pop().toLowerCase();
           var path0 = 'mall/'+Date.now()+'-'+name0.toLowerCase().replace(/[^a-z0-9]/g,'-').substring(0,20)+'.'+ext0;
-          var up0 = await sb.storage.from(BUCKET).upload(path0, singleFile, {upsert:true, contentType:singleFile.type});
+          var up0 = await sb.storage.from(BUCKET).upload(path0, singleFile, {upsert:true, contentType:singleFile.type, cacheControl:'31536000'});
           if(!up0.error) imgUrl0 = sb.storage.from(BUCKET).getPublicUrl(path0).data.publicUrl;
         }catch(e){ console.warn('Single image upload failed:', e); }
       }
@@ -500,7 +500,7 @@
         try{
           var ext = f.name.split('.').pop().toLowerCase();
           var path = 'mall/' + Date.now() + '-' + fi + '-' + name.toLowerCase().replace(/[^a-z0-9]/g,'-').substring(0,15) + '.' + ext;
-          var up = await sb.storage.from(BUCKET).upload(path, f, {upsert:true, contentType:f.type});
+          var up = await sb.storage.from(BUCKET).upload(path, f, {upsert:true, contentType:f.type, cacheControl:'31536000'});
           if(!up.error) imgUrls.push(sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl);
         }catch(e){ console.warn('Image upload '+fi+' failed:', e); }
       }
@@ -826,7 +826,7 @@
         if(sb0 && imgFile.size <= 5*1024*1024){
           var ext = imgFile.name.split('.').pop().toLowerCase();
           var path = 'quotes/' + Date.now() + '.' + ext;
-          var up = await sb0.storage.from(BUCKET).upload(path, imgFile, {upsert:true, contentType:imgFile.type});
+          var up = await sb0.storage.from(BUCKET).upload(path, imgFile, {upsert:true, contentType:imgFile.type, cacheControl:'31536000'});
           if(!up.error) imgUrl = sb0.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
         }
       }

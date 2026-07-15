@@ -30,6 +30,64 @@ function escapeHtml(value) {
     .replace(/'/g, '&#x27;');
 }
 
+// ─── SMART URL RESOLVER ────────────────────────────────────────────────────
+// Transforms any Google Drive share/view URL into a direct download URL.
+// Telegram and YouTube links pass through unchanged.
+// Returns { downloadUrl, viewUrl, sourceType }
+function resolveSmartUrl(rawUrl) {
+  if(!rawUrl) return { downloadUrl:'', viewUrl:'', sourceType:'file' };
+
+  var url = rawUrl.trim();
+
+  // ── Google Drive ──────────────────────────────────────────────────────────
+  // Handles all Drive URL formats:
+  //   https://drive.google.com/file/d/{ID}/view
+  //   https://drive.google.com/file/d/{ID}/edit
+  //   https://drive.google.com/open?id={ID}
+  //   https://docs.google.com/document/d/{ID}/...
+  //   https://docs.google.com/presentation/d/{ID}/...
+  //   https://docs.google.com/spreadsheets/d/{ID}/...
+  //   https://drive.google.com/uc?id={ID}
+  var gdriveMatch =
+    url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+    url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/) ||
+    url.match(/drive\.google\.com\/uc\?.*id=([a-zA-Z0-9_-]+)/) ||
+    url.match(/docs\.google\.com\/(?:document|presentation|spreadsheets|forms)\/d\/([a-zA-Z0-9_-]+)/);
+
+  if(gdriveMatch) {
+    var fileId = gdriveMatch[1];
+    // Direct download: bypasses Drive UI entirely
+    var downloadUrl = 'https://drive.google.com/uc?export=download&id=' + fileId;
+    // Inline view via Google Docs Viewer (shows PDF/PPT/DOC inline)
+    var viewUrl     = 'https://drive.google.com/file/d/' + fileId + '/preview';
+    return { downloadUrl: downloadUrl, viewUrl: viewUrl, sourceType: 'gdrive', fileId: fileId };
+  }
+
+  // ── Telegram ──────────────────────────────────────────────────────────────
+  if(url.indexOf('t.me') !== -1 || url.indexOf('telegram.me') !== -1 || url.indexOf('telegram.org') !== -1) {
+    return { downloadUrl: url, viewUrl: url, sourceType: 'telegram' };
+  }
+
+  // ── YouTube ───────────────────────────────────────────────────────────────
+  if(url.indexOf('youtube.com') !== -1 || url.indexOf('youtu.be') !== -1) {
+    return { downloadUrl: url, viewUrl: url, sourceType: 'youtube' };
+  }
+
+  // ── Supabase / direct file URL ────────────────────────────────────────────
+  var ext = url.split('?')[0].split('.').pop().toLowerCase();
+  var isImage = ['jpg','jpeg','png','gif','webp'].indexOf(ext) !== -1;
+  var isVideo = ext === 'mp4';
+  var viewUrl2 = (isImage || isVideo) ? url : 'https://docs.google.com/viewer?url=' + encodeURIComponent(url);
+  return { downloadUrl: url, viewUrl: viewUrl2, sourceType: 'file', ext: ext };
+}
+
+// Detect if a URL came from Google Drive (for rendering decisions)
+function isGdriveUrl(url) {
+  return url && (url.indexOf('drive.google') !== -1 || url.indexOf('docs.google') !== -1);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 // Helper: pick the right icon emoji for a file extension
 function fileIcon(filename) {
   const ext = (filename || "").split(".").pop().toLowerCase();
@@ -522,66 +580,85 @@ function renderCourses(filterText) {
         ? m.url
         : GITHUB_BASE + encodeURIComponent(m.file).replace(/%2F/g, '/');
 
-      const icon = m.supabase ? fileIcon(m.name) : fileIcon(m.file);
-      const ext  = (m.supabase ? m.name : m.file).split('.').pop().toLowerCase();
+      const icon     = m.supabase ? fileIcon(m.name) : fileIcon(m.file);
+      var safeName   = escapeHtml(m.name);
+      var safeDesc   = m.description ? escapeHtml(m.description) : '';
 
-      // –– VIEW URL ––––––––––––––––––––––––––––––––––––––––––––––
-      // Always open in Google Docs Viewer so the browser shows the
-      // file inline instead of downloading it.
-      // Images (jpg/jpeg/png) open directly – browsers render them natively.
-      // MP4 videos open directly – browsers play them natively.
-      // Everything else (PDF, PPT, PPTX, DOC) – Google Docs Viewer.
-      var viewUrl;
-      var isImage = ['jpg','jpeg','png','gif','webp'].indexOf(ext) !== -1;
-      var isVideo = ext === 'mp4';
+      // ── Resolve smart URLs ──────────────────────────────────────────────
+      var resolved   = resolveSmartUrl(rawUrl);
+      var dlUrl      = resolved.downloadUrl;
+      var viewUrl    = resolved.viewUrl;
+      var srcType    = resolved.sourceType;
+      var isExternal = (srcType === 'gdrive' || srcType === 'telegram' || srcType === 'youtube');
 
-      if (isImage || isVideo) {
-        // Images and videos render natively in a new tab – no download triggered
-        viewUrl = rawUrl;
+      // ── Build action buttons ────────────────────────────────────────────
+      var actionHtml = '';
+
+      if(srcType === 'youtube'){
+        actionHtml =
+          '<a class="btn-dl download video-watch" href="' + escapeHtml(dlUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+            'style="background:linear-gradient(135deg,#dc2626,#ef4444);text-decoration:none;">' +
+            '<i class="fab fa-youtube"></i> Watch</a>';
+
+      } else if(srcType === 'telegram'){
+        // Telegram: one "Open" button – fetches directly, no Drive redirect
+        actionHtml =
+          '<a class="btn-dl download" href="' + escapeHtml(dlUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+            'style="background:linear-gradient(135deg,#0088cc,#2196F3);text-decoration:none;" ' +
+            'title="Open file">' +
+            '<i class="fas fa-file-arrow-down"></i> Download</a>' +
+          '<a class="btn-dl view" href="' + escapeHtml(dlUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+            'style="text-decoration:none;" title="View file">' +
+            '<i class="fas fa-eye"></i> View</a>';
+
+      } else if(srcType === 'gdrive'){
+        // Google Drive: Download goes to direct uc?export=download, View shows inline preview
+        actionHtml =
+          '<a class="btn-dl download" href="' + escapeHtml(dlUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+            'style="background:linear-gradient(135deg,#1B5E20,#2E7D32);text-decoration:none;" ' +
+            'title="Download file directly">' +
+            '<i class="fas fa-file-arrow-down"></i> Download</a>' +
+          '<a class="btn-dl view" href="' + escapeHtml(viewUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+            'style="text-decoration:none;" title="Preview file">' +
+            '<i class="fas fa-eye"></i> View</a>';
+
       } else {
-        // PDF, PPT, PPTX, DOC, etc. – Google Docs Viewer opens them inline
-        viewUrl = 'https://docs.google.com/viewer?url=' + encodeURIComponent(rawUrl);
+        // Regular file (Supabase storage or GitHub) – local blob download + Docs Viewer
+        var isVideo = srcType === 'file' && (resolved.ext === 'mp4' || (currentType === 'videos' && m.supabase));
+        if(isVideo){
+          actionHtml =
+            '<a class="btn-dl download video-watch" href="' + escapeHtml(dlUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+              'style="background:linear-gradient(135deg,#7c3aed,#2563eb);text-decoration:none;">' +
+              '<i class="fas fa-play-circle"></i> Play</a>';
+        } else {
+          actionHtml =
+            '<button class="btn-dl download" onclick="downloadFile(\'' + dlUrl.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\',\'' + m.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">' +
+              '<i class="fas fa-file-arrow-down"></i> Download</button>' +
+            '<a class="btn-dl view" href="' + escapeHtml(viewUrl) + '" target="_blank" rel="noopener noreferrer">' +
+              '<i class="fas fa-eye"></i> View</a>';
+        }
       }
 
-      var dlUrl = rawUrl;
-      var safeName = escapeHtml(m.name);
-      var safeDesc = m.description ? escapeHtml(m.description) : '';
+      // Bookmark id — use a safe hash of the URL
+      var bmId = 'bm-' + btoa(unescape(encodeURIComponent(rawUrl))).replace(/[^a-zA-Z0-9]/g,'').substring(0,12);
+
+      // Source badge — only shown as a tiny subtle tag, NOT the raw URL
+      var srcBadge = '';
+      if(srcType === 'gdrive')   srcBadge = '<span class="mat-src-badge gdrive"><i class="fab fa-google-drive"></i></span>';
+      if(srcType === 'telegram') srcBadge = '<span class="mat-src-badge tg"><i class="fab fa-telegram"></i></span>';
 
       return (
         '<div class="material-row' + (currentType === 'videos' ? ' video-material-row' : '') + '">' +
           '<div class="material-info">' +
             '<span class="material-icon">' + icon + '</span>' +
             '<span class="material-copy">' +
-              '<span class="material-name">' + safeName + '</span>' +
+              '<span class="material-name">' + safeName + srcBadge + '</span>' +
               (safeDesc ? '<span class="material-desc">' + safeDesc + '</span>' : '') +
             '</span>' +
           '</div>' +
           '<div class="material-actions">' +
-            // Detect source type
-            (function(){
-              var isTelegram = dlUrl && (dlUrl.indexOf('t.me') !== -1 || dlUrl.indexOf('telegram') !== -1);
-              var isGdrive   = dlUrl && (dlUrl.indexOf('drive.google') !== -1 || dlUrl.indexOf('docs.google') !== -1 || dlUrl.indexOf('dropbox') !== -1);
-              var isYoutube  = dlUrl && (dlUrl.indexOf('youtube.com') !== -1 || dlUrl.indexOf('youtu.be') !== -1);
-              var isExternalVideo = currentType === 'videos' && m.supabase && !isVideo;
-              if(isYoutube){
-                return '<a class="btn-dl download video-watch" href="'+dlUrl+'" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#dc2626,#ef4444);text-decoration:none;"><i class="fab fa-youtube"></i> Watch</a>';
-              } else if(isExternalVideo){
-                return '<a class="btn-dl download video-watch" href="'+dlUrl+'" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#7c3aed,#2563eb);text-decoration:none;"><i class="fas fa-play-circle"></i> Open Tutorial</a>';
-              }
-              if(isTelegram){
-                return '<a class="btn-dl download" href="'+dlUrl+'" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#0088cc,#006aaa);text-decoration:none;"><i class="fab fa-telegram"></i> Open in Telegram</a>';
-              } else if(isGdrive){
-                return '<a class="btn-dl download" href="'+dlUrl+'" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#4285F4,#1a73e8);text-decoration:none;"><i class="fab fa-google-drive"></i> Open in Drive</a>';
-              } else {
-                return '<button class="btn-dl download" onclick="downloadFile(\'' + dlUrl.replace(/'/g, "\\'") + '\',\'' + m.name.replace(/'/g, "\\'") + '\')">' +
-                  '<i class="fas fa-download"></i> Download' +
-                '</button>' +
-                '<a class="btn-dl view" href="' + viewUrl + '" target="_blank" rel="noopener">' +
-                  '<i class="fas fa-eye"></i> View' +
-                '</a>';
-              }
-            })() +
-            '<button class="btn-dl" id="bm-' + btoa(dlUrl).replace(/[^a-zA-Z0-9]/g,'').substring(0,12) + '" onclick="toggleBookmark(\'' + dlUrl.replace(/'/g,"\\'") + '\',\'' + m.name.replace(/'/g,"\\'") + '\',this)" style="background:none;border:1px solid #e5e7eb;color:#9ca3af;padding:0.4rem 0.6rem;" title="Bookmark">' +
+            actionHtml +
+            '<button class="btn-dl" id="' + bmId + '" onclick="toggleBookmark(\'' + rawUrl.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\',\'' + m.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\',this)" style="background:none;border:1px solid #e5e7eb;color:#9ca3af;padding:0.4rem 0.6rem;" title="Bookmark">' +
               '<i class="fas fa-bookmark"></i>' +
             '</button>' +
           '</div>' +

@@ -214,6 +214,16 @@
         .btn-dl.view { background: #e8f5e9; color: #1B5E20; border: 1.5px solid #c8e6c9; }
         .btn-dl.view:hover { background: #c8e6c9; transform: translateY(-1px); }
 
+        /* Source origin badge – tiny icon, no raw URL exposed */
+        .mat-src-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 16px; height: 16px; border-radius: 50%;
+            font-size: 0.6rem; margin-left: 0.4rem; vertical-align: middle;
+            flex-shrink: 0;
+        }
+        .mat-src-badge.gdrive { background: #e8f0fe; color: #4285F4; }
+        .mat-src-badge.tg     { background: #e3f2fd; color: #0088cc; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 640px) {
             .resources-hero h1 { font-size: 1.5rem; }

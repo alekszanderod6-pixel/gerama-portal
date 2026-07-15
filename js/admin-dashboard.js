@@ -493,7 +493,7 @@
             var f = annImages[i];
             var ext = f.name.split('.').pop();
             var imgPath = 'announcements/'+Date.now()+'-'+i+'.'+ext;
-            var up = await sb0.storage.from(window.BUCKET).upload(imgPath, f, {upsert:true});
+            var up = await sb0.storage.from(window.BUCKET).upload(imgPath, f, {upsert:true, cacheControl:'31536000'});
             if(!up.error){
               var url = sb0.storage.from(window.BUCKET).getPublicUrl(imgPath).data.publicUrl;
               imageUrls.push(url);
@@ -638,7 +638,7 @@
         var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.' + ext;
         var storagePath = 'software/' + safeName;
 
-        var upErr = await sb.storage.from(window.BUCKET).upload(storagePath, selectedSwFile, { upsert:true });
+        var upErr = await sb.storage.from(window.BUCKET).upload(storagePath, selectedSwFile, { upsert:true, cacheControl:'31536000' });
         if(upErr && upErr.error) throw new Error('Upload failed: '+upErr.error.message);
 
         var urlData = sb.storage.from(window.BUCKET).getPublicUrl(storagePath).data;
@@ -1141,7 +1141,7 @@
         var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now()+'.'+ext;
         storagePath = level.toLowerCase()+'/semester-'+sem+'/'+course.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'/'+type+'/'+safeName;
 
-        var { error: upErr } = await sb.storage.from(window.BUCKET).upload(storagePath, file, { upsert:true, contentType: file.type });
+        var { error: upErr } = await sb.storage.from(window.BUCKET).upload(storagePath, file, { upsert:true, contentType: file.type, cacheControl:'31536000' });
         if(upErr) throw new Error('Upload failed: '+upErr.message);
         fileUrl = sb.storage.from(window.BUCKET).getPublicUrl(storagePath).data.publicUrl;
       }
@@ -1454,7 +1454,7 @@ async function publishQuiz(){
       window.showStatus('quizStatus','Uploading PDF…','info');
       var ext  = _qzPdfFile.name.split('.').pop()||'pdf';
       var path = 'quizzes/'+title.replace(/[^a-z0-9]/gi,'-').toLowerCase()+'-'+Date.now()+'.'+ext;
-      var {error: upErr} = await sb.storage.from(window.BUCKET||'gerama-materials').upload(path, _qzPdfFile, {upsert:true, contentType:_qzPdfFile.type});
+      var {error: upErr} = await sb.storage.from(window.BUCKET||'gerama-materials').upload(path, _qzPdfFile, {upsert:true, contentType:_qzPdfFile.type, cacheControl:'31536000'});
       if(upErr) throw new Error('PDF upload failed: '+upErr.message);
       pdfUrl = sb.storage.from(window.BUCKET||'gerama-materials').getPublicUrl(path).data.publicUrl;
     }
@@ -1879,7 +1879,7 @@ window.postAssignment = async function(){
       var ext = asgFile.name.split('.').pop();
       var safeName = title.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now()+'.'+ext;
       var storagePath = 'assignments/'+safeName;
-      var {error: upErr} = await sb.storage.from(window.BUCKET).upload(storagePath, asgFile, {upsert:true, contentType:asgFile.type});
+      var {error: upErr} = await sb.storage.from(window.BUCKET).upload(storagePath, asgFile, {upsert:true, contentType:asgFile.type, cacheControl:'31536000'});
       if(upErr) throw new Error('File upload failed: '+upErr.message);
       fileUrl = sb.storage.from(window.BUCKET).getPublicUrl(storagePath).data.publicUrl;
     }
@@ -2426,7 +2426,7 @@ window.addPotwDirect = async function(){
       var f = photoFile.files[0];
       var ext = f.name.split('.').pop();
       var path = 'potw/'+Date.now()+'.'+ext;
-      var up = await sb.storage.from(window.BUCKET).upload(path, f, {upsert:true});
+      var up = await sb.storage.from(window.BUCKET).upload(path, f, {upsert:true, cacheControl:'31536000'});
       if(!up.error) photoUrl = sb.storage.from(window.BUCKET).getPublicUrl(path).data.publicUrl;
     }catch(e){ console.warn('Photo upload failed:', e); }
   }
@@ -4117,7 +4117,7 @@ window.saveAdminProfile = async function() {
     try{
       var ext = photoFile.name.split('.').pop();
       var path = 'admin-profiles/'+Date.now()+'.'+ext;
-      var up = await sb.storage.from(window.BUCKET).upload(path, photoFile, {upsert:true});
+      var up = await sb.storage.from(window.BUCKET).upload(path, photoFile, {upsert:true, cacheControl:'31536000'});
       if(!up.error) photoUrl = sb.storage.from(window.BUCKET).getPublicUrl(path).data.publicUrl;
     }catch(e){}
   }
@@ -6127,7 +6127,7 @@ window.postAdminOpportunity = async function() {
     try {
       var ext = imgFile.name.split('.').pop();
       var path = 'opportunities/' + Date.now() + '-' + company.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.' + ext;
-      var up = await sb.storage.from(window.BUCKET).upload(path, imgFile, {upsert:true});
+      var up = await sb.storage.from(window.BUCKET).upload(path, imgFile, {upsert:true, cacheControl:'31536000'});
       if(!up.error) imageUrl = sb.storage.from(window.BUCKET).getPublicUrl(path).data.publicUrl;
     } catch(e) {}
   }
