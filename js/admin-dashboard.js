@@ -1,4 +1,4 @@
-/* GERAMA Admin Dashboard – extracted JS – v2026.06.20 */
+﻿/* GERAMA Admin Dashboard – extracted JS – v2026.06.20 */
 
 (function(){
   'use strict';
@@ -3377,267 +3377,472 @@ window.downloadAttCSV = async function(){
 };
 
 
-// ─── BULK PASTE NAMES → ATTENDANCE ───────────────────────────────────────────
-// Admin pastes a numbered/plain list of student names. The system fuzzy-matches
-// them against user_profiles (first name, last name, full name, index number),
-// previews matches, and bulk-inserts attendance records with no duplicates.
-// Requires code: 2026GERAMA
 
-window.openBulkAttendanceModal = async function(){
-  var existing = document.getElementById('bulkAttModal');
-  if(existing) existing.remove();
 
-  var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
+// ─── BULK PASTE NAMES → ATTENDANCE ──────────────────────────────────────────
+// Admin pastes a numbered/plain list of student names.
+// Smart fuzzy-matching (full name, first, surname, index number, Levenshtein).
+// Preview shows matched vs unmatched. Admin can manually pick a student for
+// any unmatched name. Bulk-inserts with zero duplicates.
+// Can create a BRAND NEW session on the fly, or add to an existing one.
+// Gate code: 2026GERAMA
+// ─────────────────────────────────────────────────────────────────────────────
 
-  var {data: sessions} = await sb.from('attendance_sessions')
-    .select('id,class_title,created_at')
-    .order('created_at',{ascending:false})
-    .limit(30);
-  sessions = sessions || [];
+var _bulkAttUnlocked = false;
+var _bulkAttResults  = [];
+var _bulkAllUsers    = [];
 
-  var sessionOptions = '<option value="">-- No specific session (records only) --</option>' +
-    sessions.map(function(s){
-      var dt = s.created_at ? new Date(s.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
-      return '<option value="'+window.escAttr(s.id)+'">'+window.escHtml(s.class_title+(dt?' \u00b7 '+dt:''))+'</option>';
-    }).join('');
+function _normAtt(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
 
-  var modal = document.createElement('div');
-  modal.id = 'bulkAttModal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:6000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(5px);overflow-y:auto;';
+function _levDist(a,b){
+  if(!a||!b) return Math.max(a?a.length:0,b?b.length:0);
+  if(Math.abs(a.length-b.length)>3) return 99;
+  var m=a.length,n=b.length,i,j;
+  var dp=new Array(m+1);
+  for(i=0;i<=m;i++){ dp[i]=new Array(n+1); dp[i][0]=i; }
+  for(j=0;j<=n;j++) dp[0][j]=j;
+  for(i=1;i<=m;i++) for(j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
 
-  modal.innerHTML =
-    '<div style="background:white;border-radius:20px;padding:2rem;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,0.3);">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">' +
-      '<div><div style="font-size:1.1rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.5rem;">' +
-        '<i class="fas fa-list-check" style="color:#7c3aed;"></i> Bulk Paste Names &rarr; Attendance</div>' +
-        '<div style="font-size:0.8rem;color:#6b7280;margin-top:0.2rem;">Paste a list of student names &mdash; system matches &amp; marks them all present</div></div>' +
-      '<button onclick="document.getElementById(\'bulkAttModal\').remove()" style="background:#f1f5f9;border:none;color:#374151;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;flex-shrink:0;">\u2715</button>' +
-    '</div>' +
-    '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:1rem;margin-bottom:1rem;">' +
-      '<div style="font-size:0.78rem;font-weight:700;color:#166534;margin-bottom:0.6rem;text-transform:uppercase;"><i class="fas fa-clipboard-check"></i> Step 1 &mdash; Target Session &amp; Class</div>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;">' +
-        '<div><label style="font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Assign to Session (optional)</label>' +
-          '<select id="bulkAttSession" style="width:100%;padding:0.55rem 0.8rem;border:2px solid #c8e6c9;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;">'+sessionOptions+'</select></div>' +
-        '<div><label style="font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Class Title <span style="color:#ef4444;">*</span></label>' +
-          '<input type="text" id="bulkAttClass" placeholder="e.g. Applied Electricity Week 3" style="width:100%;padding:0.55rem 0.8rem;border:2px solid #c8e6c9;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;"></div>' +
-        '<div><label style="font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Points per student</label>' +
-          '<input type="number" id="bulkAttPoints" value="1" min="1" max="10" style="width:100%;padding:0.55rem 0.8rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;"></div>' +
-        '<div><label style="font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:0.3rem;">Admin Code <span style="color:#ef4444;">*</span></label>' +
-          '<input type="password" id="bulkAttCode" placeholder="2026GERAMA" style="width:100%;padding:0.55rem 0.8rem;border:2px solid #fcd34d;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;background:#fffbeb;"></div>' +
-      '</div></div>' +
-    '<div style="background:#f5f3ff;border:1px solid #c4b5fd;border-radius:12px;padding:1rem;margin-bottom:1rem;">' +
-      '<div style="font-size:0.78rem;font-weight:700;color:#5b21b6;margin-bottom:0.5rem;text-transform:uppercase;"><i class="fas fa-paste"></i> Step 2 &mdash; Paste Student Names</div>' +
-      '<div style="font-size:0.78rem;color:#6b7280;margin-bottom:0.5rem;line-height:1.5;">One name per line. Supports numbered lists (e.g. <code>1. Kwame Mensah</code>), first names, surnames, full names, or index numbers.</div>' +
-      '<textarea id="bulkAttNames" rows="10" placeholder="1. John Doe&#10;2. Abena Ofori&#10;3. Kwame&#10;4. UETG/ENG/26/005&#10;..." ' +
-        'style="width:100%;padding:0.7rem;border:2px solid #c4b5fd;border-radius:8px;font-size:0.85rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;resize:vertical;line-height:1.6;" ' +
-        'oninput="bulkAttClearPreview()"></textarea>' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;flex-wrap:wrap;gap:0.4rem;">' +
-        '<span id="bulkAttLineCount" style="font-size:0.75rem;color:#9ca3af;">0 names entered</span>' +
-        '<button onclick="bulkAttPreviewMatch()" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);color:white;border:none;padding:0.45rem 1rem;border-radius:20px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-search"></i> Preview Match</button>' +
-      '</div></div>' +
-    '<div id="bulkAttPreview" style="display:none;margin-bottom:1rem;"></div>' +
-    '<div id="bulkAttConfirmArea" style="display:none;">' +
-      '<div id="bulkAttStatus" style="font-size:0.85rem;margin-bottom:0.8rem;min-height:1.2rem;"></div>' +
-      '<div style="display:flex;gap:0.8rem;flex-wrap:wrap;">' +
-        '<button onclick="bulkAttConfirm()" style="flex:1;background:linear-gradient(135deg,#059669,#10b981);color:white;border:none;padding:0.75rem 1.2rem;border-radius:12px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;min-width:160px;"><i class="fas fa-check"></i> Confirm &amp; Mark Attendance</button>' +
-        '<button onclick="document.getElementById(\'bulkAttModal\').remove()" style="background:#f1f5f9;color:#374151;border:none;padding:0.75rem 1.2rem;border-radius:12px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>' +
-      '</div></div>' +
-    '</div>';
+function _parseBulkNames(raw){
+  return (raw||'').split('\n')
+    .map(function(l){ return l.replace(/^\s*\d+[\.\)\-\:\s]+/,'').replace(/\s+/g,' ').trim(); })
+    .filter(function(l){ return l.length>1; });
+}
 
-  document.body.appendChild(modal);
+function _buildUserMaps(users){
+  var byFull={}, byFirst={}, byLast={}, byIndex={};
+  users.forEach(function(u){
+    var fn=_normAtt(u.full_name);
+    if(fn) byFull[fn]=u;
+    var parts=(u.full_name||'').trim().split(/\s+/);
+    if(parts[0]){ var f=_normAtt(parts[0]); if(!byFirst[f]) byFirst[f]=[]; byFirst[f].push(u); }
+    if(parts.length>1){ var l=_normAtt(parts[parts.length-1]); if(!byLast[l]) byLast[l]=[]; byLast[l].push(u); }
+    if(u.index_number){ byIndex[_normAtt(u.index_number)]=u; }
+  });
+  return {byFull:byFull,byFirst:byFirst,byLast:byLast,byIndex:byIndex};
+}
 
-  var sessionSel = document.getElementById('bulkAttSession');
-  if(sessionSel){
-    sessionSel.addEventListener('change', function(){
-      var opt = sessionSel.options[sessionSel.selectedIndex];
-      var clsInput = document.getElementById('bulkAttClass');
-      if(clsInput && opt && opt.value) clsInput.value = opt.text.split(' \u00b7')[0].trim();
+function _matchOneName(input, maps, users){
+  var key=_normAtt(input);
+  if(!key) return {match:null,method:'',confidence:0};
+  if(maps.byFull[key])  return {match:maps.byFull[key],  method:'exact full name', confidence:100};
+  if(maps.byIndex[key]) return {match:maps.byIndex[key], method:'index number',    confidence:100};
+  var fm=maps.byFirst[key]||[];
+  if(fm.length===1) return {match:fm[0],method:'first name',confidence:90};
+  var lm=maps.byLast[key]||[];
+  if(lm.length===1) return {match:lm[0],method:'surname',confidence:90};
+  var subs=users.filter(function(u){var n=_normAtt(u.full_name);return n&&(n.indexOf(key)!==-1||key.indexOf(n)!==-1);});
+  if(subs.length===1) return {match:subs[0],method:'partial match',confidence:75};
+  // Levenshtein fuzzy tolerance ≤2
+  var best=null,bestD=99;
+  users.forEach(function(u){
+    var tokens=[(u.full_name||'')].concat((u.full_name||'').split(' '));
+    tokens.forEach(function(t){
+      var d=_levDist(key,_normAtt(t));
+      if(d<bestD){bestD=d;best=u;}
     });
-  }
+  });
+  if(best&&bestD<=2) return {match:best,method:'fuzzy (≈'+bestD+')',confidence:bestD===1?65:50};
+  // Ambiguous
+  if(fm.length>1) return {match:null,method:'ambiguous',confidence:0,ambiguous:fm,ambigType:'first'};
+  if(lm.length>1) return {match:null,method:'ambiguous',confidence:0,ambiguous:lm,ambigType:'last'};
+  return {match:null,method:'not found',confidence:0};
+}
 
-  var ta = document.getElementById('bulkAttNames');
-  if(ta){
-    ta.addEventListener('input', function(){
-      var lines = _parseBulkAttNames(ta.value);
-      var lc = document.getElementById('bulkAttLineCount');
-      if(lc) lc.textContent = lines.length + ' name' + (lines.length !== 1 ? 's' : '') + ' entered';
-    });
+window.bulkAttCountLines = function(ta){
+  var names=_parseBulkNames(ta?ta.value:'');
+  var el=document.getElementById('bulkAttLineCount');
+  if(el) el.textContent=names.length+' name'+(names.length!==1?'s':'');
+  window.bulkAttClearPreview();
+};
+
+window.bulkAttClearPreview = function(){
+  var p=document.getElementById('bulkAttPreview'); if(p){p.style.display='none';p.innerHTML='';}
+  var c=document.getElementById('bulkAttConfirmArea'); if(c) c.style.display='none';
+  _bulkAttResults=[];
+};
+
+window.bulkAttSessionChange = function(){
+  var sel=document.getElementById('bulkAttSession');
+  var newWrap=document.getElementById('bulkNewSessionWrap');
+  var existWrap=document.getElementById('bulkExistingTitleWrap');
+  var clsInput=document.getElementById('bulkAttClass');
+  if(!sel) return;
+  var val=sel.value;
+  if(val==='__new__'){
+    if(newWrap)  newWrap.style.display='flex';
+    if(existWrap) existWrap.style.display='none';
+  } else {
+    if(newWrap)  newWrap.style.display='none';
+    if(existWrap) existWrap.style.display='block';
+    if(clsInput && val){
+      var opt=sel.options[sel.selectedIndex];
+      if(opt) clsInput.value=opt.text.split(' · ')[0].trim();
+    }
   }
 };
 
-function _parseBulkAttNames(raw){
-  return (raw || '').split('\n')
-    .map(function(line){ return line.replace(/^\s*\d+[\.\)\-\s]+/, '').trim(); })
-    .filter(function(line){ return line.length > 1; });
-}
+window.openBulkAttendanceModal = async function(){
+  if(!_bulkAttUnlocked){
+    var entered=(prompt('🔐 Bulk Attendance – Admin Code Required\n\nEnter the code to open this feature:')||'').trim();
+    if(!entered) return;
+    if(entered!=='2026GERAMA'){ alert('❌ Wrong code. Access denied.'); return; }
+    _bulkAttUnlocked=true;
+  }
+  var ex=document.getElementById('bulkAttModal'); if(ex) ex.remove();
+  var sb=window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
 
-function _normalizeAtt(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+  var {data:sessions}=await sb.from('attendance_sessions')
+    .select('id,class_title,created_at').order('created_at',{ascending:false}).limit(50);
+  sessions=sessions||[];
 
-window.bulkAttClearPreview = function(){
-  var p = document.getElementById('bulkAttPreview');
-  if(p){ p.style.display = 'none'; p.innerHTML = ''; }
-  var c = document.getElementById('bulkAttConfirmArea');
-  if(c) c.style.display = 'none';
+  var sOpts='<option value="__new__">➕ Create a new session now</option>'+
+    '<option value="" disabled style="color:#9ca3af;">── or attach to existing ──</option>'+
+    sessions.map(function(s){
+      var dt=s.created_at?new Date(s.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}):'';
+      return '<option value="'+window.escAttr(s.id)+'">'+window.escHtml(s.class_title)+(dt?' · '+dt:'')+'</option>';
+    }).join('');
+
+  var H=[
+    '<div id="bulkAttModal" style="position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:6000;display:flex;align-items:flex-start;justify-content:center;padding:1.2rem 1rem;backdrop-filter:blur(7px);overflow-y:auto;">',
+    '<div style="background:#fff;border-radius:22px;padding:2rem;width:100%;max-width:700px;box-shadow:0 32px 90px rgba(0,0,0,0.38);font-family:\'Inter\',sans-serif;margin:auto;position:relative;">',
+
+    // header
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.4rem;">',
+    '<div>',
+    '<div style="font-size:1.1rem;font-weight:800;color:#1e2a3e;display:flex;align-items:center;gap:0.6rem;">',
+    '<span style="background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;"><i class="fas fa-clipboard-list"></i></span>',
+    'Bulk Paste Names &rarr; Attendance',
+    '</div>',
+    '<div style="font-size:0.8rem;color:#6b7280;margin-top:0.3rem;">Paste any student list &mdash; fuzzy-matched, deduplicated, bulk-inserted</div>',
+    '</div>',
+    '<button onclick="document.getElementById(\'bulkAttModal\').remove();window._bulkAttUnlocked=false;" style="background:#f1f5f9;border:none;color:#374151;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem;flex-shrink:0;" title="Close">&#x2715;</button>',
+    '</div>',
+
+    // step 1
+    '<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1rem;">',
+    '<div style="font-size:0.7rem;font-weight:800;color:#166534;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:0.8rem;"><i class="fas fa-calendar-check"></i>&nbsp;Step 1 &mdash; Session &amp; Class</div>',
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">',
+
+    '<div style="grid-column:1/-1;">',
+    '<label style="font-size:0.76rem;font-weight:600;color:#374151;display:block;margin-bottom:0.28rem;">Session</label>',
+    '<select id="bulkAttSession" onchange="bulkAttSessionChange()" style="width:100%;padding:0.58rem 0.85rem;border:2px solid #86efac;border-radius:10px;font-size:0.83rem;font-family:\'Inter\',sans-serif;outline:none;background:white;">',
+    sOpts,
+    '</select>',
+    '</div>',
+
+    // new session fields (shown when __new__ selected)
+    '<div id="bulkNewSessionWrap" style="grid-column:1/-1;background:#fffbeb;border:1.5px solid #fcd34d;border-radius:12px;padding:0.85rem 1rem;display:flex;gap:0.65rem;flex-wrap:wrap;align-items:flex-end;">',
+    '<span style="font-size:0.73rem;font-weight:700;color:#92400e;width:100%;margin-bottom:0.1rem;"><i class="fas fa-plus-circle"></i>&nbsp;New Session</span>',
+    '<div style="flex:2;min-width:160px;"><label style="font-size:0.74rem;font-weight:600;color:#374151;display:block;margin-bottom:0.22rem;">Class Title <span style="color:#ef4444;">*</span></label><input type="text" id="bulkNewTitle" placeholder="e.g. Applied Electricity Wk 4" style="width:100%;padding:0.5rem 0.75rem;border:2px solid #fcd34d;border-radius:8px;font-size:0.83rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;"></div>',
+    '<div style="flex:0 0 105px;"><label style="font-size:0.74rem;font-weight:600;color:#374151;display:block;margin-bottom:0.22rem;">Duration (min)</label><input type="number" id="bulkNewDuration" value="60" min="1" max="300" style="width:100%;padding:0.5rem 0.75rem;border:2px solid #fcd34d;border-radius:8px;font-size:0.83rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;"></div>',
+    '<div style="flex:1;min-width:120px;"><label style="font-size:0.74rem;font-weight:600;color:#374151;display:block;margin-bottom:0.22rem;">Group</label><select id="bulkNewGroup" style="width:100%;padding:0.5rem 0.75rem;border:2px solid #fcd34d;border-radius:8px;font-size:0.83rem;font-family:\'Inter\',sans-serif;outline:none;background:white;"><option value="">All Groups</option><option>Group A</option><option>Group B</option><option>Group C</option><option>Group D</option></select></div>',
+    '</div>',
+
+    // existing session: class title override
+    '<div id="bulkExistingTitleWrap" style="display:none;">',
+    '<label style="font-size:0.76rem;font-weight:600;color:#374151;display:block;margin-bottom:0.28rem;">Class Title (editable)</label>',
+    '<input type="text" id="bulkAttClass" placeholder="Auto-filled from session, or edit" style="width:100%;padding:0.58rem 0.85rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.83rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;">',
+    '</div>',
+
+    '<div>',
+    '<label style="font-size:0.76rem;font-weight:600;color:#374151;display:block;margin-bottom:0.28rem;">Points / student</label>',
+    '<input type="number" id="bulkAttPoints" value="1" min="1" max="10" style="width:100%;padding:0.58rem 0.85rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.83rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;">',
+    '</div>',
+
+    '</div></div>', // end step1 grid + card
+  ].join('');
+
+  H+=[
+    // step 2 – paste names
+    '<div style="background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1rem;">',
+    '<div style="font-size:0.7rem;font-weight:800;color:#5b21b6;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:0.5rem;"><i class="fas fa-paste"></i>&nbsp;Step 2 &mdash; Paste Student Names</div>',
+    '<div style="font-size:0.78rem;color:#6b7280;margin-bottom:0.6rem;line-height:1.55;">One name per line. Supports numbered lists (<code>1. Kwame Mensah</code>), first names, surnames, full names, or index numbers. Minor typos are tolerated.</div>',
+    '<textarea id="bulkAttNames" rows="10" placeholder="1. John Doe&#10;2. Abena Ofori&#10;3. Kwame&#10;4. UETG/ENG/26/005&#10;5. Asante-Mensah&#10;..." ',
+    'style="width:100%;padding:0.75rem;border:2px solid #c4b5fd;border-radius:10px;font-size:0.88rem;font-family:\'Inter\',sans-serif;outline:none;box-sizing:border-box;resize:vertical;line-height:1.7;" ',
+    'oninput="bulkAttCountLines(this)"></textarea>',
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.55rem;flex-wrap:wrap;gap:0.4rem;">',
+    '<span id="bulkAttLineCount" style="font-size:0.75rem;color:#9ca3af;">0 names</span>',
+    '<div style="display:flex;gap:0.5rem;">',
+    '<button onclick="var t=document.getElementById(\'bulkAttNames\');t.value=\'\';bulkAttCountLines(t);" style="background:#f1f5f9;color:#374151;border:none;padding:0.38rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-eraser"></i> Clear</button>',
+    '<button onclick="bulkAttPreviewMatch()" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);color:#fff;border:none;padding:0.4rem 1.1rem;border-radius:20px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-search"></i>&nbsp;Preview &amp; Match</button>',
+    '</div>',
+    '</div>',
+    '</div>',
+
+    // preview area (filled by JS)
+    '<div id="bulkAttPreview" style="display:none;margin-bottom:1rem;"></div>',
+
+    // confirm area
+    '<div id="bulkAttConfirmArea" style="display:none;">',
+    '<div id="bulkAttStatus" style="font-size:0.87rem;padding:0.65rem 0.95rem;border-radius:10px;margin-bottom:0.8rem;display:none;"></div>',
+    '<div style="display:flex;gap:0.7rem;flex-wrap:wrap;">',
+    '<button id="bulkAttConfirmBtn" onclick="bulkAttConfirm()" style="flex:1;background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;padding:0.82rem 1.2rem;border-radius:12px;font-size:0.92rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;min-width:200px;"><i class="fas fa-check-double"></i>&nbsp;Confirm &amp; Mark All Present</button>',
+    '<button onclick="document.getElementById(\'bulkAttModal\').remove();window._bulkAttUnlocked=false;" style="background:#f1f5f9;color:#6b7280;border:none;padding:0.82rem 1.2rem;border-radius:12px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;">Cancel</button>',
+    '</div>',
+    '</div>',
+
+    '</div></div>' // end inner box + modal
+  ].join('');
+
+  document.body.insertAdjacentHTML('beforeend', H);
+
+  // Init: show "new session" fields by default (first option is __new__)
+  window.bulkAttSessionChange();
 };
 
 window.bulkAttPreviewMatch = async function(){
   var ta    = document.getElementById('bulkAttNames');
-  var code  = (document.getElementById('bulkAttCode')||{}).value || '';
-  var cls   = ((document.getElementById('bulkAttClass')||{}).value||'').trim();
-  var preview = document.getElementById('bulkAttPreview');
+  var preview     = document.getElementById('bulkAttPreview');
   var confirmArea = document.getElementById('bulkAttConfirmArea');
-  var statusEl = document.getElementById('bulkAttStatus');
 
-  function setStatus(msg, ok){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=ok?'#059669':'#dc2626'; } }
+  var sessionSel = document.getElementById('bulkAttSession');
+  var sessionVal = sessionSel ? sessionSel.value : '';
+  var isNew = sessionVal === '__new__';
 
-  if(code !== '2026GERAMA'){
-    var ci = document.getElementById('bulkAttCode');
-    if(ci){ ci.style.borderColor='#dc2626'; ci.focus(); }
-    alert('Enter the admin code \u20182026GERAMA\u2019 to use this feature.');
-    return;
+  // Validate step 1
+  var cls='';
+  if(isNew){
+    cls = ((document.getElementById('bulkNewTitle')||{}).value||'').trim();
+    if(!cls){ alert('Please enter a Class Title for the new session.'); document.getElementById('bulkNewTitle').focus(); return; }
+  } else {
+    cls = ((document.getElementById('bulkAttClass')||{}).value||'').trim();
+    if(!cls){ alert('Please enter or select a Class Title.'); document.getElementById('bulkAttClass').focus(); return; }
   }
-  if(!cls){ alert('Please enter a Class Title first.'); document.getElementById('bulkAttClass').focus(); return; }
 
-  var names = _parseBulkAttNames(ta ? ta.value : '');
+  var names = _parseBulkNames(ta ? ta.value : '');
   if(!names.length){ alert('Please paste at least one name.'); return; }
 
-  if(preview){ preview.style.display='block'; preview.innerHTML='<div style="text-align:center;padding:1rem;color:#9ca3af;"><i class="fas fa-spinner fa-spin"></i> Matching names\u2026</div>'; }
+  if(preview){ preview.style.display='block'; preview.innerHTML='<div style="text-align:center;padding:1.2rem;color:#9ca3af;font-size:0.88rem;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Matching '+names.length+' names against registered students…</div>'; }
   if(confirmArea) confirmArea.style.display='none';
 
-  var sb = window.geramaSupabase; if(!sb){ if(preview) preview.innerHTML='<p style="color:#dc2626;">Not connected.</p>'; return; }
+  var sb=window.geramaSupabase; if(!sb){ preview.innerHTML='<p style="color:#dc2626;padding:1rem;">Not connected to database.</p>'; return; }
 
-  var {data: users} = await sb.from('user_profiles').select('id,full_name,email,phone,index_number,level,program,is_active').eq('is_active',true);
-  users = users || [];
+  // Fetch all active user profiles
+  var {data:users} = await sb.from('user_profiles').select('id,full_name,email,phone,index_number,level,program').eq('is_active',true);
+  _bulkAllUsers = users||[];
 
-  var byFullName={}, byFirstName={}, byLastName={}, byIndex={};
-  users.forEach(function(u){
-    var fn = _normalizeAtt(u.full_name);
-    if(fn) byFullName[fn] = u;
-    var parts = String(u.full_name||'').trim().split(/\s+/);
-    if(parts[0]){ var f=_normalizeAtt(parts[0]); if(!byFirstName[f]) byFirstName[f]=[]; byFirstName[f].push(u); }
-    if(parts.length>1){ var l=_normalizeAtt(parts[parts.length-1]); if(!byLastName[l]) byLastName[l]=[]; byLastName[l].push(u); }
-    if(u.index_number) byIndex[_normalizeAtt(u.index_number)] = u;
+  var maps = _buildUserMaps(_bulkAllUsers);
+
+  // Match each name
+  _bulkAttResults = names.map(function(input, idx){
+    var r = _matchOneName(input, maps, _bulkAllUsers);
+    r.input = input;
+    r.idx   = idx;
+    r.overrideUser = null; // for manual pick
+    return r;
   });
 
-  var results = names.map(function(input){
-    var key = _normalizeAtt(input);
-    var match=null, method='';
-    if(byFullName[key]){ match=byFullName[key]; method='full name'; }
-    if(!match && byIndex[key]){ match=byIndex[key]; method='index number'; }
-    if(!match){ var fm=byFirstName[key]||[]; if(fm.length===1){ match=fm[0]; method='first name'; } }
-    if(!match){ var lm=byLastName[key]||[]; if(lm.length===1){ match=lm[0]; method='surname'; } }
-    if(!match){
-      var partials=users.filter(function(u){ var n=_normalizeAtt(u.full_name); return n&&(n.indexOf(key)!==-1||key.indexOf(n)!==-1); });
-      if(partials.length===1){ match=partials[0]; method='partial'; }
-    }
-    return {input:input, match:match, method:method};
-  });
+  var matched   = _bulkAttResults.filter(function(r){ return r.match||r.overrideUser; });
+  var unmatched = _bulkAttResults.filter(function(r){ return !r.match&&!r.overrideUser; });
 
-  window._bulkAttResults = results;
+  // Build preview HTML
+  var confBadge = function(c){
+    if(c>=100) return '<span style="background:#d1fae5;color:#065f46;font-size:0.65rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:10px;margin-left:0.3rem;">✓ exact</span>';
+    if(c>=90)  return '<span style="background:#dbeafe;color:#1d4ed8;font-size:0.65rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:10px;margin-left:0.3rem;">≈ name</span>';
+    if(c>=75)  return '<span style="background:#fef3c7;color:#92400e;font-size:0.65rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:10px;margin-left:0.3rem;">∼ partial</span>';
+    return '<span style="background:#ede9fe;color:#5b21b6;font-size:0.65rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:10px;margin-left:0.3rem;">≈ fuzzy</span>';
+  };
 
-  var matched   = results.filter(function(r){ return r.match; });
-  var unmatched = results.filter(function(r){ return !r.match; });
+  var html = '<div style="border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">';
 
-  var html =
-    '<div style="border:1px solid #e8f5e9;border-radius:14px;overflow:hidden;">' +
-    '<div style="background:linear-gradient(135deg,#e8f5e9,#f0fdf4);padding:0.8rem 1rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">' +
-      '<span style="background:#d1fae5;color:#065f46;font-size:0.82rem;font-weight:700;padding:0.25rem 0.8rem;border-radius:20px;"><i class="fas fa-check-circle"></i> '+matched.length+' matched</span>' +
-      (unmatched.length?'<span style="background:#fee2e2;color:#991b1b;font-size:0.82rem;font-weight:700;padding:0.25rem 0.8rem;border-radius:20px;"><i class="fas fa-times-circle"></i> '+unmatched.length+' not found</span>':'') +
-    '</div>' +
-    (matched.length?
-      '<div style="padding:0.8rem 1rem;"><div style="font-size:0.75rem;font-weight:700;color:#1B5E20;margin-bottom:0.5rem;text-transform:uppercase;"><i class="fas fa-user-check"></i> Will be marked present:</div>' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.35rem;">' +
-        matched.map(function(r){
-          var u=r.match;
-          return '<div style="display:flex;align-items:center;gap:0.4rem;padding:0.3rem 0.5rem;background:#f0fdf4;border-radius:8px;font-size:0.8rem;">' +
-            '<i class="fas fa-check" style="color:#059669;flex-shrink:0;"></i>' +
-            '<div style="min-width:0;"><div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+window.escAttr(u.email)+'">'+window.escHtml(u.full_name||u.email)+'</div>' +
-            '<div style="font-size:0.68rem;color:#6b7280;">via '+window.escHtml(r.method)+(u.index_number?' \u00b7 '+window.escHtml(u.index_number):'')+'</div></div></div>';
-        }).join('') +
-      '</div></div>'
-    :'') +
-    (unmatched.length?
-      '<div style="padding:0.8rem 1rem;border-top:1px solid #f1f5f9;"><div style="font-size:0.75rem;font-weight:700;color:#dc2626;margin-bottom:0.4rem;text-transform:uppercase;"><i class="fas fa-user-times"></i> Not found:</div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;">' +
-        unmatched.map(function(r){
-          var isAmb=(byFirstName[_normalizeAtt(r.input)]&&byFirstName[_normalizeAtt(r.input)].length>1)||(byLastName[_normalizeAtt(r.input)]&&byLastName[_normalizeAtt(r.input)].length>1);
-          return '<span style="background:'+(isAmb?'#fef3c7;color:#92400e':'#fee2e2;color:#991b1b')+';font-size:0.78rem;padding:0.2rem 0.6rem;border-radius:20px;" title="'+(isAmb?'Multiple matches \u2014 use full name':'Not registered')+'">'+window.escHtml(r.input)+(isAmb?' \u26a0':'')+'</span>';
-        }).join('') +
-      '</div>' +
-      '<div style="font-size:0.73rem;color:#6b7280;margin-top:0.4rem;"><i class="fas fa-info-circle"></i> Use full names or index numbers for unmatched entries.</div></div>'
-    :'') +
-    '</div>';
+  // Summary bar
+  html += '<div style="background:linear-gradient(135deg,#e8f5e9,#f0fdf4);padding:0.85rem 1.1rem;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;border-bottom:1px solid #e5e7eb;">';
+  html += '<span style="font-weight:800;color:#374151;font-size:0.85rem;">Results:</span>';
+  html += '<span style="background:#d1fae5;color:#065f46;font-size:0.8rem;font-weight:700;padding:0.22rem 0.7rem;border-radius:20px;"><i class="fas fa-check-circle"></i> '+matched.length+' matched</span>';
+  if(unmatched.length) html += '<span style="background:#fee2e2;color:#991b1b;font-size:0.8rem;font-weight:700;padding:0.22rem 0.7rem;border-radius:20px;"><i class="fas fa-times-circle"></i> '+unmatched.length+' not found</span>';
+  html += '<span style="font-size:0.75rem;color:#9ca3af;margin-left:auto;">'+_bulkAllUsers.length+' registered students searched</span>';
+  html += '</div>';
 
-  if(preview) preview.innerHTML = html;
-  if(matched.length > 0 && confirmArea){ confirmArea.style.display='block'; setStatus('',''); }
+  // Matched students
+  if(matched.length){
+    html += '<div style="padding:0.85rem 1.1rem;border-bottom:1px solid #f1f5f9;">';
+    html += '<div style="font-size:0.72rem;font-weight:700;color:#1B5E20;margin-bottom:0.55rem;text-transform:uppercase;"><i class="fas fa-user-check"></i>&nbsp;Will be marked present ('+matched.length+')</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0.3rem;">';
+    _bulkAttResults.forEach(function(r,i){
+      if(!r.match&&!r.overrideUser) return;
+      var u=r.overrideUser||r.match;
+      html += '<div style="display:flex;align-items:center;gap:0.4rem;padding:0.35rem 0.55rem;background:#f0fdf4;border-radius:8px;font-size:0.79rem;" data-bulk-idx="'+i+'">';
+      html += '<i class="fas fa-check" style="color:#059669;flex-shrink:0;font-size:0.7rem;"></i>';
+      html += '<div style="min-width:0;flex:1;">';
+      html += '<div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+window.escAttr(u.email||'')+'">'+window.escHtml(u.full_name||u.email)+'</div>';
+      html += '<div style="font-size:0.67rem;color:#6b7280;">'+window.escHtml(r.method)+(u.index_number?' · '+window.escHtml(u.index_number):'')+confBadge(r.confidence)+'</div>';
+      html += '</div>';
+      html += '<button onclick="bulkAttRemoveResult('+i+')" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.75rem;padding:0.1rem;" title="Remove this entry"><i class="fas fa-times"></i></button>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  // Unmatched – with manual pick option
+  if(unmatched.length){
+    html += '<div style="padding:0.85rem 1.1rem;">';
+    html += '<div style="font-size:0.72rem;font-weight:700;color:#dc2626;margin-bottom:0.55rem;text-transform:uppercase;"><i class="fas fa-user-times"></i>&nbsp;Not found ('+unmatched.length+') &mdash; <span style="font-weight:400;color:#6b7280;text-transform:none;">Search to manually assign</span></div>';
+    unmatched.forEach(function(r){
+      var isAmb = r.method==='ambiguous';
+      html += '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;flex-wrap:wrap;" id="bulkUnmRow'+r.idx+'">';
+      html += '<span style="background:'+(isAmb?'#fef3c7;color:#92400e':'#fee2e2;color:#991b1b')+';font-size:0.8rem;font-weight:600;padding:0.25rem 0.7rem;border-radius:20px;white-space:nowrap;">'+window.escHtml(r.input)+(isAmb?' ⚠':'')+'</span>';
+      if(isAmb) html += '<span style="font-size:0.72rem;color:#92400e;">Multiple people with this '+(r.ambigType||'')+'name – type full name to disambiguate</span>';
+      html += '<input type="text" id="bulkManualSearch'+r.idx+'" placeholder="Search to manually assign…" oninput="bulkAttManualSearch(this.value,'+r.idx+')" style="flex:1;min-width:160px;padding:0.38rem 0.7rem;border:1.5px solid #fca5a5;border-radius:8px;font-size:0.8rem;font-family:\'Inter\',sans-serif;outline:none;">';
+      html += '<div id="bulkManualSug'+r.idx+'" style="display:none;position:relative;width:100%;"></div>';
+      html += '</div>';
+    });
+    html += '<div style="font-size:0.73rem;color:#6b7280;margin-top:0.3rem;"><i class="fas fa-info-circle"></i>&nbsp;Use full names or index numbers for unmatched entries. Or skip them – only matched students will be submitted.</div>';
+    html += '</div>';
+  }
+
+  html += '</div>';
+  if(preview){ preview.innerHTML=html; preview.style.display='block'; }
+  if(matched.length>0 && confirmArea) confirmArea.style.display='block';
+};
+
+// Remove a matched result (user clicked X on a matched card)
+window.bulkAttRemoveResult = function(idx){
+  if(_bulkAttResults[idx]) _bulkAttResults[idx].match = _bulkAttResults[idx].overrideUser = null;
+  // Refresh preview
+  window.bulkAttPreviewMatch();
+};
+
+// Manual search for an unmatched name
+window.bulkAttManualSearch = async function(q, idx){
+  var sugEl = document.getElementById('bulkManualSug'+idx);
+  if(!sugEl) return;
+  if(!q||q.length<2){ sugEl.style.display='none'; sugEl.innerHTML=''; return; }
+  var sb=window.geramaSupabase; if(!sb) return;
+  var {data} = await sb.from('user_profiles')
+    .select('id,full_name,email,index_number,level,program')
+    .or('full_name.ilike.%'+q+'%,index_number.ilike.%'+q+'%,email.ilike.%'+q+'%')
+    .eq('is_active',true).limit(7);
+  if(!data||!data.length){ sugEl.style.display='none'; return; }
+  sugEl.style.display='block';
+  sugEl.innerHTML = '<div style="position:absolute;top:0;left:0;right:0;background:white;border:1.5px solid #86efac;border-radius:10px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,0.12);overflow:hidden;">'+
+    data.map(function(u){
+      return '<div onclick="bulkAttPickManual('+idx+',\''+window.escAttr(u.full_name||'')+'\',\''+window.escAttr(u.email||'')+'\',\''+window.escAttr(u.index_number||'')+'\')" '+
+        'style="padding:0.6rem 0.9rem;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:0.82rem;" '+
+        'onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'white\'">'+
+        '<strong>'+window.escHtml(u.full_name||'–')+'</strong>'+
+        (u.index_number?'<span style="background:#e8f5e9;color:#1B5E20;font-size:0.7rem;font-weight:700;padding:0.1rem 0.45rem;border-radius:10px;margin-left:0.4rem;">'+window.escHtml(u.index_number)+'</span>':'')+
+        '<br><small style="color:#9ca3af;">'+window.escHtml(u.email||'')+(u.program?' · '+u.program:'')+' '+window.escHtml(u.level||'')+'</small>'+
+      '</div>';
+    }).join('')+
+  '</div>';
+};
+
+// Admin manually picked a user for an unmatched slot
+window.bulkAttPickManual = function(idx, fullName, email, indexNum){
+  // Find the user object in cached list
+  var u = _bulkAllUsers.find(function(x){ return (x.email||'').toLowerCase()===(email||'').toLowerCase(); });
+  if(!u) u = {full_name:fullName, email:email, index_number:indexNum, phone:null};
+  _bulkAttResults[idx].overrideUser = u;
+  _bulkAttResults[idx].method = 'manually assigned';
+  _bulkAttResults[idx].confidence = 100;
+  // Re-render preview to move this into matched
+  window.bulkAttPreviewMatch();
 };
 
 window.bulkAttConfirm = async function(){
-  var results   = window._bulkAttResults || [];
-  var sessionId = (document.getElementById('bulkAttSession')||{}).value||'';
-  var cls       = ((document.getElementById('bulkAttClass')||{}).value||'').trim();
-  var pts       = parseInt((document.getElementById('bulkAttPoints')||{}).value)||1;
-  var code      = (document.getElementById('bulkAttCode')||{}).value||'';
-  var statusEl  = document.getElementById('bulkAttStatus');
-  var btn       = document.querySelector('#bulkAttConfirmArea button:first-child');
+  var results     = _bulkAttResults||[];
+  var sessionSel  = document.getElementById('bulkAttSession');
+  var sessionVal  = sessionSel ? sessionSel.value : '';
+  var isNew       = sessionVal==='__new__';
+  var pts         = parseInt((document.getElementById('bulkAttPoints')||{}).value)||1;
+  var statusEl    = document.getElementById('bulkAttStatus');
+  var btn         = document.getElementById('bulkAttConfirmBtn');
 
-  function setStatus(msg,ok){ if(statusEl){ statusEl.textContent=msg; statusEl.style.color=ok?'#059669':'#dc2626'; } }
-
-  if(code!=='2026GERAMA'){ setStatus('Wrong admin code. Action denied.',false); return; }
-  if(!cls){ setStatus('Class title required.',false); return; }
-
-  var toInsert = results.filter(function(r){ return r.match; });
-  if(!toInsert.length){ setStatus('No matched students.',false); return; }
-
-  var sb = window.geramaSupabase; if(!sb){ setStatus('Not connected.',false); return; }
-
-  if(btn){ btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Processing\u2026'; }
-  setStatus('Checking for existing records\u2026', true);
-
-  var existingQ = sb.from('attendance_records').select('student_email');
-  if(sessionId) existingQ = existingQ.eq('session_id', sessionId);
-  else existingQ = existingQ.eq('class_title', cls);
-  var {data: existingRecs} = await existingQ;
-
-  var alreadyPresent = {};
-  (existingRecs||[]).forEach(function(r){ if(r.student_email) alreadyPresent[r.student_email.toLowerCase().trim()]=true; });
-
-  setStatus('Inserting records\u2026', true);
-
-  var added=0, skipped=0, errors=0;
-  var now = new Date().toISOString();
-
-  for(var i=0; i<toInsert.length; i++){
-    var u = toInsert[i].match;
-    var emailKey = (u.email||'').toLowerCase().trim();
-    if(alreadyPresent[emailKey]){ skipped++; continue; }
-    var record = { class_title:cls, student_name:u.full_name||u.email, student_email:emailKey, student_phone:u.phone||null, points:pts, marked_at:now };
-    if(sessionId) record.session_id = sessionId;
-    try{
-      var {error:insErr} = await sb.from('attendance_records').insert(record);
-      if(insErr) throw insErr;
-      alreadyPresent[emailKey]=true; added++;
-    }catch(e){ console.warn('Bulk att error:', u.email, e.message); errors++; }
+  function setStatus(msg,ok){
+    if(statusEl){
+      statusEl.textContent=msg;
+      statusEl.style.display='block';
+      statusEl.style.background=ok?'#d1fae5':'#fee2e2';
+      statusEl.style.color=ok?'#065f46':'#991b1b';
+    }
   }
 
-  window.logActivity('Bulk attendance: '+added+' students marked present for "'+cls+'"'+(skipped?' ('+skipped+' already present)':''));
-  setStatus(
-    '\u2714 '+added+' student'+(added!==1?'s':'')+' marked present!'+
-    (skipped?' '+skipped+' already present, skipped.':'')+
-    (errors?' \u26a0 '+errors+' failed.':''),
-    !errors
-  );
+  var cls='';
+  if(isNew){
+    cls=((document.getElementById('bulkNewTitle')||{}).value||'').trim();
+    if(!cls){ setStatus('Class title is required for the new session.',false); return; }
+  } else {
+    cls=((document.getElementById('bulkAttClass')||{}).value||'').trim();
+    if(!cls){ setStatus('Class title is required.',false); return; }
+  }
 
-  if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-check"></i> Confirm &amp; Mark Attendance'; }
+  var toInsert=results.filter(function(r){ return r.match||r.overrideUser; });
+  if(!toInsert.length){ setStatus('No matched students to submit.',false); return; }
+
+  var sb=window.geramaSupabase; if(!sb){ setStatus('Not connected.',false); return; }
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>&nbsp;Processing…'; }
+
+  var sessionId = null;
+
+  // ── Create new session if needed ───────────────────────────────
+  if(isNew){
+    setStatus('Creating new session…',true);
+    var dur=parseInt((document.getElementById('bulkNewDuration')||{}).value)||60;
+    var grp=((document.getElementById('bulkNewGroup')||{}).value||'')||null;
+    var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var code=''; for(var ci=0;ci<6;ci++) code+=chars[Math.floor(Math.random()*chars.length)];
+    var payload={code:code,class_title:cls,is_active:false,created_at:new Date().toISOString(),target_group:grp};
+    var res=await sb.from('attendance_sessions').insert({...payload,duration_mins:dur}).select().single();
+    if(res.error&&(res.error.message.includes('duration_mins')||res.error.code==='42703')){
+      res=await sb.from('attendance_sessions').insert(payload).select().single();
+    }
+    if(res.error){ setStatus('❌ Could not create session: '+res.error.message,false); if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-check-double"></i>&nbsp;Confirm &amp; Mark All Present';} return; }
+    sessionId = res.data ? res.data.id : null;
+    window.logActivity('Created attendance session via bulk paste: "'+cls+'" (code: '+code+')');
+  } else {
+    sessionId = sessionVal||null;
+  }
+
+  // ── Check for existing records (deduplication) ─────────────────
+  setStatus('Checking for duplicates…',true);
+  var dupQuery = sb.from('attendance_records').select('student_email');
+  if(sessionId) dupQuery=dupQuery.eq('session_id',sessionId);
+  else dupQuery=dupQuery.eq('class_title',cls);
+  var {data:existing}=await dupQuery;
+  var alreadyIn={};
+  (existing||[]).forEach(function(r){ if(r.student_email) alreadyIn[r.student_email.toLowerCase().trim()]=true; });
+
+  // ── Bulk insert ────────────────────────────────────────────────
+  setStatus('Inserting attendance records…',true);
+  var added=0,skipped=0,errors=0;
+  var now=new Date().toISOString();
+
+  for(var i=0;i<toInsert.length;i++){
+    var u=toInsert[i].overrideUser||toInsert[i].match;
+    var key=(u.email||'').toLowerCase().trim();
+    if(!key){ errors++; continue; }
+    if(alreadyIn[key]){ skipped++; continue; }
+    var rec={class_title:cls,student_name:u.full_name||u.email,student_email:key,student_phone:u.phone||null,points:pts,marked_at:now};
+    if(sessionId) rec.session_id=sessionId;
+    try{
+      var {error:e}=await sb.from('attendance_records').insert(rec);
+      if(e) throw e;
+      alreadyIn[key]=true; added++;
+    }catch(err){ console.warn('Bulk att insert error:',key,err.message); errors++; }
+  }
+
+  window.logActivity('Bulk attendance: '+added+' marked present for "'+cls+'"'+(skipped?' ('+skipped+' already present)':'')+(errors?' ('+errors+' failed)':''));
+
+  var summary='\u2714 '+added+' student'+(added!==1?'s':'')+' marked present!';
+  if(skipped) summary+=' · '+skipped+' already in attendance (skipped).';
+  if(errors)  summary+=' · \u26a0 '+errors+' failed.';
+  setStatus(summary, !errors);
+
+  if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-check-double"></i>&nbsp;Confirm &amp; Mark All Present'; }
 
   setTimeout(function(){
     window.loadAttRecords();
     window.loadAttSessions();
-    var modal = document.getElementById('bulkAttModal');
-    if(modal) modal.remove();
-  }, 2500);
+    var m=document.getElementById('bulkAttModal'); if(m) m.remove();
+    _bulkAttUnlocked=false;
+  }, 2800);
 };
 
+// ─── END BULK PASTE NAMES → ATTENDANCE ───────────────────────────────────────
 
 // ─── CONTACT MESSAGES ────────────────────────────────────────
 window.loadContactMessages = async function(filter){
