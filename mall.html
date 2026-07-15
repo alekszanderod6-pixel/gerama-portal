@@ -72,7 +72,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .product-card{background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.07);border:1px solid #e8f0e8;transition:all 0.25s;cursor:pointer;position:relative;}
 .product-card:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(27,94,32,0.13);}
 .product-img-wrap{position:relative;aspect-ratio:1;overflow:hidden;background:#f8fafc;}
-.product-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;}
+.product-img-wrap img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;image-rendering:auto;-webkit-backface-visibility:hidden;backface-visibility:hidden;}
 .product-card:hover .product-img-wrap img{transform:scale(1.06);}
 .product-badge{position:absolute;top:0.5rem;left:0.5rem;background:linear-gradient(135deg,#dc2626,#ef4444);color:white;font-size:0.65rem;font-weight:800;padding:0.2rem 0.55rem;border-radius:20px;letter-spacing:0.3px;text-transform:uppercase;}
 .product-badge.new{background:linear-gradient(135deg,#059669,#10b981);}
@@ -487,8 +487,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         <label>Available Sizes (comma-separated) <small style="font-weight:400;color:#6b7280;">optional</small></label>
         <input type="text" id="sellSizes" placeholder="e.g. S, M, L, XL, XXL">
       </div>
-      <div class="form-row"><label>Price (GH₵ </label><input type="number" id="sellPrice" placeholder="e.g. 48" min="1"></div>
-      <div class="form-row"><label>Original Price (GH₵ if discounted</label><input type="number" id="sellOrigPrice" placeholder="e.g. 60" min="1"></div>
+      <div class="form-row"><label>Price (GH₵)</label><input type="number" id="sellPrice" placeholder="e.g. 48" min="1"></div>
+      <div class="form-row"><label>Original Price (GH₵, if discounted)</label><input type="number" id="sellOrigPrice" placeholder="e.g. 60" min="1"></div>
       <div class="form-row"><label>Description *</label><textarea id="sellDesc" rows="3" style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.9rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;" placeholder="Describe your product – colours, sizes, materials..."></textarea></div>
       <div class="form-row">
         <label>Product Images (up to 3) <small style="font-weight:400;color:#6b7280;">First image = main display photo</small></label>
@@ -513,7 +513,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 </div>
 
 <!-- CART DRAWER -->
-<div class="drawer-overlay" id="drawerOverlay" onclick="closeAllDrawers()"></div>
+<div class="drawer-overlay" id="mallDrawerOverlay" onclick="closeAllDrawers()"></div>
 <div class="cart-drawer" id="cartDrawer">
   <div class="cart-drawer-header">
     <div style="font-weight:800;font-size:1rem;display:flex;align-items:center;gap:0.6rem;"><i class="fas fa-shopping-cart"></i> My Cart <span id="cartBadge" style="background:rgba(255,255,255,0.25);padding:0.1rem 0.6rem;border-radius:20px;font-size:0.78rem;">0 items</span></div>
@@ -649,9 +649,12 @@ var SEED_PRODUCTS = [
     created_at: new Date().toISOString()
   }
 ];
+var allProducts = [];
 var currentCategory = 'all';
 var selectedColour = '';
 var selectedSize = '';
+var currentProduct = null;
+var currentQty = 1;
 
 function getMallSupabaseConfig() {
   return {
@@ -718,9 +721,9 @@ async function loadProducts() {
         try { p.extra_images = typeof p.extra_images === 'string' ? JSON.parse(p.extra_images||'[]') : (p.extra_images||[]); } catch(e) { p.extra_images = []; }
         p.verified = true;
       });
-      // Filter: show approved OR products with no status field set (legacy)
+      // Filter: show approved OR products with no status field set (legacy) OR pending (so sellers can see their own listings)
       dbProducts = raw.filter(function(p){
-        return !p.status || p.status === 'approved';
+        return !p.status || p.status === 'approved' || p.status === 'pending';
       });
     }
     setMallDataNotice('', 'info');
@@ -922,7 +925,7 @@ function validateOrder(e, type) {
     (selectedColour ? '🎨 *Colour:* ' + selectedColour + '\n' : '') +
     (selectedSize ? '📏 *Size:* ' + selectedSize + '\n' : '') +
     '🔢 *Quantity:* ' + currentQty + '\n' +
-    '💰 *Total:* GH₵ total + '\n' +
+    '💰 *Total:* GH₵ ' + total + '\n' +
     '📍 *Delivery:* ' + location + '\n' +
     '⏰ *Timeframe:* ' + timeframe + '\n' +
     '👤 *Buyer:* ' + name + '\n' +
@@ -1152,7 +1155,7 @@ function updateCartUI() {
       '<div class="cart-item-info">' +
         '<div class="cart-item-name">' + escHtml(c.name) + '</div>' +
         '<div style="font-size:0.78rem;color:#6b7280;">Qty: '+c.qty+' · Seller: '+escHtml(c.seller||'–')+'</div>' +
-        '<div class="cart-item-price">GH₵ (c.price * (c.qty||1)).toFixed(2) + '</div>' +
+        '<div class="cart-item-price">GH₵ ' + (c.price * (c.qty||1)).toFixed(2) + '</div>' +
       '</div>' +
       '<button class="cart-remove" onclick="removeFromCart(\''+c.id+'\')"><i class="fas fa-trash"></i></button>' +
     '</div>';
@@ -1165,10 +1168,10 @@ function checkoutCart() {
   var msg = '🛒 *GERAMA Urban Mall – Cart Order*\n\n';
   var total = 0;
   cart.forEach(function(c, i){
-    msg += (i+1)+'. ' + c.name + ' × ' + c.qty + ' = GH₵ (c.price * c.qty).toFixed(2) + '\n';
+    msg += (i+1)+'. ' + c.name + ' × ' + c.qty + ' = GH₵ ' + (c.price * c.qty).toFixed(2) + '\n';
     total += c.price * c.qty;
   });
-  msg += '\n💰 *Grand Total: GH₵ total.toFixed(2) + '*\n\nPlease confirm these orders. Thank you!';
+  msg += '\n💰 *Grand Total: GH₵ ' + total.toFixed(2) + '*\n\nPlease confirm these orders. Thank you!';
   var wa = '233555749497';
   window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
   toggleCart();
@@ -1176,7 +1179,7 @@ function checkoutCart() {
 
 function toggleCart() {
   var d = document.getElementById('cartDrawer');
-  var ov = document.getElementById('drawerOverlay');
+  var ov = document.getElementById('mallDrawerOverlay');
   var wishlist = document.getElementById('wishlistDrawer');
   if (wishlist) wishlist.classList.remove('open');
   if (d) d.classList.toggle('open');
@@ -1186,7 +1189,7 @@ function toggleCart() {
 
 function closeAllDrawers() {
   ['cartDrawer','wishlistDrawer'].forEach(function(id){ var el=document.getElementById(id); if(el)el.classList.remove('open'); });
-  var ov = document.getElementById('drawerOverlay');
+  var ov = document.getElementById('mallDrawerOverlay');
   if (ov) ov.classList.remove('open');
 }
 
@@ -1244,7 +1247,7 @@ function updateWishlistUI() {
 
 function toggleWishlist() {
   var d = document.getElementById('wishlistDrawer');
-  var ov = document.getElementById('drawerOverlay');
+  var ov = document.getElementById('mallDrawerOverlay');
   var cart = document.getElementById('cartDrawer');
   if (cart) cart.classList.remove('open');
   if (d) d.classList.toggle('open');
