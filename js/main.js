@@ -1,58 +1,9 @@
-// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+﻿// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // GERAMA Portal – Core: Sidebar, Profile, Auth Check, Dark Mode
 // Version: 2026.06 – cache-bust
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
-// –– DARK MODE –––––––––––––––––––––––––––––––––––––––––––––––––––––––
-(function() {
-    // Check for saved preference - default to light mode
-    var savedTheme = localStorage.getItem('gerama_theme');
-    
-    // Apply theme on load - only use dark if explicitly saved as dark
-    if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-        // Default to light mode
-        document.documentElement.setAttribute('data-theme', 'light');
-    }
-    
-    // Toggle function
-    window.toggleDarkMode = function() {
-        var current = document.documentElement.getAttribute('data-theme');
-        var newTheme = current === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('gerama_theme', newTheme);
-    };
-    
-    // Add dark mode toggle to sidebar
-    document.addEventListener('DOMContentLoaded', function() {
-        var sidebar = document.querySelector('.sidebar-nav');
-        if (sidebar) {
-            var toggleBtn = document.createElement('div');
-            toggleBtn.className = 'nav-item';
-            toggleBtn.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
-            toggleBtn.style.cursor = 'pointer';
-            toggleBtn.onclick = window.toggleDarkMode;
-            toggleBtn.id = 'darkModeToggle';
-            sidebar.appendChild(toggleBtn);
-            
-            // Update icon based on current theme
-            updateDarkModeIcon();
-        }
-    });
-    
-    function updateDarkModeIcon() {
-        var toggle = document.getElementById('darkModeToggle');
-        if (toggle) {
-            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            toggle.innerHTML = isDark ? '<i class="fas fa-sun"></i> Light Mode' : '<i class="fas fa-moon"></i> Dark Mode';
-        }
-    }
-    
-    // Listen for theme changes
-    var observer = new MutationObserver(updateDarkModeIcon);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-})();
+// Dark mode – handled below by the unified _toggleDarkMode system
 
 // –– OFFLINE/ONLINE INDICATOR –––––––––––––––––––––––––––––––––––––––––
 (function() {
@@ -628,40 +579,61 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     window._studyStreak = streak;
 })();
 
-// –– DARK MODE –––––––––––––––––––––––––––––––––––––––––––––––––––––
+// –– DARK MODE (unified) –––––––––––––––––––––––––––––––––––––––––––
+// Single source of truth: localStorage key "gerama_dark" = "1" / "0"
+// Adds/removes body.dark-mode class; all styling lives in css/style.css
 (function() {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     var page = window.location.pathname.split('/').pop() || 'index.html';
-    if(skip.indexOf(page) !== -1) return;
+    if (skip.indexOf(page) !== -1) return;
 
     var isDark = localStorage.getItem('gerama_dark') === '1';
 
     function applyDark(on) {
-        if(on) {
-            document.documentElement.style.setProperty('--light','#0f172a');
-            document.documentElement.style.setProperty('--text','#e2e8f0');
-            document.documentElement.style.setProperty('--muted','#94a3b8');
-            document.body.style.background = '#0f172a';
-            document.body.style.color = '#e2e8f0';
+        if (on) {
             document.body.classList.add('dark-mode');
         } else {
-            document.documentElement.style.removeProperty('--light');
-            document.documentElement.style.removeProperty('--text');
-            document.documentElement.style.removeProperty('--muted');
-            document.body.style.background = '';
-            document.body.style.color = '';
             document.body.classList.remove('dark-mode');
+        }
+        // Keep inline overrides clear – CSS handles everything
+        document.body.style.background = '';
+        document.body.style.color = '';
+        updateDarkBtn();
+    }
+
+    function updateDarkBtn() {
+        var btn = document.getElementById('darkModeBtn');
+        if (!btn) return;
+        if (document.body.classList.contains('dark-mode')) {
+            btn.innerHTML = '<i class="fas fa-sun"></i> Light';
+            btn.style.background   = 'rgba(240,200,74,0.12)';
+            btn.style.borderColor  = 'rgba(240,200,74,0.3)';
+            btn.style.color        = '#f0c84a';
+        } else {
+            btn.innerHTML = '<i class="fas fa-moon"></i> Dark';
+            btn.style.background   = 'rgba(255,255,255,0.1)';
+            btn.style.borderColor  = 'rgba(255,255,255,0.2)';
+            btn.style.color        = 'white';
         }
     }
 
-    if(isDark) applyDark(true);
+    // Apply on first load (before DOMContentLoaded to avoid flash)
+    if (isDark) document.body.classList.add('dark-mode');
+
     window._toggleDarkMode = function() {
         isDark = !isDark;
         localStorage.setItem('gerama_dark', isDark ? '1' : '0');
         applyDark(isDark);
-        var btn = document.getElementById('darkModeBtn');
-        if(btn) btn.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
     };
+
+    // Sync button label once sidebar is injected
+    document.addEventListener('DOMContentLoaded', function() {
+        updateDarkBtn();
+        // Also watch for the sidebar being appended dynamically
+        var obs = new MutationObserver(function() { updateDarkBtn(); });
+        obs.observe(document.body, { childList: true, subtree: false });
+        setTimeout(function() { obs.disconnect(); updateDarkBtn(); }, 3000);
+    });
 })();
 
 // –– CONFETTI CELEBRATION ––––––––––––––––––––––––––––––––––––––––––
