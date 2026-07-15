@@ -7258,6 +7258,8 @@ window.loadActiveMembers = async function(activityType){
   var el = document.getElementById('activeMembersList');
   var statsEl = document.getElementById('activityStats');
   if(!el) return;
+
+  window._lastActiveMembersType = activityType; // store for refresh after group assign
   
   var sb = window.geramaSupabase;
   if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
@@ -7417,12 +7419,21 @@ window.loadActiveMembers = async function(activityType){
       return '<option value="'+window.escAttr(g.name)+'">'+window.escHtml(g.name)+'</option>'; 
     }).join('');
 
-    // Render stats
+    // Store for CSV export
+    window._activeMembersData   = membersData;
+    window._activeMembersGroups = groupMap;
+    window._activeMembersProfiles = profileMap;
+
+    // Render stats + export button
     if(statsEl){
-      statsEl.innerHTML = 
+      statsEl.innerHTML =
         (stats.attendance ? '<div style="background:#e8f5e9;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1B5E20;">'+stats.attendance+'</strong> <span style="color:#6b7280;">Attended Classes</span></div>' : '') +
-        (stats.quizzes ? '<div style="background:#fef3c7;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#92400e;">'+stats.quizzes+'</strong> <span style="color:#6b7280;">Quiz Takers</span></div>' : '') +
-        (stats.assignments ? '<div style="background:#dbeafe;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1d4ed8;">'+stats.assignments+'</strong> <span style="color:#6b7280;">Assignment Submitters</span></div>' : '');
+        (stats.quizzes    ? '<div style="background:#fef3c7;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#92400e;">'+stats.quizzes+'</strong> <span style="color:#6b7280;">Quiz Takers</span></div>' : '') +
+        (stats.assignments? '<div style="background:#dbeafe;border-radius:12px;padding:0.8rem 1.2rem;font-size:0.85rem;"><strong style="color:#1d4ed8;">'+stats.assignments+'</strong> <span style="color:#6b7280;">Assignment Submitters</span></div>' : '') +
+        '<div style="margin-left:auto;display:flex;gap:0.5rem;flex-wrap:wrap;">'+
+          '<button onclick="downloadActiveMembersCSV()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.5rem 1rem;border-radius:20px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-download"></i> Export CSV</button>'+
+          '<button onclick="printActiveMembersTable()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.5rem 1rem;border-radius:20px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;"><i class="fas fa-print"></i> Print</button>'+
+        '</div>';
     }
 
     if(!membersData.length){
@@ -7468,13 +7479,24 @@ window.loadActiveMembers = async function(activityType){
           '</div>'+
         '</td>'+
         '<td>'+
+          // Current group indicator
+          (groupName !== 'Not assigned'
+            ? '<div style="margin-bottom:0.35rem;display:flex;align-items:center;gap:0.35rem;">'+
+                '<span style="background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:0.18rem 0.55rem;border-radius:20px;white-space:nowrap;"><i class="fas fa-users" style="margin-right:0.25rem;"></i>'+window.escHtml(groupName)+'</span>'+
+                '<span style="font-size:0.68rem;color:#059669;font-weight:600;">✓ assigned</span>'+
+              '</div>'
+            : '<div style="margin-bottom:0.35rem;"><span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:600;padding:0.18rem 0.55rem;border-radius:20px;"><i class="fas fa-exclamation-circle" style="margin-right:0.25rem;"></i>No group yet</span></div>'
+          )+
+          // Reassign dropdown – pre-selects current group so admin sees where they are
           '<div style="display:flex;gap:0.4rem;align-items:center;">'+
-            '<select id="act-grp-'+safeId+'" style="padding:0.3rem 0.5rem;border:2px solid #e5e7eb;border-radius:8px;font-size:0.82rem;font-family:\'Inter\',sans-serif;outline:none;">'+
-              '<option value="">-- Assign Group --</option>'+
-              groupOptions+
+            '<select id="act-grp-'+safeId+'" style="padding:0.3rem 0.5rem;border:2px solid '+(groupName!=='Not assigned'?'#86efac':'#fcd34d')+';border-radius:8px;font-size:0.8rem;font-family:\'Inter\',sans-serif;outline:none;max-width:160px;">'+
+              '<option value="">── Reassign ──</option>'+
+              (allGroups||[]).map(function(g){
+                return '<option value="'+window.escAttr(g.name)+'"'+(g.name===groupName?' selected':'')+'>'+window.escHtml(g.name)+'</option>';
+              }).join('')+
             '</select>'+
-            '<button class="btn-gold" style="padding:0.3rem 0.6rem;font-size:0.72rem;white-space:nowrap;" onclick="assignStudyGroup(\''+safeEmail+'\',\'act-grp-'+safeId+'\')">'+
-              '<i class="fas fa-check"></i>'+
+            '<button class="btn-gold" style="padding:0.3rem 0.6rem;font-size:0.72rem;white-space:nowrap;" onclick="assignStudyGroup(\''+safeEmail+'\',\'act-grp-'+safeId+'\',\''+window.escAttr(groupName)+'\')" title="'+(groupName!=='Not assigned'?'Change group assignment':'Assign to group')+'">'+
+              '<i class="fas fa-'+(groupName!=='Not assigned'?'exchange-alt':'check')+'"></i>'+
             '</button>'+
           '</div>'+
         '</td>'+
@@ -7493,27 +7515,119 @@ window.loadActiveMembers = async function(activityType){
   }
 };
 
-// ─── ASSIGN STUDY GROUP TO MEMBER ─────────────────────────────────────
-window.assignStudyGroup = async function(email, selectId){
+// ─── EXPORT ACTIVE MEMBERS CSV ───────────────────────────────────────
+window.downloadActiveMembersCSV = function(){
+  var data     = window._activeMembersData    || [];
+  var groupMap = window._activeMembersGroups  || {};
+  var profMap  = window._activeMembersProfiles|| {};
+
+  if(!data.length){ alert('No active members data loaded. Click a filter button first.'); return; }
+
+  var headers = ['#','Name','Email','Activity Type','Count','Last Activity','Index Number','Study Group'];
+  var rows = data.map(function(m, i){
+    var profile   = profMap[m.email]  || {};
+    var groupName = groupMap[m.email] || 'Not assigned';
+    var lastDate  = m.lastActivity ? new Date(m.lastActivity).toLocaleString('en-GB') : '';
+    return [
+      i+1,
+      m.name || profile.full_name || '',
+      m.email || '',
+      m.activityType || '',
+      m.count || 0,
+      lastDate,
+      profile.index_number || '',
+      groupName
+    ].map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
+  });
+
+  var csv = [headers.join(',')].concat(rows).join('\n');
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href   = url;
+  a.download = 'GERAMA_ActiveMembers_'+new Date().toISOString().split('T')[0]+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  window.logActivity('Exported active members list ('+data.length+' records)');
+};
+
+// ─── PRINT ACTIVE MEMBERS ────────────────────────────────────────────
+window.printActiveMembersTable = function(){
+  var data     = window._activeMembersData    || [];
+  var groupMap = window._activeMembersGroups  || {};
+  var profMap  = window._activeMembersProfiles|| {};
+
+  if(!data.length){ alert('No data to print. Load a filter first.'); return; }
+
+  var rows = data.map(function(m, i){
+    var profile   = profMap[m.email]  || {};
+    var groupName = groupMap[m.email] || '–';
+    var lastDate  = m.lastActivity ? new Date(m.lastActivity).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '–';
+    var groupCell = groupName !== '–'
+      ? '<span style="background:#d1fae5;color:#065f46;font-size:0.75rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">'+groupName+'</span>'
+      : '<span style="color:#9ca3af;">–</span>';
+    return '<tr>'+
+      '<td>'+(i+1)+'</td>'+
+      '<td><strong>'+(m.name||profile.full_name||'–')+'</strong></td>'+
+      '<td style="font-size:0.82rem;color:#555;">'+(m.email||'')+'</td>'+
+      '<td>'+(m.activityType||'')+'</td>'+
+      '<td style="text-align:center;"><strong>'+(m.count||0)+'</strong></td>'+
+      '<td>'+lastDate+'</td>'+
+      '<td style="font-family:monospace;font-size:0.8rem;">'+(profile.index_number||'–')+'</td>'+
+      '<td>'+groupCell+'</td>'+
+    '</tr>';
+  }).join('');
+
+  var win = window.open('','_blank');
+  win.document.write('<html><head><title>GERAMA Active Members</title>'+
+    '<style>body{font-family:Inter,sans-serif;padding:2rem;font-size:13px;}'+
+    'h2{color:#1B5E20;margin-bottom:0.3rem;}'+
+    'p.sub{color:#6b7280;font-size:0.82rem;margin-bottom:1.2rem;}'+
+    'table{width:100%;border-collapse:collapse;}'+
+    'th{background:#1B5E20;color:white;padding:0.5rem 0.7rem;text-align:left;font-size:0.82rem;}'+
+    'td{padding:0.45rem 0.7rem;border-bottom:1px solid #e5e7eb;vertical-align:middle;}'+
+    'tr:nth-child(even){background:#f8fafc;}'+
+    '</style></head><body>'+
+    '<h2>GERAMA – Active Members Report</h2>'+
+    '<p class="sub">Generated '+new Date().toLocaleString('en-GB',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})+' &nbsp;·&nbsp; '+data.length+' members</p>'+
+    '<table><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Activity</th><th>Count</th><th>Last Active</th><th>Index No.</th><th>Study Group</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table>'+
+    '<p style="margin-top:2rem;font-size:0.75rem;color:#9ca3af;">GERAMA Admin Dashboard</p>'+
+    '</body></html>');
+  win.document.close();
+  win.focus();
+  setTimeout(function(){ win.print(); }, 500);
+};
   var select = document.getElementById(selectId);
   if(!select) return;
   var groupName = select.value;
-  if(!groupName){ alert('Please select a group.'); return; }
-  
+  if(!groupName){ alert('Please select a group to assign.'); return; }
+
+  // Warn clearly if the person already has a group
+  var alreadyHas = currentGroup && currentGroup !== 'Not assigned';
+  if(alreadyHas && groupName === currentGroup){
+    alert('This person is already in ' + currentGroup + '. No change made.');
+    return;
+  }
+  if(alreadyHas){
+    var ok = confirm('⚠️ ' + email + ' is currently in ' + currentGroup + '.\n\nChange to ' + groupName + '?');
+    if(!ok) return;
+  }
+
   var sb = window.geramaSupabase;
   if(!sb){ alert('Not connected.'); return; }
-  
+
   try{
-    // First, remove any existing group membership for this user
+    // Remove any existing group membership for this user
     await sb.from('gerama_group_members').delete().eq('user_email', email);
-    
+
     // Find the group ID
     var {data: groupData} = await sb.from('gerama_groups').select('id').eq('name', groupName).maybeSingle();
     if(!groupData || !groupData.id){
       alert('Group not found.');
       return;
     }
-    
+
     // Add new membership
     var {error} = await sb.from('gerama_group_members').insert({
       user_email: email,
@@ -7521,13 +7635,19 @@ window.assignStudyGroup = async function(email, selectId){
       role: 'member',
       joined_at: new Date().toISOString()
     });
-    
+
     if(error) throw error;
-    
-    alert('✅ Assigned to '+groupName+' successfully!');
-    window.logActivity('Assigned '+email+' to study group '+groupName);
-    loadActiveMembers('all'); // Refresh the list
-    
+
+    // Also update group_name on user_profiles (denormalized field for student portal)
+    await sb.from('user_profiles').update({ group_name: groupName }).eq('email', email);
+
+    var action = alreadyHas ? 'Moved from '+currentGroup+' to '+groupName : 'Assigned to '+groupName;
+    window.logActivity(action+' — '+email);
+
+    // Refresh the current view
+    var actType = window._lastActiveMembersType || 'attendance';
+    window.loadActiveMembers(actType);
+
   }catch(e){
     alert('Error assigning group: '+e.message);
   }
