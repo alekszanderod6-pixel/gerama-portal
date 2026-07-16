@@ -7598,6 +7598,9 @@ window.printActiveMembersTable = function(){
   win.focus();
   setTimeout(function(){ win.print(); }, 500);
 };
+
+// ─── ASSIGN STUDY GROUP TO MEMBER ─────────────────────────────────────
+window.assignStudyGroup = async function(email, selectId, currentGroup){
   var select = document.getElementById(selectId);
   if(!select) return;
   var groupName = select.value;
