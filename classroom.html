@@ -642,6 +642,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <div class="modal-title"><i class="fas fa-paper-plane"></i> Submit Assignment</div>
     <input type="hidden" id="modalAssignId">
     <input type="hidden" id="modalAssignTitle">
+
     <div class="form-field">
       <label>Your Full Name *</label>
       <input type="text" id="subName" placeholder="e.g. Kwame Mensah">
@@ -659,15 +660,33 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
       <label>Comment (optional)</label>
       <textarea id="subComment" rows="2" placeholder="Any notes for your tutor..."></textarea>
     </div>
+
+    <!-- Drive Link Submission -->
     <div class="form-field">
-      <label>Attach File * (PDF, DOC, DOCX, ZIP  max 20 MB)</label>
-      <div class="drop-zone" id="subDropZone">
-        <i class="fas fa-cloud-upload-alt"></i>
-        <p>Tap to browse or drag &amp; drop your file</p>
-        <p class="file-chosen" id="subFileChosen"></p>
-        <input type="file" id="subFile" accept=".pdf,.doc,.docx,.zip,.pptx,.txt" style="display:none;">
+      <label>Google Drive Link * <span style="background:#e8f0fe;color:#4285F4;font-size:0.68rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:10px;margin-left:0.3rem;"><i class="fab fa-google-drive"></i> Required</span></label>
+      <input type="url" id="subDriveLink" placeholder="https://drive.google.com/file/d/..." oninput="validateDriveLink(this)"
+        style="width:100%;padding:0.65rem 0.9rem;border:2px solid #e5e7eb;border-radius:12px;font-size:0.88rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;transition:border 0.2s;">
+      <small id="driveLinkHint" style="color:#6b7280;font-size:0.72rem;margin-top:0.3rem;display:block;line-height:1.5;">
+        <strong>How to share:</strong> Open your file on Google Drive → click <strong>Share</strong> → set access to <em>"Anyone with the link"</em> → copy the link and paste it here.
+      </small>
+      <div id="driveLinkStatus" style="font-size:0.78rem;margin-top:0.3rem;min-height:1rem;"></div>
+    </div>
+
+    <!-- Step-by-step guide toggle -->
+    <div style="margin-bottom:1rem;">
+      <button type="button" onclick="toggleDriveGuide()" style="background:none;border:none;color:#4285F4;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;padding:0;display:flex;align-items:center;gap:0.3rem;">
+        <i class="fas fa-question-circle"></i> How do I upload to Google Drive?
+      </button>
+      <div id="driveGuide" style="display:none;background:#e8f0fe;border-radius:10px;padding:0.8rem 1rem;margin-top:0.5rem;font-size:0.78rem;color:#1d4ed8;line-height:1.7;">
+        <strong>Steps:</strong><br>
+        1. Open <a href="https://drive.google.com" target="_blank" style="color:#1d4ed8;font-weight:700;">drive.google.com</a> on your phone or laptop<br>
+        2. Tap <strong>+ New</strong> → <strong>File upload</strong> → choose your assignment file<br>
+        3. Once uploaded, right-click (or tap the 3 dots) on the file → <strong>Share</strong><br>
+        4. Change access to <strong>"Anyone with the link"</strong> → tap <strong>Copy link</strong><br>
+        5. Paste the link in the field above and submit
       </div>
     </div>
+
     <div class="status-msg" id="subStatus"></div>
     <div class="modal-actions">
       <button class="btn-modal-submit" id="subSubmitBtn" onclick="submitAssignment()"><i class="fas fa-paper-plane"></i> Submit</button>
@@ -1660,10 +1679,15 @@ async function openSubmitModal(id, title) {
   document.getElementById('subName').value = profile.name || '';
   document.getElementById('subIndex').value = profile.index_number || '';
   document.getElementById('subComment').value = '';
-  document.getElementById('subFileChosen').textContent = '';
   document.getElementById('subStatus').className = 'status-msg';
   document.getElementById('subStatus').textContent = '';
-  selectedSubFile = null;
+  // Clear Drive link field
+  var dlEl = document.getElementById('subDriveLink');
+  if(dlEl){ dlEl.value = ''; dlEl.style.borderColor = '#e5e7eb'; }
+  var dlStatus = document.getElementById('driveLinkStatus');
+  if(dlStatus) dlStatus.textContent = '';
+  var guide = document.getElementById('driveGuide');
+  if(guide) guide.style.display = 'none';
 
   // –– Always use authenticated session email for grade matching ––
   var emailEl = document.getElementById('subEmail');
@@ -1676,21 +1700,17 @@ async function openSubmitModal(id, title) {
         sessionEmail = sRes.data.session.user.email;
     }
   } catch(e) {}
-  // Use session email > profile email > blank
   var finalEmail = (sessionEmail || profile.email || '').toLowerCase().trim();
   emailEl.value = finalEmail;
   if(finalEmail) {
     emailEl.readOnly = true;
     emailEl.style.background = '#f0fdf4';
     emailEl.style.borderColor = '#86efac';
-    emailEl.title = 'Email locked to your account  ensures grades are linked correctly';
-    // store for later use during submit
+    emailEl.title = 'Email locked to your account — ensures grades are linked correctly';
     emailEl.dataset.verified = '1';
-    // Show lock badge
     var badge = document.getElementById('emailLockBadge');
     if(badge) badge.style.display = 'inline';
-    // Update profile with session email
-    if(sessionEmail && profile.email !== sessionEmail) {
+    if(sessionEmail && profile.email !== sessionEmail){
       profile.email = sessionEmail;
       localStorage.setItem('gerama_profile', JSON.stringify(profile));
     }
@@ -1710,18 +1730,62 @@ function closeModal() {
   document.getElementById('submitModal').classList.remove('open');
 }
 
+// ── Drive link validator (inline feedback as user types) ──────────────────
+function validateDriveLink(input) {
+  var val = (input.value || '').trim();
+  var hint = document.getElementById('driveLinkStatus');
+  if(!val){ if(hint) hint.textContent = ''; input.style.borderColor = '#e5e7eb'; return; }
+  var isValid = val.indexOf('drive.google.com') !== -1 || val.indexOf('docs.google.com') !== -1;
+  if(isValid){
+    input.style.borderColor = '#059669';
+    if(hint){ hint.textContent = '✓ Valid Google Drive link'; hint.style.color = '#059669'; }
+  } else {
+    input.style.borderColor = '#dc2626';
+    if(hint){ hint.textContent = '✗ This doesn\'t look like a Google Drive link. Please check the URL.'; hint.style.color = '#dc2626'; }
+  }
+}
+
+function toggleDriveGuide() {
+  var g = document.getElementById('driveGuide');
+  if(g) g.style.display = g.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── Convert any Drive share URL to a reliable preview/embed URL ────────────
+function resolveSubmissionDriveUrl(rawUrl) {
+  if(!rawUrl) return { viewUrl: '', previewUrl: '' };
+  var match =
+    rawUrl.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+    rawUrl.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/) ||
+    rawUrl.match(/drive\.google\.com\/uc\?.*id=([a-zA-Z0-9_-]+)/) ||
+    rawUrl.match(/docs\.google\.com\/(?:document|presentation|spreadsheets|forms)\/d\/([a-zA-Z0-9_-]+)/);
+  if(match){
+    var id = match[1];
+    return {
+      viewUrl:    'https://drive.google.com/file/d/' + id + '/preview',
+      downloadUrl:'https://drive.google.com/uc?export=download&id=' + id,
+      fileId:     id
+    };
+  }
+  // Already a direct or unrecognised URL — pass through
+  return { viewUrl: rawUrl, downloadUrl: rawUrl, fileId: null };
+}
+
 async function submitAssignment() {
-  var name    = document.getElementById('subName').value.trim();
-  var email   = document.getElementById('subEmail').value.trim();
-  var index   = document.getElementById('subIndex').value.trim();
-  var comment = document.getElementById('subComment').value.trim();
+  var name        = document.getElementById('subName').value.trim();
+  var email       = document.getElementById('subEmail').value.trim();
+  var index       = document.getElementById('subIndex').value.trim();
+  var comment     = document.getElementById('subComment').value.trim();
+  var rawLink     = (document.getElementById('subDriveLink').value || '').trim();
   var assignId    = document.getElementById('modalAssignId').value;
   var assignTitle = document.getElementById('modalAssignTitle').value;
 
-  if(!name || !email){ showSubStatus('Please enter your name and email.','err'); return; }
-  if(!selectedSubFile){ showSubStatus('Please attach your assignment file.','err'); return; }
-  if(selectedSubFile.size > 20*1024*1024){ showSubStatus('File too large. Max 20 MB.','err'); return; }
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showSubStatus('Please enter a valid email address.','err'); return; }
+  if(!name || !email){ showSubStatus('Please enter your name and email.', 'err'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showSubStatus('Please enter a valid email address.', 'err'); return; }
+  if(!rawLink){ showSubStatus('Please paste your Google Drive link.', 'err'); return; }
+  if(rawLink.indexOf('drive.google.com') === -1 && rawLink.indexOf('docs.google.com') === -1){
+    showSubStatus('That doesn\'t look like a Google Drive link. Go to drive.google.com, share your file, and paste the link here.', 'err');
+    return;
+  }
 
   var btn = document.getElementById('subSubmitBtn');
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
@@ -1734,114 +1798,63 @@ async function submitAssignment() {
   }
   var sb = window.geramaSupabase;
   if(!sb){
-    showSubStatus('– Service not available. Please refresh the page and try again.','err');
-    btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit';
+    showSubStatus('Service not available. Please refresh and try again.', 'err');
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
     return;
   }
 
-  var fileUrl = null;
-  var storagePath = null;
+  // Resolve Drive URL to a stable preview link
+  var resolved   = resolveSubmissionDriveUrl(rawLink);
+  var storedUrl  = resolved.viewUrl || rawLink;  // store as preview URL
 
-  // –– STEP 1: Upload file (3 attempts, non-blocking if all fail) ––
+  showSubStatus('💾 Saving submission...', 'info');
+
   try {
-    showSubStatus('📤 Uploading file... (1/2)','info');
-    var ext = selectedSubFile.name.split('.').pop().toLowerCase();
-    var safeName = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,30)+'-'+Date.now()+'.'+ext;
-    storagePath = 'submissions/'+(assignId||'general')+'/'+safeName;
-
-    var upRes = null;
-    for(var attempt = 1; attempt <= 3; attempt++){
-      try {
-        upRes = await sb.storage.from('gerama-materials').upload(storagePath, selectedSubFile, {
-          upsert: true,
-          contentType: selectedSubFile.type || 'application/octet-stream'
-        });
-        if(!upRes.error){ break; }
-        // Storage error (not network)  no point retrying
-        if(upRes.error && !upRes.error.message.toLowerCase().includes('fetch')){
-          console.warn('Storage error:', upRes.error.message);
-          upRes = null; break;
-        }
-        if(attempt < 3){
-          showSubStatus('Upload attempt '+attempt+' failed, retrying in 2s...','info');
-          await new Promise(function(r){ setTimeout(r, 2000); });
-        }
-      } catch(netErr) {
-        if(attempt < 3){
-          showSubStatus('Network hiccup, retrying ('+attempt+'/3)...','info');
-          await new Promise(function(r){ setTimeout(r, 2500); });
-        }
-      }
-    }
-
-    if(upRes && !upRes.error){
-      fileUrl = sb.storage.from('gerama-materials').getPublicUrl(storagePath).data.publicUrl;
-    } else {
-      // File upload failed  still save the record without file
-      console.warn('File upload failed after retries, saving record without file.');
-      storagePath = null;
-    }
-  } catch(uploadErr) {
-    console.warn('Upload exception:', uploadErr.message);
-    storagePath = null;
-  }
-
-  // –– STEP 2: Save submission record to database ––
-  try {
-    showSubStatus('? Saving submission... (2/2)','info');
-
     var record = {
       assignment_title: assignTitle,
       student_name:     name,
       student_email:    email.toLowerCase(),
       index_number:     index || null,
       comment:          comment || null,
-      file_url:         fileUrl || null,
-      storage_path:     storagePath || null,
+      file_url:         storedUrl,           // Drive preview link – no storage used
+      storage_path:     null,                // no file stored on Supabase
       submitted_at:     new Date().toISOString(),
       status:           'submitted'
     };
-
-    // Only include assignment_id if it looks like a valid UUID
     if(assignId && /^[0-9a-f-]{36}$/i.test(assignId)){
       record.assignment_id = assignId;
     }
 
     var dbRes = await sb.from('assignment_submissions').insert(record);
-
     if(dbRes.error){
-      // Check for duplicate submission
       if(dbRes.error.message.toLowerCase().includes('duplicate') || dbRes.error.code === '23505'){
-        showSubStatus('–️ You have already submitted this assignment.','err');
+        showSubStatus('⚠️ You have already submitted this assignment.', 'err');
       } else {
         throw new Error(dbRes.error.message);
       }
-      btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit';
+      btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
       return;
     }
 
-    // Success
-    if(fileUrl){
-      showSubStatus('– Submitted successfully with your file! Your tutor will review it shortly.','ok');
-    } else {
-      showSubStatus('– Submission recorded! (File upload failed  please email your file to the tutor directly if needed.)','ok');
-    }
-    btn.innerHTML = '<i class="fas fa-check"></i> Submitted';
+    showSubStatus('✅ Submitted successfully! Your tutor will review and grade it shortly.', 'ok');
+    btn.innerHTML = '<i class="fas fa-check"></i> Submitted!';
     if(window.launchConfetti) window.launchConfetti();
-    setTimeout(function(){ closeModal(); btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit'; }, 3000);
+    setTimeout(function(){
+      closeModal();
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
+    }, 3000);
 
   } catch(err) {
     var msg = err.message || 'Unknown error';
-    if(msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror') || msg.toLowerCase().includes('network request')){
-      showSubStatus('– Network error  check your internet connection and try again.','err');
-    } else if(msg.toLowerCase().includes('row-level security') || msg.toLowerCase().includes('rls') || msg.toLowerCase().includes('permission')){
-      showSubStatus('– Permission error. Please contact the admin.','err');
-    } else if(msg.toLowerCase().includes('does not exist') || msg.toLowerCase().includes('relation')){
-      showSubStatus('– Database not set up yet. Please contact the admin.','err');
+    if(msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('networkerror')){
+      showSubStatus('Network error — check your internet connection and try again.', 'err');
+    } else if(msg.toLowerCase().includes('row-level security') || msg.toLowerCase().includes('permission')){
+      showSubStatus('Permission error. Please contact admin.', 'err');
     } else {
-      showSubStatus('– '+msg,'err');
+      showSubStatus('❌ ' + msg, 'err');
     }
-    btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit';
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit';
   }
 }
 

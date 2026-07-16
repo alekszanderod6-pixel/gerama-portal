@@ -1642,7 +1642,25 @@ window._renderSubmissions = function(data, el){
         '<td style="font-size:0.78rem;color:#6b7280;white-space:nowrap;">'+dt+'</td>'+
         '<td>'+
           (s.file_url
-            ? '<a href="'+window.escAttr(s.file_url)+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;font-weight:600;white-space:nowrap;"><i class="fas fa-download"></i> File</a>'
+            ? (function(){
+                var url = s.file_url || '';
+                var isDrive = url.indexOf('drive.google') !== -1 || url.indexOf('docs.google') !== -1;
+                var previewUrl = url;
+                // Ensure we use the /preview iframe URL for Drive files
+                var match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if(match) previewUrl = 'https://drive.google.com/file/d/' + match[1] + '/preview';
+                var downloadUrl = match
+                  ? 'https://drive.google.com/uc?export=download&id=' + match[1]
+                  : url;
+                if(isDrive){
+                  return '<div style="display:flex;gap:0.3rem;flex-wrap:wrap;">'+
+                    '<a href="'+window.escAttr(previewUrl)+'" target="_blank" style="background:#e8f0fe;color:#4285F4;font-size:0.75rem;font-weight:700;padding:0.2rem 0.55rem;border-radius:8px;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.25rem;"><i class="fas fa-eye"></i> View</a>'+
+                    '<a href="'+window.escAttr(downloadUrl)+'" target="_blank" style="background:#e8f5e9;color:#1B5E20;font-size:0.75rem;font-weight:700;padding:0.2rem 0.55rem;border-radius:8px;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:0.25rem;"><i class="fas fa-download"></i> DL</a>'+
+                  '</div>';
+                } else {
+                  return '<a href="'+window.escAttr(url)+'" target="_blank" style="color:#1B5E20;font-size:0.8rem;font-weight:600;white-space:nowrap;"><i class="fas fa-external-link-alt"></i> Open</a>';
+                }
+              })()
             : '<span style="color:#9ca3af;font-size:0.78rem;">–</span>')+
         '</td>'+
         '<td>'+badge+'</td>'+
