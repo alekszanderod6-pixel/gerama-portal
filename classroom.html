@@ -3775,7 +3775,9 @@ function renderOpportunities() {
       '<div class="opp-meta">' + deadline + mode + '</div>' +
       '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-top:auto;">' +
         '<span class="opp-stat-pill"><i class="fas fa-eye"></i> ' + viewCount + ' views</span>' +
-        '<span class="opp-stat-pill"><i class="fas fa-user-check"></i> ' + applyCount + ' applied</span>' +
+        (localStorage.getItem('gerama_opp_applied_' + opp.id)
+          ? '<span class="opp-stat-pill" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46;border-color:#6ee7b7;" id="opp-apply-pill-' + opp.id + '"><i class="fas fa-check-circle"></i> ' + applyCount + ' applied ✓</span>'
+          : '<button id="opp-apply-pill-' + opp.id + '" onclick="event.stopPropagation();markOppApplied(\'' + opp.id + '\')" class="opp-stat-pill" style="cursor:pointer;border:1.5px solid #86efac;transition:all 0.2s;" title="Tap to mark as applied"><i class="fas fa-user-check"></i> ' + applyCount + ' applied</button>') +
       '</div>' +
       applyBtn +
       '<button onclick="event.stopPropagation();toggleOppComments(\'' + opp.id + '\')" style="background:none;border:1px solid #e5e7eb;color:#6b7280;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;align-self:flex-start;"><i class="fas fa-comment"></i> Comments <span id="opp-cmt-count-' + opp.id + '"></span></button>' +
@@ -3852,7 +3854,24 @@ async function trackOppApply(oppId) {
       status: 'applied',
       applied_at: new Date().toISOString()
     }, {onConflict: 'opportunity_id,user_email', ignoreDuplicates: true});
+    // Increment apply_count in DB
+    try { await sb.rpc('increment_opp_applies', {opp_id: oppId}); } catch(e) {}
   } catch(e) {}
+}
+
+async function markOppApplied(oppId) {
+  var pill = document.getElementById('opp-apply-pill-' + oppId);
+  if(!pill) return;
+  // Optimistic UI update
+  var cur = parseInt((pill.textContent || '').replace(/\D/g,'')) || 0;
+  var newCount = cur + 1;
+  pill.outerHTML = '<span class="opp-stat-pill" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46;border-color:#6ee7b7;" id="opp-apply-pill-' + oppId + '"><i class="fas fa-check-circle"></i> ' + newCount + ' applied ✓</span>';
+  // Update local data
+  var opp = _allOpportunities.find(function(o){ return o.id === oppId; });
+  if(opp) opp.apply_count = (opp.apply_count || 0) + 1;
+  // Persist to DB
+  await trackOppApply(oppId);
+  window.showToast && window.showToast('✓ Marked as applied! Good luck 🎉', 2500);
 }
 
 async function toggleOppComments(oppId) {
