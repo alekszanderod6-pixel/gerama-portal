@@ -176,7 +176,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
 (function() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     // Public pages – no auth required
-    const publicPages = ['index.html', 'about.html', 'contact.html', 'mall.html', 'login.html', 'signup.html', 'reset-code.html', 'admin-dashboard.html', ''];
+    const publicPages = ['index.html', 'about.html', 'contact.html', 'mall.html', 'login.html', 'signup.html', 'reset-code.html', 'admin-dashboard.html', 'opportunities.html', ''];
     const isAuthPage = currentPage === 'login.html' || currentPage === 'signup.html' || currentPage === 'reset-code.html' || currentPage === 'admin-dashboard.html';
     const isPublicPage = publicPages.indexOf(currentPage) !== -1;
 
@@ -236,6 +236,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
             headerNav.innerHTML =
                 '<a href="index.html" style="' + (currentPage === 'index.html' ? 'color:#FFC107;' : '') + '">Home</a>' +
                 '<a href="about.html" style="' + (currentPage === 'about.html' ? 'color:#FFC107;' : '') + '">About</a>' +
+                '<a href="opportunities.html" style="' + (currentPage === 'opportunities.html' ? 'color:#FFC107;' : '') + '">🌍 Opportunities</a>' +
                 '<a href="contact.html" style="' + (currentPage === 'contact.html' ? 'color:#FFC107;' : '') + '">Contact</a>' +
                 '<div style="width:1px;height:20px;background:rgba(255,255,255,0.2);margin:0 0.3rem;"></div>' +
                 '<a href="login.html" style="color:rgba(255,255,255,0.9);padding:0.4rem 1rem;border-radius:20px;border:1px solid rgba(255,255,255,0.25);">Sign In</a>' +
@@ -304,6 +305,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         mobileNav.innerHTML = [
             {href:'index.html', icon:'fas fa-home', label:'Home'},
             {href:'about.html', icon:'fas fa-users', label:'About'},
+            {href:'opportunities.html', icon:'fas fa-briefcase', label:'Opportunities'},
             {href:'contact.html', icon:'fas fa-envelope', label:'Contact'},
             {href:'mall.html', icon:'fas fa-store', label:'Mall'},
         ].map(function(l) {
@@ -341,6 +343,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     <a href="index.html"><i class="fas fa-home"></i> Home</a>
                     <a href="resources.html"><i class="fas fa-book-open"></i> Resources <span id="navBadgeResources" style="display:none;background:#1B5E20;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
                     <a href="classroom.html"><i class="fas fa-chalkboard-teacher"></i> Classroom <span id="navBadgeClassroom" style="display:none;background:#dc2626;color:white;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:800;align-items:center;justify-content:center;margin-left:auto;flex-shrink:0;"></span></a>
+                    <a href="opportunities.html" style="background:rgba(14,165,233,0.08);border-left:3px solid #0ea5e9;color:#0ea5e9;"><i class="fas fa-briefcase" style="color:#0ea5e9;"></i> 🌍 Opportunities Hub</a>
                     <a href="dashboard.html"><i class="fas fa-user-circle"></i> My Dashboard</a>
                     <a href="connect.html" style="background:rgba(14,165,233,0.1);border-left:3px solid #0ea5e9;color:#0ea5e9;"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> 📡 GERAMA Connect <span style="background:#0ea5e9;color:white;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;" id="navBadgeConnect">NEW</span></a>
                     <a href="mall.html" style="background:rgba(255,193,7,0.12);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-store" style="color:#FFC107;"></i> 🛍️ Urban Mall <span style="background:#FFC107;color:#0a2f1f;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;">NEW</span></a>

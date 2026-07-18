@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Opportunities Hub | GERAMA – Internships, NSS, Scholarships & Jobs</title>
+<meta name="description" content="Engineering opportunities curated for GERAMA members at UENR – internships, NSS placements, scholarships, and jobs.">
+<link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B5E20">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
+<script src="js/supabase-config.js"></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script src="js/onesignal-init.js" defer></script>
+<style>
+:root{--primary:#1B5E20;--primary-dark:#0a2f1f;--primary-light:#2E7D32;--gold:#FFC107;--white:#fff;--light:#f8fafc;--text:#1e2a3e;--muted:#6b7280;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);line-height:1.6;overflow-x:hidden;}
+.site-header{position:sticky;top:0;z-index:1000;background:rgba(10,47,31,0.97);backdrop-filter:blur(12px);padding:0 5%;display:flex;align-items:center;justify-content:space-between;height:70px;box-shadow:0 2px 20px rgba(0,0,0,0.2);}
+.header-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.header-logo img{height:42px;border-radius:8px;}
+.header-logo span{color:white;font-weight:700;font-size:1.05rem;}
+.header-nav{display:flex;align-items:center;gap:0.3rem;}
+.header-nav a{color:rgba(255,255,255,0.85);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.95rem;transition:all 0.2s;}
+.header-nav a:hover,.header-nav a.active{color:var(--gold);background:rgba(255,193,7,0.1);}
+.menu-toggle-btn{display:flex;background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;margin-right:0.5rem;}
+.menu-toggle-btn:hover{background:rgba(255,255,255,0.1);}
+@media(max-width:640px){.header-nav{display:none;}}
+/* HERO */
+.opp-hero{background:linear-gradient(135deg,#0a2f1f 0%,#1a4a2e 40%,#0ea5e9 100%);padding:3.5rem 5% 3rem;text-align:center;color:white;position:relative;overflow:hidden;}
+.opp-hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4z'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
+.opp-hero::after{content:'';position:absolute;bottom:-60px;right:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,193,7,0.08) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+.opp-hero-inner{position:relative;z-index:1;max-width:700px;margin:0 auto;}
+/* MAIN CONTENT */
+.opp-main{max-width:1200px;margin:0 auto;padding:2rem 5% 6rem;}
+/* Opportunity cards */
+.opp-card{background:white;border-radius:20px;padding:1.4rem;box-shadow:0 2px 12px rgba(0,0,0,0.06);border:1px solid #e8f0e8;transition:transform 0.2s,box-shadow 0.2s;display:flex;flex-direction:column;gap:0.8rem;position:relative;overflow:hidden;}
+.opp-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,0.12);}
+.opp-badge{display:inline-flex;align-items:center;gap:0.3rem;font-size:0.72rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:20px;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.opp-badge.internship{background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1d4ed8;border:1px solid #93c5fd;}
+.opp-badge.nss{background:linear-gradient(135deg,#d1fae5,#a7f3d0);color:#065f46;border:1px solid #6ee7b7;}
+.opp-badge.scholarship{background:linear-gradient(135deg,#fef3c7,#fde68a);color:#92400e;border:1px solid #fcd34d;}
+.opp-badge.job{background:linear-gradient(135deg,#fce7f3,#fbcfe8);color:#9d174d;border:1px solid #f9a8d4;}
+.opp-badge.other{background:linear-gradient(135deg,#f3f4f6,#e5e7eb);color:#374151;border:1px solid #d1d5db;}
+.opp-img{width:100%;height:160px;object-fit:cover;border-radius:14px;background:#f1f5f9;cursor:pointer;transition:transform 0.2s;}
+.opp-img:hover{transform:scale(1.02);}
+.opp-img-placeholder{width:100%;height:120px;border-radius:14px;background:linear-gradient(135deg,#e8f5e9,#f0fdf4);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#4caf50;}
+.opp-company{font-weight:800;font-size:1rem;color:var(--text);line-height:1.3;}
+.opp-location{font-size:0.82rem;color:var(--muted);display:flex;align-items:center;gap:0.3rem;}
+.opp-description{font-size:0.87rem;color:#374151;line-height:1.6;}
+.opp-meta{display:flex;flex-direction:column;gap:0.3rem;font-size:0.82rem;color:#4b5563;}
+.opp-apply-btn{background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.6rem 1.2rem;border-radius:30px;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.4rem;text-decoration:none;transition:all 0.2s;align-self:flex-start;box-shadow:0 4px 12px rgba(27,94,32,0.3);}
+.opp-apply-btn:hover{background:linear-gradient(135deg,#145214,#1B5E20);transform:translateY(-2px);box-shadow:0 6px 16px rgba(27,94,32,0.4);}
+.opp-stat-pill{background:linear-gradient(135deg,#f0fdf4,#dcfce7);color:#1B5E20;border:1px solid #86efac;font-size:0.75rem;font-weight:700;padding:0.2rem 0.6rem;border-radius:20px;display:inline-flex;align-items:center;gap:0.25rem;box-shadow:0 2px 6px rgba(27,94,32,0.1);}
+.opp-filter-bar{display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center;}
+.opp-filter-btn{background:#f8fafc;border:2px solid #e5e7eb;color:#374151;padding:0.35rem 0.8rem;border-radius:20px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+.opp-filter-btn.active,.opp-filter-btn:hover{background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border-color:#1B5E20;box-shadow:0 4px 12px rgba(27,94,32,0.3);transform:translateY(-1px);}
+.opp-comment-box{background:#f8fafc;border-radius:12px;padding:0.8rem;border:1px solid #e5e7eb;margin-top:0.5rem;}
+.opp-comment-item{display:flex;gap:0.6rem;align-items:flex-start;padding:0.5rem 0;border-bottom:1px solid #f1f5f9;}
+.opp-comment-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#0ea5e9);color:white;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:800;flex-shrink:0;}
+/* Lightbox */
+.lightbox{display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.9);align-items:center;justify-content:center;}
+.lightbox.open{display:flex;}
+.lightbox img{max-width:92vw;max-height:88vh;border-radius:12px;object-fit:contain;}
+.lightbox-close{position:absolute;top:1rem;right:1.2rem;background:rgba(255,255,255,0.15);border:none;color:white;font-size:1.8rem;width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+/* Guest sign-in prompt */
+.guest-prompt{background:linear-gradient(135deg,#f0fdf4,#fffbeb);border:1px solid #c8e6c9;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+@media(max-width:640px){
+  .opp-card{padding:1.1rem;}
+  .opp-img{height:130px;}
+  .opp-filter-bar{gap:0.4rem;}
+  .opp-filter-btn{font-size:0.75rem;padding:0.3rem 0.65rem;}
+  #oppSubmitGrid{grid-template-columns:1fr !important;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <button class="menu-toggle-btn" id="menuToggle2" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+  <a href="index.html" class="header-logo">
+    <img src="images/geramalogo.jpg" alt="GERAMA Logo">
+    <span>GERAMA</span>
+  </a>
+  <nav class="header-nav">
+    <a href="index.html">Home</a>
+    <a href="classroom.html">Classroom</a>
+    <a href="opportunities.html" class="active" style="color:#FFC107;">🌍 Opportunities</a>
+    <a href="dashboard.html">Dashboard</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="opp-hero">
+  <div class="opp-hero-inner">
+    <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(14,165,233,0.2);border:1px solid rgba(14,165,233,0.5);color:#7dd3fc;font-size:0.8rem;font-weight:700;padding:0.35rem 1.1rem;border-radius:50px;margin-bottom:1.2rem;letter-spacing:1px;text-transform:uppercase;">
+      🌍 Opportunities Hub
+    </div>
+    <h1 style="font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;margin-bottom:0.7rem;">Internships, NSS, Scholarships &amp; Jobs</h1>
+    <p style="font-size:1rem;opacity:0.85;max-width:580px;margin:0 auto 1.4rem;line-height:1.65;">Engineering opportunities curated for GERAMA members at UENR. Apply, track your progress, and connect with others who've been through the process.</p>
+    <div style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;">
+      <a href="login.html" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.35);padding:0.55rem 1.3rem;border-radius:30px;font-size:0.88rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;" id="heroSignInBtn"><i class="fas fa-sign-in-alt"></i> Sign In to Apply</a>
+      <a href="signup.html" style="background:#FFC107;color:#0a2f1f;padding:0.55rem 1.4rem;border-radius:30px;font-size:0.88rem;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem;box-shadow:0 4px 16px rgba(255,193,7,0.4);" id="heroJoinBtn"><i class="fas fa-user-plus"></i> Join Free</a>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="opp-main">
+
+  <!-- Signed-in user share prompt (hidden for guests) -->
+  <div id="memberSharePrompt" style="display:none;background:linear-gradient(135deg,#f0fdf4,#fffbeb);border:1px solid #c8e6c9;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;" onclick="var b=document.getElementById('oppSubmitBody');var ch=document.getElementById('oppSubmitChevron');b.style.display=b.style.display==='none'?'block':'none';ch.className='fas fa-chevron-'+(b.style.display==='none'?'down':'up');">
+      <i class="fas fa-plus-circle" style="color:#1B5E20;font-size:1rem;"></i>
+      <div style="flex:1;">
+        <div style="font-weight:800;font-size:0.92rem;color:#1B5E20;">Know an Opportunity? Share it!</div>
+        <div style="font-size:0.78rem;color:#4caf50;">Help a fellow engineer — post an internship, NSS opening, or scholarship</div>
+      </div>
+      <i id="oppSubmitChevron" class="fas fa-chevron-down" style="color:#4caf50;"></i>
+    </div>
+    <div id="oppSubmitBody" style="display:none;margin-top:1.2rem;padding-top:1rem;border-top:1px solid #c8e6c9;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;" id="oppSubmitGrid">
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Company / Organisation *</label>
+          <input type="text" id="oppCompany" placeholder="e.g. Ghana National Petroleum Corp." maxlength="100" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Location *</label>
+          <input type="text" id="oppLocation" placeholder="e.g. Accra, Ghana" maxlength="100" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Type *</label>
+          <select id="oppType" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;background:white;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+            <option value="">Select type...</option>
+            <option value="internship">Internship</option>
+            <option value="nss">NSS (National Service)</option>
+            <option value="scholarship">Scholarship</option>
+            <option value="job">Job / Employment</option>
+            <option value="other">Other Opportunity</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Application Link (optional)</label>
+          <input type="url" id="oppLink" placeholder="https://..." style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Mode of Application</label>
+          <input type="text" id="oppMode" placeholder="e.g. Submit letter in person / Online form" maxlength="150" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Deadline (optional)</label>
+          <input type="date" id="oppDeadline" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'">
+        </div>
+        <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Description / Eligibility</label>
+          <textarea id="oppDesc" rows="3" placeholder="Describe the opportunity, who can apply, requirements, etc." maxlength="800" style="padding:0.6rem 0.8rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.88rem;outline:none;font-family:'Inter',sans-serif;resize:vertical;" onfocus="this.style.borderColor='#1B5E20'" onblur="this.style.borderColor='#e5e7eb'"></textarea>
+        </div>
+        <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:0.3rem;">
+          <label style="font-size:0.78rem;font-weight:700;color:#374151;">Image (optional — company logo or flyer)</label>
+          <div id="oppImgZone" style="border:2px dashed #c8e6c9;border-radius:10px;padding:1rem;text-align:center;cursor:pointer;background:#f9fdf9;transition:all 0.3s;" onclick="document.getElementById('oppImgFile').click()">
+            <i class="fas fa-image" style="color:#4caf50;font-size:1.4rem;display:block;margin-bottom:0.3rem;"></i>
+            <div style="font-size:0.82rem;color:#6b7280;">Click to upload image (JPG/PNG, max 5MB)</div>
+            <div id="oppImgChosen" style="font-size:0.8rem;color:#1B5E20;font-weight:600;margin-top:0.3rem;"></div>
+          </div>
+          <input type="file" id="oppImgFile" accept="image/*" style="display:none;" onchange="previewOppImg(this)">
+          <img id="oppImgPreview" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:8px;margin-top:0.4rem;border:2px solid #c8e6c9;" alt="">
+        </div>
+      </div>
+      <div style="display:flex;gap:0.8rem;margin-top:1rem;flex-wrap:wrap;align-items:center;">
+        <button onclick="submitOpportunity()" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:none;padding:0.7rem 1.5rem;border-radius:30px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'Inter',sans-serif;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-paper-plane"></i> Submit Opportunity</button>
+        <span style="font-size:0.78rem;color:#9ca3af;flex:1;">Admins will review and approve your submission.</span>
+      </div>
+      <div id="oppSubmitStatus" style="font-size:0.85rem;margin-top:0.7rem;display:none;padding:0.6rem 0.9rem;border-radius:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="opp-filter-bar" id="oppFilterBar">
+    <button class="opp-filter-btn active" data-filter="all" onclick="filterOpportunities('all',this)">All</button>
+    <button class="opp-filter-btn" data-filter="internship" onclick="filterOpportunities('internship',this)">💼 Internship</button>
+    <button class="opp-filter-btn" data-filter="nss" onclick="filterOpportunities('nss',this)">🎓 NSS</button>
+    <button class="opp-filter-btn" data-filter="scholarship" onclick="filterOpportunities('scholarship',this)">🎓 Scholarship</button>
+    <button class="opp-filter-btn" data-filter="job" onclick="filterOpportunities('job',this)">💼 Job</button>
+    <button class="opp-filter-btn" data-filter="other" onclick="filterOpportunities('other',this)">📋 Other</button>
+    <button onclick="loadOpportunities()" style="margin-left:auto;background:none;border:none;color:#6b7280;cursor:pointer;font-size:0.8rem;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.3rem;padding:0.35rem 0.6rem;border-radius:20px;border:1px solid #e5e7eb;"><i class="fas fa-sync-alt"></i> Refresh</button>
+  </div>
+
+  <!-- Opportunities Grid -->
+  <div id="oppGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem;">
+    <div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:#9ca3af;">
+      <i class="fas fa-spinner fa-spin" style="font-size:2rem;display:block;margin-bottom:0.8rem;"></i>
+      <div style="font-size:1rem;font-weight:600;margin-bottom:0.3rem;">Loading opportunities...</div>
+    </div>
+  </div>
+</main>
+
+<!-- IMAGE LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">×</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<!-- FOOTER -->
+<footer style="background:linear-gradient(180deg,#0a2f1f,#071a12);color:white;padding:1.5rem 5%;text-align:center;">
+  <p style="font-size:0.82rem;opacity:0.5;margin:0;">© 2026 GERAMA · University of Energy and Natural Resources · Engineering Resources &amp; Academic Management Association</p>
+</footer>
+
+<!-- Bottom Nav (authenticated, mobile) -->
+<nav class="site-bottom-nav" id="siteBottomNav">
+  <a href="index.html" class="site-bnav-item"><i class="fas fa-home"></i><span>Home</span></a>
+  <a href="classroom.html" class="site-bnav-item"><i class="fas fa-chalkboard-teacher"></i><span>Classroom</span></a>
+  <a href="opportunities.html" class="site-bnav-item active"><i class="fas fa-briefcase"></i><span>Opportunities</span></a>
+  <a href="connect.html" class="site-bnav-item"><i class="fas fa-satellite-dish"></i><span>Connect</span></a>
+  <a href="dashboard.html" class="site-bnav-item"><i class="fas fa-user"></i><span>Me</span></a>
+</nav>
+
+<script src="js/main.js"></script>
+<script>
+'use strict';
+
+// ––– XSS Helpers –––
+window.escHtml = window.escHtml || function(s){var d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;};
+window.escAttr = window.escAttr || function(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+window.formatTimeAgo = window.formatTimeAgo || function(iso){if(!iso)return'recently';var d=new Date(iso),now=new Date(),diff=Math.floor((now-d)/1000);if(diff<60)return'just now';if(diff<3600)return Math.floor(diff/60)+'m ago';if(diff<86400)return Math.floor(diff/3600)+'h ago';return Math.floor(diff/86400)+'d ago';};
+
+// ––– Auth state flag (set by main.js via showGuestUI or initializeSidebar) –––
+var _isGuest = false;
+
+// Override showGuestUI to also update page for guests
+var _origShowGuestUI = null;
+(function patchForGuests(){
+  // Poll until main.js defines showGuestUI on window (it's a closure, so we intercept at boot)
+  // Instead, after main.js runs, detect guest mode by absence of sidebar
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      if(!document.getElementById('sidebarDrawer')){
+        _isGuest = true;
+        onGuestMode();
+      } else {
+        onMemberMode();
+      }
+    }, 800);
+  });
+})();
+
+function onGuestMode() {
+  // Hero sign-in/join buttons already visible — update text
+  var heroSignIn = document.getElementById('heroSignInBtn');
+  var heroJoin = document.getElementById('heroJoinBtn');
+  if(heroSignIn) heroSignIn.style.display = 'inline-flex';
+  if(heroJoin) heroJoin.style.display = 'inline-flex';
+  // Hide submission form for guests
+  var sharePrompt = document.getElementById('memberSharePrompt');
+  if(sharePrompt) sharePrompt.style.display = 'none';
+}
+
+function onMemberMode() {
+  _isGuest = false;
+  // Hide the sign-in/join buttons in hero for logged-in users
+  var heroSignIn = document.getElementById('heroSignInBtn');
+  var heroJoin = document.getElementById('heroJoinBtn');
+  if(heroSignIn) heroSignIn.style.display = 'none';
+  if(heroJoin) heroJoin.style.display = 'none';
+  // Show submission form
+  var sharePrompt = document.getElementById('memberSharePrompt');
+  if(sharePrompt) sharePrompt.style.display = 'block';
+}
+
+// ––– Lightbox –––
+function openLightbox(src){
+  if(!src) return;
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+
+// ––– Opportunities Data & Functions –––
+var _allOpportunities = [];
+var _oppFilter = 'all';
+
+async function loadOpportunities() {
+  var grid = document.getElementById('oppGrid');
+  if(!grid) return;
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2.5rem;color:#9ca3af;"><i class="fas fa-spinner fa-spin" style="font-size:2rem;display:block;margin-bottom:0.7rem;"></i>Loading opportunities...</div>';
+
+  var sb = window.geramaSupabase;
+  if(!sb){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-wifi" style="font-size:2rem;display:block;margin-bottom:0.7rem;opacity:0.4;"></i>Connecting...</div>';
+    setTimeout(loadOpportunities, 800);
+    return;
+  }
+
+  try {
+    var {data, error} = await sb.from('opportunities').select('*').eq('status','approved').order('created_at',{ascending:false});
+    if(error) throw new Error(error.message);
+    _allOpportunities = data || [];
+    renderOpportunities();
+
+    // Handle deep-link: ?opp=ID
+    var params = new URLSearchParams(window.location.search);
+    var oppId = params.get('opp');
+    if(oppId){
+      var card = document.getElementById('opp-' + oppId);
+      if(card){
+        setTimeout(function(){
+          card.scrollIntoView({behavior:'smooth', block:'center'});
+          card.style.outline = '3px solid #0ea5e9';
+          setTimeout(function(){ card.style.outline = ''; }, 3000);
+        }, 400);
+      }
+    }
+  } catch(e) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-exclamation-circle" style="font-size:2rem;display:block;margin-bottom:0.7rem;"></i>Could not load opportunities. <button onclick="loadOpportunities()" style="background:none;border:none;color:#1B5E20;cursor:pointer;font-weight:700;font-size:0.9rem;font-family:\'Inter\',sans-serif;text-decoration:underline;">Retry</button></div>';
+  }
+}
+
+function renderOpportunities() {
+  var grid = document.getElementById('oppGrid');
+  if(!grid) return;
+  var list = _oppFilter === 'all' ? _allOpportunities : _allOpportunities.filter(function(o){ return o.type === _oppFilter; });
+
+  if(!list.length) {
+    var msg = _oppFilter === 'all' ? 'No opportunities posted yet. Check back soon!' : 'No ' + _oppFilter + ' opportunities yet.';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:#9ca3af;"><i class="fas fa-briefcase" style="font-size:2.5rem;display:block;margin-bottom:0.8rem;opacity:0.3;"></i><div style="font-weight:600;">' + msg + '</div></div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(function(opp) {
+    var badge = '<span class="opp-badge ' + (opp.type||'other') + '">' + getOppTypeLabel(opp.type) + '</span>';
+    var img = opp.image_url
+      ? '<img src="' + escHtml(opp.image_url) + '" class="opp-img" alt="' + escHtml(opp.company) + '" loading="lazy" onerror="this.style.display=\'none\'" onclick="event.stopPropagation();openLightbox(\'' + escHtml(opp.image_url) + '\')">'
+      : '<div class="opp-img-placeholder">' + getOppEmoji(opp.type) + '</div>';
+    var deadline = opp.deadline ? '<span><i class="fas fa-calendar-alt" style="color:#dc2626;"></i> Deadline: ' + new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + '</span>' : '';
+    var mode = opp.mode_of_application ? '<span><i class="fas fa-file-alt" style="color:#6366f1;"></i> ' + escHtml(opp.mode_of_application) + '</span>' : '';
+    var loc  = opp.location ? '<span class="opp-location"><i class="fas fa-map-marker-alt" style="color:#dc2626;"></i> ' + escHtml(opp.location) + '</span>' : '';
+    var viewCount = opp.view_count || 0;
+    var applyCount = opp.apply_count || 0;
+    // Share link for this specific opportunity
+    var shareUrl = window.location.origin + window.location.pathname + '?opp=' + opp.id;
+    var applyBtn = opp.apply_link
+      ? '<a href="' + escHtml(opp.apply_link) + '" target="_blank" rel="noopener" class="opp-apply-btn" onclick="trackOppApply(\'' + opp.id + '\')"><i class="fas fa-external-link-alt"></i> Apply Now</a>'
+      : '<span style="font-size:0.82rem;color:#6b7280;font-style:italic;"><a href="contact.html" style="color:#1B5E20;font-weight:600;">Contact admins</a> to apply</span>';
+
+    return '<div class="opp-card" id="opp-' + opp.id + '" onclick="trackOppView(\'' + opp.id + '\')">' +
+      badge +
+      img +
+      '<div class="opp-company">' + escHtml(opp.company) + '</div>' +
+      loc +
+      (opp.description ? '<div class="opp-description">' + escHtml(opp.description).substring(0,200) + (opp.description.length > 200 ? '<button onclick="event.stopPropagation();toggleOppDesc(\'' + opp.id + '\')" style="background:none;border:none;color:#0ea5e9;cursor:pointer;font-weight:600;font-size:0.8rem;padding:0;margin:0 0 0 0.3rem;">See more</button>' : '') + '</div>' : '') +
+      '<div class="opp-meta">' + deadline + mode + '</div>' +
+      '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-top:auto;">' +
+        '<span class="opp-stat-pill"><i class="fas fa-eye"></i> ' + viewCount + ' views</span>' +
+        '<span class="opp-stat-pill"><i class="fas fa-user-check"></i> ' + applyCount + ' applied</span>' +
+        '<button onclick="event.stopPropagation();shareOpp(\'' + opp.id + '\',\'' + escAttr(opp.company) + '\')" style="background:none;border:1px solid #e5e7eb;color:#6b7280;padding:0.25rem 0.6rem;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;display:inline-flex;align-items:center;gap:0.25rem;"><i class="fas fa-share-alt"></i> Share</button>' +
+      '</div>' +
+      applyBtn +
+      '<button onclick="event.stopPropagation();toggleOppComments(\'' + opp.id + '\')" style="background:none;border:1px solid #e5e7eb;color:#6b7280;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:\'Inter\',sans-serif;align-self:flex-start;"><i class="fas fa-comment"></i> Comments <span id="opp-cmt-count-' + opp.id + '"></span></button>' +
+      '<div id="opp-comments-' + opp.id + '" style="display:none;"></div>' +
+    '</div>';
+  }).join('');
+}
+
+function shareOpp(oppId, company) {
+  var url = window.location.origin + window.location.pathname + '?opp=' + oppId;
+  var text = '🌍 Check out this opportunity on GERAMA: ' + company + '\n' + url;
+  if(navigator.share){
+    navigator.share({title: company + ' – GERAMA Opportunities', text: text, url: url}).catch(function(){});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(function(){
+      window.showToast && window.showToast('🔗 Link copied! Share it with classmates.', 2500);
+    });
+  }
+}
+
+function getOppTypeLabel(type){
+  var m={internship:'💼 Internship',nss:'🎓 NSS',scholarship:'🎓 Scholarship',job:'💼 Job',other:'📋 Other'};
+  return m[type]||'📋 Other';
+}
+function getOppEmoji(type){
+  var m={internship:'💼',nss:'🎓',scholarship:'🎓',job:'💼',other:'📋'};
+  return m[type]||'📋';
+}
+
+function toggleOppDesc(oppId){
+  var card=document.getElementById('opp-'+oppId);if(!card)return;
+  var descEl=card.querySelector('.opp-description');if(!descEl)return;
+  var opp=_allOpportunities.find(function(o){return o.id===oppId;});if(!opp)return;
+  if(descEl.textContent.includes('See more')){
+    descEl.innerHTML=escHtml(opp.description)+'<button onclick="event.stopPropagation();toggleOppDesc(\''+oppId+'\')" style="background:none;border:none;color:#0ea5e9;cursor:pointer;font-weight:600;font-size:0.8rem;padding:0;margin:0 0 0 0.3rem;">Show less</button>';
+  }else{
+    descEl.innerHTML=escHtml(opp.description).substring(0,200)+'<button onclick="event.stopPropagation();toggleOppDesc(\''+oppId+'\')" style="background:none;border:none;color:#0ea5e9;cursor:pointer;font-weight:600;font-size:0.8rem;padding:0;margin:0 0 0 0.3rem;">See more</button>';
+  }
+}
+
+function filterOpportunities(type, btn){
+  _oppFilter=type;
+  document.querySelectorAll('.opp-filter-btn').forEach(function(b){b.classList.remove('active');});
+  if(btn)btn.classList.add('active');
+  renderOpportunities();
+  localStorage.setItem('gerama_opp_seen', new Date().toISOString());
+}
+
+async function trackOppView(oppId){
+  var sb=window.geramaSupabase;if(!sb)return;
+  var key='gerama_opp_viewed_'+oppId;
+  if(localStorage.getItem(key))return;
+  localStorage.setItem(key,'1');
+  try{
+    await sb.rpc('increment_opp_views',{opp_id:oppId});
+    var card=document.getElementById('opp-'+oppId);
+    if(card){
+      var pills=card.querySelectorAll('.opp-stat-pill');
+      if(pills[0]){var cur=parseInt(pills[0].textContent.replace(/\D/g,''))||0;pills[0].innerHTML='<i class="fas fa-eye"></i> '+(cur+1)+' views';}
+    }
+  }catch(e){}
+}
+
+async function trackOppApply(oppId){
+  var sb=window.geramaSupabase;if(!sb)return;
+  var key='gerama_opp_applied_'+oppId;
+  if(localStorage.getItem(key))return;
+  localStorage.setItem(key,'1');
+  try{
+    var profile=JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+    await sb.from('opportunity_applications').upsert({
+      opportunity_id:oppId,user_email:profile.email||'',user_name:profile.name||'Anonymous',
+      status:'applied',applied_at:new Date().toISOString()
+    },{onConflict:'opportunity_id,user_email',ignoreDuplicates:true});
+  }catch(e){}
+}
+
+async function toggleOppComments(oppId){
+  var box=document.getElementById('opp-comments-'+oppId);if(!box)return;
+  if(box.style.display!=='none'){box.style.display='none';return;}
+  box.style.display='block';
+  loadOppComments(oppId);
+}
+
+async function loadOppComments(oppId){
+  var box=document.getElementById('opp-comments-'+oppId);if(!box)return;
+  var sb=window.geramaSupabase;if(!sb)return;
+  box.innerHTML='<div style="text-align:center;padding:1rem;color:#9ca3af;font-size:0.82rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+  try{
+    var {data}=await sb.from('opportunity_comments').select('*').eq('opportunity_id',oppId).order('created_at',{ascending:true}).limit(50);
+    var list=data||[];
+    var countEl=document.getElementById('opp-cmt-count-'+oppId);
+    if(countEl)countEl.textContent=list.length?' ('+list.length+')':'';
+    var profile=JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+    var alreadyApplied=!!localStorage.getItem('gerama_opp_applied_'+oppId);
+    var html='<div class="opp-comment-box">';
+    if(list.length){
+      html+=list.map(function(c){
+        var st=c.action_type?'<span style="background:'+(c.action_type==='applied'?'#d1fae5':c.action_type==='interested'?'#dbeafe':'#f3f4f6')+';color:'+(c.action_type==='applied'?'#065f46':c.action_type==='interested'?'#1e40af':'#374151')+';font-size:0.68rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:20px;margin-left:0.4rem;">'+(c.action_type==='applied'?'✓ Applied':c.action_type==='interested'?'👀 Interested':'💬 Comment')+'</span>':'';
+        return '<div class="opp-comment-item"><div class="opp-comment-avatar">'+escHtml((c.author_name||'A').charAt(0).toUpperCase())+'</div><div style="flex:1;min-width:0;"><div style="display:flex;align-items:center;flex-wrap:wrap;gap:0.3rem;"><strong style="font-size:0.82rem;color:#1e2a3e;">'+escHtml(c.author_name||'Anonymous')+'</strong>'+st+'<span style="font-size:0.72rem;color:#9ca3af;">'+formatTimeAgo(c.created_at)+'</span></div><div style="font-size:0.85rem;color:#374151;margin-top:0.2rem;line-height:1.5;">'+escHtml(c.comment||'')+'</div></div></div>';
+      }).join('');
+    }else{html+='<div style="text-align:center;padding:1rem;color:#9ca3af;font-size:0.82rem;">No comments yet. Share your experience!</div>';}
+    if(!_isGuest){
+      html+='<div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.8rem;">';
+      if(!alreadyApplied)html+='<button onclick="postOppAction(\''+oppId+'\',\'applied\')" style="background:#d1fae5;color:#065f46;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;">✓ I\'ve Applied</button>';
+      html+='<button onclick="postOppAction(\''+oppId+'\',\'interested\')" style="background:#dbeafe;color:#1e40af;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif;">👀 Interested</button>';
+      html+='</div>';
+      html+='<div style="margin-top:0.8rem;display:flex;gap:0.5rem;align-items:flex-start;"><textarea id="opp-cmt-input-'+oppId+'" placeholder="Leave a comment or tip..." rows="2" style="flex:1;padding:0.55rem 0.7rem;border:2px solid #e5e7eb;border-radius:10px;font-size:0.85rem;font-family:\'Inter\',sans-serif;outline:none;resize:none;" onfocus="this.style.borderColor=\'#1B5E20\'" onblur="this.style.borderColor=\'#e5e7eb\'" onkeydown="if(event.key===\'Enter\'&&!event.shiftKey){event.preventDefault();postOppComment(\''+oppId+'\')}"></textarea><button onclick="postOppComment(\''+oppId+'\')" style="background:#1B5E20;color:white;border:none;padding:0.55rem 0.9rem;border-radius:10px;font-size:0.85rem;cursor:pointer;font-family:\'Inter\',sans-serif;flex-shrink:0;"><i class="fas fa-paper-plane"></i></button></div>';
+    }else{
+      html+='<div style="margin-top:0.8rem;text-align:center;font-size:0.82rem;color:#6b7280;"><a href="login.html" style="color:#1B5E20;font-weight:700;">Sign in</a> to comment or track applications.</div>';
+    }
+    html+='</div>';
+    box.innerHTML=html;
+  }catch(e){box.innerHTML='<div style="text-align:center;padding:1rem;color:#9ca3af;font-size:0.82rem;">Could not load comments.</div>';}
+}
+
+async function postOppComment(oppId){
+  var inp=document.getElementById('opp-cmt-input-'+oppId);
+  var text=inp?inp.value.trim():'';if(!text)return;
+  var profile=JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var sb=window.geramaSupabase;if(!sb)return;
+  inp.value='';
+  try{
+    await sb.from('opportunity_comments').insert({opportunity_id:oppId,author_name:profile.name||'Anonymous',author_email:profile.email||'',comment:text,action_type:'comment',created_at:new Date().toISOString()});
+    loadOppComments(oppId);
+  }catch(e){alert('Failed to post comment.');}
+}
+
+async function postOppAction(oppId,actionType){
+  var profile=JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var sb=window.geramaSupabase;if(!sb)return;
+  var msg=actionType==='applied'?'I have applied for this opportunity!':'I am interested in this opportunity.';
+  try{
+    await sb.from('opportunity_comments').insert({opportunity_id:oppId,author_name:profile.name||'Anonymous',author_email:profile.email||'',comment:msg,action_type:actionType,created_at:new Date().toISOString()});
+    if(actionType==='applied'){localStorage.setItem('gerama_opp_applied_'+oppId,'1');trackOppApply(oppId);}
+    loadOppComments(oppId);
+  }catch(e){}
+}
+
+window.submitOpportunity = async function(){
+  var company=(document.getElementById('oppCompany').value||'').trim();
+  var location=(document.getElementById('oppLocation').value||'').trim();
+  var type=document.getElementById('oppType').value;
+  var link=(document.getElementById('oppLink').value||'').trim();
+  var mode=(document.getElementById('oppMode').value||'').trim();
+  var deadline=document.getElementById('oppDeadline').value||null;
+  var desc=(document.getElementById('oppDesc').value||'').trim();
+  var imgFile=document.getElementById('oppImgFile').files[0]||null;
+  if(!company||!location||!type){showOppSubmitStatus('Please fill in Company, Location and Type.','err');return;}
+  var profile=JSON.parse(localStorage.getItem('gerama_profile')||'{}');
+  var sb=window.geramaSupabase;
+  if(!sb){showOppSubmitStatus('Not connected. Please refresh.','err');return;}
+  showOppSubmitStatus('Submitting...','info');
+  var imageUrl=null;
+  if(imgFile){
+    var ext=imgFile.name.split('.').pop();
+    var path='opportunities/'+Date.now()+'-'+company.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.'+ext;
+    var up=await sb.storage.from('gerama-materials').upload(path,imgFile,{upsert:true});
+    if(!up.error)imageUrl=sb.storage.from('gerama-materials').getPublicUrl(path).data.publicUrl;
+  }
+  try{
+    await sb.from('opportunities').insert({company,location,type,apply_link:link||null,mode_of_application:mode||null,deadline:deadline||null,description:desc||null,image_url:imageUrl,submitted_by:profile.name||'Anonymous',submitted_by_email:profile.email||'',status:'pending',view_count:0,apply_count:0,created_at:new Date().toISOString()});
+    showOppSubmitStatus('✓ Submitted! Admins will review shortly.','ok');
+    ['oppCompany','oppLocation','oppLink','oppMode','oppDesc'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+    document.getElementById('oppType').value='';
+    document.getElementById('oppDeadline').value='';
+    document.getElementById('oppImgFile').value='';
+    document.getElementById('oppImgChosen').textContent='';
+    document.getElementById('oppImgPreview').style.display='none';
+    setTimeout(function(){document.getElementById('oppSubmitBody').style.display='none';},3000);
+  }catch(e){showOppSubmitStatus('Error: '+e.message,'err');}
+};
+
+function showOppSubmitStatus(msg,type){
+  var el=document.getElementById('oppSubmitStatus');if(!el)return;
+  el.textContent=msg;el.style.display='block';
+  el.style.background=type==='ok'?'#d1fae5':type==='err'?'#fee2e2':'#dbeafe';
+  el.style.color=type==='ok'?'#065f46':type==='err'?'#991b1b':'#1e40af';
+}
+
+window.previewOppImg=function(input){
+  var f=input.files[0];if(!f)return;
+  if(f.size>5*1024*1024){alert('Image too large. Max 5MB.');return;}
+  document.getElementById('oppImgChosen').textContent='✓ '+f.name;
+  var reader=new FileReader();
+  reader.onload=function(e){var prev=document.getElementById('oppImgPreview');prev.src=e.target.result;prev.style.display='block';};
+  reader.readAsDataURL(f);
+  var zone=document.getElementById('oppImgZone');
+  if(zone){zone.style.borderColor='#1B5E20';zone.style.background='#f0fdf4';}
+};
+
+// Responsive submission grid
+(function(){
+  function fixGrid(){var g=document.getElementById('oppSubmitGrid');if(!g)return;g.style.gridTemplateColumns=window.innerWidth<=640?'1fr':'1fr 1fr';}
+  window.addEventListener('resize',fixGrid);
+  document.addEventListener('DOMContentLoaded',fixGrid);
+})();
+
+// Kick off load
+loadOpportunities();
+</script>
+</body>
+</html>
