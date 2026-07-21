@@ -1088,12 +1088,31 @@
     // Highlight active label
     ['matSrcFileLabel','matSrcTgLabel','matSrcGdLabel'].forEach(function(id){
       var el=document.getElementById(id);
-      if(el) el.style.borderColor='#e5e7eb';
+      if(!el) return;
+      if(id==='matSrcFileLabel') el.style.borderColor = val==='file' ? '#dc2626' : '#fca5a5';
+      else if(id==='matSrcGdLabel') el.style.borderColor = val==='gdrive' ? '#059669' : '#86efac';
+      else if(id==='matSrcTgLabel') el.style.borderColor = val==='telegram' ? '#0088cc' : '#bae6fd';
     });
-    var activeMap = {file:'matSrcFileLabel',telegram:'matSrcTgLabel',gdrive:'matSrcGdLabel'};
-    var activeEl = document.getElementById(activeMap[val]);
-    if(activeEl) activeEl.style.borderColor='#1B5E20';
+    // Live Drive link validation hint
+    if(val==='gdrive'){
+      var gdInput = document.getElementById('matGdriveUrl');
+      if(gdInput) gdInput.addEventListener('input', function(){
+        var v = this.value.trim();
+        var hint = document.getElementById('matGdriveHint');
+        if(!hint) return;
+        if(!v){ hint.style.display='none'; return; }
+        var isDrive = v.indexOf('drive.google') !== -1 || v.indexOf('docs.google') !== -1;
+        var isYT    = v.indexOf('youtube.com') !== -1 || v.indexOf('youtu.be') !== -1;
+        hint.style.display = 'block';
+        if(isDrive){ hint.textContent = '✓ Google Drive link detected — students will get direct Download + View buttons'; hint.style.color = '#059669'; }
+        else if(isYT){ hint.textContent = '✓ YouTube link — will show as Watch button'; hint.style.color = '#059669'; }
+        else { hint.textContent = '↗ External link — will open in new tab'; hint.style.color = '#6b7280'; }
+      });
+    }
   };
+  // Run once on load so correct field is visible (gdrive is default)
+  if(document.getElementById('matSrcGdrive')) document.getElementById('matSrcGdrive').checked = true;
+  window.toggleMatSource();
 
   window.uploadMaterial = async function(){
     var level  = document.getElementById('matLevel').value;
@@ -1971,7 +1990,7 @@ window.toggleClsPlatform = function(){
     if(virtualInfo) virtualInfo.style.display = 'none';
     if(googleMeetField) googleMeetField.style.display = 'block';
     if(hintBox){
-      hintBox.innerHTML = '<strong><i class="fab fa-google"></i> Google Meet – reliable video conferencing.</strong> Paste your custom Google Meet link.';
+      hintBox.innerHTML = '<strong><i class="fab fa-google"></i> Google Meet – reliable video conferencing.</strong> Create a meeting at <a href="https://meet.google.com" target="_blank" style="color:#1967d2;">meet.google.com</a>, then paste the link above.';
       hintBox.style.background = '#e8f0fe';
       hintBox.style.borderColor = '#4285F4';
       hintBox.style.color = '#1967d2';
@@ -2020,9 +2039,13 @@ window.scheduleClass = async function(){
       if(platformInput) platform = platformInput.value;
       
       if(platform === 'google'){
-        // Auto-generate Google Meet link
-        var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
-        meetLink = 'https://meet.google.com/lookup/'+slug+'-'+Date.now();
+        // Use the admin-pasted Google Meet link
+        var gmInput = document.getElementById('clsGoogleMeetInput');
+        var gmLink = gmInput ? gmInput.value.trim() : '';
+        if(!gmLink){ window.showStatus('clsStatus','Please paste your Google Meet link.','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish'; return; }
+        // Basic validation: must be a meet.google.com link
+        if(gmLink.indexOf('meet.google.com/') === -1){ window.showStatus('clsStatus','Invalid Google Meet link. It should start with https://meet.google.com/','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish'; return; }
+        meetLink = gmLink;
       } else {
         var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
         meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
@@ -2050,7 +2073,7 @@ window.scheduleClass = async function(){
     }
     window.logActivity('Scheduled '+(clsType==='inperson'?'in-person':(platform==='google'?'Google Meet':'Jitsi'))+' class: '+course+' – '+topic);
     window.showStatus('clsStatus','✅ Class scheduled! '+(clsType==='inperson'?'Venue: '+venue:'Share the link with students.'),'ok');
-    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime','clsVenue','clsMapLink','clsGroup'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    ['clsCourse','clsTopic','clsTutor','clsDesc','clsDateTime','clsVenue','clsMapLink','clsGroup','clsGoogleMeetInput'].forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
     window.loadClsList();
   }catch(e){ window.showStatus('clsStatus','❌ '+e.message,'err'); }
   btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish';

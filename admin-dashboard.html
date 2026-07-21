@@ -450,21 +450,32 @@ tr:hover td{background:#fafcfa;}
         <!-- Source type toggle -->
         <div class="form-field full">
           <label>Source Type *</label>
+          <!-- Storage strategy notice -->
+          <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px solid #fcd34d;border-radius:12px;padding:0.75rem 1rem;margin-bottom:0.75rem;font-size:0.8rem;color:#92400e;display:flex;align-items:flex-start;gap:0.6rem;">
+            <i class="fas fa-bolt" style="color:#f59e0b;flex-shrink:0;margin-top:0.1rem;"></i>
+            <div>
+              <strong>Save storage: use Drive or Telegram links.</strong> Uploading files directly to Supabase uses your storage quota and increases egress costs.
+              Upload your file to <a href="https://drive.google.com" target="_blank" style="color:#92400e;font-weight:700;">Google Drive</a> or share via Telegram, then paste the link below — zero storage used, works perfectly.
+            </div>
+          </div>
           <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-top:0.3rem;">
-            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500;padding:0.5rem 1rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;" id="matSrcFileLabel">
-              <input type="radio" name="matSourceType" value="file" id="matSrcFile" checked onchange="toggleMatSource()"> <i class="fas fa-upload" style="color:#1B5E20;"></i> Upload File
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500;padding:0.5rem 1rem;border-radius:10px;border:2px solid #fca5a5;background:#fff5f5;transition:all 0.2s;position:relative;" id="matSrcFileLabel" title="Uses Supabase storage — only use as last resort">
+              <input type="radio" name="matSourceType" value="file" id="matSrcFile" onchange="toggleMatSource()"> <i class="fas fa-upload" style="color:#dc2626;"></i> Upload File <span style="background:#fee2e2;color:#dc2626;font-size:0.62rem;font-weight:700;padding:0.08rem 0.35rem;border-radius:6px;margin-left:0.2rem;">⚠ Uses Storage</span>
             </label>
-            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500;padding:0.5rem 1rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;" id="matSrcTgLabel">
-              <input type="radio" name="matSourceType" value="telegram" id="matSrcTelegram" onchange="toggleMatSource()"> <i class="fab fa-telegram" style="color:#0088cc;"></i> Telegram Link
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500;padding:0.5rem 1rem;border-radius:10px;border:2px solid #86efac;background:#f0fdf4;transition:all 0.2s;" id="matSrcGdLabel">
+              <input type="radio" name="matSourceType" value="gdrive" id="matSrcGdrive" checked onchange="toggleMatSource()"> <i class="fab fa-google-drive" style="color:#4285F4;"></i> Google Drive / External Link <span style="background:#d1fae5;color:#065f46;font-size:0.62rem;font-weight:700;padding:0.08rem 0.35rem;border-radius:6px;margin-left:0.2rem;">✓ Recommended</span>
             </label>
-            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500;padding:0.5rem 1rem;border-radius:10px;border:2px solid #e5e7eb;transition:all 0.2s;" id="matSrcGdLabel">
-              <input type="radio" name="matSourceType" value="gdrive" id="matSrcGdrive" onchange="toggleMatSource()"> <i class="fas fa-link" style="color:#4285F4;"></i> Website / YouTube Link
+            <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:500;padding:0.5rem 1rem;border-radius:10px;border:2px solid #bae6fd;background:#f0f9ff;transition:all 0.2s;" id="matSrcTgLabel">
+              <input type="radio" name="matSourceType" value="telegram" id="matSrcTelegram" onchange="toggleMatSource()"> <i class="fab fa-telegram" style="color:#0088cc;"></i> Telegram Link <span style="background:#e0f2fe;color:#0369a1;font-size:0.62rem;font-weight:700;padding:0.08rem 0.35rem;border-radius:6px;margin-left:0.2rem;">✓ Recommended</span>
             </label>
           </div>
         </div>
 
-        <!-- File upload -->
-        <div class="form-field full" id="matFileField">
+        <!-- File upload (last resort) -->
+        <div class="form-field full" id="matFileField" style="display:none;">
+          <div style="background:#fee2e2;border:1.5px solid #fca5a5;border-radius:10px;padding:0.6rem 0.9rem;margin-bottom:0.6rem;font-size:0.78rem;color:#991b1b;">
+            <i class="fas fa-triangle-exclamation"></i> <strong>Direct upload uses Supabase storage.</strong> Upload to <a href="https://drive.google.com" target="_blank" style="color:#991b1b;font-weight:700;">Google Drive</a> and use the Drive Link option instead to save quota.
+          </div>
           <label>File * (PDF, PPT, PPTX, MP4 – max 50 MB)</label>
           <div class="drop-zone" id="matDropZone"><i class="fas fa-cloud-upload-alt"></i><p>Drag &amp; drop your file here, or <strong>click to browse</strong></p><p class="file-chosen" id="matFileChosen"></p><input type="file" id="matFile" accept=".pdf,.ppt,.pptx,.mp4" style="display:none;"></div>
         </div>
@@ -473,14 +484,18 @@ tr:hover td{background:#fafcfa;}
         <div class="form-field full" id="matTelegramField" style="display:none;">
           <label>Telegram Message Link *</label>
           <input type="url" id="matTelegramUrl" placeholder="https://t.me/channel/123 or https://t.me/c/...">
-          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;"><i class="fab fa-telegram" style="color:#0088cc;"></i> Right-click any message in your Telegram channel – Copy Message Link – paste here. Students will tap to open in Telegram.</small>
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;"><i class="fab fa-telegram" style="color:#0088cc;"></i> Right-click any message in your Telegram channel – Copy Message Link – paste here. Students tap to open directly in Telegram.</small>
         </div>
 
-        <!-- Website / video / external link -->
-        <div class="form-field full" id="matGdriveField" style="display:none;">
-          <label>Website / YouTube / External Link *</label>
-          <input type="url" id="matGdriveUrl" placeholder="https://youtube.com/watch?v=... or https://www.w3schools.com/...">
-          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;"><i class="fas fa-link" style="color:#4285F4;"></i> Paste YouTube, W3Schools, Google Drive, Dropbox, or any safe tutorial/resource URL. For videos, select Material Type = Video Tutorial.</small>
+        <!-- Google Drive / Website / YouTube link (default) -->
+        <div class="form-field full" id="matGdriveField">
+          <label>Google Drive / YouTube / External Link *</label>
+          <input type="url" id="matGdriveUrl" placeholder="https://drive.google.com/file/d/... or https://youtube.com/watch?v=...">
+          <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;line-height:1.55;">
+            <strong>Google Drive:</strong> Upload your file to Drive → Share → "Anyone with the link" → Copy link → paste here. Students get Download + View buttons with no Drive UI redirect.<br>
+            <strong>YouTube / W3Schools / Dropbox / any URL</strong> also works.
+          </small>
+          <div id="matGdriveHint" style="display:none;margin-top:0.4rem;font-size:0.78rem;font-weight:600;"></div>
         </div>
       </div>
       <div style="margin-top:1rem;"><button class="btn-primary" id="uploadMatBtn" type="button"><i class="fas fa-upload"></i> Upload &amp; Go Live</button></div>
@@ -1891,9 +1906,16 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           <i class="fas fa-info-circle"></i> A Jitsi Meet link will be generated automatically when you schedule.
         </div>
 
-        <!-- Google Meet auto-generated link info -->
-        <div class="form-field full" id="clsGoogleMeetField" style="display:none;background:#dbeafe;border-radius:10px;padding:0.8rem 1rem;font-size:0.85rem;color:#1e40af;">
-          <i class="fas fa-info-circle"></i> A Google Meet link will be generated automatically when you schedule.
+        <!-- Google Meet: paste link input -->
+        <div class="form-field full" id="clsGoogleMeetField" style="display:none;">
+          <label style="font-size:0.85rem;font-weight:700;color:#1967d2;display:flex;align-items:center;gap:0.4rem;margin-bottom:0.4rem;">
+            <i class="fab fa-google"></i> Google Meet Link
+          </label>
+          <input type="url" id="clsGoogleMeetInput" placeholder="https://meet.google.com/xxx-xxxx-xxx"
+            style="width:100%;padding:0.65rem 0.9rem;border:2px solid #4285F4;border-radius:10px;font-size:0.9rem;outline:none;font-family:'Inter',sans-serif;background:#f0f4ff;">
+          <small style="color:#6b7280;font-size:0.78rem;margin-top:0.3rem;display:block;">
+            Create your meeting at <a href="https://meet.google.com" target="_blank" style="color:#1967d2;">meet.google.com</a>, then paste the link here.
+          </small>
         </div>
 
         <!-- In-person: venue fields -->
