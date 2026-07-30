@@ -71,12 +71,108 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .lightbox-close{position:absolute;top:1rem;right:1.2rem;background:rgba(255,255,255,0.15);border:none;color:white;font-size:1.8rem;width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 /* Guest sign-in prompt */
 .guest-prompt{background:linear-gradient(135deg,#f0fdf4,#fffbeb);border:1px solid #c8e6c9;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+/* –– INTERVIEW PREP TAB –– */
+.opp-prep-tab{
+  background:linear-gradient(135deg,#0ea5e9,#0284c7) !important;
+  color:white !important;
+  border-color:#0ea5e9 !important;
+  box-shadow:0 4px 14px rgba(14,165,233,0.35) !important;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:0.3rem;
+  animation:prepPulse 2.6s ease-in-out infinite;
+}
+.opp-prep-tab:hover{
+  background:linear-gradient(135deg,#0284c7,#0369a1) !important;
+  transform:translateY(-2px) !important;
+  box-shadow:0 6px 20px rgba(14,165,233,0.45) !important;
+}
+@keyframes prepPulse{
+  0%,100%{box-shadow:0 4px 14px rgba(14,165,233,0.35);}
+  50%{box-shadow:0 4px 22px rgba(14,165,233,0.6);}
+}
+
+/* –– INTERVIEW PREP BANNER –– */
+.opp-prep-banner{
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  background:linear-gradient(135deg,#0c4a6e,#0ea5e9 80%,#38bdf8);
+  border-radius:18px;
+  padding:1.1rem 1.3rem;
+  margin-bottom:1.5rem;
+  color:white;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 6px 24px rgba(14,165,233,0.3);
+  flex-wrap:wrap;
+}
+.opp-prep-banner::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:180px;height:180px;
+  background:radial-gradient(circle,rgba(255,255,255,0.1) 0%,transparent 70%);
+  border-radius:50%;pointer-events:none;
+}
+.opp-prep-banner-icon{font-size:2rem;flex-shrink:0;line-height:1;}
+.opp-prep-banner-body{flex:1;min-width:180px;}
+.opp-prep-banner-title{font-weight:800;font-size:0.97rem;margin-bottom:0.2rem;}
+.opp-prep-banner-sub{font-size:0.8rem;opacity:0.88;line-height:1.5;}
+.opp-prep-banner-btn{
+  background:white;
+  color:#0284c7;
+  font-weight:800;
+  font-size:0.85rem;
+  padding:0.55rem 1.2rem;
+  border-radius:30px;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:0.4rem;
+  white-space:nowrap;
+  flex-shrink:0;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  transition:all 0.2s;
+}
+.opp-prep-banner-btn:hover{background:#f0f9ff;transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.2);}
+.opp-prep-banner-close{
+  position:absolute;top:0.5rem;right:0.6rem;
+  background:rgba(255,255,255,0.2);border:none;color:white;
+  font-size:1.1rem;width:26px;height:26px;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background 0.2s;line-height:1;
+}
+.opp-prep-banner-close:hover{background:rgba(255,255,255,0.35);}
+
 @media(max-width:640px){
   .opp-card{padding:1.1rem;}
   .opp-img{height:130px;}
   .opp-filter-bar{gap:0.4rem;}
   .opp-filter-btn{font-size:0.75rem;padding:0.3rem 0.65rem;}
   #oppSubmitGrid{grid-template-columns:1fr !important;}
+  /* 2-column grid on mobile */
+  #oppGrid{grid-template-columns:repeat(2,1fr) !important;gap:0.75rem !important;}
+  .opp-prep-banner{flex-direction:column;text-align:center;gap:0.75rem;padding:1rem;}
+  .opp-prep-banner-body{min-width:unset;}
+  .opp-prep-banner-icon{font-size:1.6rem;}
+  .opp-prep-banner-title{font-size:0.92rem;}
+  .opp-prep-banner-sub{font-size:0.76rem;}
+}
+@media(max-width:380px){
+  /* Slim down to 1 column only on very small phones */
+  #oppGrid{grid-template-columns:1fr !important;}
+}
+/* Tablet: 2 columns */
+@media(min-width:641px) and (max-width:900px){
+  #oppGrid{grid-template-columns:repeat(2,1fr) !important;}
+}
+/* Mobile card adjustments for 2-col layout */
+@media(max-width:640px){
+  .opp-card .opp-company{font-size:0.88rem;}
+  .opp-card .opp-description{font-size:0.8rem;}
+  .opp-card .opp-apply-btn{font-size:0.78rem;padding:0.5rem 0.9rem;}
+  .opp-img{height:110px;}
+  .opp-img-placeholder{height:90px;font-size:1.8rem;}
 }
 </style>
 </head>
@@ -189,11 +285,25 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <button class="opp-filter-btn" data-filter="scholarship" onclick="filterOpportunities('scholarship',this)">🎓 Scholarship</button>
     <button class="opp-filter-btn" data-filter="job" onclick="filterOpportunities('job',this)">💼 Job</button>
     <button class="opp-filter-btn" data-filter="other" onclick="filterOpportunities('other',this)">📋 Other</button>
+    <a href="https://smart-prep-omega.vercel.app/" target="_blank" rel="noopener" class="opp-filter-btn opp-prep-tab" title="Interview &amp; Aptitude Test Prep for Final Year Students">🚀 Interview Prep</a>
     <button onclick="loadOpportunities()" style="margin-left:auto;background:none;border:none;color:#6b7280;cursor:pointer;font-size:0.8rem;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:0.3rem;padding:0.35rem 0.6rem;border-radius:20px;border:1px solid #e5e7eb;"><i class="fas fa-sync-alt"></i> Refresh</button>
   </div>
 
+  <!-- Interview Prep Banner (shown to all users) -->
+  <div class="opp-prep-banner" id="oppPrepBanner">
+    <div class="opp-prep-banner-icon">🚀</div>
+    <div class="opp-prep-banner-body">
+      <div class="opp-prep-banner-title">Preparing for National Service &amp; Interviews?</div>
+      <div class="opp-prep-banner-sub">Ace your NSS interview, aptitude tests &amp; recruitment assessments with SmartPrep — built for final-year students like you.</div>
+    </div>
+    <a href="https://smart-prep-omega.vercel.app/" target="_blank" rel="noopener" class="opp-prep-banner-btn">
+      <i class="fas fa-rocket"></i> Start Preparing
+    </a>
+    <button class="opp-prep-banner-close" onclick="document.getElementById('oppPrepBanner').style.display='none'" title="Dismiss" aria-label="Dismiss banner">×</button>
+  </div>
+
   <!-- Opportunities Grid -->
-  <div id="oppGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.2rem;">
+  <div id="oppGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;">
     <div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;color:#9ca3af;">
       <i class="fas fa-spinner fa-spin" style="font-size:2rem;display:block;margin-bottom:0.8rem;"></i>
       <div style="font-size:1rem;font-weight:600;margin-bottom:0.3rem;">Loading opportunities...</div>
