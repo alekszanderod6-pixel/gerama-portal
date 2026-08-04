@@ -1060,8 +1060,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
 
   <script>
   // –– MALL ADMIN ––––––––––––––––––––––––––––––––––––––––––
-  var MALL_URL = window.__SUPABASE_URL || 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-  var MALL_KEY = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  var MALL_URL = window.__SUPABASE_URL || 'https://obfhmyeghurqfxingwtu.supabase.co';
+  var MALL_KEY = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZmhteWVnaHVycWZ4aW5nd3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTIxODMsImV4cCI6MjEwMTM2ODE4M30.mAgIHzhodRXTya-BfhA_ZLD2eoeshle79Zx6isKbXj4';
 
   async function mallFetch(path, opts) {
     var headers = Object.assign({'apikey':MALL_KEY,'Authorization':'Bearer '+MALL_KEY}, opts&&opts.headers||{});
@@ -1680,6 +1680,21 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       <div class="card-title"><i class="fas fa-briefcase" style="color:#6366f1;"></i> Opportunities – Post &amp; Manage</div>
       <p style="color:#6b7280;font-size:0.85rem;margin-bottom:1.2rem;">Post internship, NSS, scholarship and job opportunities for GERAMA members. Review user submissions and track applications.</p>
 
+      <!-- 🔥 QUICK INTERNSHIP FLIER CARD GENERATOR 🔥 -->
+      <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:18px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 4px 16px rgba(251,191,36,0.2);">
+        <div style="font-size:1rem;font-weight:800;color:#92400e;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-star" style="color:#fbbf24;"></i> Quick Internship Flier Card</div>
+        <p style="color:#78350f;font-size:0.82rem;margin-bottom:1rem;line-height:1.6;">Generate a beautiful, eye-catching internship card that looks like a flier — fast posting for internships! Link is optional. Perfect for quick announcements.</p>
+        <div class="form-grid">
+          <div class="form-field"><label style="color:#78350f;">Company Name *</label><input type="text" id="flierCompany" placeholder="e.g. VRA, GNPC, ECG"></div>
+          <div class="form-field"><label style="color:#78350f;">Location *</label><input type="text" id="flierLocation" placeholder="e.g. Accra, Kumasi"></div>
+          <div class="form-field"><label style="color:#78350f;">Field/Department *</label><input type="text" id="flierField" placeholder="e.g. Electrical, Mechanical"></div>
+          <div class="form-field"><label style="color:#78350f;">Application Mode *</label><input type="text" id="flierMode" placeholder="e.g. In-person / Online"></div>
+          <div class="form-field full"><label style="color:#78350f;">Application Link (optional)</label><input type="url" id="flierLink" placeholder="https://... (leave blank if none)"></div>
+        </div>
+        <button class="btn-gold" onclick="generateFlierCard()" style="margin-top:1rem;background:linear-gradient(135deg,#fbbf24,#f59e0b);box-shadow:0 4px 14px rgba(251,191,36,0.4);"><i class="fas fa-magic"></i> Generate &amp; Post Flier</button>
+        <div class="status-msg" id="flierStatus"></div>
+      </div>
+
       <!-- Stats row -->
       <div class="stats-row" style="margin-bottom:1.5rem;">
         <div class="stat-box" style="border-top:3px solid #6366f1;"><div class="num" id="oppStatTotal" style="color:#6366f1;">–</div><div class="lbl">Total Posted</div></div>
@@ -2270,8 +2285,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
 
 // –– Admin Notification Bell + Pending Submissions Badge ––
 (function(){
-  var SUPA = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-  var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  var SUPA = window.__SUPABASE_URL || 'https://obfhmyeghurqfxingwtu.supabase.co';
+  var KEY  = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZmhteWVnaHVycWZ4aW5nd3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTIxODMsImV4cCI6MjEwMTM2ODE4M30.mAgIHzhodRXTya-BfhA_ZLD2eoeshle79Zx6isKbXj4';
   var _notifs = JSON.parse(localStorage.getItem('gerama_admin_notifs')||'[]');
 
   function pushNotif(icon, title, msg, action){
@@ -2420,8 +2435,8 @@ window.quickBroadcast = async function(){
   if(!title){ if(statusEl){statusEl.textContent='Please enter a title.';statusEl.style.color='#dc2626';} return; }
   if(!msg)  { if(statusEl){statusEl.textContent='Please enter a message.';statusEl.style.color='#dc2626';} return; }
 
-  var SUPA = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-  var KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  var SUPA = window.__SUPABASE_URL || 'https://obfhmyeghurqfxingwtu.supabase.co';
+  var KEY  = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZmhteWVnaHVycWZ4aW5nd3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTIxODMsImV4cCI6MjEwMTM2ODE4M30.mAgIHzhodRXTya-BfhA_ZLD2eoeshle79Zx6isKbXj4';
 
   if(statusEl){statusEl.textContent='Broadcasting–';statusEl.style.color='#6b7280';}
 

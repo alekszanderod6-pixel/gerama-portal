@@ -6,8 +6,8 @@
 (function(){
   'use strict';
 
-  var SUPA_URL    = window.__SUPABASE_URL || 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-  var SUPA_KEY    = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  var SUPA_URL    = window.__SUPABASE_URL || 'https://obfhmyeghurqfxingwtu.supabase.co';
+  var SUPA_KEY    = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZmhteWVnaHVycWZ4aW5nd3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTIxODMsImV4cCI6MjEwMTM2ODE4M30.mAgIHzhodRXTya-BfhA_ZLD2eoeshle79Zx6isKbXj4';
   var SESSION_KEY = 'gerama_admin_session';
   var MASTER_PASS = '2026GERAMA';
   var INVITE_CODE = 'admin2026';
@@ -291,7 +291,7 @@
   // Mall order tracking helpers
   window.mallToggleOrder = async function(id, field, val){
     var body = {}; body[field] = val;
-    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+    var KEY = SUPA_KEY;
     try{
       await fetch(SUPA_URL+'/rest/v1/mall_orders?id=eq.'+encodeURIComponent(id),{
         method:'PATCH',
@@ -304,7 +304,7 @@
 
   window.mallDeleteOrder = async function(id){
     if(!confirm('Delete this order?')) return;
-    var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+    var KEY = SUPA_KEY;
     await fetch(SUPA_URL+'/rest/v1/mall_orders?id=eq.'+encodeURIComponent(id),{
       method:'DELETE', headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
     });

@@ -19,8 +19,8 @@
 
             // Priority: env-config.js globals – hardcoded fallback (safe anon key)
             // Supabase anon key is public by design – security is enforced via Row Level Security (RLS) in database
-            var url = window.__SUPABASE_URL  || 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-            var key = window.__SUPABASE_KEY  || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+            var url = window.__SUPABASE_URL  || 'https://obfhmyeghurqfxingwtu.supabase.co';
+            var key = window.__SUPABASE_KEY  || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZmhteWVnaHVycWZ4aW5nd3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTIxODMsImV4cCI6MjEwMTM2ODE4M30.mAgIHzhodRXTya-BfhA_ZLD2eoeshle79Zx6isKbXj4';
 
             // Normalize globals so inline page scripts read the same config.
             window.__SUPABASE_URL = url;

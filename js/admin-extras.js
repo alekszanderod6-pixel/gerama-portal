@@ -6,8 +6,8 @@
 (function(){
   'use strict';
 
-  var SUPA_URL = window.__SUPABASE_URL || 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-  var SUPA_KEY = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  var SUPA_URL = window.__SUPABASE_URL || 'https://obfhmyeghurqfxingwtu.supabase.co';
+  var SUPA_KEY = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZmhteWVnaHVycWZ4aW5nd3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTIxODMsImV4cCI6MjEwMTM2ODE4M30.mAgIHzhodRXTya-BfhA_ZLD2eoeshle79Zx6isKbXj4';
   var SENSITIVE_CODE = '2026GERAMA';
   var SUPER_ADMIN_CODE = 'adminGERAMA2026';
   var BUCKET = 'gerama-materials';
@@ -769,8 +769,8 @@
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 (function(){
-  var SUPA_URL = 'https://hdrnnvvrtbwjsxtrxzfj.supabase.co';
-  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhkcm5udnZydGJ3anN4dHJ4emZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MjQ3MTgsImV4cCI6MjA5MjEwMDcxOH0.rEHkz3HOoXArRkasGSaxK6JQZrQHI2LAJ7c6Dj8DaQI';
+  var SUPA_URL = window.__SUPABASE_URL || 'https://obfhmyeghurqfxingwtu.supabase.co';
+  var SUPA_KEY = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZmhteWVnaHVycWZ4aW5nd3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTIxODMsImV4cCI6MjEwMTM2ODE4M30.mAgIHzhodRXTya-BfhA_ZLD2eoeshle79Zx6isKbXj4';
   var BUCKET = 'gerama-materials';
 
   function getSB(){ return window.geramaSupabase || null; }
