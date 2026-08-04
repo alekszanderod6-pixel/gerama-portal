@@ -267,6 +267,31 @@
       </div>
       <button class="btn-save-profile" id="saveProfileBtn"><i class="fas fa-save"></i> Save Profile</button>
       <div id="saveStatus" style="font-size:0.82rem;text-align:center;margin-top:0.6rem;min-height:1rem;"></div>
+
+      <!-- ── Change Password ── -->
+      <div style="margin-top:1.2rem;border-top:1px solid #e5e7eb;padding-top:1.1rem;">
+        <div style="font-size:0.78rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.8rem;display:flex;align-items:center;gap:0.4rem;">
+          <i class="fas fa-lock" style="color:#1B5E20;"></i> Change Password
+        </div>
+        <div class="fld">
+          <label>New Password</label>
+          <div style="position:relative;">
+            <input type="password" id="newPwInput" placeholder="At least 6 characters" style="padding-right:2.5rem;">
+            <button type="button" onclick="var i=document.getElementById('newPwInput');i.type=i.type==='password'?'text':'password';this.querySelector('i').className='fas fa-'+(i.type==='password'?'eye':'eye-slash');" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.95rem;padding:0;"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+        <div class="fld">
+          <label>Confirm New Password</label>
+          <div style="position:relative;">
+            <input type="password" id="confirmPwInput" placeholder="Re-enter new password" style="padding-right:2.5rem;">
+            <button type="button" onclick="var i=document.getElementById('confirmPwInput');i.type=i.type==='password'?'text':'password';this.querySelector('i').className='fas fa-'+(i.type==='password'?'eye':'eye-slash');" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.95rem;padding:0;"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+        <button id="changePwBtn" onclick="changeUserPassword()" style="width:100%;padding:0.75rem;background:linear-gradient(135deg,#1e3a5f,#2563eb);color:white;border:none;border-radius:30px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:0.5rem;">
+          <i class="fas fa-key"></i> Update Password
+        </button>
+        <div id="pwChangeStatus" style="font-size:0.82rem;text-align:center;margin-top:0.6rem;min-height:1rem;"></div>
+      </div>
     </div>
 
     <!-- Quick Stats -->
@@ -530,6 +555,54 @@ document.getElementById('saveProfileBtn').addEventListener('click', async functi
   }
   setTimeout(function(){ statusEl.textContent=''; }, 3000);
 });
+
+// –– Change Password ––––––––––––––––––––––––––––––––––
+window.changeUserPassword = async function(){
+  var newPw     = (document.getElementById('newPwInput').value || '').trim();
+  var confirmPw = (document.getElementById('confirmPwInput').value || '').trim();
+  var statusEl  = document.getElementById('pwChangeStatus');
+  var btn       = document.getElementById('changePwBtn');
+
+  // Validation
+  if(!newPw || newPw.length < 6){
+    statusEl.textContent = '⚠️ Password must be at least 6 characters.';
+    statusEl.style.color = '#dc2626';
+    return;
+  }
+  if(newPw !== confirmPw){
+    statusEl.textContent = '⚠️ Passwords do not match.';
+    statusEl.style.color = '#dc2626';
+    document.getElementById('confirmPwInput').value = '';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating…';
+  statusEl.textContent = 'Saving new password…';
+  statusEl.style.color = '#6b7280';
+
+  try {
+    var sb = window.geramaSupabase;
+    if(!sb) throw new Error('Not connected. Please refresh.');
+
+    var { error } = await sb.auth.updateUser({ password: newPw });
+    if(error) throw error;
+
+    // Clear the fields
+    document.getElementById('newPwInput').value     = '';
+    document.getElementById('confirmPwInput').value = '';
+
+    statusEl.textContent = '✅ Password updated! Use it next time you log in.';
+    statusEl.style.color = '#059669';
+  } catch(err) {
+    statusEl.textContent = '⚠️ ' + (err.message || 'Failed. Please try again.');
+    statusEl.style.color = '#dc2626';
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-key"></i> Update Password';
+  setTimeout(function(){ statusEl.textContent = ''; }, 5000);
+};
 
 // –– Main data loader ––––––––––––––––––––––––––––––––––
 async function loadDashboardData(){
