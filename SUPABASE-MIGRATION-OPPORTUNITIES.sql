@@ -122,6 +122,32 @@ RETURNS void AS $$
 $$ LANGUAGE SQL SECURITY DEFINER;
 
 -- ─────────────────────────────────────────────────────────────────
+-- 5b. RPC FUNCTION: Increment opportunity apply count (was missing!)
+-- ─────────────────────────────────────────────────────────────────
+CREATE OR REPLACE FUNCTION increment_opp_applies(opp_id UUID)
+RETURNS void AS $$
+  UPDATE opportunities
+  SET apply_count = COALESCE(apply_count, 0) + 1
+  WHERE id = opp_id;
+$$ LANGUAGE SQL SECURITY DEFINER;
+
+-- ─────────────────────────────────────────────────────────────────
+-- 5c. STORAGE: Make gerama-materials bucket publicly readable
+--     Run this if opportunity images are not displaying on the site.
+--     Go to: Supabase Dashboard → Storage → gerama-materials → Policies
+--     OR run the SQL below in the SQL Editor:
+-- ─────────────────────────────────────────────────────────────────
+-- Allow public read access to all files in gerama-materials bucket
+CREATE POLICY IF NOT EXISTS "Public read gerama-materials"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'gerama-materials');
+
+-- Allow authenticated/anon uploads to opportunities folder
+CREATE POLICY IF NOT EXISTS "Allow opportunity image uploads"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'gerama-materials' AND (storage.foldername(name))[1] = 'opportunities');
+
+-- ─────────────────────────────────────────────────────────────────
 -- 6. SEED: A few starter Did You Know facts (optional)
 -- ─────────────────────────────────────────────────────────────────
 INSERT INTO did_you_know (fact_text, source, submitted_by, status) VALUES

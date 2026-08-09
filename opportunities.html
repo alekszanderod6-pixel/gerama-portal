@@ -444,7 +444,7 @@ function renderOpportunities() {
   grid.innerHTML = list.map(function(opp) {
     var badge = '<span class="opp-badge ' + (opp.type||'other') + '">' + getOppTypeLabel(opp.type) + '</span>';
     var img = opp.image_url
-      ? '<img src="' + escHtml(opp.image_url) + '" class="opp-img" alt="' + escHtml(opp.company) + '" loading="lazy" onerror="this.style.display=\'none\'" onclick="event.stopPropagation();openLightbox(\'' + escHtml(opp.image_url) + '\')">'
+      ? '<img src="' + escAttr(opp.image_url) + '" class="opp-img" alt="' + escAttr(opp.company) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling&&(this.nextElementSibling.style.display=\'flex\');" onclick="event.stopPropagation();openLightbox(\'' + escAttr(opp.image_url) + '\')"><div class="opp-img-placeholder" style="display:none;">' + getOppEmoji(opp.type) + '</div>'
       : '<div class="opp-img-placeholder">' + getOppEmoji(opp.type) + '</div>';
     var deadline = opp.deadline ? '<span><i class="fas fa-calendar-alt" style="color:#dc2626;"></i> Deadline: ' + new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + '</span>' : '';
     var mode = opp.mode_of_application ? '<span><i class="fas fa-file-alt" style="color:#6366f1;"></i> ' + escHtml(opp.mode_of_application) + '</span>' : '';
@@ -524,7 +524,13 @@ async function trackOppView(oppId){
   if(localStorage.getItem(key))return;
   localStorage.setItem(key,'1');
   try{
-    await sb.rpc('increment_opp_views',{opp_id:oppId});
+    // Try RPC first, fall back to direct update if RPC doesn't exist yet
+    var rpcResult = await sb.rpc('increment_opp_views',{opp_id:oppId});
+    if(rpcResult.error){
+      // Fallback: read current count then increment
+      var {data:row} = await sb.from('opportunities').select('view_count').eq('id',oppId).single();
+      await sb.from('opportunities').update({view_count:(row&&row.view_count||0)+1}).eq('id',oppId);
+    }
     var card=document.getElementById('opp-'+oppId);
     if(card){
       var pills=card.querySelectorAll('.opp-stat-pill');
@@ -541,11 +547,15 @@ async function trackOppApply(oppId){
   try{
     var profile=JSON.parse(localStorage.getItem('gerama_profile')||'{}');
     await sb.from('opportunity_applications').upsert({
-      opportunity_id:oppId,user_email:profile.email||'',user_name:profile.name||'Anonymous',
+      opportunity_id:oppId,user_email:profile.email||'anonymous@gerama.app',user_name:profile.name||'Anonymous',
       status:'applied',applied_at:new Date().toISOString()
     },{onConflict:'opportunity_id,user_email',ignoreDuplicates:true});
-    // Try to increment apply_count in DB
-    try{ await sb.rpc('increment_opp_applies',{opp_id:oppId}); }catch(e){}
+    // Try RPC, fall back to direct update if RPC doesn't exist yet
+    var rpcResult = await sb.rpc('increment_opp_applies',{opp_id:oppId});
+    if(rpcResult.error){
+      var {data:row} = await sb.from('opportunities').select('apply_count').eq('id',oppId).single();
+      await sb.from('opportunities').update({apply_count:(row&&row.apply_count||0)+1}).eq('id',oppId);
+    }
   }catch(e){}
 }
 
