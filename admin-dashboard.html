@@ -2458,6 +2458,64 @@ window.quickBroadcast = async function(){
   }
 };
 </script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     EDIT OPPORTUNITY MODAL
+═══════════════════════════════════════════════════════════════ -->
+<div id="editOppModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:5000;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px);">
+  <div style="background:white;border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <!-- Modal header -->
+    <div style="background:linear-gradient(135deg,#4c1d95,#6d28d9);padding:1.2rem 1.5rem;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between;">
+      <div style="color:white;font-size:1rem;font-weight:800;display:flex;align-items:center;gap:0.6rem;">
+        <i class="fas fa-edit"></i> Edit Opportunity
+      </div>
+      <button onclick="window.closeEditOppModal()" style="background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <!-- Modal body -->
+    <div style="padding:1.5rem;">
+      <div class="form-grid">
+        <div class="form-field"><label>Company / Organisation *</label><input type="text" id="editOppCompany" placeholder="e.g. Ghana Grid Company"></div>
+        <div class="form-field"><label>Location *</label><input type="text" id="editOppLocation" placeholder="e.g. Accra, Ghana"></div>
+        <div class="form-field"><label>Type *</label>
+          <select id="editOppType">
+            <option value="">Select...</option>
+            <option value="internship">Internship</option>
+            <option value="nss">NSS (National Service)</option>
+            <option value="scholarship">Scholarship</option>
+            <option value="job">Job / Employment</option>
+            <option value="other">Other Opportunity</option>
+          </select>
+        </div>
+        <div class="form-field"><label>Application Link (optional)</label><input type="url" id="editOppLink" placeholder="https://..."></div>
+        <div class="form-field"><label>Mode of Application</label><input type="text" id="editOppMode" placeholder="e.g. Submit letter to HR"></div>
+        <div class="form-field"><label>Deadline (optional)</label><input type="date" id="editOppDeadline"></div>
+        <div class="form-field full"><label>Description / Eligibility</label><textarea id="editOppDesc" rows="4" placeholder="Describe the opportunity, eligibility, contacts..."></textarea></div>
+        <div class="form-field full">
+          <label>Current Image</label>
+          <img id="editOppImgCurrent" src="" alt="Current image" style="display:none;max-width:160px;max-height:120px;object-fit:cover;border-radius:10px;border:2px solid #c4b5fd;margin-bottom:0.5rem;">
+          <label style="margin-top:0.5rem;">Replace Image (optional – leave blank to keep current)</label>
+          <div class="drop-zone" style="padding:1rem;" onclick="document.getElementById('editOppImgFile').click()">
+            <i class="fas fa-image" style="color:#6366f1;font-size:1.2rem;display:block;margin-bottom:0.3rem;"></i>
+            <p style="font-size:0.82rem;color:#6b7280;">Click to upload new image (JPG/PNG, max 5MB)</p>
+            <p class="file-chosen" id="editOppImgChosen"></p>
+          </div>
+          <input type="file" id="editOppImgFile" accept="image/*" style="display:none;" onchange="window.previewEditOppImg(this)">
+          <img id="editOppImgPreview" style="display:none;width:80px;height:60px;object-fit:cover;border-radius:8px;margin-top:0.4rem;border:2px solid #c4b5fd;" alt="">
+        </div>
+      </div>
+      <div class="status-msg" id="editOppStatus"></div>
+      <div style="display:flex;gap:0.8rem;margin-top:1.2rem;flex-wrap:wrap;">
+        <button id="editOppSaveBtn" onclick="window.saveEditOpp()" style="background:linear-gradient(135deg,#4c1d95,#6d28d9);color:white;border:none;padding:0.7rem 1.5rem;border-radius:10px;font-weight:700;font-size:0.9rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+        <button onclick="window.closeEditOppModal()" style="background:#f1f5f9;color:#374151;border:none;padding:0.7rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.9rem;cursor:pointer;">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
 <style>

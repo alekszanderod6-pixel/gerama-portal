@@ -1491,7 +1491,8 @@ async function publishQuiz(){
       description:  desc   || null,
       target_group:  targetGroup,
       status:       'active',
-      created_at:   new Date().toISOString()
+      created_at:   new Date().toISOString(),
+      id:           Date.now()
     };
 
     var {error} = await sb.from('quizzes').insert(record);
@@ -1922,6 +1923,7 @@ window.postAssignment = async function(){
     }
 
     var {error} = await sb.from('assignments').insert({
+      id: Date.now(),
       title:title, course:course, tutor:tutor||null, points:points?parseInt(points):null,
       description:desc, deadline:new Date(deadline).toISOString(),
       external_link:extLink||null,
@@ -2053,6 +2055,7 @@ window.scheduleClass = async function(){
     }
 
     var {error} = await sb.from('classes').insert({
+      id: Date.now(),
       course:course, topic:topic, tutor:tutor||null, description:desc||null,
       scheduled_at:new Date(dt).toISOString(),
       meet_link: meetLink,
@@ -2386,6 +2389,7 @@ window.approveClassRequest = async function(id, course, topic, scheduledAt, emai
   var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
   var meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
   await sb.from('classes').insert({
+    id: Date.now(),
     course:course,
     topic:topic,
     scheduled_at:scheduledAt,
@@ -2574,6 +2578,7 @@ window.approveQuizRequest = async function(id, title, course, url, desc, fileUrl
   var deadline = new Date(Date.now() + 7*24*60*60*1000).toISOString();
   var isPdfQuiz = !url && fileUrl;
   var record = {
+    id:        Date.now(),
     title:title, course:course||null,
     quiz_url:  isPdfQuiz ? null : (url ? JSON.stringify([url]) : null),
     pdf_url:   fileUrl || null,
@@ -6013,6 +6018,60 @@ window.deleteDiyk = async function(id) {
 // OPPORTUNITIES – ADMIN
 // ══════════════════════════════════════════════════════════════
 
+// ─── Quick Internship Flier Card Generator ─────────────────────────────────
+window.generateFlierCard = async function() {
+  var company = (document.getElementById('flierCompany').value || '').trim();
+  var location = (document.getElementById('flierLocation').value || '').trim();
+  var field   = (document.getElementById('flierField').value || '').trim();
+  var mode    = (document.getElementById('flierMode').value || '').trim();
+  var link    = (document.getElementById('flierLink').value || '').trim();
+
+  if(!company || !location || !field || !mode) {
+    window.showStatus('flierStatus','Please fill in Company, Location, Field and Application Mode.','err');
+    return;
+  }
+
+  var btn = document.querySelector('[onclick="generateFlierCard()"]');
+  if(btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Generating...'; }
+
+  var sb = window.geramaSupabase;
+  if(!sb) { window.showStatus('flierStatus','Supabase not connected.','err'); if(btn){btn.disabled=false;btn.innerHTML='<i class="fas fa-magic"></i> Generate &amp; Post Flier';} return; }
+
+  // Build a rich HTML description that acts as the "flier"
+  var desc = '📋 Field / Department: ' + field + '\n' +
+             '📍 Location: ' + location + '\n' +
+             '📬 How to Apply: ' + mode +
+             (link ? '\n🔗 Apply Link: ' + link : '');
+
+  try {
+    await sb.from('opportunities').insert({
+      company:              company,
+      location:             location,
+      type:                 'internship',
+      apply_link:           link || null,
+      mode_of_application:  mode,
+      description:          desc,
+      image_url:            null,
+      submitted_by:         'Admin',
+      submitted_by_email:   'gerama.uenr@gmail.com',
+      status:               'approved',
+      view_count:           0,
+      apply_count:          0,
+      created_at:           new Date().toISOString()
+    });
+    window.showStatus('flierStatus', '✅ Flier card posted and live!', 'ok');
+    window.logActivity('Posted flier card: ' + company + ' – ' + field);
+    // Clear fields
+    ['flierCompany','flierLocation','flierField','flierMode','flierLink'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.value = '';
+    });
+    window.loadAdminOpportunities();
+  } catch(e) {
+    window.showStatus('flierStatus', '❌ ' + e.message, 'err');
+  }
+  if(btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-magic"></i> Generate &amp; Post Flier'; }
+};
+
 window.loadAdminOpportunities = async function() {
   var sb = window.geramaSupabase; if(!sb) return;
   var pendEl   = document.getElementById('adminOppPendingList');
@@ -6073,7 +6132,8 @@ window.loadAdminOpportunities = async function() {
               '<td style="text-align:center;">' + oppApps.length + '</td>' +
               '<td style="font-size:0.82rem;">' + window.escHtml(deadline) + '</td>' +
               '<td style="white-space:nowrap;">' +
-                '<button class="btn-danger" onclick="deleteAdminOpp(\'' + window.escAttr(opp.id) + '\',\'' + window.escAttr(opp.image_url||'') + '\')" style="font-size:0.75rem;padding:0.25rem 0.6rem;"><i class="fas fa-trash"></i></button>' +
+                '<button class="btn-gold" onclick="(async function(){var sb=window.geramaSupabase;if(!sb)return;var {data}=await sb.from(\'opportunities\').select(\'*\').eq(\'id\',\'' + window.escAttr(opp.id) + '\').single();if(data)window.openEditOppModal(data);})()" style="font-size:0.75rem;padding:0.25rem 0.6rem;margin-right:0.3rem;" title="Edit"><i class="fas fa-edit"></i></button>' +
+                '<button class="btn-danger" onclick="deleteAdminOpp(\'' + window.escAttr(opp.id) + '\',\'' + window.escAttr(opp.image_url||'') + '\')" style="font-size:0.75rem;padding:0.25rem 0.6rem;" title="Delete"><i class="fas fa-trash"></i></button>' +
               '</td>' +
             '</tr>';
           }).join('') +
@@ -6122,6 +6182,7 @@ function _renderAdminOppCard(opp, showApprove) {
     '</div>' +
     '<div class="sub-actions">' +
       (showApprove ? '<button class="btn-success" onclick="approveAdminOpp(\'' + window.escAttr(opp.id) + '\')"><i class="fas fa-check"></i> Approve</button>' : '') +
+      '<button class="btn-gold" onclick="(async function(){var sb=window.geramaSupabase;if(!sb)return;var {data}=await sb.from(\'opportunities\').select(\'*\').eq(\'id\',\'' + window.escAttr(opp.id) + '\').single();if(data)window.openEditOppModal(data);})()" style="font-size:0.78rem;" title="Edit"><i class="fas fa-edit"></i> Edit</button>' +
       '<button class="btn-danger" onclick="deleteAdminOpp(\'' + window.escAttr(opp.id) + '\',\'' + window.escAttr(opp.image_url||'') + '\')"><i class="fas fa-trash"></i></button>' +
     '</div>' +
   '</div>';
@@ -6137,12 +6198,136 @@ window.approveAdminOpp = async function(id) {
 window.deleteAdminOpp = async function(id, imgUrl) {
   if(!confirm('Delete this opportunity permanently?')) return;
   var sb = window.geramaSupabase; if(!sb) return;
+  // Delete storage image if present
+  if(imgUrl) {
+    try {
+      // Extract the storage path from the public URL
+      var match = imgUrl.match(/\/object\/public\/[^/]+\/(.+)$/);
+      if(match && match[1]) {
+        await sb.storage.from(window.BUCKET).remove([decodeURIComponent(match[1])]);
+      }
+    } catch(e) { console.warn('[GERAMA] Could not delete opp image from storage:', e); }
+  }
   // Delete comments and applications too
   await sb.from('opportunity_comments').delete().eq('opportunity_id', id);
   await sb.from('opportunity_applications').delete().eq('opportunity_id', id);
   await sb.from('opportunities').delete().eq('id', id);
   window.logActivity('Deleted opportunity: ' + id);
   window.loadAdminOpportunities();
+};
+
+// ─── Edit Opportunity Modal ────────────────────────────────────────────────────
+window._editOppData = null; // holds the opp being edited
+
+window.openEditOppModal = function(opp) {
+  window._editOppData = opp;
+  // Populate modal fields
+  var f = function(id, v){ var el=document.getElementById(id); if(el) el.value = v||''; };
+  f('editOppCompany',  opp.company);
+  f('editOppLocation', opp.location);
+  f('editOppLink',     opp.apply_link);
+  f('editOppMode',     opp.mode_of_application);
+  f('editOppDesc',     opp.description);
+  document.getElementById('editOppType').value    = opp.type || '';
+  document.getElementById('editOppDeadline').value = opp.deadline ? opp.deadline.split('T')[0] : '';
+  // Show current image
+  var prev = document.getElementById('editOppImgCurrent');
+  if(prev) {
+    if(opp.image_url) { prev.src = opp.image_url; prev.style.display = 'block'; }
+    else { prev.style.display = 'none'; }
+  }
+  var chosen = document.getElementById('editOppImgChosen'); if(chosen) chosen.textContent = '';
+  var newPrev = document.getElementById('editOppImgPreview'); if(newPrev) { newPrev.src=''; newPrev.style.display='none'; }
+  var fileIn = document.getElementById('editOppImgFile'); if(fileIn) fileIn.value='';
+  window.showStatus('editOppStatus','','');
+  var modal = document.getElementById('editOppModal');
+  if(modal) { modal.style.display='flex'; document.body.style.overflow='hidden'; }
+};
+
+window.closeEditOppModal = function() {
+  var modal = document.getElementById('editOppModal');
+  if(modal) { modal.style.display='none'; document.body.style.overflow=''; }
+  window._editOppData = null;
+};
+
+window.previewEditOppImg = function(input) {
+  var f = input.files[0]; if(!f) return;
+  if(f.size > 5*1024*1024) { alert('Image too large. Max 5MB.'); return; }
+  document.getElementById('editOppImgChosen').textContent = '✅ ' + f.name;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var prev = document.getElementById('editOppImgPreview');
+    if(prev) { prev.src = e.target.result; prev.style.display='block'; }
+  };
+  reader.readAsDataURL(f);
+};
+
+window.saveEditOpp = async function() {
+  var opp = window._editOppData; if(!opp) return;
+  var sb = window.geramaSupabase; if(!sb) { window.showStatus('editOppStatus','Not connected.','err'); return; }
+
+  var company  = (document.getElementById('editOppCompany').value||'').trim();
+  var location = (document.getElementById('editOppLocation').value||'').trim();
+  var type     = document.getElementById('editOppType').value;
+  var link     = (document.getElementById('editOppLink').value||'').trim();
+  var mode     = (document.getElementById('editOppMode').value||'').trim();
+  var deadline = document.getElementById('editOppDeadline').value || null;
+  var desc     = (document.getElementById('editOppDesc').value||'').trim();
+  var imgFile  = document.getElementById('editOppImgFile').files[0] || null;
+
+  if(!company || !location || !type) { window.showStatus('editOppStatus','Fill in Company, Location and Type.','err'); return; }
+
+  var btn = document.getElementById('editOppSaveBtn');
+  if(btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Saving...'; }
+
+  var imageUrl = opp.image_url || null; // keep existing unless replaced
+
+  if(imgFile) {
+    try {
+      var ext = imgFile.name.split('.').pop();
+      var path = 'opportunities/' + Date.now() + '-' + company.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.' + ext;
+      var { data: upData, error: upErr } = await sb.storage.from(window.BUCKET).upload(path, imgFile, {upsert:true, cacheControl:'31536000'});
+      if(upErr) {
+        console.error('[GERAMA] Image upload error:', upErr);
+        window.showStatus('editOppStatus', '⚠️ Image upload failed: ' + upErr.message + '. Other details will still be saved.', 'err');
+      } else {
+        imageUrl = sb.storage.from(window.BUCKET).getPublicUrl(path).data.publicUrl;
+        // Delete old image from storage if it existed and changed
+        if(opp.image_url && opp.image_url !== imageUrl) {
+          try {
+            var match = opp.image_url.match(/\/object\/public\/[^/]+\/(.+)$/);
+            if(match && match[1]) await sb.storage.from(window.BUCKET).remove([decodeURIComponent(match[1])]);
+          } catch(e) {}
+        }
+      }
+    } catch(e) {
+      console.error('[GERAMA] Image upload exception:', e);
+      window.showStatus('editOppStatus', '⚠️ Image upload failed. Other details will still be saved.', 'err');
+    }
+  }
+
+  try {
+    var { error: dbErr } = await sb.from('opportunities').update({
+      company, location, type,
+      apply_link:           link || null,
+      mode_of_application:  mode || null,
+      deadline:             deadline || null,
+      description:          desc || null,
+      image_url:            imageUrl
+    }).eq('id', opp.id);
+
+    if(dbErr) throw new Error(dbErr.message);
+
+    window.showStatus('editOppStatus', '✅ Opportunity updated!', 'ok');
+    window.logActivity('Edited opportunity: ' + company + ' (' + opp.id + ')');
+    setTimeout(function(){
+      window.closeEditOppModal();
+      window.loadAdminOpportunities();
+    }, 1200);
+  } catch(e) {
+    window.showStatus('editOppStatus', '❌ ' + e.message, 'err');
+  }
+  if(btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Save Changes'; }
 };
 
 window.postAdminOpportunity = async function() {
@@ -6167,10 +6352,18 @@ window.postAdminOpportunity = async function() {
   if(imgFile) {
     try {
       var ext = imgFile.name.split('.').pop();
-      var path = 'opportunities/' + Date.now() + '-' + company.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.' + ext;
-      var up = await sb.storage.from(window.BUCKET).upload(path, imgFile, {upsert:true, cacheControl:'31536000'});
-      if(!up.error) imageUrl = sb.storage.from(window.BUCKET).getPublicUrl(path).data.publicUrl;
-    } catch(e) {}
+      var imgPath = 'opportunities/' + Date.now() + '-' + company.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '.' + ext;
+      var { data: upData, error: upErr } = await sb.storage.from(window.BUCKET).upload(imgPath, imgFile, {upsert:true, cacheControl:'31536000'});
+      if(upErr) {
+        console.error('[GERAMA] Opportunity image upload error:', upErr);
+        window.showStatus('adminOppStatus', '⚠️ Image upload failed: ' + upErr.message + '. Post will continue without image.', 'err');
+      } else {
+        imageUrl = sb.storage.from(window.BUCKET).getPublicUrl(imgPath).data.publicUrl;
+      }
+    } catch(e) {
+      console.error('[GERAMA] Opportunity image upload exception:', e);
+      window.showStatus('adminOppStatus', '⚠️ Image upload failed. Post will continue without image.', 'err');
+    }
   }
 
   try {
