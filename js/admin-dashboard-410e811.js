@@ -1274,7 +1274,8 @@ async function publishQuiz(){
       deadline:     new Date(deadline).toISOString(),
       description:  desc   || null,
       status:       'active',
-      created_at:   new Date().toISOString()
+      created_at:   new Date().toISOString(),
+      id:           Date.now()
     };
 
     var {error} = await sb.from('quizzes').insert(record);
@@ -1682,6 +1683,7 @@ window.postAssignment = async function(){
     }
 
     var {error} = await sb.from('assignments').insert({
+      id: Date.now(),
       title:title, course:course, tutor:tutor||null, points:points?parseInt(points):null,
       description:desc, deadline:new Date(deadline).toISOString(),
       external_link:extLink||null,
@@ -1751,6 +1753,7 @@ window.scheduleClass = async function(){
     }
 
     var {error} = await sb.from('classes').insert({
+      id: Date.now(),
       course:course, topic:topic, tutor:tutor||null, description:desc||null,
       scheduled_at:new Date(dt).toISOString(),
       meet_link: meetLink,
@@ -2037,7 +2040,7 @@ window.approveClassRequest = async function(id, course, topic, scheduledAt, emai
   var sb = window.geramaSupabase; if(!sb) return;
   var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
   var meetLink = 'https://meet.jit.si/GERAMA-'+slug+'-'+Date.now();
-  await sb.from('classes').insert({ course:course, topic:topic, scheduled_at:scheduledAt, meet_link:meetLink, status:'upcoming', requester_email:email, created_at:new Date().toISOString() });
+  await sb.from('classes').insert({ id: Date.now(), course:course, topic:topic, scheduled_at:scheduledAt, meet_link:meetLink, status:'upcoming', requester_email:email, created_at:new Date().toISOString() });
   await sb.from('class_requests').update({status:'approved'}).eq('id',id);
   window.logActivity('Approved class request: '+course+' – '+topic);
   alert('✅ Approved! Class is now live. Link: '+meetLink);
@@ -2216,6 +2219,7 @@ window.approveQuizRequest = async function(id, title, course, url, desc, fileUrl
   var deadline = new Date(Date.now() + 7*24*60*60*1000).toISOString();
   var isPdfQuiz = !url && fileUrl;
   var record = {
+    id:        Date.now(),
     title:title, course:course||null,
     quiz_url:  isPdfQuiz ? null : (url ? JSON.stringify([url]) : null),
     pdf_url:   fileUrl || null,

@@ -551,10 +551,22 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     if(skip.indexOf(page) !== -1) return;
     function trackView() {
-        if(typeof window.geramaSupabase === 'undefined') { setTimeout(trackView, 500); return; }
-        window.geramaSupabase.from('page_views').insert({
-            page: page, visited_at: new Date().toISOString(), referrer: document.referrer || null
-        }).then(function(){}).catch(function(){});
+        if(typeof window.geramaSupabase === 'undefined') {
+            console.log('[PageTracker] Supabase not ready, retrying…');
+            setTimeout(trackView, 500);
+            return;
+        }
+        var payload = { page: page, visited_at: new Date().toISOString(), referrer: document.referrer || null };
+        console.log('[PageTracker] Inserting view for page:', page, payload);
+        window.geramaSupabase.from('page_views').insert(payload)
+            .then(function(res){
+                if(res && res.error){
+                    console.error('[PageTracker] ❌ Insert failed:', res.error.message, res.error);
+                } else {
+                    console.log('[PageTracker] ✅ View recorded for:', page);
+                }
+            })
+            .catch(function(e){ console.error('[PageTracker] 💥 Exception:', e); });
     }
     setTimeout(trackView, 1000);
 })();

@@ -518,13 +518,23 @@
 
     try{
       var sb2 = window.geramaSupabase;
-      if(sb2) await sb2.from('announcements').insert({
-        title: ann.title, message: ann.message, priority: ann.priority,
-        image_url: ann.image,
-        images: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null,
-        created_at: new Date().toISOString()
-      });
-    }catch(e){}
+      if(sb2){
+        var dbRes = await sb2.from('announcements').insert({
+          title: ann.title, message: ann.message, priority: ann.priority,
+          image_url: ann.image,
+          images: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null,
+          created_at: new Date().toISOString()
+        });
+        if(dbRes.error){
+          console.error('[GERAMA] Announcement DB insert failed:', dbRes.error.message, dbRes.error.hint || '');
+          window.showStatus('annStatus','⚠️ Published locally but database save failed: '+dbRes.error.message+' — Run fix-announcements-rls.sql in Supabase.','err');
+          btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Publish to Site';
+          return;
+        }
+      }
+    }catch(e){
+      console.error('[GERAMA] Announcement insert exception:', e);
+    }
 
     window.logActivity('Published announcement: '+title+(imageUrls.length?' ('+imageUrls.length+' image'+(imageUrls.length!==1?'s':'')+')':''));
     renderAnnouncements();
@@ -827,30 +837,49 @@
   };
 
   async function loadOverviewStats(){
-    var sb = window.geramaSupabase; if(!sb) return;
+    var sb = window.geramaSupabase;
+    if(!sb){ console.warn('[loadOverviewStats] Supabase not ready – aborting.'); return; }
+
     var now = new Date();
     var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     var weekStart  = new Date(now.getTime() - 7*24*60*60*1000).toISOString();
     var set = function(id, val){ var e=document.getElementById(id); if(e) e.textContent = (val!==null&&val!==undefined) ? val : '0'; };
 
-    // Run every query independently – one failure never blocks others
-    var safe = async function(fn){ try{ return await fn(); }catch(e){ return {count:0,data:[]}; } };
+    console.log('[loadOverviewStats] Running — todayStart:', todayStart, '| weekStart:', weekStart);
+
+    // Safe wrapper that logs errors instead of swallowing them silently
+    var safe = async function(label, fn){
+      try {
+        var res = await fn();
+        if(res.error){
+          console.error('[loadOverviewStats] ❌', label, '—', res.error.message, res.error);
+          return {count:0, data:[]};
+        }
+        console.log('[loadOverviewStats] ✅', label, '— count:', res.count, '| data len:', (res.data||[]).length);
+        return res;
+      } catch(e) {
+        console.error('[loadOverviewStats] 💥 EXCEPTION', label, '—', e.message, e);
+        return {count:0, data:[]};
+      }
+    };
 
     var [todayRes, weekRes, totalRes, quizRes, asgRes, clsRes, clsReqRes, qrRes, subRes, userRes, matRes, annRes, ungradedRes] = await Promise.all([
-      safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',todayStart); }),
-      safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',weekStart); }),
-      safe(function(){ return sb.from('page_views').select('id',{count:'exact',head:true}); }),
-      safe(function(){ return sb.from('quizzes').select('id',{count:'exact',head:true}).eq('status','active'); }),
-      safe(function(){ return sb.from('assignments').select('id',{count:'exact',head:true}); }),
-      safe(function(){ return sb.from('classes').select('id',{count:'exact',head:true}); }),
-      safe(function(){ return sb.from('class_requests').select('id',{count:'exact',head:true}).eq('status','pending'); }),
-      safe(function(){ return sb.from('quiz_requests').select('id',{count:'exact',head:true}).eq('status','pending'); }),
-      safe(function(){ return sb.from('assignment_submissions').select('id',{count:'exact',head:true}); }),
-      safe(function(){ return sb.from('user_profiles').select('id',{count:'exact',head:true}); }),
-      safe(function(){ return sb.from('materials').select('id',{count:'exact',head:true}); }),
-      safe(function(){ return sb.from('announcements').select('id',{count:'exact',head:true}); }),
-      safe(function(){ return sb.from('assignment_submissions').select('id',{count:'exact',head:true}).is('score',null); })
+      safe('page_views TODAY',    function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',todayStart); }),
+      safe('page_views WEEK',     function(){ return sb.from('page_views').select('id',{count:'exact',head:true}).gte('visited_at',weekStart); }),
+      safe('page_views ALL-TIME', function(){ return sb.from('page_views').select('id',{count:'exact',head:true}); }),
+      safe('quizzes',             function(){ return sb.from('quizzes').select('id',{count:'exact',head:true}).eq('status','active'); }),
+      safe('assignments',         function(){ return sb.from('assignments').select('id',{count:'exact',head:true}); }),
+      safe('classes',             function(){ return sb.from('classes').select('id',{count:'exact',head:true}); }),
+      safe('class_requests',      function(){ return sb.from('class_requests').select('id',{count:'exact',head:true}).eq('status','pending'); }),
+      safe('quiz_requests',       function(){ return sb.from('quiz_requests').select('id',{count:'exact',head:true}).eq('status','pending'); }),
+      safe('assignment_submissions', function(){ return sb.from('assignment_submissions').select('id',{count:'exact',head:true}); }),
+      safe('user_profiles',       function(){ return sb.from('user_profiles').select('id',{count:'exact',head:true}); }),
+      safe('materials',           function(){ return sb.from('materials').select('id',{count:'exact',head:true}); }),
+      safe('announcements',       function(){ return sb.from('announcements').select('id',{count:'exact',head:true}); }),
+      safe('ungraded_submissions',function(){ return sb.from('assignment_submissions').select('id',{count:'exact',head:true}).is('score',null); })
     ]);
+
+    console.log('[loadOverviewStats] Results — visitsToday:', todayRes.count, '| visitsWeek:', weekRes.count, '| visitsTotal:', totalRes.count);
 
     set('statVisitsToday', todayRes.count||0);
     set('statVisitsWeek',  weekRes.count||0);
@@ -877,16 +906,16 @@
 
     // Opportunities pending badge
     try {
-      var oppPendRes = await safe(function(){ return sb.from('opportunities').select('id',{count:'exact',head:true}).eq('status','pending'); });
+      var oppPendRes = await safe('opportunities pending', function(){ return sb.from('opportunities').select('id',{count:'exact',head:true}).eq('status','pending'); });
       var oppPendCount = oppPendRes.count || 0;
       var oppBadge = document.getElementById('oppPendingBadge');
       if(oppBadge){ oppBadge.textContent = oppPendCount; oppBadge.style.display = oppPendCount > 0 ? 'inline' : 'none'; }
-    } catch(e) {}
+    } catch(e) { console.error('[loadOverviewStats] 💥 opportunities pending badge', e); }
 
     // Did You Know pending badge
     try {
-      var diykPendRes = await safe(function(){ return sb.from('did_you_know').select('id',{count:'exact',head:true}).eq('status','pending'); });
-    } catch(e) {}
+      var diykPendRes = await safe('did_you_know pending', function(){ return sb.from('did_you_know').select('id',{count:'exact',head:true}).eq('status','pending'); });
+    } catch(e) { console.error('[loadOverviewStats] 💥 did_you_know pending badge', e); }
 
     renderAdminCommandCenter({
       visitsToday: todayRes.count || 0,
