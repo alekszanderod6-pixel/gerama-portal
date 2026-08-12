@@ -64,10 +64,14 @@
       var current = sel.value || '';
       var isStrict = sel.hasAttribute('required') && sel.id === 'attGroup';
       var first = isStrict ? '-- Select Target Group --' : '-- General / All Students --';
-      sel.innerHTML = '<option value="">' + first + '</option>' + names.map(function(name){
-        return '<option value="' + window.escAttr(name) + '">' + window.escHtml(name) + '</option>';
-      }).join('');
-      if (current && names.indexOf(current) === -1) {
+      // Build options: blank placeholder + General + all groups
+      var generalOption = isStrict ? '' : '<option value="General">📢 General (All Students)</option>';
+      sel.innerHTML = '<option value="">' + first + '</option>' +
+        generalOption +
+        names.map(function(name){
+          return '<option value="' + window.escAttr(name) + '">' + window.escHtml(name) + '</option>';
+        }).join('');
+      if (current && current !== 'General' && names.indexOf(current) === -1) {
         sel.insertAdjacentHTML('beforeend', '<option value="' + window.escAttr(current) + '">' + window.escHtml(current) + '</option>');
       }
       sel.value = current || '';
@@ -281,8 +285,22 @@
     var el2 = document.getElementById('statPending');
     if(el2) el2.textContent = subs.length;
 
+    // Use local array count as immediate value, then refresh from DB
     var el3 = document.getElementById('statAnn');
     if(el3) el3.textContent = announcements.length;
+
+    // Also refresh from Supabase so count is always accurate (not just local array)
+    try {
+      var sb = window.geramaSupabase;
+      if(sb) {
+        sb.from('announcements').select('id', {count:'exact', head:true}).then(function(res){
+          if(!res.error && res.count !== null){
+            var e = document.getElementById('statAnn');
+            if(e) e.textContent = res.count;
+          }
+        });
+      }
+    } catch(e) {}
 
     var el4 = document.getElementById('statApproved');
     if(el4) el4.textContent = approved.length;
