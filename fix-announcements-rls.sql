@@ -66,17 +66,69 @@ CREATE POLICY "Admin can delete announcements"
 
 
 -- ─────────────────────────────────────────────────────────────────
--- STEP 6: Verify — check your existing policies and rows
+-- STEP 6: page_views table — tracks visits for the admin dashboard
+-- stats (Visits Today, This Week, All-Time) and the live visitor
+-- counter on the home page.
+-- ─────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS page_views (
+  id          BIGSERIAL PRIMARY KEY,
+  page        TEXT,
+  visited_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE page_views ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can INSERT a view (visitors record their own visit)
+DROP POLICY IF EXISTS "Anyone can insert page_views" ON page_views;
+CREATE POLICY "Anyone can insert page_views"
+  ON page_views
+  FOR INSERT
+  WITH CHECK (true);
+
+-- Anyone can SELECT page_views (admin dashboard reads counts)
+DROP POLICY IF EXISTS "Anyone can read page_views" ON page_views;
+CREATE POLICY "Anyone can read page_views"
+  ON page_views
+  FOR SELECT
+  USING (true);
+
+-- Optional referrer column for richer analytics
+ALTER TABLE page_views ADD COLUMN IF NOT EXISTS referrer TEXT;
+
+
+-- ─────────────────────────────────────────────────────────────────
+-- STEP 7: Enable Realtime for announcements (live delete/publish sync)
+-- ─────────────────────────────────────────────────────────────────
+ALTER PUBLICATION supabase_realtime ADD TABLE announcements;
+
+
+-- ─────────────────────────────────────────────────────────────────
+-- STEP 8: Allow UPDATE on announcements (edit from admin dashboard)
+-- ─────────────────────────────────────────────────────────────────
+DROP POLICY IF EXISTS "Admin can update announcements" ON announcements;
+CREATE POLICY "Admin can update announcements"
+  ON announcements
+  FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
+
+
+-- ─────────────────────────────────────────────────────────────────
+-- STEP 9: Verify — check your existing policies and rows
 -- After running above, run these SELECT statements to confirm:
 -- ─────────────────────────────────────────────────────────────────
 
 -- See what RLS policies now exist:
-SELECT policyname, cmd, qual
+SELECT tablename, policyname, cmd, qual
 FROM pg_policies
-WHERE tablename = 'announcements';
+WHERE tablename IN ('announcements', 'page_views')
+ORDER BY tablename, policyname;
 
 -- See how many announcements are currently in the DB:
 SELECT id, title, priority, created_at FROM announcements ORDER BY created_at DESC LIMIT 20;
+
+-- See recent page views:
+SELECT page, visited_at FROM page_views ORDER BY visited_at DESC LIMIT 10;
 
 -- ══════════════════════════════════════════════════════════════════
 -- DONE. After running this:
@@ -84,4 +136,9 @@ SELECT id, title, priority, created_at FROM announcements ORDER BY created_at DE
 --   2. Post a test announcement
 --   3. Open index.html (home page) on a different browser/incognito
 --   4. The announcement should appear immediately
+--   5. Delete the announcement from admin → it disappears from the
+--      home page within seconds (realtime subscription)
+--   6. Visit counts (Today / This Week / All-Time) will start
+--      incrementing as users browse the site
+--   7. "Online Now" on the home page uses live Supabase presence
 -- ══════════════════════════════════════════════════════════════════

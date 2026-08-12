@@ -493,11 +493,11 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 
 <!-- STATS BAR -->
 <div class="stats-bar">
-  <div class="stat-item"><span class="stat-num" data-target="1000">0</span><div class="stat-lbl">Study Materials</div></div>
-  <div class="stat-item"><span class="stat-num" data-target="300">0</span><div class="stat-lbl">Active Students</div></div>
-  <div class="stat-item"><span class="stat-num" data-target="8">0</span><div class="stat-lbl">Engineering Programs</div></div>
+  <div class="stat-item"><span class="stat-num" id="statMaterialsCount">0</span><div class="stat-lbl">Study Materials</div></div>
+  <div class="stat-item"><span class="stat-num" id="statStudentsCount">0</span><div class="stat-lbl">Active Students</div></div>
+  <div class="stat-item"><span class="stat-num" id="statProgramsCount">0</span><div class="stat-lbl">Engineering Programs</div></div>
   <div class="stat-item">
-    <span class="stat-num" id="liveVisitorCount" style="color:#4ade80;">–</span>
+    <span class="stat-num" id="liveVisitorCount" style="color:#4ade80;">0</span>
     <div class="stat-lbl" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">
       <span style="width:8px;height:8px;background:#4ade80;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span> Online Now
     </div>
@@ -1033,44 +1033,85 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   }, 5000);
 })();
 
-// –– COUNTER ANIMATION ––
+// –– COUNTER ANIMATION (loads live counts from Supabase) ––
 (function(){
-  var nums = document.querySelectorAll('.stat-num[data-target]');
-  var started = false;
-  function animateCounters(){
-    if(started) return; started = true;
-    nums.forEach(function(el){
-      var target = parseInt(el.dataset.target);
-      var step = Math.ceil(target / 60);
-      var current = 0;
-      var timer = setInterval(function(){
-        current = Math.min(current + step, target);
-        el.textContent = current.toLocaleString() + (target >= 1000 ? '+' : '+');
-        if(current >= target) clearInterval(timer);
-      }, 25);
-    });
-  }
-  var observer = new IntersectionObserver(function(entries){
-    if(entries[0].isIntersecting) animateCounters();
-  });
   var statsBar = document.querySelector('.stats-bar');
-  if(statsBar) observer.observe(statsBar);
+  if(!statsBar) return;
+
+  var statTargets = {
+    statMaterialsCount: 0,
+    statStudentsCount: 0,
+    statProgramsCount: 8
+  };
+
+  function animateValue(el, target) {
+    if(!el) return;
+    if(target <= 0) { el.textContent = '0'; return; }
+    var step = Math.max(1, Math.ceil(target / 60));
+    var current = 0;
+    var timer = setInterval(function(){
+      current = Math.min(current + step, target);
+      el.textContent = current.toLocaleString() + (target >= 10 ? '+' : '');
+      if(current >= target) clearInterval(timer);
+    }, 25);
+  }
+
+  async function loadLiveStats() {
+    try {
+      var sb = window.geramaSupabase;
+      if(!sb) throw new Error('no sb');
+      var results = await Promise.all([
+        sb.from('materials').select('id', { count: 'exact', head: true }),
+        sb.from('user_profiles').select('id', { count: 'exact', head: true }).eq('is_active', true),
+        sb.from('user_profiles').select('program').eq('is_active', true).limit(500)
+      ]);
+      if(!results[0].error && results[0].count != null) statTargets.statMaterialsCount = results[0].count;
+      if(!results[1].error && results[1].count != null) statTargets.statStudentsCount = results[1].count;
+      if(!results[2].error && results[2].data) {
+        var programs = {};
+        results[2].data.forEach(function(r) { if(r.program) programs[r.program] = true; });
+        var programCount = Object.keys(programs).length;
+        if(programCount) statTargets.statProgramsCount = programCount;
+      }
+    } catch(e) { /* keep defaults */ }
+  }
+
+  var started = false;
+  function startAnimation() {
+    if(started) return;
+    started = true;
+    animateValue(document.getElementById('statMaterialsCount'), statTargets.statMaterialsCount);
+    animateValue(document.getElementById('statStudentsCount'), statTargets.statStudentsCount);
+    animateValue(document.getElementById('statProgramsCount'), statTargets.statProgramsCount);
+  }
+
+  async function init() {
+    if(typeof window.geramaSupabase === 'undefined') {
+      setTimeout(init, 500);
+      return;
+    }
+    await loadLiveStats();
+    var observer = new IntersectionObserver(function(entries){
+      if(entries[0].isIntersecting) startAnimation();
+    });
+    observer.observe(statsBar);
+  }
+  init();
 })();
 
 // –– ANNOUNCEMENTS ––
 (function(){
   var container = document.getElementById('announcementsContainer');
-  var demo = [
-    { title:'📚 New L200 Materials Added', message:'Electrical Machines, Solid State Electronics slides and past questions now available.', date:'May 5, 2026' },
-    { title:'🎓 Mid-Semester Tutorials', message:'Join our weekly tutor sessions every Saturday at 10am. WhatsApp group link in contact page.', date:'April 28, 2026' },
-    { title:'🤝 Mentorship Program Launch', message:'Connect with senior students and alumni for academic and career guidance.', date:'April 20, 2026' }
-  ];
   // Track last visit to announcements
   var lastAnnVisit = localStorage.getItem('gerama_ann_last_visit');
   if(!lastAnnVisit) localStorage.setItem('gerama_ann_last_visit', new Date().toISOString());
 
+  function renderEmpty() {
+    container.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;grid-column:1/-1;">No announcements yet. Check back soon!</p>';
+  }
+
   function render(anns){
-    if (!anns || !anns.length) { render(demo); return; }
+    if (!anns || !anns.length) { renderEmpty(); return; }
     // Determine how many to show
     var showAll = !!window._annShowAll;
     var shown = showAll ? anns : anns.slice(0, 6);
@@ -1159,23 +1200,65 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   // Expose so the onclick can reach it from outside the IIFE
   window.showAllAnn = showAllAnn;
 
-  // Try localStorage announcements first (set by admin), then demo
-  // Try Supabase DB first (cross-device), then localStorage, then demo
+  // Try Supabase DB first (cross-device), then localStorage cache only as offline fallback
   async function trySupabase() {
     try {
       var sb = window.geramaSupabase;
       if(!sb) throw new Error('no sb');
       var { data, error } = await sb.from('announcements')
         .select('*').order('created_at',{ascending:false}).limit(50);
-      if(error||!data||!data.length) throw new Error('no data');
-      render(data.map(function(r){ return { id:r.id, title:r.title, message:r.message, date:r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '', image:r.image_url||null, images:r.images||null }; }));
+      if(error) throw error;
+      if(!data || !data.length) {
+        localStorage.setItem('gerama_announcements', '[]');
+        renderEmpty();
+        return;
+      }
+      var mapped = data.map(function(r) {
+        return {
+          id: r.id,
+          title: r.title,
+          message: r.message,
+          date: r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '',
+          image: r.image_url || null,
+          images: r.images || null
+        };
+      });
+      localStorage.setItem('gerama_announcements', JSON.stringify(mapped));
+      render(mapped);
     } catch(e) {
       var stored = localStorage.getItem('gerama_announcements');
-      if(stored){ try{ render(JSON.parse(stored)); return; }catch(ex){} }
-      render(demo);
+      if(stored) {
+        try {
+          var parsed = JSON.parse(stored);
+          if(parsed && parsed.length) { render(parsed); return; }
+        } catch(ex) {}
+      }
+      renderEmpty();
     }
   }
   trySupabase();
+
+  // Listen for realtime DELETE/INSERT events so announcements update without reload
+  function subscribeToAnnChanges() {
+    try {
+      var sb = window.geramaSupabase;
+      if(!sb) { setTimeout(subscribeToAnnChanges, 1000); return; }
+      sb.channel('announcements-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, function() {
+          trySupabase();
+        })
+        .subscribe();
+    } catch(e) { /* realtime unavailable */ }
+  }
+  subscribeToAnnChanges();
+
+  // Re-fetch when tab becomes visible or another tab updates the cache
+  document.addEventListener('visibilitychange', function() {
+    if(!document.hidden) trySupabase();
+  });
+  window.addEventListener('storage', function(e) {
+    if(e.key === 'gerama_announcements') trySupabase();
+  });
 })();
 
 // –– ANNOUNCEMENT LIKES & SHARE ––––––––––––––––––––––––––––––––––––
@@ -1429,24 +1512,7 @@ async function submitPotwNomination() {
   }, 1200);
 })();
 
-// –– LIVE VISITOR COUNT ––––––––––––––––––––––––––––––––––––––––––––
-(function() {
-  var el = document.getElementById('liveVisitorCount');
-  if(!el) return;
-  function updateCount() {
-    if(typeof window.geramaSupabase === 'undefined') { setTimeout(updateCount, 800); return; }
-    var sb = window.geramaSupabase;
-    var fiveMinAgo = new Date(Date.now() - 5*60*1000).toISOString();
-    sb.from('page_views').select('id', {count:'exact', head:true})
-      .gte('visited_at', fiveMinAgo)
-      .then(function(res){
-        var count = Math.max(1, (res.count||0));
-        el.textContent = count;
-      }).catch(function(){ el.textContent = '–'; });
-  }
-  updateCount();
-  setInterval(updateCount, 30000);
-})();
+// Live visitor count is handled by js/main.js (site presence + page_views fallback)
 
 // –– QUICK SEARCH ––––––––––––––––––––––––––––––––––––––––––––––––––
 var _searchData = null;

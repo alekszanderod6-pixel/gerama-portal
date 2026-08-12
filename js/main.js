@@ -550,25 +550,97 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     var page = window.location.pathname.split('/').pop() || 'index.html';
     var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
     if(skip.indexOf(page) !== -1) return;
+
+    var pvKey = 'gerama_pv_' + page;
+    if(sessionStorage.getItem(pvKey)) return;
+
     function trackView() {
         if(typeof window.geramaSupabase === 'undefined') {
-            console.log('[PageTracker] Supabase not ready, retrying…');
             setTimeout(trackView, 500);
             return;
         }
-        var payload = { page: page, visited_at: new Date().toISOString(), referrer: document.referrer || null };
-        console.log('[PageTracker] Inserting view for page:', page, payload);
+        var payload = { page: page, visited_at: new Date().toISOString() };
         window.geramaSupabase.from('page_views').insert(payload)
             .then(function(res){
                 if(res && res.error){
-                    console.error('[PageTracker] ❌ Insert failed:', res.error.message, res.error);
+                    console.warn('[PageTracker] Insert failed:', res.error.message);
                 } else {
-                    console.log('[PageTracker] ✅ View recorded for:', page);
+                    sessionStorage.setItem(pvKey, '1');
                 }
             })
-            .catch(function(e){ console.error('[PageTracker] 💥 Exception:', e); });
+            .catch(function(e){ console.warn('[PageTracker] Exception:', e); });
     }
     setTimeout(trackView, 1000);
+})();
+
+// –– SITE PRESENCE – live "Online Now" counter on public pages –––––
+(function() {
+    var skip = ['login.html','signup.html','reset-code.html','admin-dashboard.html'];
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    if(skip.indexOf(page) !== -1) return;
+
+    function setLiveCount(count) {
+        document.querySelectorAll('#liveVisitorCount').forEach(function(el) {
+            el.textContent = String(Math.max(0, count));
+        });
+    }
+
+    function fallbackPageViewCount() {
+        var sb = window.geramaSupabase;
+        if(!sb) return;
+        var fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        sb.from('page_views').select('id', { count: 'exact', head: true })
+            .gte('visited_at', fiveMinAgo)
+            .then(function(res) {
+                if(!res.error) setLiveCount(res.count || 0);
+            })
+            .catch(function() { setLiveCount(0); });
+    }
+
+    function startPresence() {
+        var sb = window.geramaSupabase;
+        if(!sb) { setTimeout(startPresence, 500); return; }
+
+        var sessionKey = sessionStorage.getItem('gerama_presence_key');
+        if(!sessionKey) {
+            sessionKey = 'anon-' + Math.random().toString(36).slice(2) + '-' + Date.now().toString(36);
+            sessionStorage.setItem('gerama_presence_key', sessionKey);
+        }
+
+        var profile = null;
+        try { profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}'); } catch(e) {}
+        var presenceKey = (profile && profile.email) ? profile.email : sessionKey;
+
+        if(window._geramaSitePresenceChannel) {
+            try { sb.removeChannel(window._geramaSitePresenceChannel); } catch(e) {}
+        }
+
+        var channel = sb.channel('gerama-site-presence', {
+            config: { presence: { key: presenceKey } }
+        });
+
+        channel
+            .on('presence', { event: 'sync' }, function() {
+                setLiveCount(Object.keys(channel.presenceState()).length);
+            })
+            .subscribe(function(status) {
+                if(status === 'SUBSCRIBED') {
+                    channel.track({
+                        page: page,
+                        online_at: new Date().toISOString()
+                    });
+                } else if(status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                    fallbackPageViewCount();
+                }
+            });
+
+        window._geramaSitePresenceChannel = channel;
+        setInterval(function() {
+            if(!channel || channel.state !== 'joined') fallbackPageViewCount();
+        }, 30000);
+    }
+
+    startPresence();
 })();
 
 // –– STUDY STREAK TRACKER –––––––––––––––––––––––––––––––––––––––––

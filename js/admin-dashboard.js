@@ -542,12 +542,18 @@
           image_url: ann.image,
           images: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null,
           created_at: new Date().toISOString()
-        });
+        }).select('id').single();
         if(dbRes.error){
           console.error('[GERAMA] Announcement DB insert failed:', dbRes.error.message, dbRes.error.hint || '');
           window.showStatus('annStatus','⚠️ Published locally but database save failed: '+dbRes.error.message+' — Run fix-announcements-rls.sql in Supabase.','err');
           btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Publish to Site';
           return;
+        }
+        // Capture the real DB-assigned ID so deletes work correctly
+        if(dbRes.data && dbRes.data.id){
+          ann.id = dbRes.data.id;
+          announcements[0] = ann; // update the first item (just unshifted above)
+          localStorage.setItem('gerama_announcements', JSON.stringify(announcements));
         }
       }
     }catch(e){
@@ -569,21 +575,46 @@
     btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Publish to Site';
   };
 
-  window.deleteAnn = function(idx){
+  window.deleteAnn = async function(idx){
     if(!confirm('Delete this announcement?')) return;
 
     var ann = announcements[idx];
-    if(ann && ann.id){
-      try{
-        var sb = window.geramaSupabase;
-        if(sb) sb.from('announcements').delete().eq('id', ann.id);
-      }catch(e){}
-    }
+    var dbId = ann && ann.id ? ann.id : null;
 
-    announcements.splice(idx,1);
+    // Remove from local state immediately for snappy UI
+    announcements.splice(idx, 1);
     localStorage.setItem('gerama_announcements', JSON.stringify(announcements));
     renderAnnouncements();
     updateStats();
+
+    // Delete from Supabase DB — try id first, then title as fallback
+    try{
+      var sb = window.geramaSupabase;
+      if(sb){
+        var deleted = false;
+        if(dbId){
+          var delRes = await sb.from('announcements').delete().eq('id', dbId).select('id');
+          if(!delRes.error && delRes.data && delRes.data.length) deleted = true;
+          else if(delRes.error) console.warn('[GERAMA] Delete by id failed:', delRes.error.message);
+        }
+        if(!deleted && ann && ann.title){
+          var delRes2 = await sb.from('announcements').delete().eq('title', ann.title).select('id');
+          if(!delRes2.error && delRes2.data && delRes2.data.length){
+            deleted = true;
+            console.log('[GERAMA] Deleted by title fallback:', ann.title);
+          } else if(delRes2.error) {
+            console.warn('[GERAMA] Delete by title failed:', delRes2.error.message);
+          }
+        }
+        if(!deleted) console.warn('[GERAMA] Announcement may still exist in DB:', ann && ann.title);
+      }
+    }catch(e){ console.error('[GERAMA] deleteAnn exception:', e); }
+
+    // Keep homepage cache in sync across tabs
+    localStorage.setItem('gerama_announcements', JSON.stringify(announcements));
+
+    // Reload from DB to confirm sync
+    loadData();
   };
 
   function renderAnnouncements(){
@@ -828,10 +859,10 @@
     try{
       var sb2 = window.geramaSupabase;
       if(sb2){
-        var { data: annData } = await sb2.from('announcements').select('*').order('created_at',{ascending:false}).limit(50);
+        var { data: annData, error: annError } = await sb2.from('announcements').select('*').order('created_at',{ascending:false}).limit(50);
         console.log('[loadData] Announcements data:', annData ? annData.length + ' items' : 'null');
-        if(annData && annData.length){
-          announcements = annData.map(function(r){
+        if(!annError && annData !== null && annData !== undefined){
+          announcements = (annData || []).map(function(r){
             return { id:r.id, title:r.title, message:r.message, priority:r.priority||'normal',
               image:r.image_url||null, date:r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '' };
           });
@@ -854,9 +885,20 @@
     console.log('[loadData] Data load complete');
   };
 
-  async function loadOverviewStats(){
+  async function loadOverviewStats(retryCount){
+    retryCount = retryCount || 0;
     var sb = window.geramaSupabase;
-    if(!sb){ console.warn('[loadOverviewStats] Supabase not ready – aborting.'); return; }
+    if(!sb){
+      if(retryCount < 20){
+        setTimeout(function(){ loadOverviewStats(retryCount + 1); }, 500);
+      } else {
+        ['statVisitsToday','statVisitsWeek','statVisitsTotal','statAnn','statMaterials','statQuizzes','statAssignments'].forEach(function(id){
+          var e = document.getElementById(id);
+          if(e && (e.textContent === '–' || e.textContent === '-')) e.textContent = '0';
+        });
+      }
+      return;
+    }
 
     var now = new Date();
     var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
