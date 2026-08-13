@@ -1,5 +1,22 @@
 {
   "outputDirectory": ".",
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/login",             "destination": "/login.html" },
+    { "source": "/signup",            "destination": "/signup.html" },
+    { "source": "/resources",         "destination": "/resources.html" },
+    { "source": "/classroom",         "destination": "/classroom.html" },
+    { "source": "/dashboard",         "destination": "/dashboard.html" },
+    { "source": "/opportunities",     "destination": "/opportunities.html" },
+    { "source": "/about",             "destination": "/about.html" },
+    { "source": "/contact",           "destination": "/contact.html" },
+    { "source": "/connect",           "destination": "/connect.html" },
+    { "source": "/mall",              "destination": "/mall.html" },
+    { "source": "/help",              "destination": "/help.html" },
+    { "source": "/admin-dashboard",   "destination": "/admin-dashboard.html" },
+    { "source": "/reset-code",        "destination": "/reset-code.html" }
+  ],
   "headers": [
     {
       "source": "/(.*).html",
