@@ -3763,12 +3763,11 @@ function renderOpportunities() {
     var viewCount = opp.view_count || 0;
     var applyCount = opp.apply_count || 0;
     var _rawLink = (opp.apply_link || '').trim();
-    var _isEmail = _rawLink && _rawLink.indexOf('@') !== -1 && _rawLink.indexOf('http') === -1 && _rawLink.indexOf('mailto:') === -1;
-    var _applyHref = _isEmail ? 'mailto:' + _rawLink : _rawLink;
+    var _isEmail = _rawLink && !_rawLink.match(/^https?:\/\//) && !_rawLink.match(/^mailto:/) && _rawLink.indexOf('@') !== -1;
     var _applyIcon = _isEmail ? 'fas fa-envelope' : 'fas fa-external-link-alt';
     var _applyLabel = _isEmail ? 'Apply via Email' : 'Apply Now';
     var applyBtn = _rawLink
-      ? '<a href="' + escHtml(_applyHref) + '" ' + (_isEmail ? '' : 'target="_blank" rel="noopener"') + ' class="opp-apply-btn" onclick="trackOppApply(\'' + opp.id + '\')"><i class="' + _applyIcon + '"></i> ' + _applyLabel + '</a>'
+      ? '<a href="' + (_isEmail ? 'mailto:' + _rawLink : escHtml(_rawLink)) + '" ' + (_isEmail ? '' : 'target="_blank" rel="noopener"') + ' class="opp-apply-btn" onclick="trackOppApply(\'' + opp.id + '\')"><i class="' + _applyIcon + '"></i> ' + _applyLabel + '</a>'
       : '<span style="font-size:0.82rem;color:#6b7280;font-style:italic;">Contact admins to apply –</span>';
 
     return '<div class="opp-card" id="opp-' + opp.id + '" onclick="trackOppView(\'' + opp.id + '\')">' +
