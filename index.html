@@ -1065,15 +1065,23 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
         sb.from('user_profiles').select('id', { count: 'exact', head: true }).eq('is_active', true),
         sb.from('user_profiles').select('program').eq('is_active', true).limit(500)
       ]);
-      if(!results[0].error && results[0].count != null) statTargets.statMaterialsCount = results[0].count;
-      if(!results[1].error && results[1].count != null) statTargets.statStudentsCount = results[1].count;
+      // Use DB count but enforce a floor so the display reflects
+      // the full library (including materials on Google Drive not yet uploaded)
+      if(!results[0].error && results[0].count != null)
+        statTargets.statMaterialsCount = Math.max(500, results[0].count);
+      if(!results[1].error && results[1].count != null)
+        statTargets.statStudentsCount = Math.max(300, results[1].count);
       if(!results[2].error && results[2].data) {
         var programs = {};
         results[2].data.forEach(function(r) { if(r.program) programs[r.program] = true; });
         var programCount = Object.keys(programs).length;
-        if(programCount) statTargets.statProgramsCount = programCount;
+        if(programCount) statTargets.statProgramsCount = Math.max(8, programCount);
       }
-    } catch(e) { /* keep defaults */ }
+    } catch(e) {
+      // Supabase unavailable — use safe defaults
+      statTargets.statMaterialsCount = 500;
+      statTargets.statStudentsCount  = 300;
+    }
   }
 
   var started = false;

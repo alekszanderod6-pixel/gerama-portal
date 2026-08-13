@@ -552,7 +552,10 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     if(skip.indexOf(page) !== -1) return;
 
     var pvKey = 'gerama_pv_' + page;
+    // Only track once per session — but mark BEFORE the insert so
+    // a failed insert (e.g. table not ready yet) doesn't block future tracking
     if(sessionStorage.getItem(pvKey)) return;
+    sessionStorage.setItem(pvKey, '1'); // optimistic: mark now
 
     function trackView() {
         if(typeof window.geramaSupabase === 'undefined') {
@@ -564,11 +567,14 @@ window.showStatus = window.showStatus || function(id, msg, type) {
             .then(function(res){
                 if(res && res.error){
                     console.warn('[PageTracker] Insert failed:', res.error.message);
-                } else {
-                    sessionStorage.setItem(pvKey, '1');
+                    // Clear the optimistic flag so it retries next session
+                    sessionStorage.removeItem(pvKey);
                 }
             })
-            .catch(function(e){ console.warn('[PageTracker] Exception:', e); });
+            .catch(function(e){
+                console.warn('[PageTracker] Exception:', e);
+                sessionStorage.removeItem(pvKey);
+            });
     }
     setTimeout(trackView, 1000);
 })();
