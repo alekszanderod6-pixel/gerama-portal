@@ -333,13 +333,19 @@
                     return;
                 }
                 if (Notification.permission === 'denied') {
-                    alert('Notifications are blocked for this site.\n\nTo fix:\n1. Tap the lock/info icon in your browser address bar\n2. Find "Notifications" and set it to "Allow"\n3. Reload the page and tap the bell again.');
+                    // iOS PWA needs Settings app, not browser bar
+                    if (isIOS) {
+                        alert('To enable notifications on iPhone:\n\n1. Close this app\n2. Open the iOS Settings app\n3. Scroll down and tap "GERAMA" (or Safari)\n4. Tap "Notifications" → turn ON\n5. Re-open GERAMA from your home screen and tap the bell again');
+                    } else {
+                        alert('Notifications are blocked for this site.\n\nTo fix:\n1. Tap the lock/info icon in your browser address bar\n2. Find "Notifications" and set it to "Allow"\n3. Reload the page and tap the bell again.');
+                    }
                     return;
                 }
                 bell.innerHTML = '⏳';
                 bell.disabled = true;
                 try {
-                    // Request browser permission first
+                    // iOS PWA: if permission is "default" but requestPermission doesn't show a prompt,
+                    // it means notifications are OFF in iOS Settings
                     var perm = await Notification.requestPermission();
                     if (perm === 'granted') {
                         // Now hook into OneSignal if available
@@ -366,7 +372,11 @@
                     } else {
                         bell.innerHTML = '🔔';
                         bell.disabled = false;
-                        alert('Notification permission was not granted. You can enable it later by tapping the bell again.');
+                        if (isIOS) {
+                            alert('Notifications were not enabled.\n\nOn iPhone you need to:\n1. Close GERAMA\n2. Open iOS Settings → scroll to GERAMA or Safari\n3. Tap Notifications → turn ON\n4. Re-open GERAMA and tap the bell');
+                        } else {
+                            alert('Notification permission was not granted. You can enable it later by tapping the bell again.');
+                        }
                     }
                 } catch (e) {
                     bell.innerHTML = '🔔';
