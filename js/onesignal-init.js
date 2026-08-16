@@ -1,7 +1,6 @@
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // GERAMA Portal – OneSignal Web Push Notifications
 // App ID: 9aa2964d-5435-492c-9dd8-7c873d371976
-// Fixed: removed duplicate IIFE that was causing double-init bug
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
 (function () {
@@ -9,16 +8,16 @@
 
     var ONESIGNAL_APP_ID = '9aa2964d-5435-492c-9dd8-7c873d371976';
 
-    var SKIP_BANNER_PAGES = ['login.html', 'signup.html', 'reset-code.html', 'admin-dashboard.html'];
+    var SKIP_PAGES = ['login.html', 'signup.html', 'reset-code.html', 'admin-dashboard.html'];
     var currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    var showBanner  = SKIP_BANNER_PAGES.indexOf(currentPage) === -1;
+    var showBell = SKIP_PAGES.indexOf(currentPage) === -1;
 
     var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) ||
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     var isPWA = window.matchMedia('(display-mode: standalone)').matches ||
                 window.navigator.standalone === true;
 
-    // –– 1. Initialize OneSignal (ONCE) ––––––––––––––––––––––––––––
+    // ── 1. Init OneSignal SDK ──────────────────────────────────────
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function (OneSignal) {
         try {
@@ -26,74 +25,57 @@
                 appId: ONESIGNAL_APP_ID,
                 safari_web_id: 'web.onesignal.auto.4924b4f0-134c-425c-876d-dc71d8371c02',
                 allowLocalhostAsSecureOrigin: true,
-                // Disable the built-in iframe bell – it breaks on iOS PWA.
-                // We inject our own native bell button below instead.
                 notifyButton: { enable: false },
                 promptOptions: {
                     slidedown: { prompts: [{ type: 'push', autoPrompt: false }] }
                 }
             });
-
-            console.log('[GERAMA] OneSignal initialized –');
-
+            console.log('[GERAMA] OneSignal initialized');
             _tryAutoLink();
-
-            if (showBanner) {
-                _injectNativeBell(OneSignal);
-                _maybeShowBanner(OneSignal);
-            }
-
+            // Update bell colour once SDK is ready
+            _updateBellColour(OneSignal);
         } catch (err) {
             console.warn('[GERAMA] OneSignal init failed:', err);
         }
     });
 
-    // –– 2. Link Supabase UUID + email to OneSignal ––––––––––––––––
-    // Called after login, signup, and on every page load for active sessions.
+    // ── 2. Link Supabase user to OneSignal subscription ───────────
     window.geramaLinkOneSignal = async function () {
         try {
             if (typeof window.geramaSupabase === 'undefined') return;
             var result = await window.geramaSupabase.auth.getSession();
             var session = result && result.data && result.data.session;
             if (!session || !session.user) return;
-
             var userId    = session.user.id;
             var userEmail = session.user.email;
-
             if (typeof window.OneSignal !== 'undefined' && window.OneSignal.login) {
                 await window.OneSignal.login(userId);
                 if (userEmail && window.OneSignal.User && window.OneSignal.User.addEmail) {
                     await window.OneSignal.User.addEmail(userEmail);
                 }
-                console.log('[GERAMA] OneSignal linked – user:', userId, 'email:', userEmail);
+                console.log('[GERAMA] OneSignal linked – user:', userId);
             } else {
-                OneSignalDeferred.push(async function (OneSignal) {
+                OneSignalDeferred.push(async function (OS) {
                     try {
-                        await OneSignal.login(userId);
-                        if (userEmail && OneSignal.User && OneSignal.User.addEmail) {
-                            await OneSignal.User.addEmail(userEmail);
-                        }
-                    } catch (e) { /* non-fatal */ }
+                        await OS.login(userId);
+                        if (userEmail && OS.User && OS.User.addEmail) await OS.User.addEmail(userEmail);
+                    } catch (e) {}
                 });
             }
         } catch (err) {
-            console.warn('[GERAMA] OneSignal user link failed:', err);
+            console.warn('[GERAMA] OneSignal link failed:', err);
         }
     };
 
-    // –– 3. Logout cleanup –––––––––––––––––––––––––––––––––––––––––
+    // ── 3. Logout ─────────────────────────────────────────────────
     window.geramaLogoutOneSignal = async function () {
         try {
             if (typeof window.OneSignal !== 'undefined' && window.OneSignal.logout) {
                 await window.OneSignal.logout();
-                console.log('[GERAMA] OneSignal logged out');
             }
-        } catch (e) {
-            console.warn('[GERAMA] OneSignal logout failed:', e);
-        }
+        } catch (e) {}
     };
 
-    // Auto-link on every page load (for already logged-in sessions)
     function _tryAutoLink() {
         function attempt(n) {
             if (typeof window.geramaSupabase !== 'undefined') {
@@ -105,206 +87,197 @@
         attempt(20);
     }
 
-    // –– 4. Native bell button (works on iOS PWA – no iframe) ––––––
-    function _injectNativeBell(OneSignal) {
-        if (document.getElementById('geramaNativeBell')) return;
-
-        var bell = document.createElement('button');
-        bell.id = 'geramaNativeBell';
-        bell.setAttribute('aria-label', 'Manage GERAMA notifications');
-        bell.title = 'Tap to get GERAMA alerts';
-        bell.style.cssText = [
-            'position:fixed', 'bottom:90px', 'right:16px', 'z-index:9500',
-            'width:50px', 'height:50px', 'border-radius:50%',
-            'background:linear-gradient(135deg,#1B5E20,#2E7D32)',
-            'border:2px solid rgba(255,255,255,0.3)', 'cursor:pointer',
-            'display:flex', 'align-items:center', 'justify-content:center',
-            'font-size:1.3rem', 'box-shadow:0 4px 18px rgba(27,94,32,0.55)',
-            'transition:transform 0.2s,box-shadow 0.2s',
-            'font-family:inherit'
-        ].join(';');
-        bell.innerHTML = '🔔';
-
-        bell.addEventListener('mouseover', function () { bell.style.transform = 'scale(1.1)'; });
-        bell.addEventListener('mouseout',  function () { bell.style.transform = 'scale(1)'; });
-
-        bell.addEventListener('click', async function () {
+    // ── 4. Update bell colour based on subscription state ─────────
+    function _updateBellColour(OneSignal) {
+        setTimeout(async function () {
             try {
-                var optedIn = await OneSignal.User.PushSubscription.optedIn;
-                if (optedIn) {
-                    if (confirm('You are subscribed to GERAMA notifications.\n\nTap OK to unsubscribe.')) {
-                        await OneSignal.User.PushSubscription.optOut();
-                        bell.innerHTML = '🔕';
-                        bell.style.background = 'linear-gradient(135deg,#6b7280,#9ca3af)';
-                        setTimeout(function () {
-                            bell.innerHTML = '🔔';
-                            bell.style.background = 'linear-gradient(135deg,#1B5E20,#2E7D32)';
-                        }, 3000);
-                    }
-                } else {
-                    await OneSignal.Notifications.requestPermission();
-                    window.geramaLinkOneSignal && window.geramaLinkOneSignal();
-                    bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-                    bell.title = 'GERAMA notifications ON – tap to manage';
-                    var tip = document.createElement('div');
-                    tip.textContent = '– Alerts ON';
-                    tip.style.cssText = [
-                        'position:fixed', 'bottom:134px', 'right:10px', 'z-index:8001',
-                        'background:#059669', 'color:white',
-                        'padding:0.3rem 0.7rem', 'border-radius:20px',
-                        'font-size:0.75rem', 'font-weight:700',
-                        'font-family:Inter,sans-serif', 'pointer-events:none'
-                    ].join(';');
-                    document.body.appendChild(tip);
-                    setTimeout(function () { tip.remove(); }, 3000);
-                }
-            } catch (e) {
-                console.warn('[GERAMA] Bell click error:', e);
-            }
-        });
-
-        // Colour the bell green if already subscribed
-        async function _updateBellState() {
-            try {
+                var bell = document.getElementById('geramaNativeBell');
+                if (!bell) return;
                 var optedIn = await OneSignal.User.PushSubscription.optedIn;
                 if (optedIn) {
                     bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
                     bell.title = 'GERAMA notifications ON – tap to manage';
                 }
             } catch (e) {}
-        }
-
-        document.body.appendChild(bell);
-        setTimeout(_updateBellState, 1000);
+        }, 1500);
     }
 
-    // –– 5. Smart subscribe banner –––––––––––––––––––––––––––––––––
-    async function _maybeShowBanner(OneSignal) {
-        try {
-            var dismissed = parseInt(localStorage.getItem('gerama_notif_dismissed') || '0');
-            if (Date.now() - dismissed < 7 * 24 * 60 * 60 * 1000) return;
+    // ── 5. Bell button ─────────────────────────────────────────────
+    // Injected immediately — no wait for OneSignal SDK
+    function _injectBell() {
+        if (!showBell) return;
+        if (document.getElementById('geramaNativeBell')) return;
 
-            if (typeof window.geramaSupabase === 'undefined') return;
-            var result = await window.geramaSupabase.auth.getSession();
-            var session = result && result.data && result.data.session;
-            if (!session) return;
+        var bell = document.createElement('button');
+        bell.id = 'geramaNativeBell';
+        bell.setAttribute('aria-label', 'GERAMA push notifications');
+        bell.title = 'Tap to get GERAMA alerts';
+        bell.innerHTML = '🔔';
+        // Left side — does not overlap GERALEX (which is bottom-right)
+        bell.style.cssText = 'position:fixed;bottom:80px;left:14px;z-index:99999;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);border:2px solid rgba(255,255,255,0.35);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 4px 16px rgba(27,94,32,0.5);transition:transform 0.2s;font-family:inherit;';
 
-            var isPushEnabled = await OneSignal.User.PushSubscription.optedIn;
-            if (isPushEnabled) return;
-
-            if (!('Notification' in window)) return;
-            if (Notification.permission === 'denied') return;
-
-            // iOS not in PWA mode: show the "save to homescreen" guide
-            if (isIOS && !isPWA) {
-                setTimeout(_injectIOSBanner, 2500);
+        bell.addEventListener('click', async function () {
+            // No notification support at all
+            if (!('Notification' in window)) {
+                alert('Push notifications are not supported on this browser.\nTry installing the GERAMA app to your home screen.');
                 return;
             }
 
-            setTimeout(_injectBanner, 2500);
-        } catch (e) { /* non-fatal */ }
+            // iOS Settings-level block
+            if (Notification.permission === 'denied') {
+                if (isIOS) {
+                    alert('To enable notifications on iPhone:\n\n1. Close GERAMA\n2. Open iOS Settings → scroll down → tap Safari (or GERAMA)\n3. Tap Notifications → turn ON\n4. Re-open GERAMA from your home screen and tap the bell');
+                } else {
+                    alert('Notifications are blocked.\n\n1. Click the lock icon in your browser address bar\n2. Set Notifications to Allow\n3. Reload and tap the bell again');
+                }
+                return;
+            }
+
+            bell.innerHTML = '⏳';
+            bell.disabled = true;
+
+            try {
+                // Always go through OneSignal so the device gets properly registered
+                // with OneSignal's delivery network — not just the browser
+                if (typeof window.OneSignal !== 'undefined') {
+                    var alreadyIn = false;
+                    try { alreadyIn = await window.OneSignal.User.PushSubscription.optedIn; } catch(e) {}
+
+                    if (alreadyIn) {
+                        bell.innerHTML = '🔔';
+                        bell.disabled = false;
+                        bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+                        _showTip('✓ Already subscribed!');
+                        return;
+                    }
+
+                    // This both requests browser permission AND registers with OneSignal
+                    await window.OneSignal.Notifications.requestPermission();
+                    await window.geramaLinkOneSignal();
+
+                    var nowIn = false;
+                    try { nowIn = await window.OneSignal.User.PushSubscription.optedIn; } catch(e) {}
+
+                    bell.innerHTML = '🔔';
+                    bell.disabled = false;
+
+                    if (nowIn) {
+                        bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+                        bell.title = 'GERAMA notifications ON – tap to manage';
+                        _showTip('✓ Notifications ON!');
+                    } else {
+                        if (isIOS && !isPWA) {
+                            alert('To get notifications on iPhone, you need to:\n\n1. Tap the Share button in Safari\n2. Tap "Add to Home Screen"\n3. Open GERAMA from your home screen\n4. Tap the bell again');
+                        } else if (isIOS) {
+                            alert('Could not subscribe.\n\nCheck iOS Settings → Safari or GERAMA → Notifications are ON, then try again.');
+                        } else {
+                            alert('Permission not granted. Please allow notifications when prompted.');
+                        }
+                    }
+                } else {
+                    // OneSignal SDK not loaded yet — queue subscription for when it loads
+                    OneSignalDeferred.push(async function (OS) {
+                        try {
+                            await OS.Notifications.requestPermission();
+                            await window.geramaLinkOneSignal();
+                            var nowIn2 = false;
+                            try { nowIn2 = await OS.User.PushSubscription.optedIn; } catch(e) {}
+                            if (nowIn2) {
+                                var b = document.getElementById('geramaNativeBell');
+                                if (b) {
+                                    b.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+                                    b.title = 'GERAMA notifications ON';
+                                }
+                                _showTip('✓ Notifications ON!');
+                            }
+                        } catch (e) { console.warn('[GERAMA] Deferred subscribe error:', e); }
+                    });
+                    bell.innerHTML = '🔔';
+                    bell.disabled = false;
+                    _showTip('Subscribing...');
+                }
+            } catch (e) {
+                bell.innerHTML = '🔔';
+                bell.disabled = false;
+                console.warn('[GERAMA] Bell error:', e);
+                alert('Error: ' + e.message);
+            }
+        });
+
+        document.body.appendChild(bell);
     }
 
-    function _injectBanner() {
+    function _showTip(text) {
+        var tip = document.createElement('div');
+        tip.textContent = text;
+        tip.style.cssText = 'position:fixed;bottom:140px;left:10px;z-index:99999;background:#059669;color:white;padding:0.35rem 0.9rem;border-radius:20px;font-size:0.8rem;font-weight:700;font-family:Inter,sans-serif;pointer-events:none;box-shadow:0 4px 12px rgba(5,150,105,0.4);';
+        document.body.appendChild(tip);
+        setTimeout(function () { if (tip.parentNode) tip.remove(); }, 3000);
+    }
+
+    // Inject bell as soon as body is available
+    if (document.body) {
+        _injectBell();
+    } else {
+        document.addEventListener('DOMContentLoaded', _injectBell);
+    }
+    setTimeout(_injectBell, 500); // retry in case body wasn't ready
+
+    // ── 6. Auto-prompt banner for signed-in users not yet subscribed ──
+    OneSignalDeferred.push(async function (OneSignal) {
+        if (!showBell) return;
+        try {
+            var dismissed = parseInt(localStorage.getItem('gerama_notif_dismissed') || '0');
+            if (Date.now() - dismissed < 7 * 24 * 60 * 60 * 1000) return;
+            if (typeof window.geramaSupabase === 'undefined') return;
+            var result = await window.geramaSupabase.auth.getSession();
+            if (!result || !result.data || !result.data.session) return;
+            var optedIn = await OneSignal.User.PushSubscription.optedIn;
+            if (optedIn) return;
+            if (!('Notification' in window) || Notification.permission === 'denied') return;
+            if (isIOS && !isPWA) { setTimeout(_injectIOSBanner, 3000); return; }
+            setTimeout(function () { _injectPromptBanner(OneSignal); }, 3000);
+        } catch (e) {}
+    });
+
+    function _injectPromptBanner(OneSignal) {
         if (document.getElementById('geramaNotifBanner')) return;
-        if (!('Notification' in window) || Notification.permission === 'denied') return;
-
-        var subtext = isPWA
-            ? 'Get instant GERAMA alerts on your phone – even when the app is closed.'
-            : 'Get alerts on this device. For background notifications, save to homescreen first.';
-
         var banner = document.createElement('div');
         banner.id = 'geramaNotifBanner';
-        banner.setAttribute('role', 'alert');
-        banner.style.cssText = [
-            'position:fixed', 'bottom:70px', 'left:0', 'right:0',
-            'z-index:8500', 'margin:0 auto', 'max-width:520px',
-            'background:linear-gradient(135deg,#0a2f1f 0%,#1B5E20 100%)',
-            'color:white', 'border-radius:16px 16px 0 0',
-            'box-shadow:0 -4px 24px rgba(0,0,0,0.35)',
-            'padding:1rem 1.2rem', 'display:flex', 'align-items:center',
-            'gap:0.9rem', 'font-family:Inter,sans-serif',
-            'transform:translateY(100%)',
-            'transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
-            'border-top:2px solid rgba(255,193,7,0.5)'
-        ].join(';');
-
-        banner.innerHTML =
-            '<div style="font-size:1.8rem;flex-shrink:0;line-height:1;">🔔</div>' +
-            '<div style="flex:1;min-width:0;">' +
-                '<div style="font-size:0.88rem;font-weight:800;margin-bottom:0.15rem;">Stay updated with GERAMA</div>' +
-                '<div style="font-size:0.75rem;opacity:0.8;line-height:1.4;">' + subtext + '</div>' +
-            '</div>' +
-            '<div style="display:flex;flex-direction:column;gap:0.4rem;flex-shrink:0;">' +
-                '<button id="geramaNotifEnable" style="background:#FFC107;color:#0a2f1f;border:none;padding:0.5rem 1.1rem;border-radius:20px;font-size:0.82rem;font-weight:800;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap;box-shadow:0 2px 8px rgba(255,193,7,0.4);">Enable Alerts</button>' +
-                '<button id="geramaNotifDismiss" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);padding:0.35rem 1.1rem;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap;">Not now</button>' +
-            '</div>';
-
+        banner.style.cssText = 'position:fixed;bottom:70px;left:0;right:0;z-index:8500;margin:0 auto;max-width:520px;background:linear-gradient(135deg,#0a2f1f,#1B5E20);color:white;border-radius:16px 16px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.35);padding:1rem 1.2rem;display:flex;align-items:center;gap:0.9rem;font-family:Inter,sans-serif;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);border-top:2px solid rgba(255,193,7,0.5);';
+        var subtext = isPWA ? 'Get instant GERAMA alerts on your phone – even when the app is closed.' : 'Get alerts on this device. For background notifications, save to home screen first.';
+        banner.innerHTML = '<div style="font-size:1.8rem;flex-shrink:0;">🔔</div><div style="flex:1;min-width:0;"><div style="font-size:0.88rem;font-weight:800;margin-bottom:0.1rem;">Stay updated with GERAMA</div><div style="font-size:0.75rem;opacity:0.8;line-height:1.4;">' + subtext + '</div></div><div style="display:flex;flex-direction:column;gap:0.4rem;flex-shrink:0;"><button id="geramaNotifEnable" style="background:#FFC107;color:#0a2f1f;border:none;padding:0.5rem 1.1rem;border-radius:20px;font-size:0.82rem;font-weight:800;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap;">Enable Alerts</button><button id="geramaNotifDismiss" style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.2);padding:0.35rem 1.1rem;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;white-space:nowrap;">Not now</button></div>';
         document.body.appendChild(banner);
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () { banner.style.transform = 'translateY(0)'; });
-        });
-
-        document.getElementById('geramaNotifEnable').addEventListener('click', function () {
+        requestAnimationFrame(function () { requestAnimationFrame(function () { banner.style.transform = 'translateY(0)'; }); });
+        document.getElementById('geramaNotifEnable').addEventListener('click', async function () {
             _hideBanner();
-            OneSignalDeferred.push(async function (OneSignal) {
-                try {
-                    await OneSignal.Notifications.requestPermission();
-                    window.geramaLinkOneSignal && window.geramaLinkOneSignal();
-                } catch (e) { console.warn('[GERAMA] Permission request failed:', e); }
-            });
+            try {
+                await OneSignal.Notifications.requestPermission();
+                await window.geramaLinkOneSignal();
+                var b = document.getElementById('geramaNativeBell');
+                if (b) b.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+            } catch (e) {}
         });
-
         document.getElementById('geramaNotifDismiss').addEventListener('click', function () {
             localStorage.setItem('gerama_notif_dismissed', String(Date.now()));
             _hideBanner();
         });
     }
 
-    // iOS: show a "Save to Homescreen" guide banner
     function _injectIOSBanner() {
         if (document.getElementById('geramaIOSBanner')) return;
         var dismissed = parseInt(localStorage.getItem('gerama_ios_banner_dismissed') || '0');
         if (Date.now() - dismissed < 14 * 24 * 60 * 60 * 1000) return;
-
         var banner = document.createElement('div');
         banner.id = 'geramaIOSBanner';
-        banner.style.cssText = [
-            'position:fixed', 'bottom:70px', 'left:0', 'right:0',
-            'z-index:8500', 'margin:0 auto', 'max-width:520px',
-            'background:linear-gradient(135deg,#1e40af,#2563eb)',
-            'color:white', 'border-radius:16px 16px 0 0',
-            'box-shadow:0 -4px 24px rgba(0,0,0,0.35)',
-            'padding:1rem 1.2rem', 'font-family:Inter,sans-serif',
-            'transform:translateY(100%)',
-            'transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1)',
-            'border-top:2px solid rgba(255,255,255,0.3)'
-        ].join(';');
-
-        banner.innerHTML =
-            '<div style="display:flex;align-items:flex-start;gap:0.9rem;">' +
-                '<div style="font-size:1.8rem;flex-shrink:0;line-height:1;">📲</div>' +
-                '<div style="flex:1;min-width:0;">' +
-                    '<div style="font-size:0.88rem;font-weight:800;margin-bottom:0.3rem;">Get GERAMA notifications on iPhone</div>' +
-                    '<div style="font-size:0.78rem;opacity:0.9;line-height:1.6;">' +
-                        '1. Tap the <strong>Share</strong> button <span style="font-size:1rem;">–️</span> at the bottom of Safari<br>' +
-                        '2. Scroll down and tap <strong>"Add to Home Screen"</strong><br>' +
-                        '3. Open the GERAMA app from your home screen<br>' +
-                        '4. Tap <strong>"Allow"</strong> when prompted for notifications' +
-                    '</div>' +
-                '</div>' +
-                '<button id="geramaIOSDismiss" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:Inter,sans-serif;line-height:1;">–</button>' +
-            '</div>';
-
+        banner.style.cssText = 'position:fixed;bottom:70px;left:0;right:0;z-index:8500;margin:0 auto;max-width:520px;background:linear-gradient(135deg,#1e40af,#2563eb);color:white;border-radius:16px 16px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.35);padding:1rem 1.2rem;font-family:Inter,sans-serif;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);border-top:2px solid rgba(255,255,255,0.3);';
+        banner.innerHTML = '<div style="display:flex;align-items:flex-start;gap:0.9rem;"><div style="font-size:1.8rem;flex-shrink:0;">📲</div><div style="flex:1;min-width:0;"><div style="font-size:0.88rem;font-weight:800;margin-bottom:0.3rem;">Get GERAMA notifications on iPhone</div><div style="font-size:0.78rem;opacity:0.9;line-height:1.6;">1. Tap the <strong>Share</strong> button at the bottom of Safari<br>2. Tap <strong>"Add to Home Screen"</strong><br>3. Open GERAMA from your home screen<br>4. Tap <strong>Allow</strong> when prompted</div></div><button id="geramaIOSDismiss" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;">×</button></div>';
         document.body.appendChild(banner);
-        requestAnimationFrame(function () {
-            requestAnimationFrame(function () { banner.style.transform = 'translateY(0)'; });
-        });
-
+        requestAnimationFrame(function () { requestAnimationFrame(function () { banner.style.transform = 'translateY(0)'; }); });
         document.getElementById('geramaIOSDismiss').addEventListener('click', function () {
             localStorage.setItem('gerama_ios_banner_dismissed', String(Date.now()));
             banner.style.transform = 'translateY(110%)';
-            setTimeout(function () { if (banner.parentNode) banner.parentNode.removeChild(banner); }, 400);
+            setTimeout(function () { if (banner.parentNode) banner.remove(); }, 400);
         });
     }
 
@@ -312,97 +285,7 @@
         var b = document.getElementById('geramaNotifBanner');
         if (!b) return;
         b.style.transform = 'translateY(110%)';
-        setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 400);
-    }
-
-    // –– Fallback: inject bell immediately — no dependency on OneSignal SDK loading ––
-    if (showBanner) {
-        function _ensureBell() {
-            if (document.getElementById('geramaNativeBell')) return;
-            var bell = document.createElement('button');
-            bell.id = 'geramaNativeBell';
-            bell.setAttribute('aria-label', 'Enable GERAMA notifications');
-            bell.title = 'Tap to enable GERAMA push alerts';
-            bell.innerHTML = '🔔';
-            // Positioned on LEFT side so it doesn't cover GERALEX (which is bottom-right)
-            bell.style.cssText = 'position:fixed;bottom:80px;left:14px;z-index:99999;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);border:2px solid rgba(255,255,255,0.4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 4px 16px rgba(27,94,32,0.5);transition:transform 0.2s;font-family:inherit;visibility:visible;opacity:1;';
-            bell.addEventListener('click', async function () {
-                // Check if browser supports notifications at all
-                if (!('Notification' in window)) {
-                    alert('Push notifications are not supported on this browser.\nTry installing the GERAMA app to your home screen and opening it from there.');
-                    return;
-                }
-                if (Notification.permission === 'denied') {
-                    // iOS PWA needs Settings app, not browser bar
-                    if (isIOS) {
-                        alert('To enable notifications on iPhone:\n\n1. Close this app\n2. Open the iOS Settings app\n3. Scroll down and tap "GERAMA" (or Safari)\n4. Tap "Notifications" → turn ON\n5. Re-open GERAMA from your home screen and tap the bell again');
-                    } else {
-                        alert('Notifications are blocked for this site.\n\nTo fix:\n1. Tap the lock/info icon in your browser address bar\n2. Find "Notifications" and set it to "Allow"\n3. Reload the page and tap the bell again.');
-                    }
-                    return;
-                }
-                bell.innerHTML = '⏳';
-                bell.disabled = true;
-                try {
-                    // iOS PWA: if permission is "default" but requestPermission doesn't show a prompt,
-                    // it means notifications are OFF in iOS Settings
-                    var perm = await Notification.requestPermission();
-                    if (perm === 'granted') {
-                        // Now hook into OneSignal if available
-                        if (typeof window.OneSignal !== 'undefined') {
-                            try { await window.OneSignal.Notifications.requestPermission(); } catch(e) {}
-                        } else {
-                            // Queue for when OneSignal loads
-                            window.OneSignalDeferred = window.OneSignalDeferred || [];
-                            OneSignalDeferred.push(async function(OS) {
-                                try { await OS.Notifications.requestPermission(); } catch(e) {}
-                            });
-                        }
-                        window.geramaLinkOneSignal && window.geramaLinkOneSignal();
-                        bell.innerHTML = '🔔';
-                        bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-                        bell.title = 'GERAMA notifications ON ✓';
-                        bell.disabled = false;
-                        // Show confirmation tip
-                        var tip = document.createElement('div');
-                        tip.textContent = '✓ Notifications ON!';
-                        tip.style.cssText = 'position:fixed;bottom:140px;left:10px;z-index:99999;background:#059669;color:white;padding:0.35rem 0.9rem;border-radius:20px;font-size:0.8rem;font-weight:700;font-family:Inter,sans-serif;pointer-events:none;box-shadow:0 4px 12px rgba(5,150,105,0.4);';
-                        document.body.appendChild(tip);
-                        setTimeout(function(){ if(tip.parentNode) tip.remove(); }, 3000);
-                    } else {
-                        bell.innerHTML = '🔔';
-                        bell.disabled = false;
-                        if (isIOS) {
-                            alert('Notifications were not enabled.\n\nOn iPhone you need to:\n1. Close GERAMA\n2. Open iOS Settings → scroll to GERAMA or Safari\n3. Tap Notifications → turn ON\n4. Re-open GERAMA and tap the bell');
-                        } else {
-                            alert('Notification permission was not granted. You can enable it later by tapping the bell again.');
-                        }
-                    }
-                } catch (e) {
-                    bell.innerHTML = '🔔';
-                    bell.disabled = false;
-                    alert('Could not enable notifications: ' + e.message);
-                }
-            });
-            // Colour bell green if already subscribed (check after 1s)
-            setTimeout(async function() {
-                try {
-                    if (Notification.permission === 'granted') {
-                        bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-                        bell.title = 'GERAMA notifications ON ✓';
-                    }
-                } catch(e) {}
-            }, 1500);
-            document.body.appendChild(bell);
-        }
-        // Inject as soon as possible
-        if (document.body) {
-            _ensureBell();
-        } else {
-            document.addEventListener('DOMContentLoaded', _ensureBell);
-        }
-        // Also retry after 1s in case body wasn't ready
-        setTimeout(_ensureBell, 1000);
+        setTimeout(function () { if (b.parentNode) b.remove(); }, 400);
     }
 
 })();
