@@ -1,17 +1,23 @@
 -- ══════════════════════════════════════════════════════════════════
--- GERAMA — COMPLETE FIX
+-- GERAMA — COMPLETE FIX v2
 -- Fixes: announcement delete, visit tracking, admin overview stats
+-- + deletes the stuck RLS/Test announcements safely
 --
 -- HOW TO RUN:
---   1. Go to https://supabase.com/dashboard
---   2. Open project: obfhmyeghurqfxingwtu
---   3. SQL Editor → New query
---   4. Paste everything below → click RUN
+--   1. https://supabase.com/dashboard → project obfhmyeghurqfxingwtu
+--   2. SQL Editor → New query → paste all → RUN
 -- ══════════════════════════════════════════════════════════════════
 
 
 -- ──────────────────────────────────────────────────────────────────
--- PART 1: ANNOUNCEMENTS — fix delete, insert, update, select
+-- PART 1: Fix REPLICA IDENTITY so deletes work with Realtime
+-- (This was the error: "does not have a replica identity")
+-- ──────────────────────────────────────────────────────────────────
+ALTER TABLE announcements REPLICA IDENTITY FULL;
+
+
+-- ──────────────────────────────────────────────────────────────────
+-- PART 2: ANNOUNCEMENTS — all 4 RLS policies
 -- ──────────────────────────────────────────────────────────────────
 ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
 
@@ -34,17 +40,15 @@ CREATE POLICY "Admin can update announcements"
 
 
 -- ──────────────────────────────────────────────────────────────────
--- PART 2: PAGE_VIEWS — create table if missing, fix policies
--- This is what feeds "Visits Today", "This Week", "All-Time" stats
+-- PART 3: PAGE_VIEWS — create + RLS (fixes Visits Today / This Week)
 -- ──────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS page_views (
-  id          BIGSERIAL PRIMARY KEY,
-  page        TEXT,
-  visited_at  TIMESTAMPTZ DEFAULT NOW()
+  id         BIGSERIAL PRIMARY KEY,
+  page       TEXT,
+  visited_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE page_views ADD COLUMN IF NOT EXISTS referrer TEXT;
-
 ALTER TABLE page_views ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Anyone can insert page_views" ON page_views;
@@ -58,8 +62,8 @@ CREATE POLICY "Anyone can read page_views"
 
 
 -- ──────────────────────────────────────────────────────────────────
--- PART 3: DELETE the two stuck announcements manually
--- (RLS Check and Test announcements posted 7th August)
+-- PART 4: Delete the stuck RLS Check + Test announcements
+-- (Now safe because REPLICA IDENTITY FULL is set above)
 -- ──────────────────────────────────────────────────────────────────
 DELETE FROM announcements
 WHERE title ILIKE '%rls%'
@@ -68,23 +72,17 @@ WHERE title ILIKE '%rls%'
 
 
 -- ──────────────────────────────────────────────────────────────────
--- VERIFY — you should see results from all 3 checks below
+-- VERIFY — check all 3 after running
 -- ──────────────────────────────────────────────────────────────────
 
--- Check 1: Announcement policies (expect 4 rows: DELETE, INSERT, SELECT, UPDATE)
-SELECT tablename, policyname, cmd
-FROM pg_policies
-WHERE tablename = 'announcements'
-ORDER BY cmd;
+-- 1. Announcement policies (expect 4 rows)
+SELECT policyname, cmd FROM pg_policies
+WHERE tablename = 'announcements' ORDER BY cmd;
 
--- Check 2: page_views policies (expect 2 rows: INSERT, SELECT)
-SELECT tablename, policyname, cmd
-FROM pg_policies
-WHERE tablename = 'page_views'
-ORDER BY cmd;
+-- 2. page_views policies (expect 2 rows)
+SELECT policyname, cmd FROM pg_policies
+WHERE tablename = 'page_views' ORDER BY cmd;
 
--- Check 3: Remaining announcements (RLS/Test ones should be gone)
-SELECT id, title, created_at
-FROM announcements
-ORDER BY created_at DESC
-LIMIT 20;
+-- 3. Remaining announcements (RLS/Test should be gone)
+SELECT id, title, created_at FROM announcements
+ORDER BY created_at DESC LIMIT 20;

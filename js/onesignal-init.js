@@ -114,12 +114,12 @@
         bell.setAttribute('aria-label', 'Manage GERAMA notifications');
         bell.title = 'Tap to get GERAMA alerts';
         bell.style.cssText = [
-            'position:fixed', 'bottom:80px', 'right:14px', 'z-index:8000',
-            'width:46px', 'height:46px', 'border-radius:50%',
+            'position:fixed', 'bottom:90px', 'right:16px', 'z-index:9500',
+            'width:50px', 'height:50px', 'border-radius:50%',
             'background:linear-gradient(135deg,#1B5E20,#2E7D32)',
-            'border:none', 'cursor:pointer',
+            'border:2px solid rgba(255,255,255,0.3)', 'cursor:pointer',
             'display:flex', 'align-items:center', 'justify-content:center',
-            'font-size:1.2rem', 'box-shadow:0 4px 16px rgba(27,94,32,0.45)',
+            'font-size:1.3rem', 'box-shadow:0 4px 18px rgba(27,94,32,0.55)',
             'transition:transform 0.2s,box-shadow 0.2s',
             'font-family:inherit'
         ].join(';');
@@ -313,6 +313,41 @@
         if (!b) return;
         b.style.transform = 'translateY(110%)';
         setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 400);
+    }
+
+    // –– Fallback: inject a simple bell directly if OneSignal SDK is slow ––
+    // Runs 3 seconds after page load — if OneSignal already injected the bell
+    // this is a no-op (the id check at the top of _injectNativeBell prevents duplicates)
+    if (showBanner) {
+        setTimeout(function () {
+            if (document.getElementById('geramaNativeBell')) return;
+            // OneSignal hasn't loaded yet — inject a lightweight standalone bell
+            var bell = document.createElement('button');
+            bell.id = 'geramaNativeBell';
+            bell.setAttribute('aria-label', 'Enable GERAMA notifications');
+            bell.title = 'Tap to get GERAMA alerts';
+            bell.innerHTML = '🔔';
+            bell.style.cssText = [
+                'position:fixed', 'bottom:90px', 'right:16px', 'z-index:9500',
+                'width:50px', 'height:50px', 'border-radius:50%',
+                'background:linear-gradient(135deg,#1B5E20,#2E7D32)',
+                'border:2px solid rgba(255,255,255,0.3)', 'cursor:pointer',
+                'display:flex', 'align-items:center', 'justify-content:center',
+                'font-size:1.3rem', 'box-shadow:0 4px 18px rgba(27,94,32,0.55)',
+                'transition:transform 0.2s', 'font-family:inherit'
+            ].join(';');
+            bell.addEventListener('click', function () {
+                OneSignalDeferred.push(async function (OneSignal) {
+                    try {
+                        await OneSignal.Notifications.requestPermission();
+                        bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+                        bell.title = 'GERAMA notifications ON';
+                        window.geramaLinkOneSignal && window.geramaLinkOneSignal();
+                    } catch (e) { console.warn('[GERAMA] Bell fallback error:', e); }
+                });
+            });
+            document.body.appendChild(bell);
+        }, 3000);
     }
 
 })();
