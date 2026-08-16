@@ -590,15 +590,20 @@
           imageUrl: imageUrl || null
         })
       });
-      var json = await res.json();
+      var rawText = await res.text();
+      console.log('[GERAMA] /api/send-push HTTP', res.status, '| body:', rawText);
+      var json = {};
+      try { json = JSON.parse(rawText); } catch(e) { console.warn('[GERAMA] Non-JSON response:', rawText); }
       if(json.error){
         console.warn('[GERAMA] Push error:', json.error);
+        window.logActivity('❌ Push FAILED: ' + JSON.stringify(json.error));
       } else {
-        console.log('[GERAMA] Push sent – recipients:', json.recipients);
-        window.logActivity('📲 Push sent: "'+title+'" → '+(json.recipients||0)+' subscriber'+(json.recipients!==1?'s':''));
+        console.log('[GERAMA] Push sent – id:', json.id, '| recipients:', json.recipients);
+        window.logActivity('📲 Push sent: "'+title+'" → '+(json.recipients||0)+' subscriber'+(json.recipients!==1?'s':'') + ' | id:' + (json.id||'?'));
       }
     } catch(e) {
       console.warn('[GERAMA] Push exception:', e.message);
+      window.logActivity('❌ Push exception: ' + e.message);
     }
   }
   window.sendAnnouncementPush = sendAnnouncementPush;
@@ -621,19 +626,23 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: title, message: message, url: url || null })
       });
-      var json = await res.json();
-      if(json.error){
-        window.showStatus('pushStatus', '❌ ' + (typeof json.error === 'string' ? json.error : JSON.stringify(json.error)), 'err');
+      var rawText = await res.text();
+      console.log('[GERAMA] /api/send-push HTTP', res.status, '| body:', rawText);
+      var json = {};
+      try { json = JSON.parse(rawText); } catch(e) {}
+      if(!res.ok || json.error){
+        var errMsg = json.error ? (typeof json.error === 'string' ? json.error : JSON.stringify(json.error)) : ('HTTP ' + res.status + ': ' + rawText.substring(0,200));
+        window.showStatus('pushStatus', '❌ ' + errMsg, 'err');
       } else {
         var r = json.recipients || 0;
-        window.showStatus('pushStatus', '✅ Push sent to ' + r + ' subscriber' + (r !== 1 ? 's' : '') + '!', 'ok');
-        window.logActivity('📲 Push sent: "' + title + '" → ' + r + ' subscriber' + (r !== 1 ? 's' : ''));
+        window.showStatus('pushStatus', '✅ Push sent to ' + r + ' subscriber' + (r !== 1 ? 's' : '') + '! (OneSignal id: ' + (json.id||'?') + ')', 'ok');
+        window.logActivity('📲 Push sent: "' + title + '" → ' + r + ' subscriber' + (r !== 1 ? 's' : '') + ' | id:' + (json.id||'?'));
         document.getElementById('pushTitle').value   = '';
         document.getElementById('pushMessage').value = '';
         document.getElementById('pushUrl').value     = '';
       }
     } catch(e) {
-      window.showStatus('pushStatus', '❌ ' + e.message, 'err');
+      window.showStatus('pushStatus', '❌ Network error: ' + e.message, 'err');
     }
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Push to All';
