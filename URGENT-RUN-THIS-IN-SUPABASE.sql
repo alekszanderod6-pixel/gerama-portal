@@ -1,50 +1,90 @@
 -- ══════════════════════════════════════════════════════════════════
--- GERAMA — URGENT FIX: Announcements delete + Realtime sync
--- 
+-- GERAMA — COMPLETE FIX
+-- Fixes: announcement delete, visit tracking, admin overview stats
+--
 -- HOW TO RUN:
 --   1. Go to https://supabase.com/dashboard
---   2. Open your project (obfhmyeghurqfxingwtu)
---   3. Click "SQL Editor" in the left sidebar
---   4. Click "New query"
---   5. Paste ALL of this file and click "Run"
+--   2. Open project: obfhmyeghurqfxingwtu
+--   3. SQL Editor → New query
+--   4. Paste everything below → click RUN
 -- ══════════════════════════════════════════════════════════════════
 
 
--- ── Allow anon to DELETE announcements (fixes admin delete not working) ──
-DROP POLICY IF EXISTS "Admin can delete announcements" ON announcements;
-CREATE POLICY "Admin can delete announcements"
-  ON announcements FOR DELETE USING (true);
+-- ──────────────────────────────────────────────────────────────────
+-- PART 1: ANNOUNCEMENTS — fix delete, insert, update, select
+-- ──────────────────────────────────────────────────────────────────
+ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
 
--- ── Allow anon to UPDATE announcements ──
-DROP POLICY IF EXISTS "Admin can update announcements" ON announcements;
-CREATE POLICY "Admin can update announcements"
-  ON announcements FOR UPDATE USING (true) WITH CHECK (true);
-
--- ── Allow anon to INSERT announcements ──
+DROP POLICY IF EXISTS "Public can read announcements"  ON announcements;
 DROP POLICY IF EXISTS "Admin can insert announcements" ON announcements;
-CREATE POLICY "Admin can insert announcements"
-  ON announcements FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Admin can delete announcements" ON announcements;
+DROP POLICY IF EXISTS "Admin can update announcements" ON announcements;
 
--- ── Allow public to READ announcements ──
-DROP POLICY IF EXISTS "Public can read announcements" ON announcements;
 CREATE POLICY "Public can read announcements"
   ON announcements FOR SELECT USING (true);
 
--- ── Make sure RLS is enabled ──
-ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Admin can insert announcements"
+  ON announcements FOR INSERT WITH CHECK (true);
 
--- ── Enable Realtime so deletions/inserts appear on the site instantly ──
--- (If this line errors, it's already enabled — that's fine, just ignore it)
-ALTER PUBLICATION supabase_realtime ADD TABLE announcements;
+CREATE POLICY "Admin can delete announcements"
+  ON announcements FOR DELETE USING (true);
+
+CREATE POLICY "Admin can update announcements"
+  ON announcements FOR UPDATE USING (true) WITH CHECK (true);
 
 
--- ══════════════════════════════════════════════════════════════════
--- VERIFY: Run this after the above to confirm all 4 policies exist
--- ══════════════════════════════════════════════════════════════════
-SELECT policyname, cmd
+-- ──────────────────────────────────────────────────────────────────
+-- PART 2: PAGE_VIEWS — create table if missing, fix policies
+-- This is what feeds "Visits Today", "This Week", "All-Time" stats
+-- ──────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS page_views (
+  id          BIGSERIAL PRIMARY KEY,
+  page        TEXT,
+  visited_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE page_views ADD COLUMN IF NOT EXISTS referrer TEXT;
+
+ALTER TABLE page_views ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can insert page_views" ON page_views;
+DROP POLICY IF EXISTS "Anyone can read page_views"   ON page_views;
+
+CREATE POLICY "Anyone can insert page_views"
+  ON page_views FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Anyone can read page_views"
+  ON page_views FOR SELECT USING (true);
+
+
+-- ──────────────────────────────────────────────────────────────────
+-- PART 3: DELETE the two stuck announcements manually
+-- (RLS Check and Test announcements posted 7th August)
+-- ──────────────────────────────────────────────────────────────────
+DELETE FROM announcements
+WHERE title ILIKE '%rls%'
+   OR title ILIKE '%test%'
+   OR title ILIKE '%check%';
+
+
+-- ──────────────────────────────────────────────────────────────────
+-- VERIFY — you should see results from all 3 checks below
+-- ──────────────────────────────────────────────────────────────────
+
+-- Check 1: Announcement policies (expect 4 rows: DELETE, INSERT, SELECT, UPDATE)
+SELECT tablename, policyname, cmd
 FROM pg_policies
 WHERE tablename = 'announcements'
 ORDER BY cmd;
 
--- You should see 4 rows: DELETE, INSERT, SELECT, UPDATE
--- ══════════════════════════════════════════════════════════════════
+-- Check 2: page_views policies (expect 2 rows: INSERT, SELECT)
+SELECT tablename, policyname, cmd
+FROM pg_policies
+WHERE tablename = 'page_views'
+ORDER BY cmd;
+
+-- Check 3: Remaining announcements (RLS/Test ones should be gone)
+SELECT id, title, created_at
+FROM announcements
+ORDER BY created_at DESC
+LIMIT 20;
