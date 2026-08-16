@@ -674,7 +674,6 @@
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Push to All';
   };
-  };
 
   window.deleteAnn = async function(idx){
     if(!confirm('Delete this announcement?')) return;
