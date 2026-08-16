@@ -72,17 +72,15 @@ WHERE title ILIKE '%rls%'
    OR title ILIKE '%test%'
    OR title ILIKE '%check%';
 
--- Delete test assignments (title contains "test" or created with placeholder id)
+-- Delete test assignments (assignments table uses "title" column)
 DELETE FROM assignments
-WHERE title ILIKE '%test%'
-   OR description ILIKE '%test%';
+WHERE title ILIKE '%test%';
 
--- Delete test/unknown classes
+-- Delete test classes (classes table uses "topic" column, not "title")
 DELETE FROM classes
 WHERE topic ILIKE '%test%'
-   OR title ILIKE '%test%'
-   OR instructor ILIKE '%test%'
-   OR instructor ILIKE '%unknown%';
+   OR course ILIKE '%test%'
+   OR topic ILIKE '%unknown%';
 
 
 -- ──────────────────────────────────────────────────────────────────
