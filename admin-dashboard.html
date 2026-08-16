@@ -557,6 +557,23 @@ tr:hover td{background:#fafcfa;}
       <div style="margin-top:1rem;"><button class="btn-primary" id="publishAnnBtn"><i class="fas fa-paper-plane"></i> Publish to Site</button></div>
       <div class="status-msg" id="annStatus"></div>
     </div>
+
+    <!-- ── STANDALONE PUSH NOTIFICATION CARD ── -->
+    <div class="card" style="border-top:3px solid #6366f1;">
+      <div class="card-title"><i class="fas fa-bell" style="color:#6366f1;"></i> Send Push Notification <span style="font-size:0.72rem;background:#6366f1;color:white;padding:0.15rem 0.5rem;border-radius:20px;font-weight:700;margin-left:0.4rem;">FREE · Instant</span></div>
+      <p style="font-size:0.82rem;color:#6b7280;margin-bottom:1rem;">Send an instant popup to every subscriber's phone — like WhatsApp/Telegram alerts. No announcement post needed.</p>
+      <div class="form-grid">
+        <div class="form-field"><label>Push Title *</label><input type="text" id="pushTitle" placeholder="e.g. 🎥 Live Class Starting Now!"></div>
+        <div class="form-field full"><label>Push Message *</label><textarea id="pushMessage" rows="2" placeholder="Class starts in 5 minutes. Join the link in Classroom tab." style="resize:vertical;"></textarea></div>
+        <div class="form-field"><label>Link to open (optional)</label><input type="url" id="pushUrl" placeholder="https://gerama-portal.vercel.app/classroom.html"></div>
+      </div>
+      <div style="margin-top:1rem;display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="sendStandalonePush()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border-color:#6366f1;" id="sendPushBtn"><i class="fas fa-paper-plane"></i> Send Push to All</button>
+        <span style="font-size:0.78rem;color:#9ca3af;">Only reaches users who tapped the 🔔 bell and allowed notifications.</span>
+      </div>
+      <div class="status-msg" id="pushStatus"></div>
+    </div>
+
     <div class="card">
       <div class="card-title"><i class="fas fa-list"></i> Live Announcements</div>
       <div id="annList"></div>
