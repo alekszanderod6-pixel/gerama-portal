@@ -52,7 +52,8 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type':  'application/json',
-        'Authorization': 'Basic ' + restKey
+        // v2 keys (os_v2_app_...) require "Key " prefix; older keys use "Basic "
+        'Authorization': (restKey.startsWith('os_v2') ? 'Key ' : 'Basic ') + restKey
       },
       body: JSON.stringify(payload)
     });
