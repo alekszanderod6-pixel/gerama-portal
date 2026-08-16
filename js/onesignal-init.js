@@ -315,39 +315,53 @@
         setTimeout(function () { if (b.parentNode) b.parentNode.removeChild(b); }, 400);
     }
 
-    // –– Fallback: inject a simple bell directly if OneSignal SDK is slow ––
-    // Runs 3 seconds after page load — if OneSignal already injected the bell
-    // this is a no-op (the id check at the top of _injectNativeBell prevents duplicates)
+    // –– Fallback: inject bell immediately — no dependency on OneSignal SDK loading ––
     if (showBanner) {
-        setTimeout(function () {
+        function _ensureBell() {
             if (document.getElementById('geramaNativeBell')) return;
-            // OneSignal hasn't loaded yet — inject a lightweight standalone bell
             var bell = document.createElement('button');
             bell.id = 'geramaNativeBell';
             bell.setAttribute('aria-label', 'Enable GERAMA notifications');
-            bell.title = 'Tap to get GERAMA alerts';
+            bell.title = 'Tap to enable GERAMA push alerts';
             bell.innerHTML = '🔔';
-            bell.style.cssText = [
-                'position:fixed', 'bottom:90px', 'right:16px', 'z-index:9500',
-                'width:50px', 'height:50px', 'border-radius:50%',
-                'background:linear-gradient(135deg,#1B5E20,#2E7D32)',
-                'border:2px solid rgba(255,255,255,0.3)', 'cursor:pointer',
-                'display:flex', 'align-items:center', 'justify-content:center',
-                'font-size:1.3rem', 'box-shadow:0 4px 18px rgba(27,94,32,0.55)',
-                'transition:transform 0.2s', 'font-family:inherit'
-            ].join(';');
+            bell.style.cssText = 'position:fixed;bottom:90px;right:16px;z-index:99999;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);border:2px solid rgba(255,255,255,0.4);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 6px 20px rgba(27,94,32,0.6);transition:transform 0.2s;font-family:inherit;visibility:visible;opacity:1;';
             bell.addEventListener('click', function () {
+                window.OneSignalDeferred = window.OneSignalDeferred || [];
                 OneSignalDeferred.push(async function (OneSignal) {
                     try {
-                        await OneSignal.Notifications.requestPermission();
-                        bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-                        bell.title = 'GERAMA notifications ON';
-                        window.geramaLinkOneSignal && window.geramaLinkOneSignal();
-                    } catch (e) { console.warn('[GERAMA] Bell fallback error:', e); }
+                        var optedIn = await OneSignal.User.PushSubscription.optedIn;
+                        if (optedIn) {
+                            if (confirm('You are subscribed to GERAMA notifications.\nTap OK to unsubscribe.')) {
+                                await OneSignal.User.PushSubscription.optOut();
+                                bell.innerHTML = '🔕';
+                                setTimeout(function(){ bell.innerHTML = '🔔'; }, 3000);
+                            }
+                        } else {
+                            await OneSignal.Notifications.requestPermission();
+                            window.geramaLinkOneSignal && window.geramaLinkOneSignal();
+                            bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+                            bell.title = 'GERAMA notifications ON';
+                            var tip = document.createElement('div');
+                            tip.textContent = '✓ Alerts ON!';
+                            tip.style.cssText = 'position:fixed;bottom:150px;right:10px;z-index:99999;background:#059669;color:white;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.8rem;font-weight:700;font-family:Inter,sans-serif;pointer-events:none;';
+                            document.body.appendChild(tip);
+                            setTimeout(function(){ if(tip.parentNode) tip.remove(); }, 3000);
+                        }
+                    } catch (e) {
+                        alert('Notifications may not be supported on this browser. Try installing the app to your home screen first.');
+                    }
                 });
             });
             document.body.appendChild(bell);
-        }, 3000);
+        }
+        // Inject as soon as possible
+        if (document.body) {
+            _ensureBell();
+        } else {
+            document.addEventListener('DOMContentLoaded', _ensureBell);
+        }
+        // Also retry after 1s in case body wasn't ready
+        setTimeout(_ensureBell, 1000);
     }
 
 })();

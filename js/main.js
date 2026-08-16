@@ -454,7 +454,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     }
     
     function saveProfile() {
-        const name = document.getElementById("profileNameInput").value;
+        const name = document.getElementById("profileNameInput").value.trim();
         const program = document.getElementById("profileProgramSelect").value;
         const level = document.getElementById("profileLevelSelect").value;
         const phoneEl = document.getElementById("profilePhoneInput");
@@ -463,23 +463,53 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         const previewImg = document.getElementById("profilePreview").querySelector("img");
         if(previewImg) img = previewImg.src;
         const profile = { name, program, level, img, phone };
-        // Keep existing email
+        // Keep existing email + index number
         const existing = JSON.parse(localStorage.getItem("gerama_profile") || '{}');
-        if(existing.email) profile.email = existing.email;
+        if(existing.email)        profile.email        = existing.email;
+        if(existing.index_number) profile.index_number = existing.index_number;
         localStorage.setItem("gerama_profile", JSON.stringify(profile));
 
-        // Sync to Supabase
-        if(profile.email && typeof window.geramaSupabase !== 'undefined') {
-            window.geramaSupabase.from('user_profiles').upsert({
-                email: profile.email, full_name: name,
-                phone: phone||null, program: program||null, level: level||null,
-                updated_at: new Date().toISOString()
-            }, {onConflict:'email'}).then(function(){}).catch(function(){});
+        // Sync to Supabase — show clear feedback so user knows if it worked
+        const saveBtn = document.getElementById("saveProfileModalBtn");
+        if(saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
+
+        function _restoreBtn(msg, ok) {
+            if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = 'Save Profile'; }
+            alert(msg);
         }
 
-        updateSidebarUI();
-        document.getElementById("profileModal").classList.remove("active");
-        alert("Profile updated!");
+        if(profile.email && typeof window.geramaSupabase !== 'undefined') {
+            window.geramaSupabase.from('user_profiles').upsert({
+                email: profile.email,
+                full_name: name,
+                phone: phone || null,
+                program: program || null,
+                level: level || null,
+                is_active: true,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'email' })
+            .then(function(res) {
+                if(res && res.error) {
+                    console.error('[GERAMA] Profile save failed:', res.error.message);
+                    _restoreBtn('⚠️ Saved locally but could not sync to server: ' + res.error.message + '\nYour changes are saved on this device only.', false);
+                } else {
+                    _restoreBtn('✅ Profile saved and synced!', true);
+                    document.getElementById("profileModal").classList.remove("active");
+                    updateSidebarUI();
+                }
+            })
+            .catch(function(e) {
+                console.error('[GERAMA] Profile save exception:', e);
+                _restoreBtn('⚠️ Saved locally. Sync failed (' + e.message + '). Try again when online.', false);
+                document.getElementById("profileModal").classList.remove("active");
+                updateSidebarUI();
+            });
+        } else {
+            // No Supabase — local only
+            _restoreBtn('Profile saved on this device.', true);
+            document.getElementById("profileModal").classList.remove("active");
+            updateSidebarUI();
+        }
     }
     
     function updateSidebarUI() {

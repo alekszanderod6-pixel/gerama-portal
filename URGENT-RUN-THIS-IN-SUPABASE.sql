@@ -62,13 +62,27 @@ CREATE POLICY "Anyone can read page_views"
 
 
 -- ──────────────────────────────────────────────────────────────────
--- PART 4: Delete the stuck RLS Check + Test announcements
--- (Now safe because REPLICA IDENTITY FULL is set above)
+-- PART 4: Delete stuck test data from DB
+-- Removes: RLS Check + Test announcements, test assignments, test classes
 -- ──────────────────────────────────────────────────────────────────
+
+-- Delete test/RLS announcements
 DELETE FROM announcements
 WHERE title ILIKE '%rls%'
    OR title ILIKE '%test%'
    OR title ILIKE '%check%';
+
+-- Delete test assignments (title contains "test" or created with placeholder id)
+DELETE FROM assignments
+WHERE title ILIKE '%test%'
+   OR description ILIKE '%test%';
+
+-- Delete test/unknown classes
+DELETE FROM classes
+WHERE topic ILIKE '%test%'
+   OR title ILIKE '%test%'
+   OR instructor ILIKE '%test%'
+   OR instructor ILIKE '%unknown%';
 
 
 -- ──────────────────────────────────────────────────────────────────
