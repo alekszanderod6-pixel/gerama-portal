@@ -578,45 +578,27 @@
     btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Publish to Site';
   };
 
-  // –– Send OneSignal push to all subscribers when admin publishes ––
+  // –– Send push via Vercel serverless function (avoids CORS) ––
   async function sendAnnouncementPush(title, message, imageUrl) {
-    var restKey = window.__ONESIGNAL_REST_KEY;
-    var appId   = '9aa2964d-5435-492c-9dd8-7c873d371976';
-    if(!restKey){
-      console.warn('[GERAMA] OneSignal REST key not configured – skipping push.');
-      return;
-    }
     try {
-      var payload = {
-        app_id: appId,
-        included_segments: ['Total Subscriptions'],
-        headings: { en: '📢 GERAMA: ' + title },
-        contents: { en: message.length > 120 ? message.substring(0, 117) + '...' : message },
-        url: 'https://gerama-portal.vercel.app/index.html',
-        chrome_web_icon: 'https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg',
-        firefox_icon:    'https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg',
-        chrome_web_badge:'https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg'
-      };
-      if(imageUrl) payload.big_picture = imageUrl;
-
-      var res = await fetch('https://api.onesignal.com/notifications', {
+      var res = await fetch('/api/send-push', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Basic ' + restKey
-        },
-        body: JSON.stringify(payload)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: '📢 GERAMA: ' + title,
+          message: message,
+          imageUrl: imageUrl || null
+        })
       });
       var json = await res.json();
-      if(json.errors){
-        console.warn('[GERAMA] OneSignal push errors:', json.errors);
+      if(json.error){
+        console.warn('[GERAMA] Push error:', json.error);
       } else {
-        var recipients = json.recipients || 0;
-        console.log('[GERAMA] Push sent – id:', json.id, '| recipients:', recipients);
-        window.logActivity('📲 Push notification sent: "'+title+'" → '+recipients+' subscriber'+(recipients!==1?'s':''));
+        console.log('[GERAMA] Push sent – recipients:', json.recipients);
+        window.logActivity('📲 Push sent: "'+title+'" → '+(json.recipients||0)+' subscriber'+(json.recipients!==1?'s':''));
       }
     } catch(e) {
-      console.warn('[GERAMA] Push send exception:', e.message);
+      console.warn('[GERAMA] Push exception:', e.message);
     }
   }
   window.sendAnnouncementPush = sendAnnouncementPush;
@@ -627,49 +609,31 @@
     var message = (document.getElementById('pushMessage').value || '').trim();
     var url     = (document.getElementById('pushUrl').value     || '').trim();
     var btn     = document.getElementById('sendPushBtn');
-    var status  = document.getElementById('pushStatus');
 
     if(!title || !message){ window.showStatus('pushStatus','Please fill in Title and Message.','err'); return; }
 
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
 
-    var restKey = window.__ONESIGNAL_REST_KEY;
-    var appId   = '9aa2964d-5435-492c-9dd8-7c873d371976';
-    if(!restKey){
-      window.showStatus('pushStatus','❌ OneSignal REST key not configured.','err');
-      btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Push to All';
-      return;
-    }
-
     try {
-      var payload = {
-        app_id: appId,
-        included_segments: ['Total Subscriptions'],
-        headings: { en: title },
-        contents: { en: message.length > 120 ? message.substring(0, 117) + '...' : message },
-        url: url || 'https://gerama-portal.vercel.app/index.html',
-        chrome_web_icon: 'https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg',
-        firefox_icon:    'https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg'
-      };
-      var res  = await fetch('https://api.onesignal.com/notifications', {
+      var res = await fetch('/api/send-push', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Basic ' + restKey },
-        body: JSON.stringify(payload)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title, message: message, url: url || null })
       });
       var json = await res.json();
-      if(json.errors){
-        window.showStatus('pushStatus','❌ Error: ' + JSON.stringify(json.errors), 'err');
+      if(json.error){
+        window.showStatus('pushStatus', '❌ ' + (typeof json.error === 'string' ? json.error : JSON.stringify(json.error)), 'err');
       } else {
         var r = json.recipients || 0;
-        window.showStatus('pushStatus','✅ Push sent to ' + r + ' subscriber' + (r !== 1 ? 's' : '') + '!', 'ok');
-        window.logActivity('📲 Standalone push sent: "' + title + '" → ' + r + ' subscriber' + (r !== 1 ? 's' : ''));
+        window.showStatus('pushStatus', '✅ Push sent to ' + r + ' subscriber' + (r !== 1 ? 's' : '') + '!', 'ok');
+        window.logActivity('📲 Push sent: "' + title + '" → ' + r + ' subscriber' + (r !== 1 ? 's' : ''));
         document.getElementById('pushTitle').value   = '';
         document.getElementById('pushMessage').value = '';
         document.getElementById('pushUrl').value     = '';
       }
     } catch(e) {
-      window.showStatus('pushStatus', '❌ Exception: ' + e.message, 'err');
+      window.showStatus('pushStatus', '❌ ' + e.message, 'err');
     }
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Push to All';
