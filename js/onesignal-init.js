@@ -136,65 +136,68 @@
             bell.innerHTML = '⏳';
             bell.disabled = true;
 
-            try {
-                // Always go through OneSignal so the device gets properly registered
-                // with OneSignal's delivery network — not just the browser
-                if (typeof window.OneSignal !== 'undefined') {
-                    var alreadyIn = false;
-                    try { alreadyIn = await window.OneSignal.User.PushSubscription.optedIn; } catch(e) {}
+            // Helper: run subscribe logic once we have the OneSignal instance
+            async function _doSubscribe(OS) {
+                var alreadyIn = false;
+                try { alreadyIn = await OS.User.PushSubscription.optedIn; } catch(e) {}
 
-                    if (alreadyIn) {
-                        bell.innerHTML = '🔔';
-                        bell.disabled = false;
-                        bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-                        _showTip('✓ Already subscribed!');
-                        return;
-                    }
-
-                    // This both requests browser permission AND registers with OneSignal
-                    await window.OneSignal.Notifications.requestPermission();
-                    await window.geramaLinkOneSignal();
-
-                    var nowIn = false;
-                    try { nowIn = await window.OneSignal.User.PushSubscription.optedIn; } catch(e) {}
-
+                if (alreadyIn) {
                     bell.innerHTML = '🔔';
                     bell.disabled = false;
+                    bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+                    _showTip('✓ Already subscribed!');
+                    return;
+                }
 
-                    if (nowIn) {
-                        bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-                        bell.title = 'GERAMA notifications ON – tap to manage';
-                        _showTip('✓ Notifications ON!');
-                    } else {
-                        if (isIOS && !isPWA) {
-                            alert('To get notifications on iPhone, you need to:\n\n1. Tap the Share button in Safari\n2. Tap "Add to Home Screen"\n3. Open GERAMA from your home screen\n4. Tap the bell again');
-                        } else if (isIOS) {
-                            alert('Could not subscribe.\n\nCheck iOS Settings → Safari or GERAMA → Notifications are ON, then try again.');
-                        } else {
-                            alert('Permission not granted. Please allow notifications when prompted.');
-                        }
-                    }
+                // Requests browser permission AND registers the device with OneSignal
+                await OS.Notifications.requestPermission();
+                await window.geramaLinkOneSignal();
+
+                var nowIn = false;
+                try { nowIn = await OS.User.PushSubscription.optedIn; } catch(e) {}
+
+                bell.innerHTML = '🔔';
+                bell.disabled = false;
+
+                if (nowIn) {
+                    bell.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+                    bell.title = 'GERAMA notifications ON – tap to manage';
+                    _showTip('✓ Notifications ON!');
                 } else {
-                    // OneSignal SDK not loaded yet — queue subscription for when it loads
-                    OneSignalDeferred.push(async function (OS) {
-                        try {
-                            await OS.Notifications.requestPermission();
-                            await window.geramaLinkOneSignal();
-                            var nowIn2 = false;
-                            try { nowIn2 = await OS.User.PushSubscription.optedIn; } catch(e) {}
-                            if (nowIn2) {
-                                var b = document.getElementById('geramaNativeBell');
-                                if (b) {
-                                    b.style.background = 'linear-gradient(135deg,#059669,#10b981)';
-                                    b.title = 'GERAMA notifications ON';
-                                }
-                                _showTip('✓ Notifications ON!');
-                            }
-                        } catch (e) { console.warn('[GERAMA] Deferred subscribe error:', e); }
+                    if (isIOS && !isPWA) {
+                        alert('To get notifications on iPhone, you need to:\n\n1. Tap the Share button in Safari\n2. Tap "Add to Home Screen"\n3. Open GERAMA from your home screen\n4. Tap the bell again');
+                    } else if (isIOS) {
+                        alert('Could not subscribe.\n\nCheck iOS Settings → Safari or GERAMA → Notifications are ON, then try again.');
+                    } else {
+                        alert('Permission not granted. Please allow notifications when prompted.');
+                    }
+                }
+            }
+
+            try {
+                if (typeof window.OneSignal !== 'undefined') {
+                    // SDK already ready — subscribe immediately
+                    await _doSubscribe(window.OneSignal);
+                } else {
+                    // SDK not ready yet — wait for it via the deferred queue.
+                    // OneSignalDeferred.push() executes the callback immediately if the
+                    // SDK has already initialised, so this path is safe in all cases.
+                    var subscribeError = null;
+                    await new Promise(function (resolve) {
+                        OneSignalDeferred.push(async function (OS) {
+                            try { await _doSubscribe(OS); }
+                            catch (e) { subscribeError = e; }
+                            resolve();
+                        });
+                        // Safety timeout: if SDK never loads in 10 s, unblock the UI
+                        setTimeout(function () {
+                            bell.innerHTML = '🔔';
+                            bell.disabled = false;
+                            _showTip('Could not load notifications SDK. Try again.');
+                            resolve();
+                        }, 10000);
                     });
-                    bell.innerHTML = '🔔';
-                    bell.disabled = false;
-                    _showTip('Subscribing...');
+                    if (subscribeError) throw subscribeError;
                 }
             } catch (e) {
                 bell.innerHTML = '🔔';
