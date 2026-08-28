@@ -1,13 +1,16 @@
 -- ══════════════════════════════════════════════════════════════════
--- GERAMA — MASTER FIX v4  (run this ONCE in Supabase SQL Editor)
+-- GERAMA — MASTER FIX v5  (run this ONCE in Supabase SQL Editor)
 -- Project: obfhmyeghurqfxingwtu
--- Run ALL → fixes visits, announcements, user_profiles, sequences
+-- ══════════════════════════════════════════════════════════════════
+-- IMPORTANT: If visit counts show 0 in the admin dashboard after
+-- running this, check the VERIFY section at the bottom — specifically
+-- whether recent page_views rows exist. If not, clear your browser's
+-- sessionStorage (DevTools → Application → Storage → Clear site data)
+-- and reload any GERAMA page. A new visit row will be inserted.
 -- ══════════════════════════════════════════════════════════════════
 
 
--- ── 1. page_views: create + RLS  ─────────────────────────────────
--- THIS IS WHY VISIT COUNTS SHOW 0.
--- Without the INSERT policy, every browser visit is silently blocked.
+-- ── 1. page_views: create + RLS + indexes ────────────────────────
 CREATE TABLE IF NOT EXISTS page_views (
   id          BIGSERIAL PRIMARY KEY,
   page        TEXT,
@@ -141,31 +144,50 @@ WHERE topic ILIKE '%test%' OR topic ILIKE '%unknown%' OR course ILIKE '%test%';
 
 -- ── VERIFY (run these after to confirm everything worked) ─────────
 
--- Should show INSERT + SELECT (+ DELETE) for page_views
+-- ① Should show INSERT + SELECT + DELETE for page_views
 SELECT tablename, policyname, cmd
 FROM pg_policies
 WHERE tablename IN ('page_views','announcements','user_profiles','materials','assignment_submissions')
 ORDER BY tablename, cmd;
 
--- Recent page views — should have rows if students have visited
+-- ② Test INSERT — inserts a dummy row to prove RLS allows it
+--    (Delete it after checking the VERIFY query below)
+INSERT INTO page_views (page, visited_at, referrer)
+VALUES ('__test_rls_check__', NOW(), 'sql-test');
+
+-- ③ Confirm the test row landed (should show 1 row)
+SELECT id, page, visited_at FROM page_views
+WHERE page = '__test_rls_check__'
+ORDER BY id DESC LIMIT 1;
+
+-- ④ Delete the test row once confirmed
+DELETE FROM page_views WHERE page = '__test_rls_check__';
+
+-- ⑤ Most recent real page views
 SELECT page, COUNT(*) AS visits
 FROM page_views
+WHERE page != '__test_rls_check__'
 GROUP BY page
 ORDER BY visits DESC
 LIMIT 20;
 
--- Registered users count
+-- ⑥ Registered users count
 SELECT COUNT(*) AS registered_users FROM user_profiles;
 
--- Recent announcements
+-- ⑦ Recent announcements
 SELECT id, title, priority, created_at FROM announcements ORDER BY created_at DESC LIMIT 10;
 
 -- ══════════════════════════════════════════════════════════════════
 -- AFTER RUNNING THIS FILE:
--- 1. Visit stats will START accumulating immediately on every
---    student page visit (index.html, classroom.html, etc.)
--- 2. If page_views was empty, counts will show 0 until students
---    actually browse — this is correct, not a bug.
--- 3. Admin dashboard registered users count (#statUsers) now works.
--- 4. All other stat boxes should show live Supabase data.
+-- 1. Step ② above inserts a test row. If it fails with a permission
+--    error, something is still wrong with RLS — re-run step 1.
+-- 2. Step ③ must return exactly 1 row. If it returns 0, the INSERT
+--    policy is not active.
+-- 3. Step ④ deletes the test row — run it to keep the table clean.
+-- 4. Visit stats will START accumulating immediately on every
+--    student page load (index.html, classroom.html, etc.).
+-- 5. IMPORTANT: sessionStorage prevents double-counting per session.
+--    To force a fresh visit for testing: DevTools → Application →
+--    Storage → Clear Site Data → reload any GERAMA page.
+-- 6. Admin dashboard registered users count (#statUsers) now works.
 -- ══════════════════════════════════════════════════════════════════

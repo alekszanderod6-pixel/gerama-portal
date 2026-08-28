@@ -21,245 +21,273 @@
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script src="js/onesignal-init.js" defer></script>
     <style>
-        body { background: #f0f4f8; overflow-x: hidden; width: 100%; max-width: 100vw; }
-        /* ===== PAGE HERO ===== */
+        /* ===== BASE ===== */
+        body { background: #f0f4f8; overflow-x: hidden; width: 100%; max-width: 100vw; font-family: 'Inter', sans-serif; }
+
+        /* ===== PAGE HERO — redesigned ===== */
         .resources-hero {
-            background: linear-gradient(135deg, #0a2f1f 0%, #1B5E20 50%, #2E7D32 100%);
-            color: white; padding: 4rem 2rem 3rem; text-align: center;
+            background: linear-gradient(135deg, #061a0f 0%, #0a2f1f 45%, #1a4a2e 100%);
+            color: white; padding: 3.5rem 5% 0; text-align: center;
             position: relative; overflow: hidden;
         }
         .resources-hero::before {
             content: ''; position: absolute; inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
+            background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Cpath d='M20 20.5V18H0v5h5v5H0v5h20v-9.5zm-2 4.5h-1v-1h1v1zm-1-7h1v1h-1v-1zM0 0h20v2.5h-1V5h1v2.5h-1V10h1v2.5H0V0z'/%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
         }
+        /* Gold glow top-right */
         .resources-hero::after {
-            content: ''; position: absolute; bottom: -80px; right: -80px;
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(255,193,7,0.07) 0%, transparent 70%);
-            border-radius: 50%;
+            content: ''; position: absolute; top: -60px; right: -60px;
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, rgba(255,193,7,0.12) 0%, transparent 70%);
+            border-radius: 50%; pointer-events: none;
         }
+        .resources-hero-inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
         .resources-hero-badge {
             display: inline-flex; align-items: center; gap: 0.5rem;
-            background: rgba(255,193,7,0.15); border: 1px solid rgba(255,193,7,0.4);
-            color: #FFC107; padding: 0.4rem 1.2rem; border-radius: 50px;
-            font-size: 0.85rem; font-weight: 600; margin-bottom: 1.2rem;
+            background: rgba(255,193,7,0.12); border: 1px solid rgba(255,193,7,0.4);
+            color: #FFC107; padding: 0.4rem 1.1rem; border-radius: 50px;
+            font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem;
+            letter-spacing: 0.3px;
         }
-        .resources-hero h1 { font-size: clamp(1.8rem,4vw,3rem); margin-bottom: 0.6rem; font-weight: 800; text-shadow: 0 2px 20px rgba(0,0,0,0.2); }
-        .resources-hero p { opacity: 0.85; font-size: 1.05rem; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.7; }
+        .resources-hero h1 {
+            font-size: clamp(1.7rem, 4vw, 2.8rem); margin-bottom: 0.65rem;
+            font-weight: 800; line-height: 1.18;
+        }
+        .resources-hero h1 span { color: #FFC107; }
+        .resources-hero p { opacity: 0.82; font-size: 1rem; max-width: 560px; margin: 0 auto 0; line-height: 1.75; }
+
         /* ===== STATS STRIP ===== */
         .hero-stats {
-            display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;
-            margin-top: 1.5rem; position: relative; z-index: 1;
+            display: flex; justify-content: center; flex-wrap: wrap;
+            margin-top: 2rem; position: relative; z-index: 1;
+            gap: 0; border-top: 1px solid rgba(255,255,255,0.08);
         }
-        .hero-stat { text-align: center; }
-        .hero-stat-num { font-size: 1.8rem; font-weight: 900; color: #FFC107; line-height: 1; }
-        .hero-stat-lbl { font-size: 0.75rem; opacity: 0.75; margin-top: 0.2rem; }
-        /* ===== MAIN ACTION BUTTONS ===== */
+        .hero-stat {
+            flex: 1; min-width: 120px; text-align: center;
+            padding: 1rem 0.5rem;
+            border-right: 1px solid rgba(255,255,255,0.08);
+        }
+        .hero-stat:last-child { border-right: none; }
+        .hero-stat-num { font-size: 1.6rem; font-weight: 900; color: #FFC107; line-height: 1; }
+        .hero-stat-lbl { font-size: 0.68rem; opacity: 0.6; margin-top: 0.25rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        /* ===== MAIN ACTION TABS — now a sticky bar below hero ===== */
         .main-actions {
-            display: flex; gap: 1rem; justify-content: center;
-            flex-wrap: wrap; margin: 2rem auto 0; max-width: 700px;
-            position: relative; z-index: 1;
+            display: flex; gap: 0; justify-content: center;
+            background: rgba(0,0,0,0.35); backdrop-filter: blur(8px);
+            position: relative; z-index: 2;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
         }
+        .main-actions::-webkit-scrollbar { display: none; }
         .action-btn {
-            flex: 1; min-width: 180px; padding: 0.9rem 1.5rem;
-            border-radius: 50px; font-size: 0.95rem; font-weight: 700;
-            cursor: pointer; transition: all 0.3s; border: 2px solid rgba(255,255,255,0.5);
-            background: rgba(255,255,255,0.08); color: white;
-            display: flex; align-items: center; justify-content: center; gap: 0.6rem;
-            backdrop-filter: blur(4px);
+            flex: 1; min-width: 130px; padding: 0.88rem 1rem;
+            font-size: 0.82rem; font-weight: 700;
+            cursor: pointer; transition: all 0.22s;
+            border: none; border-bottom: 3px solid transparent;
+            background: transparent; color: rgba(255,255,255,0.65);
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            white-space: nowrap; font-family: 'Inter', sans-serif;
         }
-        .action-btn.active, .action-btn:hover {
-            background: #FFC107; color: #1B5E20; border-color: #FFC107;
-            transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        .action-btn.active {
+            color: #FFC107; border-bottom-color: #FFC107;
+            background: rgba(255,193,7,0.08);
         }
+        .action-btn:hover:not(.active) { color: white; background: rgba(255,255,255,0.06); }
         /* ===== CONTAINER ===== */
         .res-container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
-        /* ===== LEVEL SELECTOR ===== */
-        .level-section { text-align: center; margin-bottom: 2rem; }
-        .level-section h2 { font-size: 1.5rem; color: #1B5E20; margin-bottom: 1.2rem; }
-        .level-grid { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-        .level-btn {
-            padding: 0.9rem 2rem; border-radius: 50px; font-weight: 700;
-            font-size: 1rem; cursor: pointer; border: 2px solid #1B5E20;
-            background: white; color: #1B5E20; transition: all 0.3s;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.07); position: relative; overflow: hidden;
+
+        /* ===== STICKY LEVEL + FILTER BAR ===== */
+        .level-section { margin-bottom: 1.5rem; }
+        .level-section h2 {
+            font-size: 0.72rem; font-weight: 800; color: #6b7280;
+            text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 0.75rem;
+            display: flex; align-items: center; gap: 0.5rem;
         }
-        .level-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg,#1B5E20,#2E7D32); opacity: 0; transition: opacity 0.3s; }
-        .level-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(27,94,32,0.2); }
-        .level-btn:hover::before { opacity: 0.08; }
+        .level-section h2 i { color: #1B5E20; }
+        .level-grid { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .level-btn {
+            padding: 0.6rem 1.25rem; border-radius: 30px; font-weight: 700;
+            font-size: 0.85rem; cursor: pointer; border: 2px solid #c8e6c9;
+            background: white; color: #1B5E20; transition: all 0.22s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            display: flex; align-items: center; gap: 0.4rem;
+        }
+        .level-btn:hover { border-color: #1B5E20; box-shadow: 0 4px 12px rgba(27,94,32,0.15); }
         .level-btn.active {
             background: linear-gradient(135deg,#1B5E20,#2E7D32); color: white;
-            box-shadow: 0 8px 25px rgba(27,94,32,0.4); transform: translateY(-2px);
+            border-color: transparent; box-shadow: 0 4px 14px rgba(27,94,32,0.35);
         }
-        /* ===== GOOGLE DRIVE BANNER ===== */
-        .gdrive-banner {
-            background: linear-gradient(135deg, #4285F4, #1a73e8);
-            border-radius: 16px; padding: 1.2rem 2rem;
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;
-            box-shadow: 0 5px 20px rgba(66,133,244,0.3);
-        }
-        .gdrive-banner p { color: white; font-weight: 600; margin: 0; }
-        .gdrive-banner a {
-            background: white; color: #4285F4; padding: 0.6rem 1.5rem;
-            border-radius: 30px; font-weight: 700; text-decoration: none;
-            display: flex; align-items: center; gap: 0.5rem; transition: 0.3s;
-            white-space: nowrap;
-        }
-        .gdrive-banner a:hover { background: #FFC107; color: #1B5E20; }
-        /* ===== SEARCH BAR ===== */
+
+        /* ===== SEARCH BAR — redesigned ===== */
         .search-bar-wrap {
-            position: relative; margin-bottom: 1.5rem;
+            position: relative; margin-bottom: 1.2rem;
         }
         .search-bar-wrap i {
             position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
-            color: #888; font-size: 1rem;
+            color: #9ca3af; font-size: 0.9rem; pointer-events: none;
         }
         #courseSearchInput {
-            width: 100%; padding: 0.85rem 1rem 0.85rem 2.8rem;
-            border: 2px solid #e2e8f0; border-radius: 50px;
-            font-size: 1rem; outline: none; transition: 0.3s;
-            background: white; box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+            width: 100%; padding: 0.75rem 1rem 0.75rem 2.6rem;
+            border: 2px solid #e5e7eb; border-radius: 12px;
+            font-size: 0.92rem; outline: none; transition: 0.2s;
+            background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            font-family: 'Inter', sans-serif; color: #1e2a3e;
         }
-        #courseSearchInput:focus { border-color: #1B5E20; box-shadow: 0 0 0 3px rgba(27,94,32,0.15); }
-        /* ===== TYPE TABS ===== */
-        .type-tabs-wrap {
-            display: flex; gap: 0.5rem; flex-wrap: wrap;
-            margin-bottom: 1.8rem; background: white;
-            border-radius: 50px; padding: 0.4rem;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-        }
-        .type-tab {
-            flex: 1; min-width: 130px; padding: 0.65rem 1rem;
-            border-radius: 40px; font-weight: 600; font-size: 0.9rem;
-            cursor: pointer; border: none; background: transparent;
-            color: #555; transition: all 0.25s; text-align: center;
-        }
-        .type-tab.active { background: #1B5E20; color: white; box-shadow: 0 4px 12px rgba(27,94,32,0.3); }
-        .type-tab:hover:not(.active) { background: #e8f5e9; color: #1B5E20; }
-        /* ===== COURSE CARDS ===== */
-        .course-card {
-            background: white; border-radius: 20px; margin-bottom: 1.2rem;
-            overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            border: 1px solid #e8f0e8; transition: all 0.3s;
-        }
-        .course-card:hover { box-shadow: 0 12px 35px rgba(27,94,32,0.12); transform: translateY(-2px); }
-        .course-header {
-            padding: 1.1rem 1.5rem; font-weight: 700; font-size: 1.05rem;
-            border-left: 5px solid #FFC107; cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(135deg,#fafcfa,#f0f7f0); transition: background 0.2s;
-        }
-        .course-header:hover { background: linear-gradient(135deg,#f0f7f0,#e8f5e9); }
-        .course-header .course-title { display: flex; align-items: center; gap: 0.7rem; color: #1B5E20; }
-        .course-header .badge {
-            background: linear-gradient(135deg,#e8f5e9,#d1fae5); color: #1B5E20;
-            font-size: 0.75rem; padding: 0.2rem 0.7rem; border-radius: 20px; font-weight: 600;
-        }
-        .course-header .chevron { transition: transform 0.3s; color: #888; }
-        .course-header.open .chevron { transform: rotate(180deg); }
-        .course-materials { display: none; padding: 0 1.5rem 1rem; }
-        .course-materials.show { display: block; }
+        #courseSearchInput:focus { border-color: #1B5E20; box-shadow: 0 0 0 3px rgba(27,94,32,0.1); }
+        #courseSearchInput::placeholder { color: #9ca3af; }
+
         /* ===== SEMESTER TABS ===== */
         .semester-tabs-wrap {
-            display: flex; gap: 0.5rem; margin-bottom: 1.5rem;
-            background: #e8f5e9; border-radius: 50px; padding: 0.35rem;
+            display: flex; gap: 0.4rem; margin-bottom: 1rem;
             width: fit-content; max-width: 100%;
         }
         .sem-tab {
-            padding: 0.55rem 1.4rem; border-radius: 40px; font-weight: 700;
-            font-size: 0.88rem; cursor: pointer; border: none;
-            background: transparent; color: #1B5E20; transition: all 0.25s;
-            white-space: nowrap;
+            padding: 0.45rem 1.1rem; border-radius: 30px; font-weight: 700;
+            font-size: 0.82rem; cursor: pointer; border: 2px solid #e5e7eb;
+            background: white; color: #6b7280; transition: all 0.2s;
+            white-space: nowrap; font-family: 'Inter', sans-serif;
         }
-        .sem-tab.active { background: #1B5E20; color: white; box-shadow: 0 3px 10px rgba(27,94,32,0.3); }
-        .sem-tab:hover:not(.active) { background: #c8e6c9; }
+        .sem-tab.active { background: #1B5E20; color: white; border-color: #1B5E20; box-shadow: 0 3px 10px rgba(27,94,32,0.25); }
+        .sem-tab:hover:not(.active) { border-color: #1B5E20; color: #1B5E20; }
 
-        /* ===== MATERIAL ROW – mobile-first ===== */
+        /* ===== TYPE TABS ===== */
+        .type-tabs-wrap {
+            display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+        }
+        .type-tab {
+            padding: 0.55rem 1.1rem; border-radius: 30px; font-weight: 700;
+            font-size: 0.82rem; cursor: pointer; border: 2px solid #e5e7eb;
+            background: white; color: #6b7280; transition: all 0.2s;
+            display: flex; align-items: center; gap: 0.4rem; white-space: nowrap;
+            font-family: 'Inter', sans-serif;
+        }
+        .type-tab.active { background: #1B5E20; color: white; border-color: #1B5E20; box-shadow: 0 3px 10px rgba(27,94,32,0.25); }
+        .type-tab:hover:not(.active) { border-color: #1B5E20; color: #1B5E20; }
+
+        /* ===== GOOGLE DRIVE / TELEGRAM BANNERS ===== */
+        .gdrive-banner {
+            border-radius: 14px; padding: 1rem 1.4rem;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 0.8rem; margin-bottom: 0.8rem;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+        }
+        .gdrive-banner p { color: white; font-weight: 600; margin: 0; font-size: 0.88rem; }
+        .gdrive-banner a {
+            background: white; padding: 0.5rem 1.2rem; border-radius: 30px;
+            font-weight: 700; text-decoration: none; font-size: 0.82rem;
+            display: flex; align-items: center; gap: 0.5rem; transition: 0.2s;
+            white-space: nowrap; flex-shrink: 0;
+        }
+        .gdrive-banner a:hover { opacity: 0.9; transform: translateY(-1px); }
+        /* ===== COURSE CARDS — redesigned ===== */
+        .course-card {
+            background: white; border-radius: 16px; margin-bottom: 0.85rem;
+            overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e8f0e8; transition: box-shadow 0.2s;
+        }
+        .course-card:hover { box-shadow: 0 6px 24px rgba(27,94,32,0.1); }
+        .course-header {
+            padding: 0.95rem 1.2rem; font-weight: 700; font-size: 0.95rem;
+            border-left: 4px solid #FFC107; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            background: #fafcfa; transition: background 0.15s; gap: 0.8rem;
+        }
+        .course-header:hover { background: #f0f8f0; }
+        .course-header .course-title {
+            display: flex; align-items: center; gap: 0.6rem; color: #1B5E20;
+            flex: 1; min-width: 0;
+        }
+        .course-header .course-title span {
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .course-header .badge {
+            background: #e8f5e9; color: #1B5E20; font-size: 0.68rem;
+            padding: 0.18rem 0.6rem; border-radius: 20px; font-weight: 700;
+            flex-shrink: 0;
+        }
+        .course-header .chevron { transition: transform 0.25s; color: #9ca3af; flex-shrink: 0; }
+        .course-header.open .chevron { transform: rotate(180deg); }
+        .course-materials { display: none; padding: 0 1.2rem 0.8rem; border-top: 1px solid #f0f4f0; }
+        .course-materials.show { display: block; animation: slideDown 0.2s ease; }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+
+        /* ===== MATERIAL ROW ===== */
         .material-row {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0.85rem 0; border-bottom: 1px solid #f0f4f0;
+            padding: 0.75rem 0; border-bottom: 1px solid #f3f4f6;
             gap: 0.8rem;
         }
         .material-row:last-child { border-bottom: none; }
         .material-info { display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; }
-        .material-icon { font-size: 1.1rem; flex-shrink: 0; }
+        .material-icon { font-size: 1rem; flex-shrink: 0; }
         .material-name {
-            font-weight: 500; color: #2d3748; font-size: 0.9rem;
+            font-weight: 600; color: #1e2a3e; font-size: 0.875rem;
             word-break: break-word; overflow-wrap: anywhere; line-height: 1.4;
         }
-        .material-copy { display: flex; flex-direction: column; gap: 0.18rem; min-width: 0; }
-        .material-desc {
-            color: #64748b; font-size: 0.78rem; line-height: 1.45;
-            overflow-wrap: anywhere;
-        }
+        .material-copy { display: flex; flex-direction: column; gap: 0.12rem; min-width: 0; }
+        .material-desc { color: #6b7280; font-size: 0.75rem; line-height: 1.45; overflow-wrap: anywhere; }
         .video-material-row {
             background: linear-gradient(135deg,#f8fafc,#eff6ff);
-            border: 1px solid #dbeafe; border-radius: 14px;
-            margin: 0.55rem 0; padding: 0.85rem 0.9rem;
+            border: 1px solid #dbeafe; border-radius: 12px;
+            margin: 0.45rem 0; padding: 0.75rem 0.9rem;
         }
         .video-material-row .material-icon {
-            width: 34px; height: 34px; border-radius: 50%;
+            width: 32px; height: 32px; border-radius: 50%;
             display: inline-flex; align-items: center; justify-content: center;
-            background: #fee2e2; color: #dc2626;
+            background: #fee2e2; color: #dc2626; font-size: 0.85rem;
         }
-        .material-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+        .material-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
         .btn-dl {
-            padding: 0.45rem 1rem; border-radius: 20px; font-size: 0.78rem;
-            font-weight: 700; border: none; cursor: pointer; transition: all 0.25s;
+            padding: 0.4rem 0.85rem; border-radius: 20px; font-size: 0.75rem;
+            font-weight: 700; border: none; cursor: pointer; transition: all 0.2s;
             display: flex; align-items: center; gap: 0.3rem; white-space: nowrap;
+            font-family: 'Inter', sans-serif;
         }
-        .btn-dl.download { background: linear-gradient(135deg,#1B5E20,#2E7D32); color: white; box-shadow: 0 3px 10px rgba(27,94,32,0.25); }
-        .btn-dl.download:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(27,94,32,0.35); }
-        .btn-dl.view { background: #e8f5e9; color: #1B5E20; border: 1.5px solid #c8e6c9; }
-        .btn-dl.view:hover { background: #c8e6c9; transform: translateY(-1px); }
-
-        /* Source origin badge – tiny icon, no raw URL exposed */
+        .btn-dl.download { background: linear-gradient(135deg,#1B5E20,#2E7D32); color: white; box-shadow: 0 2px 8px rgba(27,94,32,0.25); }
+        .btn-dl.download:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(27,94,32,0.35); }
+        .btn-dl.view { background: #f0f8f0; color: #1B5E20; border: 1.5px solid #c8e6c9; }
+        .btn-dl.view:hover { background: #c8e6c9; }
         .mat-src-badge {
             display: inline-flex; align-items: center; justify-content: center;
             width: 16px; height: 16px; border-radius: 50%;
-            font-size: 0.6rem; margin-left: 0.4rem; vertical-align: middle;
-            flex-shrink: 0;
+            font-size: 0.6rem; margin-left: 0.35rem; vertical-align: middle; flex-shrink: 0;
         }
         .mat-src-badge.gdrive { background: #e8f0fe; color: #4285F4; }
         .mat-src-badge.tg     { background: #e3f2fd; color: #0088cc; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 640px) {
-            .resources-hero h1 { font-size: 1.5rem; }
-            .resources-hero p { font-size: 0.9rem; }
+            .resources-hero { padding: 2.2rem 4% 0; }
+            .resources-hero h1 { font-size: 1.45rem; }
+            .resources-hero p { font-size: 0.88rem; }
+            .hero-stat-num { font-size: 1.3rem; }
             .res-container { padding: 1rem; }
             .form-grid { grid-template-columns: 1fr; }
-            /* Type tabs: wrap into 2×2 grid on small screens */
-            .type-tabs-wrap {
-                border-radius: 14px; padding: 0.3rem; gap: 0.3rem;
-                display: grid; grid-template-columns: 1fr 1fr;
-            }
-            .type-tab { min-width: 0; flex: none; font-size: 0.78rem; padding: 0.6rem 0.4rem; border-radius: 10px; }
-            .gdrive-banner { flex-direction: column; text-align: center; padding: 1rem; }
-            .level-btn { padding: 0.7rem 1.2rem; font-size: 0.9rem; }
-            .course-header { padding: 0.9rem 1rem; font-size: 0.95rem; }
+            /* Level pills: 2-per-row grid */
+            .level-grid { gap: 0.45rem; }
+            .level-btn { padding: 0.5rem 0.9rem; font-size: 0.8rem; }
+            /* Type tabs: wrap naturally */
+            .type-tabs-wrap { gap: 0.35rem; }
+            .type-tab { font-size: 0.78rem; padding: 0.5rem 0.8rem; }
+            .gdrive-banner { flex-direction: column; text-align: center; padding: 0.9rem; }
+            .course-header { padding: 0.85rem 1rem; font-size: 0.9rem; }
             .course-materials { padding: 0 0.8rem 0.8rem; }
-            /* Material rows: stack name above buttons on very small screens */
-            .material-row { gap: 0.5rem; padding: 0.75rem 0; flex-wrap: wrap; }
+            /* Material rows: stack on very small screens */
+            .material-row { gap: 0.5rem; padding: 0.7rem 0; flex-wrap: wrap; }
             .material-info { flex: 1 1 100%; }
-            .material-name { font-size: 0.85rem; white-space: normal; word-break: break-word; }
-            .material-actions { flex: 0 0 auto; gap: 0.4rem; }
-            .btn-dl { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
-            .semester-tabs-wrap { width: 100%; justify-content: center; }
+            .material-name { font-size: 0.82rem; }
+            .material-actions { gap: 0.35rem; }
+            .btn-dl { padding: 0.38rem 0.75rem; font-size: 0.73rem; }
+            .semester-tabs-wrap { flex-wrap: wrap; }
             .upload-card { padding: 1.2rem; }
             .upload-steps { flex-direction: column; }
-            .action-btn { min-width: 0; flex: 1; font-size: 0.9rem; padding: 0.8rem 1rem; }
-            .level-grid { gap: 0.6rem; }
-            .level-section h2 { font-size: 1.2rem; }
-            /* Footer on resources page */
-            .footer-inner { grid-template-columns: 1fr !important; gap: 1.8rem; }
-            .footer-brand { grid-column: auto !important; }
-            .footer-bottom-bar { flex-direction: column; text-align: center; }
-            .footer-tagline { max-width: 100%; }
+            .action-btn { min-width: 110px; font-size: 0.78rem; padding: 0.78rem 0.6rem; }
+            .level-section h2 { font-size: 0.68rem; }
         }
         @media (max-width: 400px) {
-            .type-tab { font-size: 0.68rem; padding: 0.5rem 0.3rem; }
+            .type-tab { font-size: 0.7rem; padding: 0.45rem 0.6rem; }
             .material-actions { width: 100%; }
             .btn-dl { flex: 1; justify-content: center; }
         }
@@ -632,8 +660,8 @@
             <button class="pwa-install-btn res-pwa-btn" id="pwaHeaderBtn" aria-label="Install app" title="Install GERAMA as an app" style="display:none;align-items:center;gap:0.4rem;background:rgba(255,193,7,0.15);border:1.5px solid rgba(255,193,7,0.5);color:#FFC107;padding:0.4rem 0.9rem;border-radius:30px;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:'Inter',sans-serif;">
                 <i class="fas fa-download"></i> <span class="pwa-btn-text">Install App</span>
             </button>
-            <button id="headerNotifBtn" aria-label="Notifications" title="Notifications"
-              onclick="if(window.OneSignal){OneSignal.showNativePrompt();}"
+            <button id="headerNotifBtn" aria-label="Enable GERAMA notifications" title="Tap to subscribe to GERAMA notifications"
+              class="header-notif-btn"
               style="position:relative;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;flex-shrink:0;">
               <i class="fas fa-bell"></i>
               <span id="headerNotifDot" style="display:none;position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:1.5px solid #0a2f1f;"></span>
@@ -655,28 +683,30 @@
 
     <!-- PAGE HERO -->
     <div class="resources-hero">
+      <div class="resources-hero-inner">
         <div class="resources-hero-badge"><i class="fas fa-book-open"></i> GERAMA Resource Library</div>
-        <h1>Your Academic <span style="color:#FFC107;">Resource Hub</span></h1>
-        <p>Access lecture slides, textbooks, past questions, video tutorials and free software tools – all organised for engineering students at UENR.</p>
-        <div class="hero-stats">
-          <div class="hero-stat"><div class="hero-stat-num">500+</div><div class="hero-stat-lbl">Study Materials</div></div>
-          <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-lbl">Year Groups</div></div>
-          <div class="hero-stat"><div class="hero-stat-num">Free</div><div class="hero-stat-lbl">Always Free</div></div>
-        </div>
-        <div class="main-actions">
-            <button id="exploreMainBtn" class="action-btn active">
-                <i class="fas fa-search"></i> Explore Resources
-            </button>
-            <button id="videosMainBtn" class="action-btn">
-                <i class="fas fa-video"></i> Video Tutorials
-            </button>
-            <button id="softwareMainBtn" class="action-btn">
-                <i class="fas fa-laptop-code"></i> Free Software
-            </button>
-            <button id="uploadMainBtn" class="action-btn">
-                <i class="fas fa-upload"></i> Upload Resources
-            </button>
-        </div>
+        <h1>Your Academic <span>Resource Hub</span></h1>
+        <p>Lecture slides, textbooks, past questions, video tutorials and free software — all organised for engineering students at UENR.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-num">500+</div><div class="hero-stat-lbl">Study Materials</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">4</div><div class="hero-stat-lbl">Year Groups</div></div>
+        <div class="hero-stat"><div class="hero-stat-num">Free</div><div class="hero-stat-lbl">Always Free</div></div>
+      </div>
+      <div class="main-actions">
+        <button id="exploreMainBtn" class="action-btn active">
+          <i class="fas fa-layer-group"></i> Browse Materials
+        </button>
+        <button id="videosMainBtn" class="action-btn">
+          <i class="fas fa-video"></i> Video Tutorials
+        </button>
+        <button id="softwareMainBtn" class="action-btn">
+          <i class="fas fa-laptop-code"></i> Free Software
+        </button>
+        <button id="uploadMainBtn" class="action-btn">
+          <i class="fas fa-upload"></i> Upload Resources
+        </button>
+      </div>
     </div>
 
     <!-- ==================== EXPLORE SECTION ==================== -->
@@ -684,26 +714,14 @@
 
         <!-- Level Selector -->
         <div class="level-section">
-            <h2><i class="fas fa-layer-group"></i> Select Your Academic Level</h2>
+            <h2><i class="fas fa-layer-group"></i> Choose your academic level</h2>
             <div class="level-grid">
-                <button class="level-btn" data-level="L100">
-                    <i class="fas fa-seedling"></i> L100 &nbsp;·&nbsp; First Year
-                </button>
-                <button class="level-btn" data-level="L200">
-                    <i class="fas fa-leaf"></i> L200 &nbsp;·&nbsp; Second Year
-                </button>
-                <button class="level-btn" data-level="L300">
-                    <i class="fas fa-tree"></i> L300 &nbsp;·&nbsp; Third Year
-                </button>
-                <button class="level-btn" data-level="L400">
-                    <i class="fas fa-graduation-cap"></i> L400 &nbsp;·&nbsp; Final Year
-                </button>
-                <button class="level-btn" data-level="Graduate" style="border-color:#6366f1;color:#4338ca;">
-                    <i class="fas fa-user-tie"></i> Graduate
-                </button>
-                <button class="level-btn" data-level="Visitor" style="border-color:#0ea5e9;color:#0369a1;">
-                    <i class="fas fa-eye"></i> Visitor &nbsp;·&nbsp; Browse
-                </button>
+                <button class="level-btn" data-level="L100"><i class="fas fa-seedling"></i> L100</button>
+                <button class="level-btn" data-level="L200"><i class="fas fa-leaf"></i> L200</button>
+                <button class="level-btn" data-level="L300"><i class="fas fa-tree"></i> L300</button>
+                <button class="level-btn" data-level="L400"><i class="fas fa-graduation-cap"></i> L400</button>
+                <button class="level-btn" data-level="Graduate" style="border-color:#c4b5fd;color:#6d28d9;"><i class="fas fa-user-tie"></i> Graduate</button>
+                <button class="level-btn" data-level="Visitor" style="border-color:#bae6fd;color:#0369a1;"><i class="fas fa-eye"></i> Visitor</button>
             </div>
         </div>
 
@@ -717,17 +735,17 @@
         <div id="materialsArea" style="display:none;">
 
             <!-- Google Drive + Telegram Banners -->
-            <div style="display:flex;flex-direction:column;gap:0.8rem;margin-bottom:2rem;">
-                <div class="gdrive-banner">
-                    <p><i class="fab fa-google-drive"></i> &nbsp;All materials are also available on Google Drive as an alternative.</p>
-                    <a href="https://drive.google.com/drive/folders/1fBOWVczN8OEBU4dUKWACYF9gOPwQQ6dK" target="_blank" rel="noopener">
-                        <i class="fab fa-google-drive"></i> Open Google Drive
+            <div style="display:flex;flex-direction:column;gap:0.6rem;margin-bottom:1.4rem;">
+                <div class="gdrive-banner" style="background:linear-gradient(135deg,#1565c0,#1a73e8);">
+                    <p><i class="fab fa-google-drive"></i> &nbsp;All materials also on Google Drive</p>
+                    <a href="https://drive.google.com/drive/folders/1fBOWVczN8OEBU4dUKWACYF9gOPwQQ6dK" target="_blank" rel="noopener" style="color:#1565c0;">
+                        <i class="fab fa-google-drive"></i> Open Drive
                     </a>
                 </div>
-                <div class="gdrive-banner" style="background:linear-gradient(135deg,#0088cc,#006aaa);">
-                    <p><i class="fab fa-telegram"></i> &nbsp;Also available on our Telegram Resource Library – including software setups and extra materials.</p>
+                <div class="gdrive-banner" style="background:linear-gradient(135deg,#006aaa,#0088cc);">
+                    <p><i class="fab fa-telegram"></i> &nbsp;Also on our Telegram Resource Library</p>
                     <a href="https://t.me/Engin_Library_uenr_info_hub" target="_blank" rel="noopener" style="color:#0088cc;">
-                        <i class="fab fa-telegram"></i> Open Telegram Library
+                        <i class="fab fa-telegram"></i> Open Telegram
                     </a>
                 </div>
             </div>

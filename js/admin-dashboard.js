@@ -1037,7 +1037,12 @@
     var refreshedEl = document.getElementById('statsLastRefreshed');
     if(refreshedEl){
       var now2 = new Date();
-      refreshedEl.textContent = 'Last refreshed: ' + now2.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      refreshedEl.textContent = 'Refreshed ' + now2.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    }
+    // Show helper note when all visit counts are 0 (likely SQL not run yet)
+    var zeroNote = document.getElementById('visitsZeroNote');
+    if(zeroNote){
+      zeroNote.style.display = (!todayRes.count && !weekRes.count && !totalRes.count) ? 'block' : 'none';
     }
     // Spin then restore the refresh button icon
     var refreshBtn = document.getElementById('statsRefreshBtn');

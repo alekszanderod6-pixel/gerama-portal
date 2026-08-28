@@ -542,7 +542,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <button onclick="openQuickSearch()" class="header-notif-btn header-search-btn" title="Quick Search (Ctrl+K)" aria-label="Search">
       <i class="fas fa-search"></i>
     </button>
-    <button class="header-notif-btn" id="headerNotifBtn" aria-label="Notifications" title="Notifications" onclick="if(window.OneSignal){OneSignal.showNativePrompt();}">
+    <button class="header-notif-btn" id="headerNotifBtn" aria-label="Enable GERAMA notifications" title="Tap to subscribe to GERAMA notifications">
       <i class="fas fa-bell"></i>
       <span class="header-notif-dot" id="headerNotifDot"></span>
     </button>
@@ -1615,15 +1615,18 @@ async function submitPotwNomination() {
 
 // –– QUICK SEARCH ––––––––––––––––––––––––––––––––––––––––––––––––––
 var _searchData = null;
+var _searchLoading = false;
 
 function openQuickSearch() {
   var modal = document.getElementById('quickSearchModal');
   if(modal){ modal.style.display='flex'; setTimeout(function(){ var inp=document.getElementById('quickSearchInput'); if(inp) inp.focus(); },100); }
-  if(!_searchData) loadSearchData();
+  if(!_searchData && !_searchLoading) loadSearchData();
 }
 function closeQuickSearch() {
   var modal = document.getElementById('quickSearchModal');
   if(modal){ modal.style.display='none'; var inp=document.getElementById('quickSearchInput'); if(inp) inp.value=''; }
+  var res = document.getElementById('quickSearchResults');
+  if(res) res.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;font-size:0.9rem;"><i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>Type to search across all content</div>';
 }
 document.addEventListener('keydown', function(e){
   if((e.ctrlKey||e.metaKey) && e.key==='k'){ e.preventDefault(); openQuickSearch(); }
@@ -1631,58 +1634,122 @@ document.addEventListener('keydown', function(e){
 });
 document.getElementById('quickSearchModal').addEventListener('click', function(e){ if(e.target===this) closeQuickSearch(); });
 
-async function loadSearchData() {
-  if(typeof window.geramaSupabase === 'undefined') return;
+function loadSearchData(attempt) {
+  attempt = attempt || 0;
+  if(_searchLoading) return;
+  if(typeof window.geramaSupabase === 'undefined') {
+    // Supabase not ready yet — retry up to 20 times (10 seconds)
+    if(attempt < 20) setTimeout(function(){ loadSearchData(attempt+1); }, 500);
+    return;
+  }
+  _searchLoading = true;
   var sb = window.geramaSupabase;
-  try {
-    var [matRes, annRes, qzRes] = await Promise.all([
-      sb.from('materials').select('name,course,level,type,file_url').limit(200),
-      sb.from('announcements').select('title,message').limit(50),
-      sb.from('quizzes').select('title,course,description').eq('status','active').limit(50)
-    ]);
+  Promise.all([
+    sb.from('materials').select('name,course,level,type,file_url').limit(300),
+    sb.from('announcements').select('title,message').limit(50),
+    sb.from('quizzes').select('title,course,description').eq('status','active').limit(50),
+    sb.from('assignments').select('title,course,description').limit(50),
+    sb.from('classes').select('topic,course,zoom_link').limit(30)
+  ]).then(function(results){
     _searchData = {
-      materials: matRes.data||[],
-      announcements: annRes.data||[],
-      quizzes: qzRes.data||[]
+      materials:    (results[0].data||[]),
+      announcements:(results[1].data||[]),
+      quizzes:      (results[2].data||[]),
+      assignments:  (results[3].data||[]),
+      classes:      (results[4].data||[])
     };
-  } catch(e){}
+    _searchLoading = false;
+    // If modal is open and has a query typed, re-run the search now
+    var inp = document.getElementById('quickSearchInput');
+    if(inp && inp.value.trim()) runQuickSearch(inp.value);
+  }).catch(function(){ _searchLoading = false; });
 }
+
+// Preload search data in the background on page load
+setTimeout(function(){ if(!_searchData) loadSearchData(); }, 2000);
 
 function runQuickSearch(q) {
   var res = document.getElementById('quickSearchResults');
   if(!res) return;
   q = (q||'').trim().toLowerCase();
-  if(!q){ res.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;font-size:0.9rem;"><i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>Type to search</div>'; return; }
-  if(!_searchData){ res.innerHTML='<div style="text-align:center;padding:1.5rem;color:#9ca3af;">Loading...</div>'; loadSearchData(); return; }
+  if(!q){
+    res.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;font-size:0.9rem;"><i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3;"></i>Type to search materials, quizzes, announcements&hellip;</div>';
+    return;
+  }
+  if(!_searchData){
+    res.innerHTML='<div style="text-align:center;padding:1.5rem;color:#9ca3af;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading search index&hellip;</div>';
+    loadSearchData();
+    return;
+  }
 
   var results = [];
+
+  // Navigation shortcuts — always shown first for matching keywords
+  var navItems = [
+    {q:['resource','material','slide','book','past','question'],icon:'fas fa-book-open',color:'#1B5E20',title:'Resources Library',sub:'Browse all study materials by level',url:'resources.html'},
+    {q:['class','live','zoom','tutorial','video'],icon:'fas fa-chalkboard-teacher',color:'#6366f1',title:'Classroom',sub:'Live classes, assignments & quizzes',url:'classroom.html'},
+    {q:['dashboard','profile','grade','score','attendance'],icon:'fas fa-user-circle',color:'#0ea5e9',title:'My Dashboard',sub:'Your profile, grades and streak',url:'dashboard.html'},
+    {q:['connect','chat','message','dm','status'],icon:'fas fa-satellite-dish',color:'#0ea5e9',title:'GERAMA Connect',sub:'Chat, statuses and community',url:'connect.html'},
+    {q:['mall','shop','buy','tshirt','yoghurt'],icon:'fas fa-store',color:'#f59e0b',title:'Urban Mall',sub:'Shop T-shirts, yoghurt & more',url:'mall.html'},
+    {q:['opportunity','internship','nss','scholarship','job'],icon:'fas fa-briefcase',color:'#6d28d9',title:'Opportunities Hub',sub:'Internships, NSS, scholarships, jobs',url:'opportunities.html'},
+    {q:['help','guide','tutorial','how','support'],icon:'fas fa-question-circle',color:'#059669',title:'Help Centre',sub:'Step-by-step guides for every feature',url:'help.html'}
+  ];
+  navItems.forEach(function(n){
+    if(n.q.some(function(kw){ return kw.includes(q) || q.includes(kw); })){
+      results.push({type:'page',icon:n.icon,color:n.color,title:n.title,sub:n.sub,url:n.url});
+    }
+  });
+
+  // Materials
   (_searchData.materials||[]).forEach(function(m){
     if((m.name||'').toLowerCase().includes(q)||(m.course||'').toLowerCase().includes(q)){
-      results.push({type:'material',icon:'fas fa-file-pdf',color:'#1B5E20',title:m.name,sub:m.course+' · '+m.level+' · '+m.type,url:m.file_url||'resources.html'});
+      results.push({type:'material',icon:'fas fa-file-alt',color:'#1B5E20',title:m.name,sub:(m.course||'')+(m.level?' · '+m.level:'')+' · '+m.type,url:m.file_url||'resources.html'});
     }
   });
+
+  // Announcements
   (_searchData.announcements||[]).forEach(function(a){
     if((a.title||'').toLowerCase().includes(q)||(a.message||'').toLowerCase().includes(q)){
-      results.push({type:'announcement',icon:'fas fa-bullhorn',color:'#f59e0b',title:a.title,sub:(a.message||'').substring(0,60)+'...',url:'index.html'});
+      results.push({type:'announcement',icon:'fas fa-bullhorn',color:'#f59e0b',title:a.title,sub:(a.message||'').substring(0,65)+(a.message&&a.message.length>65?'…':''),url:'index.html#announcements'});
     }
   });
+
+  // Quizzes
   (_searchData.quizzes||[]).forEach(function(qz){
-    if((qz.title||'').toLowerCase().includes(q)||(qz.course||'').toLowerCase().includes(q)){
-      results.push({type:'quiz',icon:'fas fa-brain',color:'#6366f1',title:qz.title,sub:qz.course||'Quiz',url:'classroom.html?tab=quizzes'});
+    if((qz.title||'').toLowerCase().includes(q)||(qz.course||'').toLowerCase().includes(q)||(qz.description||'').toLowerCase().includes(q)){
+      results.push({type:'quiz',icon:'fas fa-brain',color:'#6366f1',title:qz.title,sub:(qz.course||'Quiz')+(qz.description?' — '+(qz.description||'').substring(0,40):''),url:'classroom.html?tab=quizzes'});
     }
   });
 
-  if(!results.length){ res.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;">No results for "'+q+'"</div>'; return; }
+  // Assignments
+  (_searchData.assignments||[]).forEach(function(a){
+    if((a.title||'').toLowerCase().includes(q)||(a.course||'').toLowerCase().includes(q)){
+      results.push({type:'assignment',icon:'fas fa-tasks',color:'#dc2626',title:a.title,sub:a.course||'Assignment',url:'classroom.html?tab=assignments'});
+    }
+  });
 
-  res.innerHTML = results.slice(0,12).map(function(r){
-    return '<a href="'+r.url+'" onclick="closeQuickSearch()" style="display:flex;align-items:center;gap:0.8rem;padding:0.8rem 1rem;text-decoration:none;color:#1e2a3e;border-radius:10px;transition:background 0.15s;margin:0.2rem 0.3rem;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">'+
-      '<div style="width:36px;height:36px;border-radius:10px;background:'+r.color+'20;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="'+r.icon+'" style="color:'+r.color+';font-size:0.9rem;"></i></div>'+
-      '<div style="min-width:0;"><div style="font-weight:600;font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.title+'</div>'+
-      '<div style="font-size:0.75rem;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.sub+'</div></div>'+
-      '<span style="margin-left:auto;font-size:0.7rem;background:'+r.color+'15;color:'+r.color+';padding:0.15rem 0.5rem;border-radius:10px;flex-shrink:0;">'+r.type+'</span>'+
+  // Classes
+  (_searchData.classes||[]).forEach(function(c){
+    if((c.topic||'').toLowerCase().includes(q)||(c.course||'').toLowerCase().includes(q)){
+      results.push({type:'class',icon:'fas fa-video',color:'#0ea5e9',title:c.topic,sub:c.course||'Live class',url:c.zoom_link||'classroom.html?tab=classes'});
+    }
+  });
+
+  if(!results.length){
+    res.innerHTML='<div style="text-align:center;padding:2rem;color:#9ca3af;"><i class="fas fa-search" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.2;"></i>No results for <strong style="color:#374151;">"'+q+'"</strong></div>';
+    return;
+  }
+
+  var typeColors = {material:'#1B5E2015',announcement:'#f59e0b15',quiz:'#6366f115',assignment:'#dc262615',class:'#0ea5e915',page:'#05966915'};
+  res.innerHTML = results.slice(0,14).map(function(r){
+    return '<a href="'+r.url+'" onclick="closeQuickSearch()" style="display:flex;align-items:center;gap:0.8rem;padding:0.75rem 1rem;text-decoration:none;color:#1e2a3e;border-radius:10px;transition:background 0.15s;margin:0.15rem 0.3rem;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'\'">'+
+      '<div style="width:36px;height:36px;border-radius:10px;background:'+r.color+'22;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="'+r.icon+'" style="color:'+r.color+';font-size:0.9rem;"></i></div>'+
+      '<div style="min-width:0;flex:1;"><div style="font-weight:600;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+r.title+'</div>'+
+      '<div style="font-size:0.73rem;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">'+r.sub+'</div></div>'+
+      '<span style="font-size:0.68rem;background:'+r.color+'18;color:'+r.color+';padding:0.15rem 0.55rem;border-radius:20px;flex-shrink:0;font-weight:700;">'+r.type+'</span>'+
     '</a>';
-  }).join('');
-}
+  }).join('')+
+  (results.length > 14 ? '<div style="text-align:center;padding:0.6rem;color:#9ca3af;font-size:0.78rem;">+'+(results.length-14)+' more results — try a more specific search</div>' : '');
 
 // –– ASSIGNMENT DEADLINE BANNER ––––––––––––––––––––––––––––––––––––
 (function() {
