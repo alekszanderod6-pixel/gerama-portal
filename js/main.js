@@ -582,31 +582,41 @@ window.showStatus = window.showStatus || function(id, msg, type) {
     if(skip.indexOf(page) !== -1) return;
 
     var pvKey = 'gerama_pv_' + page;
-    // Only track once per session — but mark BEFORE the insert so
-    // a failed insert (e.g. table not ready yet) doesn't block future tracking
     if(sessionStorage.getItem(pvKey)) return;
-    sessionStorage.setItem(pvKey, '1'); // optimistic: mark now
+
+    var _attempts = 0;
+    var _maxAttempts = 20; // 10 seconds max wait for Supabase
 
     function trackView() {
+        _attempts++;
         if(typeof window.geramaSupabase === 'undefined') {
-            setTimeout(trackView, 500);
+            if(_attempts < _maxAttempts) setTimeout(trackView, 500);
+            else console.warn('[PageTracker] Supabase never loaded — skipping track for', page);
             return;
         }
-        var payload = { page: page, visited_at: new Date().toISOString() };
+        // Mark AFTER confirming Supabase is available — not optimistically —
+        // so a cold start (Supabase loads late) doesn't permanently skip tracking.
+        var payload = {
+            page: page,
+            visited_at: new Date().toISOString(),
+            referrer: document.referrer ? document.referrer.replace(window.location.origin, '').split('?')[0].substring(0, 80) : null
+        };
         window.geramaSupabase.from('page_views').insert(payload)
             .then(function(res){
                 if(res && res.error){
-                    console.warn('[PageTracker] Insert failed:', res.error.message);
-                    // Clear the optimistic flag so it retries next session
-                    sessionStorage.removeItem(pvKey);
+                    console.warn('[PageTracker] Insert failed:', res.error.message, '| code:', res.error.code);
+                    // Do NOT mark session — let it retry on next page load
+                    // (common cause: RLS not yet set up → fixed by running SQL file)
+                } else {
+                    sessionStorage.setItem(pvKey, '1'); // mark only on success
                 }
             })
             .catch(function(e){
-                console.warn('[PageTracker] Exception:', e);
-                sessionStorage.removeItem(pvKey);
+                console.warn('[PageTracker] Exception:', e.message);
             });
     }
-    setTimeout(trackView, 1000);
+    // Slight delay so Supabase client has time to initialise
+    setTimeout(trackView, 800);
 })();
 
 // –– SITE PRESENCE – live "Online Now" counter on public pages –––––
@@ -1121,22 +1131,28 @@ if(!document.getElementById('confettiStyle')) {
     var links = [
         { href:'index.html',     icon:'fas fa-home',               label:'Home' },
         { href:'resources.html', icon:'fas fa-book-open',          label:'Resources' },
-        { href:'classroom.html', icon:'fas fa-chalkboard-teacher', label:'Classroom' },
+        { href:'classroom.html', icon:'fas fa-chalkboard-teacher', label:'Class' },
         { href:'connect.html',   icon:'fas fa-satellite-dish',     label:'Connect' },
         { href:'mall.html',      icon:'fas fa-store',              label:'Mall' }
     ];
 
     nav.innerHTML = links.map(function(l) {
-        var isActive = page === l.href ? 'color:#1B5E20;' : 'color:#9ca3af;';
-        return '<a href="'+l.href+'" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;text-decoration:none;font-size:0.6rem;font-weight:600;gap:0.2rem;transition:color 0.2s;'+isActive+'">'+
-            '<i class="'+l.icon+'" style="font-size:1.1rem;"></i><span>'+l.label+'</span></a>';
+        var active = page === l.href;
+        var color = active ? '#1B5E20' : '#9ca3af';
+        var scale = active ? 'scale(1.12)' : 'scale(1)';
+        var activePill = active ? '<span style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:0 0 4px 4px;background:#1B5E20;display:block;"></span>' : '';
+        return '<a href="'+l.href+'" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.6rem 0.2rem;text-decoration:none;font-size:0.58rem;font-weight:700;gap:0.25rem;transition:color 0.2s;color:'+color+';position:relative;letter-spacing:0.2px;">'+
+            activePill+
+            '<i class="'+l.icon+'" style="font-size:1.2rem;transition:transform 0.2s;transform:'+scale+';"></i>'+
+            '<span>'+l.label+'</span>'+
+            '</a>';
     }).join('');
 
     document.body.appendChild(nav);
 
     function checkMobile() {
         nav.style.display = window.innerWidth <= 640 ? 'flex' : 'none';
-        document.body.style.paddingBottom = window.innerWidth <= 640 ? '60px' : '';
+        document.body.style.paddingBottom = window.innerWidth <= 640 ? '64px' : '';
     }
     checkMobile();
     window.addEventListener('resize', checkMobile);

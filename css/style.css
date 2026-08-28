@@ -239,6 +239,16 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 /* –– BOTTOM NAV ACTIVE STATE INDICATOR –– */
 #siteBottomNav a.active { color: #1B5E20 !important; }
 #siteBottomNav a.active i { transform: scale(1.12); }
+/* Active pill top indicator */
+#siteBottomNav a { position: relative; }
+#siteBottomNav a.active::before {
+  content: '';
+  position: absolute; top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 28px; height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: #1B5E20;
+}
 
 /* –– STATUS MESSAGES (global) –– */
 .status-msg {

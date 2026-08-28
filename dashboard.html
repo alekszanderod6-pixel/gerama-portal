@@ -25,9 +25,21 @@
     .header-nav{display:flex;align-items:center;gap:0.3rem;}
     .header-nav a{color:rgba(255,255,255,0.85);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.9rem;transition:all 0.2s;}
     .header-nav a:hover,.header-nav a.active{color:var(--gold);background:rgba(255,193,7,0.1);}
-    .menu-toggle-btn{display:flex;background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;margin-right:0.5rem;}
+    .menu-toggle-btn{display:flex;background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;}
     .menu-toggle-btn:hover{background:rgba(255,255,255,0.1);}
-    @media(max-width:640px){.header-nav{display:none;}}
+    /* Notification bell */
+    .header-notif-btn{position:relative;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;flex-shrink:0;}
+    .header-notif-btn:hover{background:rgba(255,193,7,0.2);border-color:rgba(255,193,7,0.5);color:var(--gold);}
+    .header-notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:1.5px solid rgba(10,47,31,0.97);display:none;}
+    .header-notif-dot.show{display:block;}
+    @media(max-width:640px){
+      .header-nav{display:none;}
+      .site-header{height:56px;padding:0 4%;}
+      .header-logo img{height:30px !important;}
+      .header-logo span{display:none;}
+      .header-logo{gap:7px;}
+      .header-notif-btn{width:34px;height:34px;font-size:0.88rem;}
+    }
 
     /* –– DASHBOARD HERO –– */
     .dash-hero{background:linear-gradient(135deg,#0a2f1f,#1B5E20);padding:2rem 5%;color:white;position:relative;overflow:hidden;}
@@ -119,11 +131,15 @@
     .grade-notif-badge.show{transform:translateX(0);}
 
     /* –– SITE BOTTOM NAV –– */
+    /* –– SITE BOTTOM NAV –– */
     .site-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;z-index:400;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
-    .site-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;color:#9ca3af;text-decoration:none;font-size:0.6rem;font-weight:600;gap:0.2rem;transition:all 0.2s;}
-    .site-bnav-item i{font-size:1.1rem;}
-    .site-bnav-item.active,.site-bnav-item:hover{color:var(--primary);}
-    @media(max-width:640px){.site-bottom-nav{display:flex;}body{padding-bottom:60px;}}
+    .site-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.6rem 0.2rem;color:#9ca3af;text-decoration:none;font-size:0.58rem;font-weight:700;gap:0.25rem;transition:all 0.2s;position:relative;letter-spacing:0.2px;}
+    .site-bnav-item i{font-size:1.2rem;transition:transform 0.2s;}
+    .site-bnav-item.active{color:var(--primary);}
+    .site-bnav-item.active i{transform:scale(1.12);}
+    .site-bnav-item.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:0 0 4px 4px;background:var(--primary);}
+    .site-bnav-item:hover:not(.active){color:#4caf50;}
+    @media(max-width:640px){.site-bottom-nav{display:flex;}body{padding-bottom:64px;}}
 
     /* –– FOOTER –– */
     .site-footer{background:linear-gradient(180deg,#0a2f1f,#071a12);color:white;padding:2rem 5% 0;margin-top:3rem;}
@@ -163,6 +179,12 @@
     <a href="connect.html" style="color:#0ea5e9;">📡 Connect</a>
     <a href="dashboard.html" class="active">My Dashboard</a>
   </nav>
+  <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+    <button class="header-notif-btn" id="headerNotifBtn" aria-label="Notifications" title="Notifications" onclick="if(window.OneSignal){OneSignal.showNativePrompt();}">
+      <i class="fas fa-bell"></i>
+      <span class="header-notif-dot" id="headerNotifDot"></span>
+    </button>
+  </div>
 </header>
 
 <!-- HERO -->

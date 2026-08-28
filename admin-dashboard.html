@@ -50,10 +50,12 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 .status-ok{background:#d1fae5;color:#065f46;}
 .status-err{background:#fee2e2;color:#991b1b;}
 .status-info{background:#dbeafe;color:#1e40af;}
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
-.stat-box{background:white;border-radius:14px;padding:1.2rem;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
-.stat-box .num{font-size:2rem;font-weight:800;color:#1B5E20;}
-.stat-box .lbl{font-size:0.8rem;color:#6b7280;margin-top:0.2rem;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem;}
+.stat-box{background:white;border-radius:14px;padding:1.2rem 1rem;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.05);transition:transform 0.15s,box-shadow 0.15s;}
+.stat-box:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.1);}
+.stat-box .stat-icon{font-size:1.3rem;margin-bottom:0.35rem;line-height:1;}
+.stat-box .num{font-size:2rem;font-weight:800;color:#1B5E20;line-height:1.1;}
+.stat-box .lbl{font-size:0.75rem;color:#6b7280;margin-top:0.25rem;font-weight:600;}
 .btn-primary{background:#1B5E20;color:white;border:none;padding:0.7rem 1.5rem;border-radius:10px;font-weight:600;font-size:0.9rem;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:0.5rem;}
 .btn-primary:hover{background:#145214;transform:translateY(-1px);}
 .btn-gold{background:#FFC107;color:#1B5E20;border:none;padding:0.7rem 1.5rem;border-radius:10px;font-weight:700;font-size:0.9rem;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:0.5rem;}
@@ -312,52 +314,88 @@ tr:hover td{background:#fafcfa;}
   </div>
 
   <div class="panel active" id="panel-overview">
-    <!-- Live stats row 1: core -->
-    <div class="stats-row">
+    <!-- Live stats row 1: core content -->
+    <div class="stats-row" id="statsRow1">
       <div class="stat-box" style="border-top:3px solid #1B5E20;">
-        <div class="num" id="statMaterials">–</div><div class="lbl">📚 Materials Live</div>
-      </div>
-      <div class="stat-box" style="border-top:3px solid #f59e0b;">
-        <div class="num" id="statPending">–</div><div class="lbl">📥 Pending Reviews</div>
+        <div class="stat-icon" style="color:#1B5E20;"><i class="fas fa-book-open"></i></div>
+        <div class="num" id="statMaterials">–</div>
+        <div class="lbl">Materials Live</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #6366f1;">
-        <div class="num" id="statAnn">–</div><div class="lbl">📢 Announcements</div>
+        <div class="stat-icon" style="color:#6366f1;"><i class="fas fa-bullhorn"></i></div>
+        <div class="num" id="statAnn">–</div>
+        <div class="lbl">Announcements</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #0ea5e9;cursor:pointer;" onclick="switchPanel('users')" title="View registered users">
+        <div class="stat-icon" style="color:#0ea5e9;"><i class="fas fa-users"></i></div>
+        <div class="num" id="statUsers" style="color:#0ea5e9;">–</div>
+        <div class="lbl">Registered Users</div>
       </div>
       <div class="stat-box" style="border-top:3px solid #dc2626;cursor:pointer;" onclick="switchPanel('grades')" title="View ungraded submissions">
-        <div class="num" id="statUngradedCount" style="color:#dc2626;">–</div><div class="lbl">– Ungraded Work</div>
+        <div class="stat-icon" style="color:#dc2626;"><i class="fas fa-exclamation-circle"></i></div>
+        <div class="num" id="statUngradedCount" style="color:#dc2626;">–</div>
+        <div class="lbl">Ungraded Work</div>
       </div>
     </div>
-    <!-- Live stats row 2: visitors -->
-    <div class="stats-row" style="margin-top:0;">
-      <div class="stat-box" style="border-top:3px solid #0ea5e9;">
-        <div class="num" id="statVisitsToday" style="color:#0ea5e9;">–</div><div class="lbl">👁 Visits Today</div>
+    <!-- Live stats row 2: visit analytics -->
+    <div style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);border-radius:16px;padding:1.2rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;box-shadow:0 4px 20px rgba(27,94,32,0.25);">
+      <div style="display:flex;align-items:center;gap:0.6rem;flex-shrink:0;">
+        <i class="fas fa-chart-line" style="color:#FFC107;font-size:1.3rem;"></i>
+        <div>
+          <div style="color:rgba(255,255,255,0.55);font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Portal Traffic</div>
+          <div style="color:rgba(255,255,255,0.35);font-size:0.65rem;" id="statsLastRefreshed">Last refreshed: –</div>
+        </div>
       </div>
-      <div class="stat-box" style="border-top:3px solid #8b5cf6;">
-        <div class="num" id="statVisitsWeek" style="color:#8b5cf6;">–</div><div class="lbl">📅 This Week</div>
+      <div style="display:flex;gap:0.8rem;flex:1;flex-wrap:wrap;min-width:0;">
+        <div style="flex:1;min-width:80px;text-align:center;background:rgba(255,255,255,0.08);border-radius:12px;padding:0.7rem 0.5rem;border:1px solid rgba(255,255,255,0.1);">
+          <div style="font-size:1.8rem;font-weight:900;color:#4ade80;line-height:1;" id="statVisitsToday">–</div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-top:0.2rem;font-weight:600;">TODAY</div>
+        </div>
+        <div style="flex:1;min-width:80px;text-align:center;background:rgba(255,255,255,0.08);border-radius:12px;padding:0.7rem 0.5rem;border:1px solid rgba(255,255,255,0.1);">
+          <div style="font-size:1.8rem;font-weight:900;color:#93c5fd;line-height:1;" id="statVisitsWeek">–</div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-top:0.2rem;font-weight:600;">THIS WEEK</div>
+        </div>
+        <div style="flex:1;min-width:80px;text-align:center;background:rgba(255,255,255,0.08);border-radius:12px;padding:0.7rem 0.5rem;border:1px solid rgba(255,255,255,0.1);">
+          <div style="font-size:1.8rem;font-weight:900;color:#fbbf24;line-height:1;" id="statVisitsTotal">–</div>
+          <div style="font-size:0.68rem;color:rgba(255,255,255,0.6);margin-top:0.2rem;font-weight:600;">ALL TIME</div>
+        </div>
       </div>
-      <div class="stat-box" style="border-top:3px solid #dc2626;">
-        <div class="num" id="statVisitsTotal" style="color:#dc2626;">–</div><div class="lbl">🌍 All-Time Visits</div>
-      </div>
-      <div class="stat-box" style="border-top:3px solid #f59e0b;">
-        <div class="num" id="statClassReqs" style="color:#f59e0b;">–</div><div class="lbl">🙋 Class Requests</div>
-      </div>
+      <button onclick="if(window.loadOverviewStats)window.loadOverviewStats();" title="Refresh stats"
+        style="background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);color:#FFC107;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.95rem;transition:all 0.2s;flex-shrink:0;"
+        onmouseover="this.style.background='rgba(255,193,7,0.3)'" onmouseout="this.style.background='rgba(255,193,7,0.15)'"
+        id="statsRefreshBtn"><i class="fas fa-sync-alt"></i></button>
     </div>
-    <!-- Live stats row 3: content -->
-    <div class="stats-row" style="margin-top:0;">
-      <div class="stat-box" style="border-top:3px solid #6366f1;">
-        <div class="num" id="statQuizzes" style="color:#6366f1;">–</div><div class="lbl">🧠 Active Quizzes</div>
+    <!-- Live stats row 3: content + requests -->
+    <div class="stats-row" id="statsRow3" style="margin-top:0;">
+      <div class="stat-box" style="border-top:3px solid #f59e0b;cursor:pointer;" onclick="switchPanel('classrequests')">
+        <div class="stat-icon" style="color:#f59e0b;"><i class="fas fa-hand-paper"></i></div>
+        <div class="num" id="statClassReqs" style="color:#f59e0b;">–</div>
+        <div class="lbl">Class Requests</div>
       </div>
-      <div class="stat-box" style="border-top:3px solid #1B5E20;">
-        <div class="num" id="statAssignments" style="color:#1B5E20;">–</div><div class="lbl">📝 Assignments</div>
+      <div class="stat-box" style="border-top:3px solid #6366f1;cursor:pointer;" onclick="switchPanel('quizzes')">
+        <div class="stat-icon" style="color:#6366f1;"><i class="fas fa-brain"></i></div>
+        <div class="num" id="statQuizzes" style="color:#6366f1;">–</div>
+        <div class="lbl">Active Quizzes</div>
       </div>
-      <div class="stat-box" style="border-top:3px solid #0ea5e9;">
-        <div class="num" id="statClasses" style="color:#0ea5e9;">–</div><div class="lbl">🎥 Classes</div>
+      <div class="stat-box" style="border-top:3px solid #1B5E20;cursor:pointer;" onclick="switchPanel('assignments')">
+        <div class="stat-icon" style="color:#1B5E20;"><i class="fas fa-tasks"></i></div>
+        <div class="num" id="statAssignments" style="color:#1B5E20;">–</div>
+        <div class="lbl">Assignments</div>
       </div>
-      <div class="stat-box" style="border-top:3px solid #dc2626;">
-        <div class="num" id="statQuizPending" style="color:#dc2626;">–</div><div class="lbl">– Quiz Requests</div>
+      <div class="stat-box" style="border-top:3px solid #0ea5e9;cursor:pointer;" onclick="switchPanel('classes')">
+        <div class="stat-icon" style="color:#0ea5e9;"><i class="fas fa-video"></i></div>
+        <div class="num" id="statClasses" style="color:#0ea5e9;">–</div>
+        <div class="lbl">Classes</div>
       </div>
-      <div class="stat-box" style="border-top:3px solid #059669;cursor:pointer;" onclick="switchPanel('grades')" title="All submitted assignments">
-        <div class="num" id="statApproved" style="color:#059669;">–</div><div class="lbl">📬 Total Submissions</div>
+      <div class="stat-box" style="border-top:3px solid #dc2626;cursor:pointer;" onclick="switchPanel('quizrequests')">
+        <div class="stat-icon" style="color:#dc2626;"><i class="fas fa-question-circle"></i></div>
+        <div class="num" id="statQuizPending" style="color:#dc2626;">–</div>
+        <div class="lbl">Quiz Requests</div>
+      </div>
+      <div class="stat-box" style="border-top:3px solid #059669;cursor:pointer;" onclick="switchPanel('grades')">
+        <div class="stat-icon" style="color:#059669;"><i class="fas fa-inbox"></i></div>
+        <div class="num" id="statApproved" style="color:#059669;">–</div>
+        <div class="lbl">Total Submissions</div>
       </div>
     </div>
 

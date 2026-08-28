@@ -31,11 +31,27 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .header-nav{display:flex;align-items:center;gap:0.3rem;}
 .header-nav a{color:rgba(255,255,255,0.85);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.95rem;transition:all 0.2s;}
 .header-nav a:hover,.header-nav a.active{color:var(--gold);background:rgba(255,193,7,0.1);}
-.menu-toggle-btn{display:flex;background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;margin-right:0.5rem;}
+.menu-toggle-btn{display:flex;background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;}
 .menu-toggle-btn:hover{background:rgba(255,255,255,0.1);}
 .pwa-install-btn{display:none;align-items:center;gap:0.4rem;background:rgba(255,193,7,0.15);border:1.5px solid rgba(255,193,7,0.5);color:#FFC107;padding:0.4rem 0.9rem;border-radius:30px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;font-family:'Inter',sans-serif;}
 .pwa-install-btn:hover{background:#FFC107;color:#0a2f1f;}
-@media(max-width:640px){.header-nav{display:none;}}
+/* Notification bell */
+.header-notif-btn{position:relative;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;flex-shrink:0;}
+.header-notif-btn:hover{background:rgba(255,193,7,0.2);border-color:rgba(255,193,7,0.5);color:var(--gold);}
+.header-notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:1.5px solid rgba(10,47,31,0.97);display:none;}
+.header-notif-dot.show{display:block;}
+@media(max-width:640px){
+  .header-nav{display:none;}
+  .site-header{height:56px;padding:0 4%;}
+  .header-logo img{height:30px !important;}
+  .header-logo span{display:none;}
+  .header-logo{gap:7px;}
+  .header-notif-btn{width:34px;height:34px;font-size:0.88rem;}
+  .pwa-install-btn{padding:0.35rem 0.5rem;font-size:0;}
+  .pwa-install-btn i{font-size:0.95rem;}
+  /* Toolbar sticks below compact header */
+  .mall-toolbar{top:56px;}
+}
 
 /* MALL HERO */
 .mall-hero{background:linear-gradient(135deg,#0a2f1f 0%,#1B5E20 50%,#2E7D32 100%);padding:3rem 5% 2.5rem;color:white;position:relative;overflow:hidden;}
@@ -271,7 +287,15 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <a href="mall.html" class="active">Mall</a>
     <a href="about.html">About</a>
   </nav>
-  <button class="pwa-install-btn" id="pwaHeaderBtn" aria-label="Install app"><i class="fas fa-download"></i> Install</button>
+  <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+    <button class="pwa-install-btn" id="pwaHeaderBtn" aria-label="Install app">
+      <i class="fas fa-download"></i> <span class="pwa-btn-text">Install</span>
+    </button>
+    <button class="header-notif-btn" id="headerNotifBtn" aria-label="Notifications" title="Notifications" onclick="if(window.OneSignal){OneSignal.showNativePrompt();}">
+      <i class="fas fa-bell"></i>
+      <span class="header-notif-dot" id="headerNotifDot"></span>
+    </button>
+  </div>
 </header>
 
 <!-- HERO -->

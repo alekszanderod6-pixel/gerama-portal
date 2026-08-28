@@ -1026,11 +1026,25 @@
     set('statMaterials',   matRes.count||0);
     set('statAnn',         annRes.count||0);
     set('statApproved',    subRes.count||0);  // reuse "Approved Subs" box for total submissions
+    set('statUsers',       userRes.count||0);
     // Ungraded count – clickable red stat box
     var ungradedCount = ungradedRes.count || 0;
     set('statUngradedCount', ungradedCount);
     var ugBox = document.getElementById('statUngradedCount');
     if(ugBox){ ugBox.style.color = ungradedCount > 0 ? '#dc2626' : '#059669'; }
+
+    // Last-refreshed timestamp
+    var refreshedEl = document.getElementById('statsLastRefreshed');
+    if(refreshedEl){
+      var now2 = new Date();
+      refreshedEl.textContent = 'Last refreshed: ' + now2.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    }
+    // Spin then restore the refresh button icon
+    var refreshBtn = document.getElementById('statsRefreshBtn');
+    if(refreshBtn){
+      var icon = refreshBtn.querySelector('i');
+      if(icon){ icon.style.transition='transform 0.5s'; icon.style.transform='rotate(360deg)'; setTimeout(function(){ icon.style.transition='none'; icon.style.transform=''; }, 520); }
+    }
 
     var reqBadge = document.getElementById('reqBadge');
     if(reqBadge){ var rc=clsReqRes.count||0; reqBadge.textContent=rc; reqBadge.style.display=rc>0?'inline':'none'; }
@@ -1061,6 +1075,7 @@
       submissions: subRes.count || 0,
       materials: matRes.count || 0,
       announcements: annRes.count || 0,
+      users: userRes.count || 0,
       ungraded: ungradedCount
     });
   }
@@ -1082,7 +1097,7 @@
     var momentumEl = document.getElementById('adminMomentumList');
     if (!pulseEl || !priorityEl || !momentumEl) return;
 
-    var pulseText = 'Today the portal has ' + stats.visitsToday + ' visits, ' + stats.materials + ' live materials, and ' + stats.announcements + ' announcements active for students.';
+    var pulseText = 'Today the portal has ' + stats.visitsToday + ' visit' + (stats.visitsToday !== 1 ? 's' : '') + ', ' + stats.materials + ' live materials, ' + stats.announcements + ' announcements, and ' + stats.users + ' registered students.';
     if (stats.ungraded > 0) {
       pulseText += ' There are ' + stats.ungraded + ' ungraded submissions needing attention.';
     } else {
@@ -1235,6 +1250,13 @@
       if(typeof window.geramaSupabase !== 'undefined'){
         loadOverviewStats();
         setTimeout(window.loadVisitorStats, 200);
+        // Auto-refresh overview stats every 2 minutes while admin is on this page
+        setInterval(function(){
+          var activePanel = document.querySelector('.panel.active');
+          if(activePanel && activePanel.id === 'panel-overview'){
+            loadOverviewStats();
+          }
+        }, 120000);
       } else if(attempts > 0){
         setTimeout(function(){ tryStats(attempts-1); }, 500);
       }

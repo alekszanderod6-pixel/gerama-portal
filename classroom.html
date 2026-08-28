@@ -29,11 +29,25 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .header-nav{display:flex;align-items:center;gap:0.3rem;}
 .header-nav a{color:rgba(255,255,255,0.85);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.95rem;transition:all 0.2s;}
 .header-nav a:hover,.header-nav a.active{color:var(--gold);background:rgba(255,193,7,0.1);}
-.menu-toggle-btn{display:flex;background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;margin-right:0.5rem;}
+.menu-toggle-btn{display:flex;background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;flex-shrink:0;align-items:center;justify-content:center;border-radius:8px;transition:background 0.2s;}
 .menu-toggle-btn:hover{background:rgba(255,255,255,0.1);}
 .pwa-install-btn{display:none;align-items:center;gap:0.4rem;background:rgba(255,193,7,0.15);border:1.5px solid rgba(255,193,7,0.5);color:#FFC107;padding:0.4rem 0.9rem;border-radius:30px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;font-family:'Inter',sans-serif;}
 .pwa-install-btn:hover{background:#FFC107;color:#0a2f1f;}
-@media(max-width:640px){.header-nav{display:none;}}
+/* Notification bell + search */
+.header-notif-btn{position:relative;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;flex-shrink:0;}
+.header-notif-btn:hover{background:rgba(255,193,7,0.2);border-color:rgba(255,193,7,0.5);color:var(--gold);}
+.header-notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:1.5px solid rgba(10,47,31,0.97);display:none;}
+.header-notif-dot.show{display:block;}
+@media(max-width:640px){
+  .header-nav{display:none;}
+  .site-header{height:56px;padding:0 4%;}
+  .header-logo img{height:30px !important;}
+  .header-logo span{display:none;}
+  .header-logo{gap:7px;}
+  .header-notif-btn{width:34px;height:34px;font-size:0.88rem;}
+  .pwa-install-btn{padding:0.35rem 0.5rem;font-size:0;}
+  .pwa-install-btn i{font-size:0.95rem;}
+}
 
 /* HERO */
 .classroom-hero{background:linear-gradient(135deg,var(--primary-dark) 0%,#1a4a2e 40%,var(--primary) 100%);padding:4rem 5% 3.5rem;text-align:center;color:white;position:relative;overflow:hidden;}
@@ -42,6 +56,13 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .hero-badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);color:var(--gold);padding:0.4rem 1.2rem;border-radius:50px;font-size:0.85rem;font-weight:600;margin-bottom:1.2rem;backdrop-filter:blur(4px);}
 .classroom-hero h1{font-size:clamp(1.8rem,4vw,3rem);font-weight:800;margin-bottom:0.8rem;text-shadow:0 2px 20px rgba(0,0,0,0.2);}
 .classroom-hero p{font-size:1rem;opacity:0.85;max-width:600px;margin:0 auto;}
+/* Compact classroom hero on mobile */
+@media(max-width:640px){
+  .classroom-hero{padding:2rem 4% 1.8rem;}
+  .classroom-hero h1{font-size:clamp(1.4rem,5vw,2rem);margin-bottom:0.5rem;}
+  .classroom-hero p{font-size:0.85rem;}
+  .hero-badge{font-size:0.72rem;padding:0.28rem 0.85rem;margin-bottom:0.8rem;}
+}
 
 /* TABS */
 .tab-bar{background:white;border-bottom:2px solid #e8f0e8;position:sticky;top:70px;z-index:100;display:flex;justify-content:center;padding:0 2%;gap:0.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;box-shadow:0 2px 12px rgba(0,0,0,0.04);}
@@ -70,7 +91,7 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .tab-btn:hover:not(.active){color:var(--primary-light);background:rgba(27,94,32,0.03);}
 /* Mobile: pill-style compact tabs */
 @media(max-width:640px){
-  .tab-bar{padding:0.5rem 0.6rem;border-bottom:none;background:#f5f8f5;top:70px;gap:0.3rem;flex-wrap:nowrap;box-shadow:0 1px 8px rgba(0,0,0,0.06);}
+  .tab-bar{padding:0.5rem 0.6rem;border-bottom:none;background:#f5f8f5;top:56px;gap:0.3rem;flex-wrap:nowrap;box-shadow:0 1px 8px rgba(0,0,0,0.06);}
   .tab-btn{
     padding:0.5rem 0.8rem;font-size:0.7rem;border-bottom:none;border-radius:20px;
     flex-direction:row;gap:0.35rem;margin-bottom:0;
@@ -319,12 +340,16 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 
 /* –– SITE BOTTOM NAV (mobile main site) –– */
 .site-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;z-index:400;box-shadow:0 -4px 20px rgba(0,0,0,0.08);}
-.site-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.5rem 0.2rem;color:#9ca3af;text-decoration:none;font-size:0.6rem;font-weight:600;gap:0.2rem;transition:all 0.2s;}
-.site-bnav-item i{font-size:1.1rem;}
-.site-bnav-item.active,.site-bnav-item:hover{color:var(--primary);}
+.site-bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.6rem 0.2rem;color:#9ca3af;text-decoration:none;font-size:0.58rem;font-weight:700;gap:0.25rem;transition:all 0.2s;position:relative;letter-spacing:0.2px;}
+.site-bnav-item i{font-size:1.2rem;transition:transform 0.2s;}
+.site-bnav-item.active{color:var(--primary);}
+.site-bnav-item.active i{transform:scale(1.12);}
+/* Active pill indicator */
+.site-bnav-item.active::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:0 0 4px 4px;background:var(--primary);}
+.site-bnav-item:hover:not(.active){color:#4caf50;}
 @media(max-width:640px){
   .site-bottom-nav{display:flex;}
-  body{padding-bottom:60px;}
+  body{padding-bottom:64px;}
 }
 .footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.1);}
 .footer-copy,.footer-credits{font-size:0.82rem;color:rgba(255,255,255,0.4);margin:0;}
@@ -494,7 +519,13 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
   </nav>
-  <button class="pwa-install-btn" id="pwaHeaderBtn" title="Install GERAMA as an app"><i class="fas fa-download"></i> Install App</button>
+  <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+    <button class="pwa-install-btn" id="pwaHeaderBtn" title="Install GERAMA as an app"><i class="fas fa-download"></i> <span class="pwa-btn-text">Install App</span></button>
+    <button class="header-notif-btn" id="headerNotifBtn" aria-label="Notifications" title="Notifications" onclick="if(window.OneSignal){OneSignal.showNativePrompt();}">
+      <i class="fas fa-bell"></i>
+      <span class="header-notif-dot" id="headerNotifDot"></span>
+    </button>
+  </div>
 </header>
 
 <!-- HERO -->

@@ -91,6 +91,23 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   border-radius:8px; transition:background 0.2s;
 }
 .menu-toggle-btn:hover { background:rgba(255,255,255,0.1); }
+
+/* –– HEADER NOTIFICATION BELL –– */
+.header-notif-btn {
+  position:relative; background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.15); color:white;
+  width:38px; height:38px; border-radius:50%; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem; transition:all 0.2s; flex-shrink:0;
+}
+.header-notif-btn:hover { background:rgba(255,193,7,0.2); border-color:rgba(255,193,7,0.5); color:var(--gold); }
+.header-notif-dot {
+  position:absolute; top:6px; right:6px;
+  width:8px; height:8px; border-radius:50%;
+  background:#ef4444; border:1.5px solid rgba(10,47,31,0.97);
+  display:none;
+}
+.header-notif-dot.show { display:block; }
 .hero-section {
   position:relative; min-height:100vh;
   display:flex; align-items:center; justify-content:center;
@@ -411,32 +428,86 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 }
 /* Mobile (<641px) */
 @media(max-width:640px) {
+  /* –– COMPACT MOBILE HEADER –– */
   .header-nav { display:none; }
-  .stats-bar { grid-template-columns:repeat(2,1fr); padding:1.2rem 4%; }
-  .stat-item { border-right:none; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .site-header { height:56px; padding:0 4%; }
+  /* Smaller logos on mobile */
+  .header-logo img { height:30px !important; }
+  /* Hide GERAMA text label on mobile — logos speak for themselves */
+  .header-logo span { display:none; }
+  /* Tighter logo gap */
+  .header-logo { gap:7px; }
+  /* Hide PWA install btn text on mobile */
+  .pwa-install-btn { padding:0.35rem 0.5rem; font-size:0; }
+  .pwa-install-btn i { font-size:1rem; }
+  /* Quick search button */
+  .header-search-btn { width:34px; height:34px; font-size:0.85rem; }
+
+  /* –– COMPACT HERO –– */
+  .hero-section { min-height:82vh; }
+  .hero-content { padding:1.2rem 1rem; }
+  .hero-badge { font-size:0.72rem; padding:0.28rem 0.85rem; margin-bottom:1rem; }
+  .hero-title { font-size:clamp(1.55rem,5.5vw,2.5rem); margin-bottom:0.8rem; }
+  .hero-subtitle { font-size:0.88rem; margin-bottom:1.5rem; line-height:1.6; }
+  .hero-actions { flex-direction:column; align-items:center; gap:0.65rem; }
+  .btn-hero-primary,.btn-hero-secondary { padding:0.72rem 1.8rem; font-size:0.92rem; width:100%; max-width:280px; justify-content:center; }
+  .hero-scroll { bottom:4.5rem; font-size:1.1rem; }
+  /* Trust bullets – hide on mobile to save space */
+  .hero-trust-row { display:none; }
+
+  /* –– COMPACT STATS BAR –– */
+  .stats-bar { grid-template-columns:repeat(2,1fr); padding:1rem 4%; gap:0; }
+  .stat-item { border-right:none; border-bottom:1px solid rgba(255,255,255,0.06); padding:0.9rem 0.5rem; }
+  .stat-num { font-size:1.8rem; letter-spacing:-0.5px; }
+  .stat-lbl { font-size:0.72rem; margin-top:0.2rem; }
+
+  /* –– SECTION SPACING –– */
+  .section-wrap { padding:2rem 4%; }
+  .section-title { font-size:1.35rem; }
+  .section-head { margin-bottom:1.5rem; }
+  .section-sub { font-size:0.88rem; }
+
+  /* –– FEATURE CARDS: 2-col compact –– */
+  .features-grid { grid-template-columns:repeat(2,1fr); gap:0.7rem; }
+  .feature-card { padding:1rem; border-radius:16px; }
+  .feature-icon { width:38px; height:38px; font-size:0.9rem; margin-bottom:0.65rem; border-radius:10px; }
+  .feature-card h3 { font-size:0.82rem; font-weight:700; margin-bottom:0.25rem; }
+  .feature-card p { font-size:0.74rem; line-height:1.55; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* –– HOW IT WORKS: horizontal scroll strip on mobile –– */
+  .steps-grid {
+    display:flex; flex-direction:row; overflow-x:auto;
+    gap:0.8rem; padding-bottom:0.5rem; scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  }
+  .steps-grid::-webkit-scrollbar { display:none; }
+  .step-card { min-width:200px; flex-shrink:0; scroll-snap-align:start; padding:1.2rem 1rem; border-radius:16px; }
+  .step-num { width:46px; height:46px; font-size:1.1rem; margin-bottom:0.7rem; }
+  .step-card h3 { font-size:0.85rem; }
+  .step-card p { font-size:0.76rem; }
+
+  /* –– ANNOUNCEMENTS: horizontal scroll on mobile –– */
+  .ann-grid {
+    display:flex; flex-direction:row; overflow-x:auto;
+    gap:0.85rem; padding-bottom:0.5rem; scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    grid-template-columns:unset;
+  }
+  .ann-grid::-webkit-scrollbar { display:none; }
+  .ann-card { min-width:78vw; max-width:300px; flex-shrink:0; scroll-snap-align:start; }
+  .ann-card-img { height:150px; }
+
+  /* –– POTW –– */
+  .potw-grid { grid-template-columns:1fr; }
+
+  /* –– FOOTER –– */
   .footer-inner { grid-template-columns:1fr; gap:2rem; }
   .footer-brand { grid-column:auto; }
-  .hero-actions { flex-direction:column; align-items:center; gap:0.8rem; }
-  .hero-content { padding:1.5rem 1rem; }
-  .section-wrap { padding:2.5rem 4%; }
-  .features-grid { grid-template-columns:repeat(2,1fr); gap:0.8rem; }
-  .feature-card { padding:1.2rem; }
-  .feature-icon { width:42px; height:42px; font-size:1rem; margin-bottom:0.8rem; border-radius:12px; }
-  .feature-card h3 { font-size:0.88rem; }
-  .feature-card p { font-size:0.78rem; }
-  .steps-grid { grid-template-columns:1fr; gap:0.8rem; }
-  .step-card { padding:1.4rem 1rem; }
-  .step-num { width:52px; height:52px; font-size:1.2rem; margin-bottom:0.8rem; }
-  .ann-grid { grid-template-columns:1fr; gap:1rem; }
   .footer-bottom-bar { flex-direction:column; text-align:center; gap:0.3rem; }
   .footer-tagline { max-width:100%; }
-  .cta-banner { padding:3rem 4%; }
-  .hero-title { font-size:clamp(1.7rem,6vw,3.8rem); }
-  .hero-subtitle { font-size:0.95rem; }
-  .hero-badge { font-size:0.75rem; padding:0.3rem 0.9rem; }
-  .section-title { font-size:1.5rem; }
-  .section-head { margin-bottom:1.8rem; }
-  .potw-grid { grid-template-columns:1fr; }
+  .cta-banner { padding:2.5rem 4%; }
+  .cta-banner h2 { font-size:1.5rem; }
+  .cta-banner p { font-size:0.9rem; }
 }
 </style>
 </head>
@@ -463,10 +534,19 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
   </nav>
-  <button class="pwa-install-btn" id="pwaHeaderBtn" aria-label="Install app" title="Install GERAMA as an app">
-    <i class="fas fa-download"></i> Install App
-  </button>
-  <button onclick="openQuickSearch()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.95rem;transition:all 0.2s;flex-shrink:0;" title="Quick Search (Ctrl+K)" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'"><i class="fas fa-search"></i></button>
+  <!-- Right-side action group -->
+  <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+    <button class="pwa-install-btn" id="pwaHeaderBtn" aria-label="Install app" title="Install GERAMA as an app">
+      <i class="fas fa-download"></i> <span class="pwa-btn-text">Install App</span>
+    </button>
+    <button onclick="openQuickSearch()" class="header-notif-btn header-search-btn" title="Quick Search (Ctrl+K)" aria-label="Search">
+      <i class="fas fa-search"></i>
+    </button>
+    <button class="header-notif-btn" id="headerNotifBtn" aria-label="Notifications" title="Notifications" onclick="if(window.OneSignal){OneSignal.showNativePrompt();}">
+      <i class="fas fa-bell"></i>
+      <span class="header-notif-dot" id="headerNotifDot"></span>
+    </button>
+  </div>
 </header>
 
 <!-- HERO – cycling team photos with animated overlay -->
@@ -487,7 +567,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
       <a href="signup.html" class="btn-hero-primary" id="heroCtaPrimary"><i class="fas fa-rocket"></i> Get Started Free</a>
       <a href="about.html" class="btn-hero-secondary"><i class="fas fa-users"></i> Meet the Team</a>
     </div>
-    <div style="display:flex;align-items:center;justify-content:center;gap:1.2rem;margin-top:2rem;flex-wrap:wrap;">
+    <div class="hero-trust-row" style="display:flex;align-items:center;justify-content:center;gap:1.2rem;margin-top:2rem;flex-wrap:wrap;">
       <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:rgba(255,255,255,0.8);"><i class="fas fa-check-circle" style="color:#4ade80;"></i> Free forever</div>
       <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:rgba(255,255,255,0.8);"><i class="fas fa-check-circle" style="color:#4ade80;"></i> 1000+ study materials</div>
       <div style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;color:rgba(255,255,255,0.8);"><i class="fas fa-check-circle" style="color:#4ade80;"></i> Live classes & quizzes</div>

@@ -614,27 +614,42 @@
 <body>
     <!-- Sidebar injected by main.js -->
     <!-- HEADER -->
-    <header class="site-header" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);height:auto;padding:0.8rem 5%;">
-        <button class="menu-toggle-btn" id="menuToggle2" aria-label="Open menu" style="background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;margin-right:0.5rem;border-radius:8px;flex-shrink:0;"><i class="fas fa-bars"></i></button>
-        <a href="index.html" class="header-logo" style="text-decoration:none;">
-            <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA Logo" style="height:42px;border-radius:8px;">
-            <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/uenr logo.png" alt="UENR" style="height:38px;border-radius:6px;">
-            <span style="color:white;font-weight:700;font-size:1.05rem;">GERAMA</span>
+    <header class="site-header" style="background:linear-gradient(135deg,#0a2f1f,#1B5E20);height:70px;padding:0 5%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1000;box-shadow:0 2px 20px rgba(0,0,0,0.2);backdrop-filter:blur(12px);">
+        <button class="menu-toggle-btn" id="menuToggle2" aria-label="Open menu" style="background:none;border:none;color:white;font-size:1.4rem;cursor:pointer;padding:0.5rem;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background 0.2s;"><i class="fas fa-bars"></i></button>
+        <a href="index.html" class="header-logo res-logo" style="text-decoration:none;display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/geramalogo.jpg" alt="GERAMA Logo" class="res-logo-img" style="height:42px;border-radius:8px;">
+            <img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/uenr logo.png" alt="UENR" class="res-logo-img" style="height:38px;border-radius:6px;">
+            <span class="res-logo-text" style="color:white;font-weight:700;font-size:1.05rem;">GERAMA</span>
         </a>
-        <nav style="display:flex;gap:0.3rem;" class="header-nav res-nav">
+        <nav class="header-nav res-nav" style="display:flex;gap:0.3rem;">
             <a href="index.html" style="color:rgba(255,255,255,0.85);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.95rem;transition:all 0.2s;">Home</a>
             <a href="resources.html" class="active" style="color:#FFC107;background:rgba(255,193,7,0.1);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.95rem;">Resources</a>
             <a href="connect.html" style="color:#0ea5e9;text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:600;font-size:0.95rem;transition:all 0.2s;">📡 Connect</a>
             <a href="about.html" style="color:rgba(255,255,255,0.85);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.95rem;transition:all 0.2s;">About</a>
             <a href="contact.html" style="color:rgba(255,255,255,0.85);text-decoration:none;padding:0.5rem 1rem;border-radius:8px;font-weight:500;font-size:0.95rem;transition:all 0.2s;">Contact</a>
         </nav>
-        <button class="pwa-install-btn" id="pwaHeaderBtn" aria-label="Install app" title="Install GERAMA as an app" style="display:none;align-items:center;gap:0.4rem;background:rgba(255,193,7,0.15);border:1.5px solid rgba(255,193,7,0.5);color:#FFC107;padding:0.4rem 0.9rem;border-radius:30px;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:'Inter',sans-serif;">
-            <i class="fas fa-download"></i> Install App
-        </button>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+            <button class="pwa-install-btn res-pwa-btn" id="pwaHeaderBtn" aria-label="Install app" title="Install GERAMA as an app" style="display:none;align-items:center;gap:0.4rem;background:rgba(255,193,7,0.15);border:1.5px solid rgba(255,193,7,0.5);color:#FFC107;padding:0.4rem 0.9rem;border-radius:30px;font-size:0.8rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:'Inter',sans-serif;">
+                <i class="fas fa-download"></i> <span class="pwa-btn-text">Install App</span>
+            </button>
+            <button id="headerNotifBtn" aria-label="Notifications" title="Notifications"
+              onclick="if(window.OneSignal){OneSignal.showNativePrompt();}"
+              style="position:relative;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;flex-shrink:0;">
+              <i class="fas fa-bell"></i>
+              <span id="headerNotifDot" style="display:none;position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:1.5px solid #0a2f1f;"></span>
+            </button>
+        </div>
     </header>
     <style>
     @media(max-width:640px){
       .res-nav{display:none !important;}
+      header.site-header{height:56px !important;padding:0 4% !important;}
+      .res-logo-img{height:30px !important;}
+      .res-logo-text{display:none !important;}
+      .res-logo{gap:7px !important;}
+      #headerNotifBtn{width:34px !important;height:34px !important;font-size:0.88rem !important;}
+      .res-pwa-btn{padding:0.35rem 0.5rem !important;font-size:0 !important;}
+      .res-pwa-btn i{font-size:0.95rem !important;}
     }
     </style>
 
