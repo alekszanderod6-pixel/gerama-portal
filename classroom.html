@@ -329,6 +329,11 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
 .footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,0.1);}
 .footer-copy,.footer-credits{font-size:0.82rem;color:rgba(255,255,255,0.4);margin:0;}
 .footer-credits strong{color:rgba(255,255,255,0.65);}
+.footer-powered{font-size:0.8rem;color:rgba(255,255,255,0.4);margin:0;display:flex;align-items:center;gap:0.3rem;}
+.zodteck-link{color:rgba(255,255,255,0.65);text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;transition:color 0.2s;}
+.zodteck-link:hover{color:#FFC107;}
+.zodteck-logo{width:18px;height:18px;border-radius:4px;object-fit:cover;vertical-align:middle;}
+@media(max-width:640px){.footer-powered{justify-content:center;}}
 
 /* –– DELETE / POSTPONE BUTTONS –– */
 .btn-danger-sm{background:#fee2e2;color:#dc2626;border:none;padding:0.4rem 0.8rem;border-radius:20px;font-size:0.78rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;transition:all 0.2s;font-family:'Inter',sans-serif;}
@@ -1236,6 +1241,12 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
   <div class="footer-bottom">
     <p class="footer-copy">© 2026 GERAMA Academic Resources All rights reserved</p>
     <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
+    <p class="footer-powered">
+      Powered by &nbsp;
+      <a href="#" class="zodteck-link" title="zODteck">
+        <img src="images/zodteck.jpg" alt="zODteck" class="zodteck-logo"> <strong>zODteck</strong>
+      </a>
+    </p>
   </div>
 </footer>
 

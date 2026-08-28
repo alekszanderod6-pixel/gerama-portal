@@ -132,7 +132,11 @@
     .footer-bottom-bar{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;padding:1.2rem 0;border-top:1px solid rgba(255,255,255,0.1);}
     .footer-copy,.footer-credits{font-size:0.8rem;color:rgba(255,255,255,0.4);margin:0;}
     .footer-credits strong{color:rgba(255,255,255,0.6);}
-    @media(max-width:640px){.footer-bottom-bar{flex-direction:column;align-items:center;text-align:center;gap:0.3rem;}}
+    .footer-powered{font-size:0.8rem;color:rgba(255,255,255,0.4);margin:0;display:flex;align-items:center;gap:0.3rem;}
+    .zodteck-link{color:rgba(255,255,255,0.65);text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;transition:color 0.2s;}
+    .zodteck-link:hover{color:#FFC107;}
+    .zodteck-logo{width:18px;height:18px;border-radius:4px;object-fit:cover;vertical-align:middle;}
+    @media(max-width:640px){.footer-bottom-bar{flex-direction:column;align-items:center;text-align:center;gap:0.3rem;}.footer-powered{justify-content:center;}}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/env-config.js" onerror="console.warn('env-config.js not found')"></script>
@@ -430,6 +434,12 @@
   <div class="footer-bottom-bar">
     <p class="footer-copy">© 2026 GERAMA Academic Resources · All rights reserved</p>
     <p class="footer-credits">Developed by <strong>Alexander O. Dwumaah</strong> &nbsp;·&nbsp; Editor: <strong>Edem H.K Prince</strong></p>
+    <p class="footer-powered">
+      Powered by &nbsp;
+      <a href="#" class="zodteck-link" title="zODteck">
+        <img src="images/zodteck.jpg" alt="zODteck" class="zodteck-logo"> <strong>zODteck</strong>
+      </a>
+    </p>
   </div>
 </footer>
 

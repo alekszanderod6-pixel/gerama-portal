@@ -591,6 +591,14 @@ body.dark-mode .site-footer, body.dark-mode footer { background: linear-gradient
 body.dark-mode .footer-bottom-bar { border-top-color: #21262d; }
 body.dark-mode .footer-copy, body.dark-mode .footer-credits { color: rgba(255,255,255,0.35); }
 
+/* -- Powered by zODteck -- */
+.footer-powered { font-size: 0.8rem; color: rgba(255,255,255,0.4); margin: 0; display: flex; align-items: center; gap: 0.3rem; }
+.zodteck-link { color: rgba(255,255,255,0.65); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; transition: color 0.2s; }
+.zodteck-link:hover { color: #FFC107; }
+.zodteck-logo { width: 18px; height: 18px; border-radius: 4px; object-fit: cover; vertical-align: middle; }
+body.dark-mode .footer-powered { color: rgba(255,255,255,0.3); }
+@media(max-width:640px) { .footer-powered { justify-content: center; } }
+
 /* -- Sidebar dark btn active state -- */
 body.dark-mode #darkModeBtn { background: rgba(240,200,74,0.12) !important; border-color: rgba(240,200,74,0.3) !important; color: #f0c84a !important; }
 
