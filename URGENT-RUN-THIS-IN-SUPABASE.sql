@@ -33,7 +33,10 @@ CREATE INDEX IF NOT EXISTS idx_page_views_visited_at ON page_views (visited_at D
 CREATE INDEX IF NOT EXISTS idx_page_views_page       ON page_views (page);
 
 -- Enable realtime so admin dashboard gets live updates
-ALTER PUBLICATION supabase_realtime ADD TABLE page_views;
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE page_views;
+EXCEPTION WHEN others THEN NULL; -- already a member, that's fine
+END $$;
 
 
 -- ── 2. announcements: RLS + realtime ─────────────────────────────
@@ -51,7 +54,10 @@ CREATE POLICY "Admin can delete announcements" ON announcements FOR DELETE USING
 CREATE POLICY "Admin can update announcements" ON announcements FOR UPDATE USING (true) WITH CHECK (true);
 
 -- Make sure realtime is enabled
-ALTER PUBLICATION supabase_realtime ADD TABLE announcements;
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE announcements;
+EXCEPTION WHEN others THEN NULL; -- already a member, that's fine
+END $$;
 
 -- Add any missing columns
 ALTER TABLE announcements ADD COLUMN IF NOT EXISTS priority   TEXT DEFAULT 'normal';

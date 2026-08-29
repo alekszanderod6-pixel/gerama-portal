@@ -1129,9 +1129,10 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   var statsBar = document.querySelector('.stats-bar');
   if(!statsBar) return;
 
+  // Safe display floors — always shown even if Supabase is unreachable
   var statTargets = {
-    statMaterialsCount: 0,
-    statStudentsCount: 0,
+    statMaterialsCount: 700,
+    statStudentsCount: 300,
     statProgramsCount: 8
   };
 
@@ -1142,58 +1143,76 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
     var current = 0;
     var timer = setInterval(function(){
       current = Math.min(current + step, target);
-      el.textContent = current.toLocaleString() + (target >= 10 ? '+' : '');
+      el.textContent = current.toLocaleString() + '+';
       if(current >= target) clearInterval(timer);
-    }, 25);
+    }, 20);
   }
+
+  function startAnimation() {
+    animateValue(document.getElementById('statMaterialsCount'), statTargets.statMaterialsCount);
+    animateValue(document.getElementById('statStudentsCount'),  statTargets.statStudentsCount);
+    animateValue(document.getElementById('statProgramsCount'),  statTargets.statProgramsCount);
+  }
+
+  // Show floor values immediately so users never see 0 0 0
+  (function showImmediately(){
+    var mc = document.getElementById('statMaterialsCount');
+    var sc = document.getElementById('statStudentsCount');
+    var pc = document.getElementById('statProgramsCount');
+    if(mc) mc.textContent = '700+';
+    if(sc) sc.textContent = '300+';
+    if(pc) pc.textContent = '8+';
+  })();
 
   async function loadLiveStats() {
+    var sb = window.geramaSupabase;
+    if(!sb) return;
     try {
-      var sb = window.geramaSupabase;
-      if(!sb) throw new Error('no sb');
-      var results = await Promise.all([
-        sb.from('materials').select('id', { count: 'exact', head: true }),
-        sb.from('user_profiles').select('id', { count: 'exact', head: true }).eq('is_active', true),
-        sb.from('user_profiles').select('program').eq('is_active', true).limit(500)
-      ]);
-      // Use DB count but enforce a floor so the display reflects
-      // the full library (including materials on Google Drive not yet uploaded)
-      if(!results[0].error && results[0].count != null)
-        statTargets.statMaterialsCount = Math.max(500, results[0].count);
-      if(!results[1].error && results[1].count != null)
-        statTargets.statStudentsCount = Math.max(300, results[1].count);
-      if(!results[2].error && results[2].data) {
+      // Materials count
+      var matRes = await sb.from('materials').select('id', { count: 'exact', head: true });
+      if(!matRes.error && matRes.count != null && matRes.count > 0)
+        statTargets.statMaterialsCount = Math.max(700, matRes.count);
+
+      // Total registered users (no is_active filter — column may not exist)
+      var userRes = await sb.from('user_profiles').select('id', { count: 'exact', head: true });
+      if(!userRes.error && userRes.count != null && userRes.count > 0)
+        statTargets.statStudentsCount = Math.max(300, userRes.count);
+
+      // Distinct engineering programs
+      var progRes = await sb.from('user_profiles').select('program').limit(500);
+      if(!progRes.error && progRes.data && progRes.data.length) {
         var programs = {};
-        results[2].data.forEach(function(r) { if(r.program) programs[r.program] = true; });
+        progRes.data.forEach(function(r){ if(r.program) programs[r.program] = true; });
         var programCount = Object.keys(programs).length;
-        if(programCount) statTargets.statProgramsCount = Math.max(8, programCount);
+        if(programCount > 0) statTargets.statProgramsCount = Math.max(8, programCount);
       }
     } catch(e) {
-      // Supabase unavailable — use safe defaults
-      statTargets.statMaterialsCount = 500;
-      statTargets.statStudentsCount  = 300;
+      // Supabase unavailable — floor values already set, nothing to do
+      console.warn('[StatsBar] Could not load live counts:', e.message);
     }
   }
 
-  var started = false;
-  function startAnimation() {
-    if(started) return;
-    started = true;
-    animateValue(document.getElementById('statMaterialsCount'), statTargets.statMaterialsCount);
-    animateValue(document.getElementById('statStudentsCount'), statTargets.statStudentsCount);
-    animateValue(document.getElementById('statProgramsCount'), statTargets.statProgramsCount);
-  }
-
-  async function init() {
+  // Load live data then animate — works whether bar is visible or not
+  function init(retries) {
+    retries = retries || 0;
     if(typeof window.geramaSupabase === 'undefined') {
-      setTimeout(init, 500);
+      if(retries < 20) setTimeout(function(){ init(retries + 1); }, 500);
+      else startAnimation(); // Supabase never loaded — animate with floors
       return;
     }
-    await loadLiveStats();
-    var observer = new IntersectionObserver(function(entries){
-      if(entries[0].isIntersecting) startAnimation();
+    loadLiveStats().then(function(){
+      // Use IntersectionObserver if bar is off-screen, else animate now
+      if('IntersectionObserver' in window) {
+        var obs = new IntersectionObserver(function(entries, ob){
+          if(entries[0].isIntersecting){ ob.disconnect(); startAnimation(); }
+        }, { threshold: 0.1 });
+        obs.observe(statsBar);
+        // Safety: if user never scrolls to it, animate after 3s anyway
+        setTimeout(function(){ obs.disconnect(); startAnimation(); }, 3000);
+      } else {
+        startAnimation();
+      }
     });
-    observer.observe(statsBar);
   }
   init();
 })();
