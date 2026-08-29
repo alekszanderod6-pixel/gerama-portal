@@ -133,9 +133,25 @@ CREATE POLICY "Admin can manage classes" ON classes FOR ALL USING (true) WITH CH
 
 
 -- ── 7. Fix sequences (prevent duplicate key errors) ──────────────
-SELECT setval('announcements_id_seq', COALESCE((SELECT MAX(id) FROM announcements), 1), true);
-SELECT setval('page_views_id_seq',    COALESCE((SELECT MAX(id) FROM page_views),    1), true);
-SELECT setval('materials_id_seq',     COALESCE((SELECT MAX(id) FROM materials),     1), true);
+-- Only applies to BIGSERIAL / INTEGER primary keys — UUID tables skip this.
+DO $$ BEGIN
+  -- announcements
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name='announcements' AND column_name='id'
+             AND data_type IN ('bigint','integer')) THEN
+    PERFORM setval('announcements_id_seq', COALESCE((SELECT MAX(id::bigint) FROM announcements), 1), true);
+  END IF;
+  -- page_views (always bigserial)
+  PERFORM setval('page_views_id_seq', COALESCE((SELECT MAX(id) FROM page_views), 1), true);
+  -- materials
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name='materials' AND column_name='id'
+             AND data_type IN ('bigint','integer')) THEN
+    PERFORM setval('materials_id_seq', COALESCE((SELECT MAX(id::bigint) FROM materials), 1), true);
+  END IF;
+EXCEPTION WHEN others THEN
+  NULL; -- sequence may not exist for UUID tables — that's fine
+END $$;
 
 
 -- ── 8. Clean up test data ─────────────────────────────────────────

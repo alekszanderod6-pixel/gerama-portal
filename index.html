@@ -1319,40 +1319,60 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   window.showAllAnn = showAllAnn;
 
   // Try Supabase DB first (cross-device), then localStorage cache only as offline fallback
-  async function trySupabase() {
-    try {
-      var sb = window.geramaSupabase;
-      if(!sb) throw new Error('no sb');
-      var { data, error } = await sb.from('announcements')
-        .select('*').order('created_at',{ascending:false}).limit(50);
-      if(error) throw error;
-      if(!data || !data.length) {
-        localStorage.setItem('gerama_announcements', '[]');
+  function trySupabase(attempt) {
+    attempt = attempt || 0;
+
+    // Wait for Supabase client to initialise (up to 10 seconds)
+    if (typeof window.geramaSupabase === 'undefined') {
+      if (attempt < 20) {
+        setTimeout(function(){ trySupabase(attempt + 1); }, 500);
+      } else {
+        // Supabase never loaded — fall back to cache or empty
+        var stored = localStorage.getItem('gerama_announcements');
+        try { var p = JSON.parse(stored); if (p && p.length) { render(p); return; } } catch(e) {}
         renderEmpty();
-        return;
       }
-      var mapped = data.map(function(r) {
-        return {
-          id: r.id,
-          title: r.title,
-          message: r.message,
-          date: r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '',
-          image: r.image_url || null,
-          images: r.images || null
-        };
-      });
-      localStorage.setItem('gerama_announcements', JSON.stringify(mapped));
-      render(mapped);
-    } catch(e) {
-      var stored = localStorage.getItem('gerama_announcements');
-      if(stored) {
-        try {
-          var parsed = JSON.parse(stored);
-          if(parsed && parsed.length) { render(parsed); return; }
-        } catch(ex) {}
-      }
-      renderEmpty();
+      return;
     }
+
+    var sb = window.geramaSupabase;
+    sb.from('announcements')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50)
+      .then(function(res) {
+        if (res.error) {
+          console.warn('[Announcements] Supabase error:', res.error.message, res.error.code);
+          // Fall back to cache
+          var stored = localStorage.getItem('gerama_announcements');
+          try { var p = JSON.parse(stored); if (p && p.length) { render(p); return; } } catch(e) {}
+          renderEmpty();
+          return;
+        }
+        if (!res.data || !res.data.length) {
+          localStorage.setItem('gerama_announcements', '[]');
+          renderEmpty();
+          return;
+        }
+        var mapped = res.data.map(function(r) {
+          return {
+            id: r.id,
+            title: r.title,
+            message: r.message,
+            date: r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '',
+            image: r.image_url || null,
+            images: r.images || null
+          };
+        });
+        localStorage.setItem('gerama_announcements', JSON.stringify(mapped));
+        render(mapped);
+      })
+      .catch(function(e) {
+        console.warn('[Announcements] Fetch exception:', e.message);
+        var stored = localStorage.getItem('gerama_announcements');
+        try { var p = JSON.parse(stored); if (p && p.length) { render(p); return; } } catch(ex) {}
+        renderEmpty();
+      });
   }
   trySupabase();
 
