@@ -1159,9 +1159,11 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
     var mc = document.getElementById('statMaterialsCount');
     var sc = document.getElementById('statStudentsCount');
     var pc = document.getElementById('statProgramsCount');
+    var lv = document.getElementById('liveVisitorCount');
     if(mc) mc.textContent = '700+';
     if(sc) sc.textContent = '300+';
     if(pc) pc.textContent = '8+';
+    if(lv) lv.textContent = '1';
   })();
 
   async function loadLiveStats() {
