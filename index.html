@@ -578,11 +578,11 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 
 <!-- STATS BAR -->
 <div class="stats-bar">
-  <div class="stat-item"><span class="stat-num" id="statMaterialsCount">0</span><div class="stat-lbl">Study Materials</div></div>
-  <div class="stat-item"><span class="stat-num" id="statStudentsCount">0</span><div class="stat-lbl">Active Students</div></div>
-  <div class="stat-item"><span class="stat-num" id="statProgramsCount">0</span><div class="stat-lbl">Engineering Programs</div></div>
+  <div class="stat-item"><span class="stat-num" id="statMaterialsCount">700+</span><div class="stat-lbl">Study Materials</div></div>
+  <div class="stat-item"><span class="stat-num" id="statStudentsCount">300+</span><div class="stat-lbl">Active Students</div></div>
+  <div class="stat-item"><span class="stat-num" id="statProgramsCount">8+</span><div class="stat-lbl">Engineering Programs</div></div>
   <div class="stat-item">
-    <span class="stat-num" id="liveVisitorCount" style="color:#4ade80;">0</span>
+    <span class="stat-num" id="liveVisitorCount" style="color:#4ade80;">1+</span>
     <div class="stat-lbl" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">
       <span style="width:8px;height:8px;background:#4ade80;border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span> Online Now
     </div>
@@ -759,7 +759,31 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <h2 class="section-title">Announcements &amp; <span>News</span></h2>
   </div>
   <div class="ann-grid" id="announcementsContainer">
-    <div class="ann-card"><div class="ann-date">Loading...</div><h3>Please wait</h3><p>Fetching latest updates.</p></div>
+    <!-- Skeleton cards shown while announcements load -->
+    <div class="ann-card" style="pointer-events:none;">
+      <div class="ann-card-body">
+        <div style="height:0.6rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:40%;margin-bottom:0.8rem;"></div>
+        <div style="height:0.85rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:80%;margin-bottom:0.5rem;"></div>
+        <div style="height:0.7rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:95%;margin-bottom:0.35rem;"></div>
+        <div style="height:0.7rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:70%;"></div>
+      </div>
+    </div>
+    <div class="ann-card" style="pointer-events:none;">
+      <div class="ann-card-body">
+        <div style="height:0.6rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:35%;margin-bottom:0.8rem;"></div>
+        <div style="height:0.85rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:75%;margin-bottom:0.5rem;"></div>
+        <div style="height:0.7rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:90%;margin-bottom:0.35rem;"></div>
+        <div style="height:0.7rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:60%;"></div>
+      </div>
+    </div>
+    <div class="ann-card" style="pointer-events:none;">
+      <div class="ann-card-body">
+        <div style="height:0.6rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:45%;margin-bottom:0.8rem;"></div>
+        <div style="height:0.85rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:85%;margin-bottom:0.5rem;"></div>
+        <div style="height:0.7rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:100%;margin-bottom:0.35rem;"></div>
+        <div style="height:0.7rem;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;border-radius:4px;width:55%;"></div>
+      </div>
+    </div>
   </div>
 </section>
 

@@ -2,6 +2,7 @@
   "outputDirectory": ".",
   "cleanUrls": false,
   "trailingSlash": false,
+  "buildCommand": "echo 'GERAMA build 2026-08-28'",
   "rewrites": [
     { "source": "/login",             "destination": "/login.html" },
     { "source": "/signup",            "destination": "/signup.html" },
