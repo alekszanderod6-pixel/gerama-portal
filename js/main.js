@@ -448,8 +448,11 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         const phoneInput = document.getElementById("profilePhoneInput");
         if(phoneInput) phoneInput.value = profile.phone || "";
         const preview = document.getElementById("profilePreview");
-        if(profile.img) preview.innerHTML = `<img src="${profile.img}" style="width:100%;height:100%;object-fit:cover;">`;
-        else preview.innerHTML = '<i class="fas fa-user"></i>';
+        if(profile.img || profile.photo_url) {
+            preview.innerHTML = '<img src="'+(profile.img||profile.photo_url)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.src=\'https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/zodteck.jpg\'">';
+        } else {
+            preview.innerHTML = '<img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/zodteck.jpg" style="width:100%;height:100%;object-fit:cover;">';
+        }
     }
     
     function saveProfile() {
@@ -524,18 +527,16 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         if(profile.index_number) progText += ' · ' + profile.index_number;
         if(progEl) progEl.textContent = progText;
         
+        var DEFAULT_AVATAR = 'https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/zodteck.jpg';
+
         if(avatarDiv) {
-            if(profile.img) {
-                const img = document.createElement('img');
-                img.src = profile.img;
-                img.style.cssText = 'width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,193,7,0.5);';
-                avatarDiv.innerHTML = '';
-                avatarDiv.appendChild(img);
-            } else if(profile.name) {
-                // Show first letter with engineer emoji
-                avatarDiv.innerHTML = '<div style="font-size:2rem;line-height:1;">–️</div><div style="font-size:0.75rem;font-weight:700;margin-top:0.2rem;opacity:0.9;">'+profile.name.charAt(0).toUpperCase()+'</div>';
+            var avatarSrc = profile.img || profile.photo_url || null;
+            if(avatarSrc) {
+                // User has set a photo — show it
+                avatarDiv.innerHTML = '<img src="'+avatarSrc+'" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,193,7,0.5);" onerror="this.src=\''+DEFAULT_AVATAR+'\'">';
             } else {
-                avatarDiv.innerHTML = '<div style="font-size:2.5rem;">–️</div>';
+                // No photo set — show zODteck logo as default
+                avatarDiv.innerHTML = '<img src="'+DEFAULT_AVATAR+'" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,193,7,0.5);">';
             }
         }
     }
