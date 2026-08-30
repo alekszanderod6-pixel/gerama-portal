@@ -331,7 +331,7 @@ window.showStatus = window.showStatus || function(id, msg, type) {
             <div id="sidebarDrawer" class="sidebar-drawer">
                 <div class="drawer-header">
                     <button id="closeSidebarBtn" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.15);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">–</button>
-                    <div id="drawerAvatar" class="profile-emoji">👤</div>
+                    <div id="drawerAvatar" class="profile-emoji" style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,193,7,0.5);margin:0 auto 0.5rem;"><img src="https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/zodteck.jpg" style="width:100%;height:100%;object-fit:cover;" alt="profile"></div>
                     <h3 id="drawerName">Student</h3>
                     <p id="drawerProgram">Program: Not set</p>
                     <div id="drawerClock" style="margin-top:0.8rem;background:rgba(255,255,255,0.1);border-radius:10px;padding:0.5rem 1rem;display:inline-block;">
@@ -531,13 +531,8 @@ window.showStatus = window.showStatus || function(id, msg, type) {
 
         if(avatarDiv) {
             var avatarSrc = profile.img || profile.photo_url || null;
-            if(avatarSrc) {
-                // User has set a photo — show it
-                avatarDiv.innerHTML = '<img src="'+avatarSrc+'" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,193,7,0.5);" onerror="this.src=\''+DEFAULT_AVATAR+'\'">';
-            } else {
-                // No photo set — show zODteck logo as default
-                avatarDiv.innerHTML = '<img src="'+DEFAULT_AVATAR+'" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,193,7,0.5);">';
-            }
+            var finalSrc = avatarSrc || DEFAULT_AVATAR;
+            avatarDiv.innerHTML = '<img src="'+finalSrc+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.src=\''+DEFAULT_AVATAR+'\'">';
         }
     }
     
