@@ -494,6 +494,9 @@ function escD(s){ var d=document.createElement('div'); d.textContent=String(s||'
 var userProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
 
 function applyProfileToUI(p) {
+  // Default avatar URL — zODteck logo shown until user sets a photo
+  var DEFAULT_AVATAR = 'https://raw.githubusercontent.com/alekszanderod6-pixel/gerama-portal/main/images/zodteck.jpg';
+
   // Hero
   var heroAv = document.getElementById('heroAvatar');
   var heroName = document.getElementById('heroName');
@@ -502,20 +505,20 @@ function applyProfileToUI(p) {
   var heroIndex = document.getElementById('heroIndex');
 
   if(heroAv){
-    if(p.img){ heroAv.innerHTML='<img src="'+p.img+'" alt="'+escD(p.name||'')+'">'; }
-    else { heroAv.textContent=(p.name||'S').charAt(0).toUpperCase(); }
+    var heroSrc = p.img || p.photo_url || DEFAULT_AVATAR;
+    heroAv.innerHTML='<img src="'+heroSrc+'" alt="'+escD(p.name||'')+'" onerror="this.src=\''+DEFAULT_AVATAR+'\'">';
   }
   if(heroName) heroName.textContent = p.name || 'Student';
   if(heroProg) heroProg.innerHTML = '<i class="fas fa-graduation-cap"></i> ' + escD(p.program||'GERAMA Member');
   if(heroLevel && p.level){ heroLevel.innerHTML='<i class="fas fa-layer-group"></i> '+escD(p.level); heroLevel.style.display=''; }
   if(heroIndex && p.index_number){ heroIndex.innerHTML='<i class="fas fa-id-card"></i> '+escD(p.index_number); heroIndex.style.display=''; }
 
-  // Profile form
+  // Profile form circle
   var fc = document.getElementById('profilePhotoCircle');
   var pi = document.getElementById('profileInitial');
-  if(fc && pi){
-    if(p.img){ fc.innerHTML='<img src="'+p.img+'"><div class="upload-overlay"><i class="fas fa-camera" style="color:white;font-size:1.1rem;"></i></div>'; }
-    else { pi.textContent=(p.name||'S').charAt(0).toUpperCase(); }
+  if(fc){
+    var src = p.img || p.photo_url || DEFAULT_AVATAR;
+    fc.innerHTML='<img src="'+src+'" alt="profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.src=\''+DEFAULT_AVATAR+'\'"><div class="upload-overlay"><i class="fas fa-camera" style="color:white;font-size:1.1rem;"></i></div>';
   }
   var dn = document.getElementById('profileDisplayName');
   var de = document.getElementById('profileDisplayEmail');
@@ -541,14 +544,45 @@ function applyProfileToUI(p) {
 
 applyProfileToUI(userProfile);
 
-// –– Profile picture upload ––––––––––––––––––––––––––––
-document.getElementById('profilePictureUpload').addEventListener('change', function(e){
+// –– Profile picture upload — saves to Supabase Storage for cross-device sync ––
+document.getElementById('profilePictureUpload').addEventListener('change', async function(e){
   var file = e.target.files[0]; if(!file) return;
+  var statusEl = document.getElementById('saveStatus');
+  if(statusEl){ statusEl.textContent = 'Uploading photo…'; statusEl.style.color = '#6b7280'; }
+
+  var sb = window.geramaSupabase;
+  var email = userProfile.email;
+
+  // Try Supabase Storage upload first (cross-device)
+  if(sb && email){
+    try{
+      var ext = file.name.split('.').pop().toLowerCase() || 'jpg';
+      var path = 'profile-photos/' + email.replace(/[^a-z0-9]/gi,'-') + '.' + ext;
+      var { error: upErr } = await sb.storage.from('gerama-materials').upload(path, file, { upsert: true, contentType: file.type });
+      if(!upErr){
+        var { data: urlData } = sb.storage.from('gerama-materials').getPublicUrl(path);
+        var photoUrl = urlData && urlData.publicUrl;
+        if(photoUrl){
+          userProfile.photo_url = photoUrl;
+          userProfile.img = photoUrl;
+          localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
+          applyProfileToUI(userProfile);
+          // Save URL to user_profiles for cross-device retrieval
+          await sb.from('user_profiles').upsert({ email: email, photo_url: photoUrl, updated_at: new Date().toISOString() }, { onConflict: 'email' }).catch(function(){});
+          if(statusEl){ statusEl.textContent = '✅ Photo updated!'; statusEl.style.color = '#059669'; setTimeout(function(){ statusEl.textContent=''; }, 3000); }
+          return;
+        }
+      }
+    }catch(e){ /* fall through to local fallback */ }
+  }
+
+  // Fallback: save as base64 in localStorage (works offline, not cross-device)
   var reader = new FileReader();
   reader.onload = function(ev){
     userProfile.img = ev.target.result;
     localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
     applyProfileToUI(userProfile);
+    if(statusEl){ statusEl.textContent = '✅ Photo saved locally.'; statusEl.style.color = '#059669'; setTimeout(function(){ statusEl.textContent=''; }, 3000); }
   };
   reader.readAsDataURL(file);
 });
@@ -690,6 +724,8 @@ async function loadDashboardData(){
     if(p.level)          userProfile.level        = p.level;
     if(p.phone)          userProfile.phone        = p.phone;
     if(p.index_number)   userProfile.index_number = p.index_number;
+    // Sync photo_url from Supabase — this is how photos persist cross-device
+    if(p.photo_url)      { userProfile.photo_url = p.photo_url; userProfile.img = p.photo_url; }
     localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
     applyProfileToUI(userProfile);
   }

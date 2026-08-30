@@ -346,10 +346,9 @@ window.showStatus = window.showStatus || function(id, msg, type) {
                     <a href="opportunities.html" style="background:rgba(14,165,233,0.08);border-left:3px solid #0ea5e9;color:#0ea5e9;"><i class="fas fa-briefcase" style="color:#0ea5e9;"></i> 🌍 Opportunities Hub</a>
                     <a href="dashboard.html"><i class="fas fa-user-circle"></i> My Dashboard</a>
                     <a href="connect.html" style="background:rgba(14,165,233,0.1);border-left:3px solid #0ea5e9;color:#0ea5e9;"><i class="fas fa-satellite-dish" style="color:#0ea5e9;"></i> 📡 GERAMA Connect <span style="background:#0ea5e9;color:white;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;" id="navBadgeConnect">NEW</span></a>
-                    <a href="mall.html" style="background:rgba(255,193,7,0.12);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-store" style="color:#FFC107;"></i> 🛍️ Urban Mall <span style="background:#FFC107;color:#0a2f1f;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;">NEW</span></a>
+                    <a href="https://cv-genius-ghana.web.app/" target="_blank" rel="noopener" style="background:rgba(99,102,241,0.12);border-left:3px solid #6366f1;color:#a5b4fc;"><i class="fas fa-file-alt" style="color:#a5b4fc;"></i> 📄 CV Genius <span style="background:#6366f1;color:white;font-size:0.65rem;font-weight:800;padding:0.1rem 0.4rem;border-radius:10px;margin-left:auto;">FREE</span></a>
                     <a href="about.html"><i class="fas fa-info-circle"></i> About</a>
                     <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
-                    <a href="contact.html#supportSection" style="background:rgba(255,193,7,0.13);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-heart" style="color:#FFC107;"></i> 💛 Support GERAMA</a>
                     <a href="help.html" style="background:rgba(255,193,7,0.08);border-left:3px solid #FFC107;color:#FFC107;"><i class="fas fa-question-circle" style="color:#FFC107;"></i> ❓ Help & Tutorials</a>
                 </div>
                 <button id="editProfileDrawerBtn" style="background:#FFC107; color:#1B5E20; margin:1rem auto; width:90%; border:none; padding:0.6rem; border-radius:30px; display:block; font-weight:600; cursor:pointer;">✏️ Edit Profile</button>
@@ -1133,15 +1132,16 @@ if(!document.getElementById('confettiStyle')) {
         { href:'resources.html', icon:'fas fa-book-open',          label:'Resources' },
         { href:'classroom.html', icon:'fas fa-chalkboard-teacher', label:'Class' },
         { href:'connect.html',   icon:'fas fa-satellite-dish',     label:'Connect' },
-        { href:'mall.html',      icon:'fas fa-store',              label:'Mall' }
+        { href:'https://cv-genius-ghana.web.app/', icon:'fas fa-file-alt', label:'CV Genius', external:true }
     ];
 
     nav.innerHTML = links.map(function(l) {
-        var active = page === l.href;
+        var active = !l.external && page === l.href;
         var color = active ? '#1B5E20' : '#9ca3af';
         var scale = active ? 'scale(1.12)' : 'scale(1)';
         var activePill = active ? '<span style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:28px;height:3px;border-radius:0 0 4px 4px;background:#1B5E20;display:block;"></span>' : '';
-        return '<a href="'+l.href+'" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.6rem 0.2rem;text-decoration:none;font-size:0.58rem;font-weight:700;gap:0.25rem;transition:color 0.2s;color:'+color+';position:relative;letter-spacing:0.2px;">'+
+        var targetAttr = l.external ? ' target="_blank" rel="noopener"' : '';
+        return '<a href="'+l.href+'"'+targetAttr+' style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0.6rem 0.2rem;text-decoration:none;font-size:0.58rem;font-weight:700;gap:0.25rem;transition:color 0.2s;color:'+color+';position:relative;letter-spacing:0.2px;">'+
             activePill+
             '<i class="'+l.icon+'" style="font-size:1.2rem;transition:transform 0.2s;transform:'+scale+';"></i>'+
             '<span>'+l.label+'</span>'+

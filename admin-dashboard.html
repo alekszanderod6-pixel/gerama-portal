@@ -62,6 +62,13 @@ body{font-family:'Inter',sans-serif;background:#f1f5f9;min-height:100vh;}
 .btn-gold:hover{background:#e6a800;transform:translateY(-1px);}
 .btn-danger{background:#fee2e2;color:#dc2626;border:none;padding:0.4rem 0.9rem;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
 .btn-success{background:#d1fae5;color:#065f46;border:none;padding:0.4rem 0.9rem;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all 0.2s;}
+
+/* ── Hide group-targeting dropdowns — not yet in use ── */
+.form-field:has(#asgGroup),
+.form-field:has(#clsGroup),
+.form-field:has(#attGroup),
+.form-field:has(#quizGroup),
+.form-field:has(#tmGroup) { display: none !important; }
 @media(max-width:640px){
 .mobile-topbar{display:flex;}
 .dash-header{display:none;}
@@ -661,8 +668,8 @@ tr:hover td{background:#fafcfa;}
           </div>
         </div>
 
-        <!-- Group selection (optional) -->
-        <div class="form-field full" style="margin-bottom:1.2rem;">
+        <!-- Group selection hidden — targeting by group not yet active -->
+        <div class="form-field full" style="display:none;" aria-hidden="true">
           <label>Target Group (Optional)</label>
           <select id="asgGroup">
             <option value="">-- General / All Students --</option>
@@ -1869,7 +1876,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
         </div>
         <div class="form-field full"><label>Class Title (Optional)</label><input type="text" id="attClassTitle" placeholder="e.g. Basic Electronics – Tutorial 3"></div>
         <div class="form-field"><label>Valid For (minutes) *</label><input type="number" id="attDuration" value="15" min="1" max="120" placeholder="e.g. 15"></div>
-        <div class="form-field">
+        <div class="form-field" style="display:none;" aria-hidden="true">
           <label>Target Group <span style="color:#ef4444;">*</span></label>
           <select id="attGroup" required>
             <option value="">-- Select Target Group --</option>
@@ -2021,8 +2028,8 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           <small style="color:#6b7280;font-size:0.8rem;margin-top:0.3rem;display:block;">Paste a Google Maps link so students can navigate to the venue.</small>
         </div>
 
-        <!-- Group selection (required) -->
-        <div class="form-field full" style="margin-bottom:1.2rem;">
+        <!-- Group selection hidden — not yet active -->
+        <div class="form-field full" style="display:none;" aria-hidden="true">
           <label>Target Group <span style="color:#ef4444;">*</span></label>
           <select id="clsGroup" required>
             <option value="">-- Select Target Group --</option>
@@ -2613,8 +2620,8 @@ window.quickBroadcast = async function(){
 .nav-item:hover::before{width:100%;}
 </style>
 
-      <!-- Group selection (optional) -->
-      <div class="form-field full" style="margin-bottom:1.2rem;">
+      <!-- Group selection hidden — not yet active -->
+      <div class="form-field full" style="display:none;" aria-hidden="true">
         <label>Target Group (Optional)</label>
         <select id="clsGroup">
           <option value="">-- General / All Students --</option>
