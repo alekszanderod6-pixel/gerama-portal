@@ -209,30 +209,30 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
 .section-head { margin-bottom:3rem; text-align:center; }
 .section-sub { margin:0 auto; }
 
-/* FEATURES GRID – compact pill rows */
+/* FEATURES GRID – 4 per row desktop, 2 per row mobile */
 .features-grid {
-  display:grid; grid-template-columns:repeat(2,1fr);
-  gap:0.75rem; max-width:1200px; margin:0 auto;
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:0.65rem; max-width:1200px; margin:0 auto;
 }
 .feature-card {
-  background:white; border-radius:14px; padding:0.9rem 1.1rem;
-  border:1px solid #e8f0e8; transition:all 0.25s;
-  box-shadow:0 2px 8px rgba(0,0,0,0.04);
-  display:flex; align-items:center; gap:0.85rem;
-  position:relative; overflow:hidden;
+  background:white; border-radius:12px; padding:0.75rem 0.85rem;
+  border:1px solid #e8f0e8; transition:all 0.22s;
+  box-shadow:0 2px 6px rgba(0,0,0,0.04);
+  display:flex; flex-direction:column; align-items:flex-start; gap:0.5rem;
+  position:relative; overflow:hidden; cursor:default;
 }
-.feature-card::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--primary),var(--gold));opacity:0;transition:opacity 0.25s;}
-.feature-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,94,32,0.1);border-color:#c8e6c9;}
+.feature-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--gold));opacity:0;transition:opacity 0.22s;}
+.feature-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(27,94,32,0.1);border-color:#c8e6c9;}
 .feature-card:hover::after{opacity:1;}
 .feature-icon {
-  width:40px; height:40px; border-radius:12px; flex-shrink:0;
+  width:36px; height:36px; border-radius:10px; flex-shrink:0;
   background:linear-gradient(135deg,var(--primary),var(--primary-light));
   display:flex; align-items:center; justify-content:center;
-  color:white; font-size:1.1rem;
-  box-shadow:0 3px 10px rgba(27,94,32,0.2);
+  color:white; font-size:1rem;
+  box-shadow:0 2px 8px rgba(27,94,32,0.2);
 }
-.feature-card h3 { font-size:0.9rem; font-weight:700; margin-bottom:0.15rem; color:var(--text); }
-.feature-card p { color:var(--text-muted); font-size:0.78rem; line-height:1.5; margin:0; }
+.feature-card h3 { font-size:0.82rem; font-weight:700; margin:0; color:var(--text); line-height:1.3; }
+.feature-card p { color:var(--text-muted); font-size:0.72rem; line-height:1.45; margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
 /* HOW IT WORKS */
 .steps-grid {
@@ -423,7 +423,6 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   .footer-inner { grid-template-columns:1fr 1fr; gap:2rem; }
   .footer-brand { grid-column:1/-1; }
   .features-grid { grid-template-columns:repeat(2,1fr); gap:0.75rem; }
-  .ann-grid { grid-template-columns:repeat(2,1fr); gap:1.2rem; }
   .steps-grid { grid-template-columns:repeat(3,1fr); gap:1rem; }
   .steps-grid::before { display:none; }
 }
@@ -468,10 +467,12 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   .section-head { margin-bottom:1.5rem; }
   .section-sub { font-size:0.88rem; }
 
-  /* –– FEATURE CARDS: compact rows on mobile –– */
-  .features-grid { grid-template-columns:1fr; gap:0.6rem; }
-  .feature-card { padding:0.75rem 0.9rem; border-radius:12px; }
-  .feature-icon { width:34px; height:34px; font-size:0.95rem; border-radius:10px; }
+  /* –– FEATURE CARDS: 2-per-row on mobile –– */
+  .features-grid { grid-template-columns:repeat(2,1fr); gap:0.5rem; }
+  .feature-card { padding:0.65rem 0.7rem; border-radius:10px; gap:0.4rem; }
+  .feature-icon { width:30px; height:30px; font-size:0.85rem; border-radius:8px; }
+  .feature-card h3 { font-size:0.76rem; }
+  .feature-card p { font-size:0.68rem; }
 
   /* –– HOW IT WORKS: horizontal scroll strip on mobile –– */
   .steps-grid {
@@ -1248,7 +1249,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
 
   function renderEmpty() {
     if(!container) return;
-    container.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:2rem;grid-column:1/-1;">No announcements yet. Check back soon!</p>';
+    container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2.5rem 1rem;"><div style="font-size:2rem;margin-bottom:0.5rem;">📢</div><p style="color:#9ca3af;font-size:0.9rem;font-weight:600;">No announcements yet</p><p style="color:#c4c4c4;font-size:0.8rem;margin-top:0.25rem;">Check back soon for the latest GERAMA news!</p></div>';
   }
 
   function render(anns){
@@ -1347,6 +1348,18 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
     if(!stored) return;
     try{ var c = JSON.parse(stored); if(c && c.length) render(c); }catch(e){}
   })();
+
+  // Hard 5-second safety net — clears shimmer no matter what
+  var _annRendered = false;
+  var _origRender = render;
+  render = function(anns){ _annRendered = true; _origRender(anns); };
+  setTimeout(function(){
+    if(!_annRendered){
+      var s = localStorage.getItem('gerama_announcements');
+      try{ var p = JSON.parse(s); if(p && p.length){ render(p); return; } }catch(e){}
+      renderEmpty();
+    }
+  }, 5000);
 
   // Try Supabase DB — overwrites cache paint with fresh data
   function trySupabase(attempt) {
