@@ -99,7 +99,16 @@ ALTER TABLE page_views ADD COLUMN IF NOT EXISTS referrer TEXT;
 -- ─────────────────────────────────────────────────────────────────
 -- STEP 7: Enable Realtime for announcements (live delete/publish sync)
 -- ─────────────────────────────────────────────────────────────────
-ALTER PUBLICATION supabase_realtime ADD TABLE announcements;
+-- Skip if already added (PostgreSQL doesn't have IF NOT EXISTS for publications)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'announcements'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE announcements;
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────
