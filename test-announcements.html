@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GERAMA Announcements Diagnostic</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1200px; margin: 2rem auto; padding: 0 2rem; background: #f8fafc; }
+  h1 { color: #1B5E20; }
+  .section { background: white; padding: 1.5rem; margin: 1rem 0; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .success { color: #16a34a; font-weight: 600; }
+  .error { color: #dc2626; font-weight: 600; }
+  .warning { color: #f59e0b; font-weight: 600; }
+  .info { color: #0284c7; font-weight: 600; }
+  pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; font-size: 0.9rem; }
+  button { background: #1B5E20; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; font-weight: 600; margin: 0.5rem 0.5rem 0.5rem 0; }
+  button:hover { background: #2E7D32; }
+  .announcement-card { border: 1px solid #e5e7eb; padding: 1rem; margin: 0.5rem 0; border-radius: 8px; background: #fafafa; }
+  .announcement-card h3 { margin: 0 0 0.5rem 0; color: #1e2a3e; }
+  .announcement-card .date { font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem; }
+  .announcement-card .priority { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+  .priority-urgent { background: #fee2e2; color: #dc2626; }
+  .priority-important { background: #fef3c7; color: #f59e0b; }
+  .priority-normal { background: #dcfce7; color: #16a34a; }
+  .count { font-size: 1.5rem; font-weight: 800; color: #1B5E20; }
+</style>
+</head>
+<body>
+
+<h1>📢 GERAMA Announcements Diagnostic Tool</h1>
+<p>This page tests the Supabase connection and announcements query to help diagnose why announcements aren't showing on the homepage.</p>
+
+<div class="section">
+  <h2>🔧 Quick Actions</h2>
+  <button onclick="runFullDiagnostic()">🔍 Run Full Diagnostic</button>
+  <button onclick="testSupabaseConnection()">🔌 Test Supabase Connection</button>
+  <button onclick="fetchAnnouncements()">📥 Fetch Announcements</button>
+  <button onclick="checkLocalStorage()">💾 Check LocalStorage</button>
+  <button onclick="clearCache()">🗑️ Clear Cache & Reload</button>
+</div>
+
+<div class="section" id="statusSection">
+  <h2>📊 Status</h2>
+  <div id="statusOutput">Click "Run Full Diagnostic" to begin...</div>
+</div>
+
+<div class="section" id="connectionSection" style="display:none;">
+  <h2>🔌 Supabase Connection</h2>
+  <div id="connectionOutput"></div>
+</div>
+
+<div class="section" id="announcementsSection" style="display:none;">
+  <h2>📢 Announcements Data</h2>
+  <div id="announcementsOutput"></div>
+</div>
+
+<div class="section" id="errorSection" style="display:none;">
+  <h2>⚠️ Errors & Warnings</h2>
+  <div id="errorOutput"></div>
+</div>
+
+<div class="section" id="solutionSection" style="display:none;">
+  <h2>💡 Recommended Solutions</h2>
+  <div id="solutionOutput"></div>
+</div>
+
+<script>
+// Load Supabase config
+const SUPABASE_URL = 'https://obfhmyeghurqfxingwtu.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZmhteWVnaHVycWZ4aW5nd3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTIxODMsImV4cCI6MjEwMTM2ODE4M30.mAgIHzhodRXTya-BfhA_ZLD2eoeshle79Zx6isKbXj4';
+
+let supabaseClient = null;
+let diagnosticResults = {
+  supabaseLoaded: false,
+  connectionSuccessful: false,
+  announcementsCount: 0,
+  hasErrors: false,
+  errors: [],
+  warnings: []
+};
+
+function log(message, type = 'info') {
+  console.log(`[${type.toUpperCase()}] ${message}`);
+}
+
+function output(elementId, content, show = true) {
+  const el = document.getElementById(elementId);
+  if (el) {
+    el.innerHTML = content;
+    if (show) el.parentElement.style.display = 'block';
+  }
+}
+
+async function runFullDiagnostic() {
+  log('Starting full diagnostic...');
+  diagnosticResults = { supabaseLoaded: false, connectionSuccessful: false, announcementsCount: 0, hasErrors: false, errors: [], warnings: [] };
+  
+  output('statusOutput', '<p class="info">⏳ Running diagnostic tests...</p>');
+  
+  // Test 1: Check if Supabase is loaded
+  await testSupabaseConnection();
+  
+  // Test 2: Fetch announcements
+  await fetchAnnouncements();
+  
+  // Test 3: Check localStorage
+  checkLocalStorage();
+  
+  // Show summary
+  showSummary();
+}
+
+async function testSupabaseConnection() {
+  output('connectionOutput', '<p class="info">⏳ Testing Supabase connection...</p>', true);
+  
+  try {
+    // Check if Supabase SDK is loaded
+    if (typeof window.supabase === 'undefined') {
+      diagnosticResults.errors.push('Supabase SDK not loaded');
+      output('connectionOutput', '<p class="error">❌ Supabase SDK not loaded. Check internet connection.</p>', true);
+      return false;
+    }
+    
+    diagnosticResults.supabaseLoaded = true;
+    
+    // Create client
+    const { createClient } = window.supabase;
+    supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    if (!supabaseClient) {
+      diagnosticResults.errors.push('Failed to create Supabase client');
+      output('connectionOutput', '<p class="error">❌ Failed to create Supabase client</p>', true);
+      return false;
+    }
+    
+    // Test connection with a simple query
+    const { data, error } = await supabaseClient
+      .from('announcements')
+      .select('id', { count: 'exact', head: true });
+    
+    if (error) {
+      diagnosticResults.errors.push(`Connection error: ${error.message}`);
+      output('connectionOutput', `<p class="error">❌ Connection Error</p><pre>${JSON.stringify(error, null, 2)}</pre>`, true);
+      return false;
+    }
+    
+    diagnosticResults.connectionSuccessful = true;
+    output('connectionOutput', `
+      <p class="success">✅ Supabase Connection Successful</p>
+      <ul>
+        <li><strong>URL:</strong> ${SUPABASE_URL}</li>
+        <li><strong>SDK Version:</strong> v2 (loaded)</li>
+        <li><strong>Connection Status:</strong> Active</li>
+      </ul>
+    `, true);
+    
+    return true;
+    
+  } catch (e) {
+    diagnosticResults.hasErrors = true;
+    diagnosticResults.errors.push(`Exception: ${e.message}`);
+    output('connectionOutput', `<p class="error">❌ Exception occurred</p><pre>${e.message}\n${e.stack}</pre>`, true);
+    return false;
+  }
+}
+
+async function fetchAnnouncements() {
+  output('announcementsOutput', '<p class="info">⏳ Fetching announcements from database...</p>', true);
+  
+  if (!supabaseClient) {
+    await testSupabaseConnection();
+  }
+  
+  if (!supabaseClient) {
+    output('announcementsOutput', '<p class="error">❌ Cannot fetch - Supabase not connected</p>', true);
+    return;
+  }
+  
+  try {
+    const { data, error, count } = await supabaseClient
+      .from('announcements')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .limit(50);
+    
+    if (error) {
+      diagnosticResults.hasErrors = true;
+      diagnosticResults.errors.push(`Query error: ${error.message}`);
+      
+      let errorHTML = `<p class="error">❌ Query Failed</p>`;
+      errorHTML += `<p><strong>Error Code:</strong> ${error.code}</p>`;
+      errorHTML += `<p><strong>Error Message:</strong> ${error.message}</p>`;
+      
+      if (error.hint) {
+        errorHTML += `<p><strong>Hint:</strong> ${error.hint}</p>`;
+      }
+      
+      errorHTML += `<pre>${JSON.stringify(error, null, 2)}</pre>`;
+      
+      // Add solution based on error
+      if (error.code === '42P01') {
+        errorHTML += `<div style="background:#fef3c7;padding:1rem;border-radius:8px;margin-top:1rem;"><strong>💡 Solution:</strong> The announcements table doesn't exist. Run the fix-announcements-rls.sql file in your Supabase SQL Editor.</div>`;
+      } else if (error.code === 'PGRST301') {
+        errorHTML += `<div style="background:#fef3c7;padding:1rem;border-radius:8px;margin-top:1rem;"><strong>💡 Solution:</strong> Row Level Security (RLS) is blocking access. Run the fix-announcements-rls.sql file to add the correct policies.</div>`;
+      }
+      
+      output('announcementsOutput', errorHTML, true);
+      return;
+    }
+    
+    diagnosticResults.announcementsCount = data ? data.length : 0;
+    
+    if (!data || data.length === 0) {
+      diagnosticResults.warnings.push('No announcements found in database');
+      output('announcementsOutput', `
+        <p class="warning">⚠️ No Announcements Found</p>
+        <p>The query was successful, but there are no announcements in the database.</p>
+        <div style="background:#dbeafe;padding:1rem;border-radius:8px;margin-top:1rem;">
+          <strong>💡 Solution:</strong> 
+          <ol style="margin:0.5rem 0 0 1.2rem;padding:0;">
+            <li>Open <code>admin-dashboard.html</code></li>
+            <li>Go to the Announcements section</li>
+            <li>Create a test announcement</li>
+            <li>Refresh the homepage to see it appear</li>
+          </ol>
+        </div>
+      `, true);
+      return;
+    }
+    
+    // Success - show announcements
+    let html = `<p class="success">✅ Found ${data.length} announcement${data.length !== 1 ? 's' : ''}</p>`;
+    html += `<p class="count">${data.length}</p>`;
+    html += `<div style="margin-top:1rem;">`;
+    
+    data.forEach((ann, idx) => {
+      const date = ann.created_at ? new Date(ann.created_at).toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'}) : 'No date';
+      const priority = ann.priority || 'normal';
+      const priorityClass = `priority-${priority}`;
+      
+      html += `
+        <div class="announcement-card">
+          <div class="date">📅 ${date}</div>
+          <h3>${ann.title || 'Untitled'} <span class="priority ${priorityClass}">${priority}</span></h3>
+          <p>${ann.message || 'No message'}</p>
+          ${ann.image_url ? `<p><strong>📷 Image:</strong> Yes</p>` : ''}
+        </div>
+      `;
+    });
+    
+    html += `</div>`;
+    html += `<div style="background:#dcfce7;padding:1rem;border-radius:8px;margin-top:1rem;"><strong>✅ Good News:</strong> Announcements are in the database and can be fetched. If they're not showing on the homepage, check the browser console for JavaScript errors.</div>`;
+    
+    output('announcementsOutput', html, true);
+    
+    // Save to localStorage for testing
+    const mapped = data.map(r => ({
+      id: r.id,
+      title: r.title,
+      message: r.message,
+      priority: r.priority || 'normal',
+      image: r.image_url || null,
+      images: r.images || null,
+      date: r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'}) : ''
+    }));
+    
+    localStorage.setItem('gerama_announcements', JSON.stringify(mapped));
+    log(`Saved ${mapped.length} announcements to localStorage`);
+    
+  } catch (e) {
+    diagnosticResults.hasErrors = true;
+    diagnosticResults.errors.push(`Exception: ${e.message}`);
+    output('announcementsOutput', `<p class="error">❌ Exception occurred</p><pre>${e.message}\n${e.stack}</pre>`, true);
+  }
+}
+
+function checkLocalStorage() {
+  const stored = localStorage.getItem('gerama_announcements');
+  
+  if (!stored) {
+    diagnosticResults.warnings.push('No announcements in localStorage');
+    output('statusOutput', '<p class="warning">⚠️ No announcements cached in localStorage</p>');
+    return;
+  }
+  
+  try {
+    const parsed = JSON.parse(stored);
+    log(`Found ${parsed.length} announcements in localStorage`);
+    output('statusOutput', `<p class="success">✅ Found ${parsed.length} announcements in localStorage cache</p>`);
+  } catch (e) {
+    diagnosticResults.errors.push('localStorage data corrupted');
+    output('statusOutput', '<p class="error">❌ localStorage data is corrupted</p>');
+  }
+}
+
+function clearCache() {
+  localStorage.removeItem('gerama_announcements');
+  alert('✅ Cache cleared! Reloading page...');
+  window.location.reload();
+}
+
+function showSummary() {
+  let html = '<h3>📋 Diagnostic Summary</h3>';
+  
+  // Overall status
+  if (diagnosticResults.hasErrors || diagnosticResults.errors.length > 0) {
+    html += '<p class="error">❌ Issues Found</p>';
+  } else if (diagnosticResults.warnings.length > 0) {
+    html += '<p class="warning">⚠️ Warnings Found</p>';
+  } else {
+    html += '<p class="success">✅ All Tests Passed</p>';
+  }
+  
+  // Checklist
+  html += '<ul>';
+  html += diagnosticResults.supabaseLoaded 
+    ? '<li class="success">✅ Supabase SDK loaded</li>' 
+    : '<li class="error">❌ Supabase SDK not loaded</li>';
+    
+  html += diagnosticResults.connectionSuccessful 
+    ? '<li class="success">✅ Connected to database</li>' 
+    : '<li class="error">❌ Database connection failed</li>';
+    
+  html += diagnosticResults.announcementsCount > 0 
+    ? `<li class="success">✅ Found ${diagnosticResults.announcementsCount} announcements</li>` 
+    : '<li class="warning">⚠️ No announcements in database</li>';
+  html += '</ul>';
+  
+  // Show errors
+  if (diagnosticResults.errors.length > 0) {
+    output('errorOutput', '<h3>Errors:</h3><ul>' + diagnosticResults.errors.map(e => `<li class="error">${e}</li>`).join('') + '</ul>', true);
+  }
+  
+  // Show warnings
+  if (diagnosticResults.warnings.length > 0) {
+    const warningHTML = '<h3>Warnings:</h3><ul>' + diagnosticResults.warnings.map(w => `<li class="warning">${w}</li>`).join('') + '</ul>';
+    output('errorOutput', (diagnosticResults.errors.length > 0 ? document.getElementById('errorOutput').innerHTML : '') + warningHTML, true);
+  }
+  
+  output('statusOutput', html);
+  
+  // Generate solutions
+  generateSolutions();
+}
+
+function generateSolutions() {
+  let solutions = [];
+  
+  if (!diagnosticResults.supabaseLoaded) {
+    solutions.push({
+      title: '📶 Check Internet Connection',
+      steps: ['Make sure you have an active internet connection', 'The Supabase SDK loads from a CDN and requires internet access']
+    });
+  }
+  
+  if (!diagnosticResults.connectionSuccessful && diagnosticResults.supabaseLoaded) {
+    solutions.push({
+      title: '🔧 Fix Database Connection',
+      steps: [
+        'Open Supabase Dashboard',
+        'Go to SQL Editor',
+        'Run the <code>fix-announcements-rls.sql</code> file',
+        'This will create the table and set up Row Level Security policies'
+      ]
+    });
+  }
+  
+  if (diagnosticResults.connectionSuccessful && diagnosticResults.announcementsCount === 0) {
+    solutions.push({
+      title: '📝 Create Test Announcement',
+      steps: [
+        'Open <code>admin-dashboard.html</code> in your browser',
+        'Navigate to the Announcements section',
+        'Fill in title and message',
+        'Click "Publish to Site"',
+        'Refresh the homepage - announcements should now appear'
+      ]
+    });
+  }
+  
+  if (diagnosticResults.announcementsCount > 0) {
+    solutions.push({
+      title: '🎉 Everything Works!',
+      steps: [
+        'Announcements are in the database and accessible',
+        'Open <code>index.html</code> in your browser',
+        'Check the browser console (F12) for any JavaScript errors',
+        'Announcements should load within 2-3 seconds',
+        'If not showing, try clearing your browser cache (Ctrl+Shift+Delete)'
+      ]
+    });
+  }
+  
+  if (solutions.length > 0) {
+    let html = '';
+    solutions.forEach(sol => {
+      html += `<div style="background:#f0f9ff;border:2px solid #0284c7;padding:1.5rem;border-radius:12px;margin:1rem 0;">`;
+      html += `<h3 style="margin-top:0;color:#0369a1;">${sol.title}</h3>`;
+      html += `<ol style="margin:0;padding-left:1.5rem;">`;
+      sol.steps.forEach(step => {
+        html += `<li style="margin:0.5rem 0;">${step}</li>`;
+      });
+      html += `</ol></div>`;
+    });
+    
+    output('solutionOutput', html, true);
+  }
+}
+
+// Auto-run on load
+window.addEventListener('load', () => {
+  setTimeout(runFullDiagnostic, 500);
+});
+</script>
+
+</body>
+</html>

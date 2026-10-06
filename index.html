@@ -509,6 +509,12 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
   .cta-banner h2 { font-size:1.5rem; }
   .cta-banner p { font-size:0.9rem; }
 }
+
+/* Shimmer animation for skeleton loaders */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
 </style>
 </head>
 <body>
@@ -1246,14 +1252,28 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
 // –– ANNOUNCEMENTS ––
 (function(){
   var container = document.getElementById('announcementsContainer');
+  
+  // Enhanced logging for debugging
+  function log(msg, type) {
+    var prefix = '[GERAMA Announcements] ';
+    if (type === 'error') console.error(prefix + msg);
+    else if (type === 'warn') console.warn(prefix + msg);
+    else console.log(prefix + msg);
+  }
 
   function renderEmpty() {
     if(!container) return;
+    log('Rendering empty state');
     container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:2.5rem 1rem;"><div style="font-size:2rem;margin-bottom:0.5rem;">📢</div><p style="color:#9ca3af;font-size:0.9rem;font-weight:600;">No announcements yet</p><p style="color:#c4c4c4;font-size:0.8rem;margin-top:0.25rem;">Check back soon for the latest GERAMA news!</p></div>';
   }
 
   function render(anns){
-    if (!anns || !anns.length) { renderEmpty(); return; }
+    if (!anns || !anns.length) { 
+      log('No announcements to render', 'warn');
+      renderEmpty(); 
+      return; 
+    }
+    log('Rendering ' + anns.length + ' announcements');
     // Determine how many to show
     var showAll = !!window._annShowAll;
     var shown = showAll ? anns : anns.slice(0, 6);
@@ -1345,8 +1365,21 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   // Paint from cache IMMEDIATELY so users see something right away
   (function paintFromCache(){
     var stored = localStorage.getItem('gerama_announcements');
-    if(!stored) return;
-    try{ var c = JSON.parse(stored); if(c && c.length) render(c); }catch(e){}
+    if(!stored) {
+      log('No cached announcements found');
+      return;
+    }
+    try{ 
+      var c = JSON.parse(stored); 
+      if(c && c.length) {
+        log('Loaded ' + c.length + ' announcements from cache');
+        render(c);
+      } else {
+        log('Cache exists but empty', 'warn');
+      }
+    }catch(e){
+      log('Failed to parse cached announcements: ' + e.message, 'error');
+    }
   })();
 
   // Hard 5-second safety net — clears shimmer no matter what
@@ -1365,45 +1398,96 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   function trySupabase(attempt) {
     attempt = attempt || 0;
     if (typeof window.geramaSupabase === 'undefined') {
-      if (attempt < 24) setTimeout(function(){ trySupabase(attempt + 1); }, 500);
-      else { var s=localStorage.getItem('gerama_announcements'); try{var p=JSON.parse(s);if(p&&p.length){render(p);return;}}catch(e){} renderEmpty(); }
+      if (attempt < 24) {
+        log('Waiting for Supabase... (attempt ' + (attempt + 1) + '/24)');
+        setTimeout(function(){ trySupabase(attempt + 1); }, 500);
+      } else { 
+        log('Supabase failed to load after 12 seconds', 'error');
+        var s=localStorage.getItem('gerama_announcements'); 
+        try{
+          var p=JSON.parse(s);
+          if(p&&p.length){
+            log('Falling back to cached announcements');
+            render(p);
+            return;
+          }
+        }catch(e){} 
+        renderEmpty(); 
+      }
       return;
     }
+    
+    log('Fetching announcements from Supabase...');
     window.geramaSupabase.from('announcements')
       .select('*').order('created_at', { ascending: false }).limit(50)
       .then(function(res) {
         if (res.error) {
-          console.warn('[Ann] Supabase error:', res.error.code, res.error.message);
-          var s=localStorage.getItem('gerama_announcements'); try{var p=JSON.parse(s);if(p&&p.length){render(p);return;}}catch(e){} renderEmpty();
+          log('Supabase query error: ' + res.error.code + ' - ' + res.error.message, 'error');
+          var s=localStorage.getItem('gerama_announcements'); 
+          try{
+            var p=JSON.parse(s);
+            if(p&&p.length){
+              log('Falling back to cached announcements after error');
+              render(p);
+              return;
+            }
+          }catch(e){} 
+          renderEmpty();
           return;
         }
-        if (!res.data || !res.data.length) { localStorage.setItem('gerama_announcements','[]'); renderEmpty(); return; }
+        if (!res.data || !res.data.length) { 
+          log('Query successful but no announcements found', 'warn');
+          localStorage.setItem('gerama_announcements','[]'); 
+          renderEmpty(); 
+          return; 
+        }
+        log('Successfully fetched ' + res.data.length + ' announcements from database');
         var mapped = res.data.map(function(r){
           return { id:r.id, title:r.title, message:r.message,
             date: r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '',
             image: r.image_url||null, images: r.images||null };
         });
         localStorage.setItem('gerama_announcements', JSON.stringify(mapped));
+        log('Cached ' + mapped.length + ' announcements to localStorage');
         render(mapped);
       })
       .catch(function(e) {
-        console.warn('[Ann] Exception:', e.message);
-        var s=localStorage.getItem('gerama_announcements'); try{var p=JSON.parse(s);if(p&&p.length){render(p);return;}}catch(ex){} renderEmpty();
+        log('Exception during Supabase query: ' + e.message, 'error');
+        var s=localStorage.getItem('gerama_announcements'); 
+        try{
+          var p=JSON.parse(s);
+          if(p&&p.length){
+            log('Falling back to cached announcements after exception');
+            render(p);
+            return;
+          }
+        }catch(ex){} 
+        renderEmpty();
       });
   }
+  
+  log('Initializing announcements module...');
   trySupabase();
 
   // Listen for realtime DELETE/INSERT events so announcements update without reload
   function subscribeToAnnChanges() {
     try {
       var sb = window.geramaSupabase;
-      if(!sb) { setTimeout(subscribeToAnnChanges, 1000); return; }
+      if(!sb) { 
+        setTimeout(subscribeToAnnChanges, 1000); 
+        return; 
+      }
+      log('Subscribing to realtime announcement changes...');
       sb.channel('announcements-changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'announcements' }, function() {
+          log('Realtime update detected - refreshing announcements');
           trySupabase();
         })
         .subscribe();
-    } catch(e) { /* realtime unavailable */ }
+      log('Realtime subscription active');
+    } catch(e) { 
+      log('Realtime subscription failed: ' + e.message, 'warn');
+    }
   }
   subscribeToAnnChanges();
 
