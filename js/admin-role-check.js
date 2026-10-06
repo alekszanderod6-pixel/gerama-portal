@@ -18,11 +18,11 @@
     const rolePermissions = {
         super_admin: ['all'], // Full access
         general_admin: ['all'], // Full access
-        materials_admin: ['upload', 'history', 'review', 'software'] // Limited access
+        materials_admin: ['upload', 'history', 'review', 'software', 'announcements'] // Limited access
     };
     
     // Sections that materials_admin CAN access
-    const materialsAdminAllowedSections = ['upload', 'software', 'history', 'review'];
+    const materialsAdminAllowedSections = ['upload', 'software', 'history', 'review', 'announcements'];
     
     /**
      * Check if user has admin access and get their role
@@ -174,7 +174,7 @@
             <div>
                 <strong style="color: #92400e; display: block; margin-bottom: 0.2rem;">Materials Admin Access</strong>
                 <span style="color: #78350f; font-size: 0.9rem;">
-                    You have access to: Upload Materials, Materials History, and Review Submissions only.
+                    You have access to: Upload Materials, Upload Software, Materials History, Review Submissions, and Announcements only.
                 </span>
             </div>
         `;
