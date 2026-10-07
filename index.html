@@ -1363,6 +1363,11 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   // Expose so the onclick can reach it from outside the IIFE
   window.showAllAnn = showAllAnn;
 
+  // Hard 5-second safety net — clears shimmer no matter what
+  var _annRendered = false;
+  var _origRender = render;
+  render = function(anns){ _annRendered = true; _origRender(anns); };
+
   // Paint from cache IMMEDIATELY so users see something right away
   (function paintFromCache(){
     var stored = localStorage.getItem('gerama_announcements');
@@ -1383,10 +1388,6 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
     }
   })();
 
-  // Hard 5-second safety net — clears shimmer no matter what
-  var _annRendered = false;
-  var _origRender = render;
-  render = function(anns){ _annRendered = true; _origRender(anns); };
   setTimeout(function(){
     if(!_annRendered){
       var s = localStorage.getItem('gerama_announcements');

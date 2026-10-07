@@ -589,197 +589,181 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/env-config.js"></script>
     <script>
-        const supabase = window.supabase.createClient(
-            window.ENV_CONFIG.SUPABASE_URL,
-            window.ENV_CONFIG.SUPABASE_ANON_KEY
-        );
+        // ── Hardcoded schedule (shown instantly, DB data overlays if available) ──
+        const STATIC_SCHEDULE = [
+            // WEEK 1 — Oct 6–11, 2026
+            { course_name:'Solid State', class_date:'2026-10-06', start_time:'19:30', end_time:'21:00', tutor_names:'zANDEROD & Perry', week_number:1, day_of_week:'Tuesday', color_code:'#ef4444', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'DC Machines & Transformers', class_date:'2026-10-07', start_time:'19:30', end_time:'20:30', tutor_names:'Jerome & Ray', week_number:1, day_of_week:'Wednesday', color_code:'#f59e0b', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Electrical Circuits Analysis & Design', class_date:'2026-10-08', start_time:'19:30', end_time:'21:00', tutor_names:'Azakora & Priscy', week_number:1, day_of_week:'Thursday', color_code:'#10b981', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'MATLAB', class_date:'2026-10-09', start_time:'19:30', end_time:'20:30', tutor_names:'Edem & Prophet', week_number:1, day_of_week:'Friday', color_code:'#3b82f6', target_levels:['L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'DC Machines & Transformers', class_date:'2026-10-10', start_time:'19:00', end_time:'20:00', tutor_names:'Jonathan & Prophet', week_number:1, day_of_week:'Saturday', color_code:'#f59e0b', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Solid State', class_date:'2026-10-10', start_time:'20:05', end_time:'21:00', tutor_names:'Hebert & zANDEROD', week_number:1, day_of_week:'Saturday', color_code:'#ef4444', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Linear Algebra', class_date:'2026-10-11', start_time:'19:30', end_time:'21:00', tutor_names:'Joseph & John', week_number:1, day_of_week:'Sunday', color_code:'#8b5cf6', target_levels:['L100','L200'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            // WEEK 2 — Oct 13–19, 2026
+            { course_name:'Solid State', class_date:'2026-10-13', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:2, day_of_week:'Monday', color_code:'#ef4444', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'DC Machines & Transformers', class_date:'2026-10-14', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:2, day_of_week:'Tuesday', color_code:'#f59e0b', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Electrical Circuits Analysis & Design', class_date:'2026-10-15', start_time:'19:30', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Wednesday', color_code:'#10b981', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Electrical Measurement & Instrumentation', class_date:'2026-10-16', start_time:'19:30', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Thursday', color_code:'#f97316', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Solid State Live Quiz', class_date:'2026-10-16', start_time:'21:00', end_time:'22:30', tutor_names:'TBA', week_number:2, day_of_week:'Thursday', color_code:'#ef4444', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'MATLAB', class_date:'2026-10-17', start_time:'19:30', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Friday', color_code:'#3b82f6', target_levels:['L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Linear Algebra', class_date:'2026-10-18', start_time:'19:00', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Saturday', color_code:'#8b5cf6', target_levels:['L100','L200'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Electric Circuit Design', class_date:'2026-10-18', start_time:'20:30', end_time:'21:30', tutor_names:'TBA', week_number:2, day_of_week:'Saturday', color_code:'#10b981', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Electrical Measurement & Instrumentation', class_date:'2026-10-19', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:2, day_of_week:'Sunday', color_code:'#f97316', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            // WEEK 3 — Oct 20–26, 2026
+            { course_name:'DC Machines & Transformers', class_date:'2026-10-20', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Monday', color_code:'#f59e0b', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Electrical Circuits Analysis & Design', class_date:'2026-10-21', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Tuesday', color_code:'#10b981', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'MATLAB', class_date:'2026-10-22', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Wednesday', color_code:'#3b82f6', target_levels:['L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'Solid State Live Quiz', class_date:'2026-10-23', start_time:'19:30', end_time:'21:30', tutor_names:'TBA', week_number:3, day_of_week:'Thursday', color_code:'#ef4444', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'General Recap & Quizzes', class_date:'2026-10-24', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Friday', color_code:'#6366f1', target_levels:['L100','L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'General Recap & Quizzes', class_date:'2026-10-25', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Saturday', color_code:'#6366f1', target_levels:['L100','L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+            { course_name:'General Recap & Quizzes', class_date:'2026-10-26', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Sunday', color_code:'#6366f1', target_levels:['L100','L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+        ];
 
-        let allClasses = [];
+        let allClasses = STATIC_SCHEDULE; // start with static data immediately
         let currentWeekFilter = 1;
 
-        async function loadVacationClasses() {
+        // ── Show static schedule immediately — no DB wait ──
+        filterByWeek(1, document.querySelector('.week-btn[data-week="1"]'));
+        showTodayFromStatic();
+
+        // ── Then try to load from DB and overlay (updates tutors etc.) ──
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFromDB();
+        });
+
+        function showTodayFromStatic() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayClasses = STATIC_SCHEDULE.filter(c => c.class_date === today);
+            if (todayClasses.length > 0) {
+                document.getElementById('todaySection').style.display = 'block';
+                document.getElementById('todayDate').textContent = formatDate(new Date());
+                displayClasses(todayClasses, 'todayClasses');
+            }
+        }
+
+        async function loadFromDB() {
             try {
-                const today = new Date().toISOString().split('T')[0];
-                
-                // Load today's classes
-                const { data: todayData, error: todayError } = await supabase
+                if (typeof window.supabase === 'undefined' || !window.__SUPABASE_URL) return;
+                const sb = window.supabase.createClient(window.__SUPABASE_URL, window.__SUPABASE_KEY);
+
+                // Load ALL classes (not just upcoming) so all weeks are always visible
+                const { data, error } = await sb
                     .from('vacation_classes')
                     .select('*')
-                    .eq('class_date', today)
-                    .eq('is_active', true)
-                    .order('start_time');
-
-                if (!todayError && todayData && todayData.length > 0) {
-                    document.getElementById('todaySection').style.display = 'block';
-                    document.getElementById('todayDate').textContent = formatDate(new Date());
-                    displayClasses(todayData, 'todayClasses');
-                }
-
-                // Load all upcoming classes
-                const { data: upcomingData, error: upcomingError } = await supabase
-                    .from('vacation_classes')
-                    .select('*')
-                    .gte('class_date', today)
                     .eq('is_active', true)
                     .order('class_date', { ascending: true })
                     .order('start_time', { ascending: true });
 
-                if (upcomingError) throw upcomingError;
+                if (!error && data && data.length > 0) {
+                    allClasses = data;
+                    // Re-render current week with DB data (has real meeting links, tutors)
+                    filterByWeek(currentWeekFilter, document.querySelector(`.week-btn[data-week="${currentWeekFilter === null ? 'all' : currentWeekFilter}"]`));
+                    // Also refresh today section
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayDB = data.filter(c => c.class_date === today);
+                    if (todayDB.length > 0) {
+                        document.getElementById('todaySection').style.display = 'block';
+                        document.getElementById('todayDate').textContent = formatDate(new Date());
+                        displayClasses(todayDB, 'todayClasses');
+                    }
+                }
 
-                allClasses = upcomingData || [];
-
-                // Default to Week 1; if no Week 1 data fall back to All
-                const hasWeek1 = allClasses.some(c => c.week_number === 1);
-                const firstWeekBtn = document.querySelector('.week-btn[data-week="1"]');
-                filterByWeek(hasWeek1 ? 1 : null, hasWeek1 ? firstWeekBtn : document.querySelector('.week-btn[data-week="all"]'));
-
-                // Load schedule settings (optional — timetable images already shown statically)
-                const { data: settings } = await supabase
+                // Load welcome message from settings
+                const { data: settings } = await sb
                     .from('vacation_schedule_settings')
                     .select('*')
                     .eq('is_current', true)
                     .single();
-
-                if (settings) {
-                    if (settings.welcome_message) {
-                        document.getElementById('welcomeMessage').textContent = settings.welcome_message;
-                    }
-                    // Only override the static images if the DB has different URLs
-                    if (settings.timetable_image_week1 || settings.timetable_image_week2) {
-                        displayTimetable(settings);
-                    }
+                if (settings && settings.welcome_message) {
+                    document.getElementById('welcomeMessage').textContent = settings.welcome_message;
                 }
-
-            } catch (error) {
-                console.error('Error loading vacation classes:', error);
-                document.getElementById('upcomingClasses').innerHTML = `
-                    <div class="no-classes">
-                        <div class="no-classes-icon">⚠️</div>
-                        <h3>Unable to load schedule</h3>
-                        <p>Please run <strong>insert-vacation-classes-all-weeks.sql</strong> in Supabase to populate the schedule.</p>
-                    </div>
-                `;
+            } catch (e) {
+                console.warn('[GERAMA] vacation DB load error:', e.message);
+                // Static data already showing — no action needed
             }
         }
 
         function filterByWeek(weekNumber, clickedBtn) {
             currentWeekFilter = weekNumber;
-
             document.querySelectorAll('.week-btn').forEach(btn => btn.classList.remove('active'));
-            // mark the clicked button active; fall back to finding by data attr
             const target = clickedBtn || document.querySelector(`.week-btn[data-week="${weekNumber === null ? 'all' : weekNumber}"]`);
             if (target) target.classList.add('active');
-
-            let filteredClasses = allClasses;
-            if (weekNumber !== null) {
-                filteredClasses = allClasses.filter(c => c.week_number === weekNumber);
-            }
-
-            displayClasses(filteredClasses, 'upcomingClasses');
+            const filtered = weekNumber === null ? allClasses : allClasses.filter(c => c.week_number === weekNumber);
+            displayClasses(filtered, 'upcomingClasses');
         }
 
         function displayClasses(classes, containerId) {
             const container = document.getElementById(containerId);
-
             if (!classes || classes.length === 0) {
                 container.innerHTML = `
                     <div class="no-classes">
                         <div class="no-classes-icon">📅</div>
-                        <h3>No classes scheduled</h3>
+                        <h3>No classes scheduled for this week</h3>
                         <p>Check back soon for updates!</p>
-                    </div>
-                `;
+                    </div>`;
                 return;
             }
-
             container.innerHTML = classes.map(classItem => {
-                const colorCode = classItem.color_code || '#1B5E20';
                 const levels = classItem.target_levels || [];
                 const startTime = formatTime(classItem.start_time);
                 const endTime = formatTime(classItem.end_time);
                 const status = getClassStatus(classItem);
-
+                const color = classItem.color_code || '#1B5E20';
+                const dayLabel = classItem.day_of_week ? `<span style="font-size:0.82rem;color:#6b7280;font-weight:600;">${classItem.day_of_week}, ${formatDateShort(classItem.class_date)}</span>` : '';
                 return `
-                    <div class="class-card">
+                    <div class="class-card" style="border-color:${color}20;">
                         <div class="status-badge status-${status.toLowerCase()}">${status}</div>
-                        
-                        <div class="class-time">
-                            <i class="fas fa-clock"></i>
-                            ${startTime} - ${endTime}
-                        </div>
-                        
-                        <div class="class-name">${classItem.course_name}</div>
-                        
-                        <div class="class-tutor">
-                            <i class="fas fa-chalkboard-teacher"></i>
-                            ${classItem.tutor_names}
-                        </div>
-                        
-                        <div class="class-levels">
-                            ${levels.map(level => `<span class="level-badge">${level}</span>`).join('')}
-                        </div>
-                        
-                        ${classItem.meeting_link ? `
-                            <button class="join-btn" onclick="joinClass('${classItem.meeting_link}')">
-                                <i class="fas fa-video"></i>
-                                Join Class Now
-                            </button>
-                        ` : ''}
-                    </div>
-                `;
+                        <div style="width:100%;height:5px;border-radius:5px;background:${color};margin-bottom:1rem;opacity:0.8;"></div>
+                        ${dayLabel}
+                        <div class="class-time"><i class="fas fa-clock"></i> ${startTime} – ${endTime}</div>
+                        <div class="class-name" style="color:${color};">${classItem.course_name}</div>
+                        <div class="class-tutor"><i class="fas fa-chalkboard-teacher"></i> ${classItem.tutor_names}</div>
+                        <div class="class-levels">${levels.map(l => `<span class="level-badge" style="background:${color};">${l}</span>`).join('')}</div>
+                        ${classItem.meeting_link ? `<button class="join-btn" onclick="window.open('${classItem.meeting_link}','_blank')"><i class="fas fa-video"></i> Join Class</button>` : ''}
+                    </div>`;
             }).join('');
         }
 
         function displayTimetable(settings) {
             const container = document.getElementById('timetableDisplay');
             let html = '';
-
-            ['timetable_image_week1', 'timetable_image_week2', 'timetable_image_week3'].forEach((field, index) => {
+            [['timetable_image_week1','Week 1 — Daily Schedule & Tutors'],
+             ['timetable_image_week2','3-Week Full Timetable'],
+             ['timetable_image_week3','Week 3 Timetable']].forEach(([field, label]) => {
                 if (settings[field]) {
-                    html += `
-                        <div style="margin-bottom: 3rem;">
-                            <h3 style="color: #1B5E20; margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 800;">
-                                <i class="fas fa-calendar-week"></i> Week ${index + 1}
-                            </h3>
-                            <img src="${settings[field]}" alt="Week ${index + 1} Timetable" class="timetable-img">
-                        </div>
-                    `;
+                    html += `<div style="margin-bottom:3rem;">
+                        <h3 style="color:#1B5E20;margin-bottom:1.5rem;font-size:1.8rem;font-weight:800;">
+                            <i class="fas fa-calendar-week"></i> ${label}</h3>
+                        <img src="${settings[field]}" alt="${label}" class="timetable-img">
+                    </div>`;
                 }
             });
-
-            if (html) {
-                container.innerHTML = html;
-            }
+            if (html) container.innerHTML = html;
         }
 
-        function formatTime(timeString) {
-            if (!timeString) return '';
-            const [hours, minutes] = timeString.split(':');
-            const hour = parseInt(hours);
-            const ampm = hour >= 12 ? 'PM' : 'AM';
-            const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
-            return `${displayHour}:${minutes} ${ampm}`;
+        function formatTime(t) {
+            if (!t) return '';
+            const [h, m] = t.split(':');
+            const hr = parseInt(h);
+            return `${hr > 12 ? hr - 12 : (hr === 0 ? 12 : hr)}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
         }
-
-        function formatDate(date) {
-            return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        function formatDate(d) {
+            return d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
         }
-
-        function getClassStatus(classItem) {
+        function formatDateShort(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr + 'T12:00:00');
+            return d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+        }
+        function getClassStatus(c) {
             const now = new Date();
-            const classDate = new Date(classItem.class_date + 'T' + classItem.start_time);
-            const classEnd = new Date(classItem.class_date + 'T' + classItem.end_time);
-
-            if (now >= classDate && now <= classEnd) return 'Ongoing';
-            if (now > classEnd) return 'Completed';
+            const start = new Date(c.class_date + 'T' + c.start_time);
+            const end   = new Date(c.class_date + 'T' + c.end_time);
+            if (now >= start && now <= end) return 'Ongoing';
+            if (now > end) return 'Completed';
             return 'Scheduled';
         }
-
-        function joinClass(link) {
-            window.open(link, '_blank');
-        }
-
-        document.addEventListener('DOMContentLoaded', loadVacationClasses);
     </script>
+
 </body>
 </html>
