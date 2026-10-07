@@ -3,767 +3,599 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vacation Classes - GERAMA</title>
+    <title>Vacation Classes · GERAMA/26</title>
     <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%);
-            min-height: 100vh;
-        }
+    :root{
+        --green:#1B5E20; --green2:#2E7D32; --green3:#43A047;
+        --gold:#FFC107; --gold2:#f59e0b;
+        --bg:#f0fdf4; --white:#fff;
+        --text:#0f1f0f; --muted:#52735a;
+        --card-r:18px; --shadow:0 4px 24px rgba(27,94,32,.10);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
 
-        /* Navigation Bar */
-        nav {
-            background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
-            padding: 1rem 5%;
-            box-shadow: 0 4px 20px rgba(27, 94, 32, 0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+    /* ── NAV ── */
+    .top-nav{
+        position:sticky;top:0;z-index:999;
+        background:rgba(10,37,15,.96);
+        backdrop-filter:blur(14px);
+        padding:0 5%;height:62px;
+        display:flex;align-items:center;justify-content:space-between;
+        box-shadow:0 2px 20px rgba(0,0,0,.25);
+    }
+    .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .nav-logo img{height:36px;border-radius:8px;}
+    .nav-logo span{color:white;font-weight:800;font-size:1rem;letter-spacing:.3px;}
+    .nav-links{display:flex;gap:.2rem;align-items:center;}
+    .nav-links a{
+        color:rgba(255,255,255,.82);text-decoration:none;
+        padding:.45rem .9rem;border-radius:8px;
+        font-size:.88rem;font-weight:600;transition:all .2s;
+    }
+    .nav-links a:hover,.nav-links a.active{color:var(--gold);background:rgba(255,193,7,.1);}
+    .nav-back{
+        display:flex;align-items:center;gap:.5rem;
+        background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+        color:white;padding:.4rem 1rem;border-radius:30px;
+        font-size:.82rem;font-weight:700;text-decoration:none;transition:all .2s;
+    }
+    .nav-back:hover{background:var(--gold);color:var(--green);}
+    @media(max-width:640px){
+        .nav-links{display:none;}
+        .top-nav{padding:0 4%;}
+    }
 
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+    /* ── HERO ── */
+    .hero{
+        background:linear-gradient(135deg,#071a09 0%,#0d2e12 35%,var(--green) 70%,#2d6a4f 100%);
+        color:white;padding:5rem 5% 4rem;
+        position:relative;overflow:hidden;
+        min-height:340px;display:flex;align-items:center;
+    }
+    .hero::before{
+        content:'';position:absolute;inset:0;
+        background:radial-gradient(ellipse 80% 60% at 70% 50%,rgba(255,193,7,.08),transparent);
+    }
+    .hero::after{
+        content:'';position:absolute;
+        bottom:-80px;right:-80px;
+        width:380px;height:380px;
+        border-radius:50%;
+        background:radial-gradient(circle,rgba(255,193,7,.12),transparent 70%);
+    }
+    /* Animated floating orbs */
+    .hero-orb{
+        position:absolute;border-radius:50%;pointer-events:none;
+        animation:float 8s ease-in-out infinite;
+    }
+    .hero-orb-1{width:200px;height:200px;background:rgba(255,193,7,.05);top:-60px;left:10%;animation-delay:0s;}
+    .hero-orb-2{width:140px;height:140px;background:rgba(67,160,71,.12);bottom:20px;left:40%;animation-delay:3s;}
+    .hero-orb-3{width:100px;height:100px;background:rgba(255,193,7,.08);top:30px;right:20%;animation-delay:5s;}
+    @keyframes float{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-20px) scale(1.05);}}
 
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
+    .hero-content{position:relative;z-index:1;max-width:700px;}
+    .hero-pill{
+        display:inline-flex;align-items:center;gap:.5rem;
+        background:rgba(255,193,7,.18);border:1px solid rgba(255,193,7,.45);
+        color:var(--gold);padding:.38rem 1.1rem;border-radius:50px;
+        font-size:.78rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
+        margin-bottom:1.4rem;
+    }
+    .hero-pill i{font-size:.7rem;}
+    .hero h1{
+        font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;
+        line-height:1.1;margin-bottom:1rem;
+        background:linear-gradient(135deg,#fff 40%,rgba(255,193,7,.9));
+        -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+        background-clip:text;
+    }
+    .hero-sub{font-size:clamp(.9rem,1.6vw,1.1rem);opacity:.82;line-height:1.7;max-width:560px;}
+    .hero-stats{
+        display:flex;gap:2rem;margin-top:2.2rem;flex-wrap:wrap;
+    }
+    .hero-stat{display:flex;flex-direction:column;gap:.15rem;}
+    .hero-stat strong{font-size:1.8rem;font-weight:900;color:var(--gold);}
+    .hero-stat span{font-size:.78rem;opacity:.75;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
 
-        nav a:hover, nav a.active {
-            background: rgba(255, 255, 255, 0.2);
-        }
+    /* ── TODAY BANNER ── */
+    .today-banner{
+        background:linear-gradient(135deg,var(--green),var(--green2));
+        color:white;padding:2rem 5%;display:none;
+    }
+    .today-inner{max-width:1400px;margin:0 auto;}
+    .today-label{
+        display:inline-flex;align-items:center;gap:.5rem;
+        background:var(--gold);color:var(--green);
+        font-weight:900;font-size:.82rem;letter-spacing:.5px;text-transform:uppercase;
+        padding:.3rem .9rem;border-radius:30px;margin-bottom:1rem;
+    }
+    .today-title{font-size:1.3rem;font-weight:800;margin-bottom:1.2rem;opacity:.95;}
+    .today-cards{
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:1rem;
+    }
+    @media(max-width:1100px){.today-cards{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:600px){.today-cards{grid-template-columns:1fr;}}
+    .today-card{
+        background:rgba(255,255,255,.12);
+        border:1px solid rgba(255,255,255,.2);
+        border-radius:14px;padding:1.1rem 1.2rem;
+        backdrop-filter:blur(8px);
+        transition:transform .2s;
+    }
+    .today-card:hover{transform:translateY(-3px);}
+    .today-card-course{font-weight:800;font-size:1rem;margin-bottom:.4rem;}
+    .today-card-meta{font-size:.8rem;opacity:.85;display:flex;align-items:center;gap:.4rem;margin-bottom:.3rem;}
+    .today-card-join{
+        display:inline-flex;align-items:center;gap:.4rem;
+        background:var(--gold);color:var(--green);
+        font-weight:800;font-size:.78rem;
+        padding:.35rem .9rem;border-radius:20px;
+        text-decoration:none;margin-top:.6rem;
+        transition:all .2s;border:none;cursor:pointer;
+    }
+    .today-card-join:hover{background:white;color:var(--green);}
 
-        /* Hero Section */
-        .vacation-hero {
-            background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #1B5E20 100%);
-            color: white;
-            padding: 5rem 2rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(27, 94, 32, 0.3);
-        }
+    /* ── MAIN CONTAINER ── */
+    .main{max-width:1400px;margin:0 auto;padding:3rem 5%;}
 
-        .vacation-hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z'/%3E%3C/g%3E%3C/svg%3E");
-            pointer-events: none;
-        }
+    /* ── WEEK TABS ── */
+    .week-tabs-wrap{
+        display:flex;align-items:center;justify-content:space-between;
+        flex-wrap:wrap;gap:1rem;margin-bottom:2rem;
+    }
+    .week-tabs-title{font-size:1.5rem;font-weight:900;color:var(--green);}
+    .week-tabs{
+        display:flex;gap:.5rem;
+        background:white;border-radius:50px;padding:.35rem;
+        box-shadow:var(--shadow);border:1px solid #d4edda;
+    }
+    .week-tab{
+        padding:.5rem 1.4rem;border:none;background:none;
+        color:var(--muted);font-weight:700;font-size:.88rem;
+        border-radius:40px;cursor:pointer;
+        transition:all .22s;font-family:'Inter',sans-serif;
+        white-space:nowrap;
+    }
+    .week-tab.active{
+        background:linear-gradient(135deg,var(--green),var(--green2));
+        color:white;box-shadow:0 4px 14px rgba(27,94,32,.3);
+    }
+    .week-tab:hover:not(.active){background:#f0fdf4;color:var(--green);}
 
-        .vacation-hero-content {
-            position: relative;
-            z-index: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    /* ── CLASS GRID — 4 columns on laptop ── */
+    .class-grid{
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:1.1rem;
+    }
+    @media(max-width:1280px){.class-grid{grid-template-columns:repeat(3,1fr);}}
+    @media(max-width:900px){.class-grid{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:500px){.class-grid{grid-template-columns:1fr;}}
 
-        .vacation-hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: #FFC107;
-            color: #1B5E20;
-            padding: 0.7rem 2rem;
-            border-radius: 50px;
-            font-weight: 900;
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5);
-            animation: pulse 2s infinite;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+    /* ── CLASS CARD ── */
+    .class-card{
+        background:white;border-radius:var(--card-r);
+        padding:0;overflow:hidden;
+        box-shadow:var(--shadow);
+        border:1px solid #e0f0e3;
+        transition:transform .25s,box-shadow .25s;
+        display:flex;flex-direction:column;
+        position:relative;
+    }
+    .class-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(27,94,32,.16);}
+    .class-card-top{
+        height:7px;width:100%;
+        /* color set inline per course */
+    }
+    .card-status{
+        position:absolute;top:16px;right:14px;
+        font-size:.65rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;
+        padding:.22rem .65rem;border-radius:20px;
+    }
+    .status-scheduled{background:#dbeafe;color:#1e40af;}
+    .status-ongoing{background:#dcfce7;color:#166534;animation:blink 1.5s infinite;}
+    .status-completed{background:#f3f4f6;color:#9ca3af;}
+    @keyframes blink{0%,100%{opacity:1;}50%{opacity:.6;}}
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(255, 193, 7, 0.5); }
-            50% { transform: scale(1.05); box-shadow: 0 8px 30px rgba(255, 193, 7, 0.7); }
-        }
+    .card-body{padding:1rem 1.1rem 1.1rem;flex:1;display:flex;flex-direction:column;gap:.55rem;}
+    .card-day{
+        font-size:.7rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+        color:var(--muted);display:flex;align-items:center;gap:.35rem;
+    }
+    .card-course{
+        font-size:.98rem;font-weight:900;line-height:1.25;
+        color:var(--text);
+    }
+    .card-time{
+        display:flex;align-items:center;gap:.4rem;
+        font-size:.78rem;font-weight:700;color:var(--green2);
+    }
+    .card-tutor{
+        display:flex;align-items:center;gap:.4rem;
+        font-size:.78rem;color:var(--muted);font-weight:600;
+    }
+    .card-tutor i{color:var(--green3);font-size:.72rem;}
+    .card-join{
+        margin-top:auto;padding-top:.6rem;
+    }
+    .card-join a,.card-join button{
+        display:flex;align-items:center;justify-content:center;gap:.45rem;
+        width:100%;padding:.6rem;border-radius:10px;
+        background:linear-gradient(135deg,var(--green),var(--green2));
+        color:white;font-weight:800;font-size:.8rem;
+        text-decoration:none;border:none;cursor:pointer;
+        transition:all .2s;
+    }
+    .card-join a:hover,.card-join button:hover{
+        background:linear-gradient(135deg,var(--gold),var(--gold2));
+        color:var(--green);
+    }
 
-        .vacation-hero h1 {
-            font-size: clamp(2.5rem, 6vw, 4rem);
-            margin-bottom: 1.5rem;
-            font-weight: 900;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            animation: slideDown 0.6s ease-out;
-            line-height: 1.2;
-        }
+    /* ── EMPTY STATE ── */
+    .empty-state{
+        grid-column:1/-1;text-align:center;
+        padding:3.5rem 1rem;color:var(--muted);
+    }
+    .empty-state i{font-size:3rem;opacity:.3;display:block;margin-bottom:.8rem;}
 
-        .vacation-hero p {
-            font-size: clamp(1rem, 2vw, 1.3rem);
-            opacity: 0.95;
-            max-width: 900px;
-            margin: 0 auto;
-            line-height: 1.8;
-        }
+    /* ── TIMETABLE SECTION ── */
+    .timetable-section{
+        margin-top:4rem;
+    }
+    .timetable-head{
+        display:flex;align-items:center;gap:.8rem;
+        margin-bottom:1.8rem;
+    }
+    .timetable-head h2{font-size:1.5rem;font-weight:900;color:var(--green);}
+    .timetable-head-icon{
+        width:42px;height:42px;border-radius:12px;
+        background:linear-gradient(135deg,var(--green),var(--green2));
+        display:flex;align-items:center;justify-content:center;
+        color:white;font-size:1.1rem;flex-shrink:0;
+    }
+    .timetable-grid{
+        display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;
+    }
+    @media(max-width:800px){.timetable-grid{grid-template-columns:1fr;}}
+    .timetable-card{
+        background:white;border-radius:var(--card-r);overflow:hidden;
+        box-shadow:var(--shadow);border:1px solid #e0f0e3;
+        transition:transform .25s,box-shadow .25s;
+    }
+    .timetable-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(27,94,32,.15);}
+    .timetable-card-header{
+        background:linear-gradient(135deg,var(--green),var(--green2));
+        color:white;padding:1rem 1.4rem;
+        display:flex;align-items:center;gap:.7rem;
+    }
+    .timetable-card-header i{font-size:1rem;opacity:.85;}
+    .timetable-card-header h3{font-size:.95rem;font-weight:800;}
+    .timetable-card img{
+        width:100%;display:block;
+        transition:transform .4s;
+    }
+    .timetable-card:hover img{transform:scale(1.015);}
+    .timetable-img-wrap{overflow:hidden;}
 
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    /* ── COLOUR KEY ── */
+    .colour-key{
+        background:white;border-radius:var(--card-r);
+        padding:1.4rem 1.6rem;margin-top:2rem;
+        box-shadow:var(--shadow);border:1px solid #e0f0e3;
+    }
+    .colour-key h4{font-size:.88rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.9rem;}
+    .colour-key-grid{display:flex;flex-wrap:wrap;gap:.6rem;}
+    .ck-item{
+        display:flex;align-items:center;gap:.45rem;
+        font-size:.78rem;font-weight:600;color:var(--text);
+    }
+    .ck-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 3rem 2rem;
-        }
-
-        /* Today's Classes Section */
-        .todays-classes {
-            background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
-            color: white;
-            padding: 3rem;
-            border-radius: 25px;
-            margin: 3rem 0;
-            box-shadow: 0 15px 50px rgba(27, 94, 32, 0.4);
-            position: relative;
-            overflow: hidden;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .todays-classes::before {
-            content: '🎓';
-            position: absolute;
-            top: -30px;
-            right: -30px;
-            font-size: 200px;
-            opacity: 0.08;
-        }
-
-        .todays-classes-header {
-            position: relative;
-            z-index: 1;
-            margin-bottom: 2rem;
-        }
-
-        .todays-classes h3 {
-            font-size: clamp(1.5rem, 3vw, 2.2rem);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-weight: 900;
-            flex-wrap: wrap;
-        }
-
-        .today-badge {
-            background: #FFC107;
-            color: #1B5E20;
-            padding: 0.5rem 1.5rem;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 800;
-            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
-        }
-
-        /* Class Cards */
-        .class-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 2rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        .class-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            border: 3px solid #1B5E20;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .class-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 6px;
-            background: linear-gradient(90deg, #1B5E20, #2E7D32, #FFC107);
-        }
-
-        .class-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 20px 60px rgba(27, 94, 32, 0.3);
-            border-color: #FFC107;
-        }
-
-        .class-time {
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            font-size: 1rem;
-            color: #1B5E20;
-            margin-bottom: 1rem;
-            font-weight: 700;
-            background: #f0fdf4;
-            padding: 0.7rem 1rem;
-            border-radius: 12px;
-        }
-
-        .class-name {
-            font-size: 1.6rem;
-            font-weight: 900;
-            color: #1B5E20;
-            margin-bottom: 1rem;
-            line-height: 1.3;
-        }
-
-        .class-tutor {
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            color: #2E7D32;
-            margin-bottom: 1rem;
-            font-size: 1.05rem;
-            font-weight: 600;
-        }
-
-        .class-levels {
-            display: flex;
-            gap: 0.6rem;
-            flex-wrap: wrap;
-            margin-bottom: 1.5rem;
-        }
-
-        .level-badge {
-            background: linear-gradient(135deg, #1B5E20, #2E7D32);
-            color: white;
-            padding: 0.4rem 1rem;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            box-shadow: 0 3px 10px rgba(27, 94, 32, 0.3);
-        }
-
-        .join-btn {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-weight: 800;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.7rem;
-            box-shadow: 0 6px 20px rgba(27, 94, 32, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .join-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 30px rgba(27, 94, 32, 0.6);
-            background: linear-gradient(135deg, #FFC107 0%, #f59e0b 100%);
-            color: #1B5E20;
-        }
-
-        /* Schedule Section */
-        .schedule-section {
-            margin: 4rem 0;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 2rem;
-            margin-bottom: 2.5rem;
-            padding: 2.5rem;
-            background: white;
-            border-radius: 25px;
-            box-shadow: 0 8px 30px rgba(27, 94, 32, 0.15);
-            border: 3px solid #1B5E20;
-        }
-
-        .section-header h2 {
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
-            color: #1B5E20;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .week-selector {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .week-btn {
-            padding: 1rem 2rem;
-            border: 3px solid #1B5E20;
-            background: white;
-            color: #1B5E20;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(27, 94, 32, 0.2);
-        }
-
-        .week-btn.active {
-            background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(27, 94, 32, 0.5);
-        }
-
-        .week-btn:hover:not(.active) {
-            background: #f0fdf4;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(27, 94, 32, 0.3);
-        }
-
-        /* Timetable Section */
-        .timetable-container {
-            background: white;
-            border-radius: 25px;
-            padding: 3rem;
-            box-shadow: 0 10px 40px rgba(27, 94, 32, 0.15);
-            margin-top: 3rem;
-            border: 3px solid #1B5E20;
-        }
-
-        .timetable-container h2 {
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
-            color: #1B5E20;
-            margin-bottom: 2rem;
-            font-weight: 900;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .timetable-img {
-            width: 100%;
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-            border: 3px solid #1B5E20;
-            margin-bottom: 2rem;
-        }
-
-        /* Loading & Empty States */
-        .loading, .no-classes {
-            text-align: center;
-            padding: 4rem 2rem;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 8px 30px rgba(27, 94, 32, 0.1);
-            border: 3px solid #1B5E20;
-        }
-
-        .loading {
-            font-size: 1.3rem;
-            color: #1B5E20;
-            font-weight: 700;
-        }
-
-        .no-classes-icon {
-            font-size: 5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .no-classes h3 {
-            font-size: 1.8rem;
-            color: #1B5E20;
-            margin-bottom: 0.5rem;
-            font-weight: 800;
-        }
-
-        .no-classes p {
-            font-size: 1.1rem;
-            color: #2E7D32;
-        }
-
-        /* Status Badge */
-        .status-badge {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-scheduled {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-ongoing {
-            background: #dcfce7;
-            color: #166534;
-            animation: pulse 1.5s infinite;
-        }
-
-        .status-completed {
-            background: #f3f4f6;
-            color: #6b7280;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .vacation-hero {
-                padding: 3rem 1.5rem;
-            }
-
-            .main-container {
-                padding: 2rem 1rem;
-            }
-
-            .class-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-                padding: 1.5rem;
-            }
-
-            .week-selector {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .week-btn {
-                flex: 1;
-                padding: 0.8rem 1rem;
-                font-size: 0.9rem;
-            }
-
-            .todays-classes {
-                padding: 2rem 1.5rem;
-            }
-
-            .timetable-container {
-                padding: 2rem 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .vacation-hero h1 {
-                font-size: 2rem;
-            }
-
-            .class-card {
-                padding: 1.5rem;
-            }
-
-            .class-name {
-                font-size: 1.3rem;
-            }
-        }
+    /* ── FOOTER NOTE ── */
+    .footer-note{
+        text-align:center;padding:3rem 5% 2rem;
+        font-size:.82rem;color:var(--muted);
+    }
+    .footer-note strong{color:var(--green);}
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
-        <ul>
-            <li><a href="index.html">🏠 Home</a></li>
-            <li><a href="resources.html">📚 Resources</a></li>
-            <li><a href="classroom.html">🎓 Classroom</a></li>
-            <li><a href="vacation-classes.html" class="active">📅 Vacation Classes</a></li>
-            <li><a href="dashboard.html">👤 Dashboard</a></li>
-        </ul>
-    </nav>
 
-    <!-- Hero Section -->
-    <div class="vacation-hero">
-        <div class="vacation-hero-content">
-            <div class="vacation-hero-badge">
-                <i class="fas fa-star"></i>
-                <span>GERAMA/26 VACATION CLASSES</span>
-                <i class="fas fa-star"></i>
-            </div>
-            <h1>🎓 Online Tutorial Sessions</h1>
-            <p id="welcomeMessage">Join us for daily online tutorials covering key engineering courses. All sessions start at 7:30 PM on Google Meet.</p>
+<!-- NAV -->
+<nav class="top-nav">
+    <a href="index.html" class="nav-logo">
+        <img src="images/geramalogo.jpg" alt="GERAMA">
+        <span>GERAMA</span>
+    </a>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="resources.html">Resources</a>
+        <a href="classroom.html">Classroom</a>
+        <a href="vacation-classes.html" class="active">Vacation Classes</a>
+        <a href="dashboard.html">Dashboard</a>
+    </div>
+    <a href="classroom.html" class="nav-back"><i class="fas fa-arrow-left"></i> Classroom</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="hero-content">
+        <div class="hero-pill"><i class="fas fa-circle" style="color:#4ade80;font-size:.5rem;"></i> GERAMA/26 · Live Now</div>
+        <h1>Vacation Tutorial<br>Sessions</h1>
+        <p class="hero-sub" id="welcomeMessage">Daily online tutorials covering key L100 engineering courses. All sessions start at <strong style="-webkit-text-fill-color:var(--gold);color:var(--gold);">7:30 PM</strong> on Google Meet.</p>
+        <div class="hero-stats">
+            <div class="hero-stat"><strong>3</strong><span>Weeks</span></div>
+            <div class="hero-stat"><strong>23</strong><span>Sessions</span></div>
+            <div class="hero-stat"><strong>6</strong><span>Courses</span></div>
+            <div class="hero-stat"><strong>7:30<span style="font-size:1rem;">PM</span></strong><span>Daily</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- TODAY BANNER (shown only when there's a class today) -->
+<div class="today-banner" id="todayBanner">
+    <div class="today-inner">
+        <div class="today-label"><i class="fas fa-bolt"></i> Today's Classes</div>
+        <div class="today-title" id="todayTitle">Happening Today</div>
+        <div class="today-cards" id="todayCards"></div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+    <!-- Week tabs + grid -->
+    <div class="week-tabs-wrap">
+        <div class="week-tabs-title">📅 Class Schedule</div>
+        <div class="week-tabs">
+            <button class="week-tab active" data-week="1" onclick="filterByWeek(1,this)">Week 1</button>
+            <button class="week-tab" data-week="2" onclick="filterByWeek(2,this)">Week 2</button>
+            <button class="week-tab" data-week="3" onclick="filterByWeek(3,this)">Week 3</button>
+            <button class="week-tab" data-week="all" onclick="filterByWeek(null,this)">All Weeks</button>
         </div>
     </div>
 
-    <div class="main-container">
-        <!-- Today's Classes Section -->
-        <div id="todaySection" class="todays-classes" style="display: none;">
-            <div class="todays-classes-header">
-                <h3>
-                    <i class="fas fa-calendar-day"></i>
-                    Today's Classes
-                    <span class="today-badge" id="todayDate"></span>
-                </h3>
-            </div>
-            <div id="todayClasses" class="class-grid"></div>
-        </div>
+    <div class="class-grid" id="classGrid"></div>
 
-        <!-- Upcoming Classes -->
-        <div class="schedule-section">
-            <div class="section-header">
-                <h2>
-                    <i class="fas fa-book-open"></i>
-                    Class Schedule
-                </h2>
-                <div class="week-selector">
-                    <button class="week-btn active" data-week="1" onclick="filterByWeek(1, this)">
-                        <i class="fas fa-calendar"></i> Week 1
-                    </button>
-                    <button class="week-btn" data-week="2" onclick="filterByWeek(2, this)">
-                        <i class="fas fa-calendar"></i> Week 2
-                    </button>
-                    <button class="week-btn" data-week="3" onclick="filterByWeek(3, this)">
-                        <i class="fas fa-calendar"></i> Week 3
-                    </button>
-                    <button class="week-btn" data-week="all" onclick="filterByWeek(null, this)">
-                        <i class="fas fa-calendar-alt"></i> All
-                    </button>
+    <!-- Colour key -->
+    <div class="colour-key">
+        <h4>Course Colour Key</h4>
+        <div class="colour-key-grid" id="colourKey"></div>
+    </div>
+
+    <!-- Timetable images -->
+    <div class="timetable-section">
+        <div class="timetable-head">
+            <div class="timetable-head-icon"><i class="fas fa-table"></i></div>
+            <h2>Full Timetable</h2>
+        </div>
+        <div class="timetable-grid">
+            <div class="timetable-card">
+                <div class="timetable-card-header">
+                    <i class="fas fa-calendar-week"></i>
+                    <h3>Week 1 — Daily Schedule &amp; Tutors</h3>
                 </div>
-            </div>
-            <div id="upcomingClasses" class="loading">
-                <i class="fas fa-spinner fa-spin"></i> Loading classes...
-            </div>
-        </div>
-
-        <!-- Timetable Images -->
-        <div class="timetable-container">
-            <h2>
-                <i class="fas fa-table"></i>
-                Full Timetable
-            </h2>
-            <div id="timetableDisplay">
-                <!-- Week 1 daily schedule (tutors assigned) -->
-                <div style="margin-bottom: 3rem;">
-                    <h3 style="color: #1B5E20; margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 800;">
-                        <i class="fas fa-calendar-week"></i> Week 1 — Daily Schedule &amp; Tutors
-                    </h3>
+                <div class="timetable-img-wrap">
                     <img src="images/temp/5924510087932221633_121.jpg"
-                         alt="GERAMA/26 Week 1 Daily Schedule"
-                         class="timetable-img"
-                         onerror="this.style.display='none'">
+                         alt="Week 1 Daily Schedule"
+                         onerror="this.closest('.timetable-card').style.display='none'">
                 </div>
-                <!-- Full 3-week timetable -->
-                <div style="margin-bottom: 3rem;">
-                    <h3 style="color: #1B5E20; margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 800;">
-                        <i class="fas fa-calendar-alt"></i> 3-Week Full Timetable
-                    </h3>
+            </div>
+            <div class="timetable-card">
+                <div class="timetable-card-header">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>3-Week Full Timetable</h3>
+                </div>
+                <div class="timetable-img-wrap">
                     <img src="images/temp/5924510087932221634_121.jpg"
-                         alt="GERAMA/26 Full 3-Week Timetable"
-                         class="timetable-img"
-                         onerror="this.style.display='none'">
+                         alt="3-Week Full Timetable"
+                         onerror="this.closest('.timetable-card').style.display='none'">
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/env-config.js"></script>
-    <script>
-        // ── Hardcoded schedule (shown instantly, DB data overlays if available) ──
-        const STATIC_SCHEDULE = [
-            // WEEK 1 — Oct 6–11, 2026
-            { course_name:'Solid State', class_date:'2026-10-06', start_time:'19:30', end_time:'21:00', tutor_names:'zANDEROD & Perry', week_number:1, day_of_week:'Tuesday', color_code:'#ef4444', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'DC Machines & Transformers', class_date:'2026-10-07', start_time:'19:30', end_time:'20:30', tutor_names:'Jerome & Ray', week_number:1, day_of_week:'Wednesday', color_code:'#f59e0b', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Electrical Circuits Analysis & Design', class_date:'2026-10-08', start_time:'19:30', end_time:'21:00', tutor_names:'Azakora & Priscy', week_number:1, day_of_week:'Thursday', color_code:'#10b981', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'MATLAB', class_date:'2026-10-09', start_time:'19:30', end_time:'20:30', tutor_names:'Edem & Prophet', week_number:1, day_of_week:'Friday', color_code:'#3b82f6', target_levels:['L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'DC Machines & Transformers', class_date:'2026-10-10', start_time:'19:00', end_time:'20:00', tutor_names:'Jonathan & Prophet', week_number:1, day_of_week:'Saturday', color_code:'#f59e0b', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Solid State', class_date:'2026-10-10', start_time:'20:05', end_time:'21:00', tutor_names:'Hebert & zANDEROD', week_number:1, day_of_week:'Saturday', color_code:'#ef4444', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Linear Algebra', class_date:'2026-10-11', start_time:'19:30', end_time:'21:00', tutor_names:'Joseph & John', week_number:1, day_of_week:'Sunday', color_code:'#8b5cf6', target_levels:['L100','L200'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            // WEEK 2 — Oct 13–19, 2026
-            { course_name:'Solid State', class_date:'2026-10-13', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:2, day_of_week:'Monday', color_code:'#ef4444', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'DC Machines & Transformers', class_date:'2026-10-14', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:2, day_of_week:'Tuesday', color_code:'#f59e0b', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Electrical Circuits Analysis & Design', class_date:'2026-10-15', start_time:'19:30', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Wednesday', color_code:'#10b981', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Electrical Measurement & Instrumentation', class_date:'2026-10-16', start_time:'19:30', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Thursday', color_code:'#f97316', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Solid State Live Quiz', class_date:'2026-10-16', start_time:'21:00', end_time:'22:30', tutor_names:'TBA', week_number:2, day_of_week:'Thursday', color_code:'#ef4444', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'MATLAB', class_date:'2026-10-17', start_time:'19:30', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Friday', color_code:'#3b82f6', target_levels:['L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Linear Algebra', class_date:'2026-10-18', start_time:'19:00', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Saturday', color_code:'#8b5cf6', target_levels:['L100','L200'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Electric Circuit Design', class_date:'2026-10-18', start_time:'20:30', end_time:'21:30', tutor_names:'TBA', week_number:2, day_of_week:'Saturday', color_code:'#10b981', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Electrical Measurement & Instrumentation', class_date:'2026-10-19', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:2, day_of_week:'Sunday', color_code:'#f97316', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            // WEEK 3 — Oct 20–26, 2026
-            { course_name:'DC Machines & Transformers', class_date:'2026-10-20', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Monday', color_code:'#f59e0b', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Electrical Circuits Analysis & Design', class_date:'2026-10-21', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Tuesday', color_code:'#10b981', target_levels:['L200','L300'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'MATLAB', class_date:'2026-10-22', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Wednesday', color_code:'#3b82f6', target_levels:['L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'Solid State Live Quiz', class_date:'2026-10-23', start_time:'19:30', end_time:'21:30', tutor_names:'TBA', week_number:3, day_of_week:'Thursday', color_code:'#ef4444', target_levels:['L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'General Recap & Quizzes', class_date:'2026-10-24', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Friday', color_code:'#6366f1', target_levels:['L100','L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'General Recap & Quizzes', class_date:'2026-10-25', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Saturday', color_code:'#6366f1', target_levels:['L100','L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-            { course_name:'General Recap & Quizzes', class_date:'2026-10-26', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Sunday', color_code:'#6366f1', target_levels:['L100','L200','L300','L400'], meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
-        ];
+</main>
 
-        let allClasses = STATIC_SCHEDULE; // start with static data immediately
-        let currentWeekFilter = 1;
+<div class="footer-note">
+    <strong>GERAMA/26</strong> · All sessions on Google Meet · 7:30 PM daily · Small steps create big results ♥
+</div>
 
-        // ── Show static schedule immediately — no DB wait ──
-        filterByWeek(1, document.querySelector('.week-btn[data-week="1"]'));
-        showTodayFromStatic();
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/env-config.js"></script>
+<script>
+// ── Course colour map (consistent across all weeks) ──
+const COURSE_COLORS = {
+    'Solid State':                             '#ef4444',
+    'Solid State Live Quiz':                   '#ef4444',
+    'DC Machines & Transformers':              '#f59e0b',
+    'Electrical Circuits Analysis & Design':   '#10b981',
+    'Electric Circuit Design':                 '#10b981',
+    'MATLAB':                                  '#3b82f6',
+    'Linear Algebra':                          '#8b5cf6',
+    'Electrical Measurement & Instrumentation':'#f97316',
+    'General Recap & Quizzes':                 '#6366f1',
+};
 
-        // ── Then try to load from DB and overlay (updates tutors etc.) ──
-        document.addEventListener('DOMContentLoaded', function() {
-            loadFromDB();
-        });
+function courseColor(name) {
+    for (const key of Object.keys(COURSE_COLORS)) {
+        if (name && name.startsWith(key.substring(0,8))) return COURSE_COLORS[key];
+    }
+    return COURSE_COLORS[name] || '#1B5E20';
+}
 
-        function showTodayFromStatic() {
+// ── Static schedule — all 3 weeks, NO level badges ──
+const STATIC_SCHEDULE = [
+    // WEEK 1 — Oct 6–11
+    { course_name:'Solid State',                            class_date:'2026-10-06', start_time:'19:30', end_time:'21:00', tutor_names:'zANDEROD & Perry',     week_number:1, day_of_week:'Tuesday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'DC Machines & Transformers',             class_date:'2026-10-07', start_time:'19:30', end_time:'20:30', tutor_names:'Jerome & Ray',         week_number:1, day_of_week:'Wednesday',  meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Electrical Circuits Analysis & Design',  class_date:'2026-10-08', start_time:'19:30', end_time:'21:00', tutor_names:'Azakora & Priscy',     week_number:1, day_of_week:'Thursday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'MATLAB',                                 class_date:'2026-10-09', start_time:'19:30', end_time:'20:30', tutor_names:'Edem & Prophet',       week_number:1, day_of_week:'Friday',     meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'DC Machines & Transformers',             class_date:'2026-10-10', start_time:'19:00', end_time:'20:00', tutor_names:'Jonathan & Prophet',   week_number:1, day_of_week:'Saturday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Solid State',                            class_date:'2026-10-10', start_time:'20:05', end_time:'21:00', tutor_names:'Hebert & zANDEROD',    week_number:1, day_of_week:'Saturday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Linear Algebra',                         class_date:'2026-10-11', start_time:'19:30', end_time:'21:00', tutor_names:'Joseph & John',        week_number:1, day_of_week:'Sunday',     meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    // WEEK 2 — Oct 13–19
+    { course_name:'Solid State',                            class_date:'2026-10-13', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:2, day_of_week:'Monday',    meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'DC Machines & Transformers',             class_date:'2026-10-14', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:2, day_of_week:'Tuesday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Electrical Circuits Analysis & Design',  class_date:'2026-10-15', start_time:'19:30', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Wednesday',  meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Electrical Measurement & Instrumentation',class_date:'2026-10-16',start_time:'19:30', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Thursday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Solid State Live Quiz',                  class_date:'2026-10-16', start_time:'21:00', end_time:'22:30', tutor_names:'TBA', week_number:2, day_of_week:'Thursday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'MATLAB',                                 class_date:'2026-10-17', start_time:'19:30', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Friday',     meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Linear Algebra',                         class_date:'2026-10-18', start_time:'19:00', end_time:'20:30', tutor_names:'TBA', week_number:2, day_of_week:'Saturday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Electric Circuit Design',                class_date:'2026-10-18', start_time:'20:30', end_time:'21:30', tutor_names:'TBA', week_number:2, day_of_week:'Saturday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Electrical Measurement & Instrumentation',class_date:'2026-10-19',start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:2, day_of_week:'Sunday',     meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    // WEEK 3 — Oct 20–26
+    { course_name:'DC Machines & Transformers',             class_date:'2026-10-20', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Monday',    meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Electrical Circuits Analysis & Design',  class_date:'2026-10-21', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Tuesday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'MATLAB',                                 class_date:'2026-10-22', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Wednesday',  meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'Solid State Live Quiz',                  class_date:'2026-10-23', start_time:'19:30', end_time:'21:30', tutor_names:'TBA', week_number:3, day_of_week:'Thursday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'General Recap & Quizzes',                class_date:'2026-10-24', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Friday',     meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'General Recap & Quizzes',                class_date:'2026-10-25', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Saturday',   meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+    { course_name:'General Recap & Quizzes',                class_date:'2026-10-26', start_time:'19:30', end_time:'21:00', tutor_names:'TBA', week_number:3, day_of_week:'Sunday',     meeting_link:'https://gerama-portal.vercel.app/classroom.html' },
+];
+
+let allClasses = STATIC_SCHEDULE;
+let currentWeekFilter = 1;
+
+// ── Boot immediately ──
+renderColourKey();
+filterByWeek(1, document.querySelector('.week-tab[data-week="1"]'));
+checkToday();
+
+// ── Overlay DB data silently ──
+document.addEventListener('DOMContentLoaded', loadFromDB);
+
+function checkToday() {
+    const today = new Date().toISOString().split('T')[0];
+    const todayClasses = STATIC_SCHEDULE.filter(c => c.class_date === today);
+    if (!todayClasses.length) return;
+    const banner = document.getElementById('todayBanner');
+    const title  = document.getElementById('todayTitle');
+    const cards  = document.getElementById('todayCards');
+    banner.style.display = 'block';
+    title.textContent = formatDate(new Date()) + ' · Classes today';
+    cards.innerHTML = todayClasses.map(c => {
+        const col = courseColor(c.course_name);
+        return `<div class="today-card" style="border-left:4px solid ${col};">
+            <div class="today-card-course">${c.course_name}</div>
+            <div class="today-card-meta"><i class="fas fa-clock" style="color:${col};font-size:.72rem;"></i> ${ft(c.start_time)} – ${ft(c.end_time)}</div>
+            <div class="today-card-meta"><i class="fas fa-chalkboard-teacher" style="color:${col};font-size:.72rem;"></i> ${c.tutor_names}</div>
+            ${c.meeting_link ? `<button class="today-card-join" onclick="window.open('${c.meeting_link}','_blank')"><i class="fas fa-video"></i> Join Now</button>` : ''}
+        </div>`;
+    }).join('');
+}
+
+async function loadFromDB() {
+    try {
+        if (!window.supabase || !window.__SUPABASE_URL) return;
+        const sb = window.supabase.createClient(window.__SUPABASE_URL, window.__SUPABASE_KEY);
+        const { data, error } = await sb.from('vacation_classes').select('*').eq('is_active', true)
+            .order('class_date',{ascending:true}).order('start_time',{ascending:true});
+        if (!error && data && data.length > 0) {
+            allClasses = data;
+            filterByWeek(currentWeekFilter, document.querySelector(`.week-tab[data-week="${currentWeekFilter === null ? 'all' : currentWeekFilter}"]`));
+            // Refresh today banner with DB data
             const today = new Date().toISOString().split('T')[0];
-            const todayClasses = STATIC_SCHEDULE.filter(c => c.class_date === today);
-            if (todayClasses.length > 0) {
-                document.getElementById('todaySection').style.display = 'block';
-                document.getElementById('todayDate').textContent = formatDate(new Date());
-                displayClasses(todayClasses, 'todayClasses');
-            }
+            const todayDB = data.filter(c => c.class_date === today);
+            if (todayDB.length > 0) checkTodayFromData(todayDB);
         }
+        const { data: s } = await sb.from('vacation_schedule_settings').select('*').eq('is_current',true).single();
+        if (s && s.welcome_message) document.getElementById('welcomeMessage').textContent = s.welcome_message;
+    } catch(e) { /* static data already showing */ }
+}
 
-        async function loadFromDB() {
-            try {
-                if (typeof window.supabase === 'undefined' || !window.__SUPABASE_URL) return;
-                const sb = window.supabase.createClient(window.__SUPABASE_URL, window.__SUPABASE_KEY);
+function checkTodayFromData(todayClasses) {
+    const cards = document.getElementById('todayCards');
+    cards.innerHTML = todayClasses.map(c => {
+        const col = courseColor(c.course_name);
+        return `<div class="today-card" style="border-left:4px solid ${col};">
+            <div class="today-card-course">${c.course_name}</div>
+            <div class="today-card-meta"><i class="fas fa-clock" style="color:${col};font-size:.72rem;"></i> ${ft(c.start_time)} – ${ft(c.end_time)}</div>
+            <div class="today-card-meta"><i class="fas fa-chalkboard-teacher" style="color:${col};font-size:.72rem;"></i> ${c.tutor_names}</div>
+            ${c.meeting_link ? `<button class="today-card-join" onclick="window.open('${c.meeting_link}','_blank')"><i class="fas fa-video"></i> Join Now</button>` : ''}
+        </div>`;
+    }).join('');
+}
 
-                // Load ALL classes (not just upcoming) so all weeks are always visible
-                const { data, error } = await sb
-                    .from('vacation_classes')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('class_date', { ascending: true })
-                    .order('start_time', { ascending: true });
+function filterByWeek(weekNumber, btn) {
+    currentWeekFilter = weekNumber;
+    document.querySelectorAll('.week-tab').forEach(b => b.classList.remove('active'));
+    const target = btn || document.querySelector(`.week-tab[data-week="${weekNumber === null ? 'all' : weekNumber}"]`);
+    if (target) target.classList.add('active');
+    const list = weekNumber === null ? allClasses : allClasses.filter(c => c.week_number === weekNumber);
+    renderGrid(list);
+}
 
-                if (!error && data && data.length > 0) {
-                    allClasses = data;
-                    // Re-render current week with DB data (has real meeting links, tutors)
-                    filterByWeek(currentWeekFilter, document.querySelector(`.week-btn[data-week="${currentWeekFilter === null ? 'all' : currentWeekFilter}"]`));
-                    // Also refresh today section
-                    const today = new Date().toISOString().split('T')[0];
-                    const todayDB = data.filter(c => c.class_date === today);
-                    if (todayDB.length > 0) {
-                        document.getElementById('todaySection').style.display = 'block';
-                        document.getElementById('todayDate').textContent = formatDate(new Date());
-                        displayClasses(todayDB, 'todayClasses');
-                    }
-                }
+function renderGrid(classes) {
+    const grid = document.getElementById('classGrid');
+    if (!classes || !classes.length) {
+        grid.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-times"></i><p>No classes for this week.</p></div>`;
+        return;
+    }
+    grid.innerHTML = classes.map(c => {
+        const col   = c.color_code || courseColor(c.course_name);
+        const st    = getStatus(c);
+        const stCls = 'status-' + st.toLowerCase();
+        const stLbl = st === 'Ongoing' ? '🔴 Live' : st === 'Completed' ? 'Done' : 'Upcoming';
+        const dateShort = c.class_date ? new Date(c.class_date+'T12:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '';
+        return `
+        <div class="class-card">
+            <div class="class-card-top" style="background:${col};"></div>
+            <span class="card-status ${stCls}">${stLbl}</span>
+            <div class="card-body">
+                <div class="card-day"><i class="fas fa-calendar-day"></i>${c.day_of_week || ''} ${dateShort}</div>
+                <div class="card-course">${c.course_name}</div>
+                <div class="card-time"><i class="fas fa-clock"></i>${ft(c.start_time)} – ${ft(c.end_time)}</div>
+                <div class="card-tutor"><i class="fas fa-chalkboard-teacher"></i>${c.tutor_names}</div>
+                ${c.meeting_link ? `<div class="card-join"><a href="${c.meeting_link}" target="_blank" rel="noopener"><i class="fas fa-video"></i> Join Class</a></div>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+}
 
-                // Load welcome message from settings
-                const { data: settings } = await sb
-                    .from('vacation_schedule_settings')
-                    .select('*')
-                    .eq('is_current', true)
-                    .single();
-                if (settings && settings.welcome_message) {
-                    document.getElementById('welcomeMessage').textContent = settings.welcome_message;
-                }
-            } catch (e) {
-                console.warn('[GERAMA] vacation DB load error:', e.message);
-                // Static data already showing — no action needed
-            }
+function renderColourKey() {
+    const seen = new Set();
+    const items = [];
+    for (const c of STATIC_SCHEDULE) {
+        const name = c.course_name;
+        if (!seen.has(name)) {
+            seen.add(name);
+            items.push({ name, color: courseColor(name) });
         }
+    }
+    document.getElementById('colourKey').innerHTML = items.map(i =>
+        `<div class="ck-item"><div class="ck-dot" style="background:${i.color};"></div>${i.name}</div>`
+    ).join('');
+}
 
-        function filterByWeek(weekNumber, clickedBtn) {
-            currentWeekFilter = weekNumber;
-            document.querySelectorAll('.week-btn').forEach(btn => btn.classList.remove('active'));
-            const target = clickedBtn || document.querySelector(`.week-btn[data-week="${weekNumber === null ? 'all' : weekNumber}"]`);
-            if (target) target.classList.add('active');
-            const filtered = weekNumber === null ? allClasses : allClasses.filter(c => c.week_number === weekNumber);
-            displayClasses(filtered, 'upcomingClasses');
-        }
-
-        function displayClasses(classes, containerId) {
-            const container = document.getElementById(containerId);
-            if (!classes || classes.length === 0) {
-                container.innerHTML = `
-                    <div class="no-classes">
-                        <div class="no-classes-icon">📅</div>
-                        <h3>No classes scheduled for this week</h3>
-                        <p>Check back soon for updates!</p>
-                    </div>`;
-                return;
-            }
-            container.innerHTML = classes.map(classItem => {
-                const levels = classItem.target_levels || [];
-                const startTime = formatTime(classItem.start_time);
-                const endTime = formatTime(classItem.end_time);
-                const status = getClassStatus(classItem);
-                const color = classItem.color_code || '#1B5E20';
-                const dayLabel = classItem.day_of_week ? `<span style="font-size:0.82rem;color:#6b7280;font-weight:600;">${classItem.day_of_week}, ${formatDateShort(classItem.class_date)}</span>` : '';
-                return `
-                    <div class="class-card" style="border-color:${color}20;">
-                        <div class="status-badge status-${status.toLowerCase()}">${status}</div>
-                        <div style="width:100%;height:5px;border-radius:5px;background:${color};margin-bottom:1rem;opacity:0.8;"></div>
-                        ${dayLabel}
-                        <div class="class-time"><i class="fas fa-clock"></i> ${startTime} – ${endTime}</div>
-                        <div class="class-name" style="color:${color};">${classItem.course_name}</div>
-                        <div class="class-tutor"><i class="fas fa-chalkboard-teacher"></i> ${classItem.tutor_names}</div>
-                        <div class="class-levels">${levels.map(l => `<span class="level-badge" style="background:${color};">${l}</span>`).join('')}</div>
-                        ${classItem.meeting_link ? `<button class="join-btn" onclick="window.open('${classItem.meeting_link}','_blank')"><i class="fas fa-video"></i> Join Class</button>` : ''}
-                    </div>`;
-            }).join('');
-        }
-
-        function displayTimetable(settings) {
-            const container = document.getElementById('timetableDisplay');
-            let html = '';
-            [['timetable_image_week1','Week 1 — Daily Schedule & Tutors'],
-             ['timetable_image_week2','3-Week Full Timetable'],
-             ['timetable_image_week3','Week 3 Timetable']].forEach(([field, label]) => {
-                if (settings[field]) {
-                    html += `<div style="margin-bottom:3rem;">
-                        <h3 style="color:#1B5E20;margin-bottom:1.5rem;font-size:1.8rem;font-weight:800;">
-                            <i class="fas fa-calendar-week"></i> ${label}</h3>
-                        <img src="${settings[field]}" alt="${label}" class="timetable-img">
-                    </div>`;
-                }
-            });
-            if (html) container.innerHTML = html;
-        }
-
-        function formatTime(t) {
-            if (!t) return '';
-            const [h, m] = t.split(':');
-            const hr = parseInt(h);
-            return `${hr > 12 ? hr - 12 : (hr === 0 ? 12 : hr)}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
-        }
-        function formatDate(d) {
-            return d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
-        }
-        function formatDateShort(dateStr) {
-            if (!dateStr) return '';
-            const d = new Date(dateStr + 'T12:00:00');
-            return d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-        }
-        function getClassStatus(c) {
-            const now = new Date();
-            const start = new Date(c.class_date + 'T' + c.start_time);
-            const end   = new Date(c.class_date + 'T' + c.end_time);
-            if (now >= start && now <= end) return 'Ongoing';
-            if (now > end) return 'Completed';
-            return 'Scheduled';
-        }
-    </script>
-
+function ft(t) {
+    if (!t) return '';
+    const [h, m] = t.split(':');
+    const hr = parseInt(h);
+    return `${hr > 12 ? hr-12 : (hr===0?12:hr)}:${m} ${hr>=12?'PM':'AM'}`;
+}
+function formatDate(d) {
+    return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+}
+function getStatus(c) {
+    const now = new Date();
+    const s = new Date(c.class_date+'T'+c.start_time);
+    const e = new Date(c.class_date+'T'+c.end_time);
+    if (now>=s && now<=e) return 'Ongoing';
+    if (now>e) return 'Completed';
+    return 'Scheduled';
+}
+</script>
 </body>
 </html>
