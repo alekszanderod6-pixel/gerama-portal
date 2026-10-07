@@ -93,19 +93,30 @@ ORDER BY
 -- 
 -- 1. User goes to login.html
 -- 2. Selects their role from dropdown:
---    - "Student / Member" → Normal access (no admin)
---    - "General Admin (Full Access)" → Gets general_admin role
---    - "Resources Co-Manager (Materials Upload Only)" → Gets materials_admin role
--- 3. Logs in with email + password + secret code
--- 4. System automatically:
---    - Creates/updates their admin_users record
+--    - "Student / Member" → Normal access (code: GERAMA2026)
+--    - "General Admin (Full Access)" → Gets general_admin role (code: GERAMA2026)
+--    - "Resources Co-Manager (Materials Upload Only)" → Gets materials_admin role (code: GMANAGER2026) ← SPECIAL CODE!
+-- 3. Enters appropriate secret code:
+--    - Students & General Admins use: GERAMA2026
+--    - Resources Co-Managers use: GMANAGER2026
+-- 4. Logs in with email + password + secret code
+-- 5. System automatically:
+--    - Validates the correct code for their selected role
+--    - Creates/updates their admin_users record (if admin role selected)
 --    - Sets their role based on selection
---    - Redirects to admin-dashboard.html
--- 5. Admin dashboard checks their role and shows appropriate sections
+--    - Redirects appropriately
+-- 6. Admin dashboard checks their role and shows appropriate sections
+--
+-- SECURITY:
+-- ✅ Resources Co-Managers need special code (GMANAGER2026) - extra security!
+-- ✅ Only people with manager code can become materials admins
+-- ✅ General admins use regular code (GERAMA2026)
+-- ✅ super_admin role is protected - can only be added via SQL
 --
 -- RESULT:
 -- ✅ No manual SQL needed anymore!
 -- ✅ Users can self-register as admins during login
+-- ✅ Materials admins need special manager code (GMANAGER2026)
 -- ✅ Materials admins only see upload sections
 -- ✅ General admins see most sections
 -- 

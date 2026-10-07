@@ -130,12 +130,12 @@
                 <!-- Admin Role Selection -->
                 <div class="form-group">
                     <label>I am logging in as</label>
-                    <select id="loginRole" style="width:100%;padding:0.8rem 1rem;border:2px solid #e2e8f0;border-radius:16px;font-size:1rem;background:white;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.3s;" onfocus="this.style.borderColor='#FFC107';this.style.boxShadow='0 0 0 3px rgba(255,193,7,0.2)';" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">
+                    <select id="loginRole" style="width:100%;padding:0.8rem 1rem;border:2px solid #e2e8f0;border-radius:16px;font-size:1rem;background:white;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.3s;" onfocus="this.style.borderColor='#FFC107';this.style.boxShadow='0 0 0 3px rgba(255,193,7,0.2)';" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';" onchange="document.getElementById('roleHint').innerHTML = this.value === 'materials_admin' ? '<i class=\'fas fa-key\'></i> <strong>Special Code Required:</strong> Resources Co-Managers must use code <strong>GMANAGER2026</strong>' : '<i class=\'fas fa-info-circle\'></i> Choose &quot;Resources Co-Manager&quot; if you only handle materials upload';">
                         <option value="student">Student / Member</option>
                         <option value="general_admin">General Admin (Full Access)</option>
                         <option value="materials_admin">Resources Co-Manager (Materials Upload Only)</option>
                     </select>
-                    <small style="color:#6b7280;font-size:0.78rem;margin-top:0.4rem;display:block;">
+                    <small id="roleHint" style="color:#6b7280;font-size:0.78rem;margin-top:0.4rem;display:block;">
                         <i class="fas fa-info-circle"></i> Choose "Resources Co-Manager" if you only handle materials upload
                     </small>
                 </div>
@@ -166,10 +166,23 @@
                 return;
             }
             
-            // Validate secret code first (single source of truth)
-            const expectedCode = window.GERAMA_SECRET_CODE || 'GERAMA2026';
+            // Validate secret code based on selected role
+            const selectedRole = document.getElementById('loginRole').value;
+            let expectedCode = window.GERAMA_SECRET_CODE || 'GERAMA2026';
+            let codeMessage = 'Invalid secret code. Please enter the correct GERAMA secret code.';
+            
+            // Resources Co-Manager (materials_admin) requires special code
+            if (selectedRole === 'materials_admin') {
+                expectedCode = 'GMANAGER2026';
+                codeMessage = 'Invalid code. Resources Co-Managers must use the special manager code: GMANAGER2026';
+            } else if (selectedRole === 'general_admin') {
+                // General admin uses regular code
+                expectedCode = window.GERAMA_SECRET_CODE || 'GERAMA2026';
+                codeMessage = 'Invalid secret code. Admins must use the correct GERAMA secret code.';
+            }
+            
             if (secretCode !== expectedCode) {
-                errorMsg.innerText = 'Invalid secret code. Please enter the correct GERAMA secret code.';
+                errorMsg.innerText = codeMessage;
                 loginCard.classList.add('shake');
                 setTimeout(() => loginCard.classList.remove('shake'), 500);
                 document.getElementById('secretCode').value = '';
