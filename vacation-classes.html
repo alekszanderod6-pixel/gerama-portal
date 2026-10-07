@@ -536,16 +536,16 @@
                     Class Schedule
                 </h2>
                 <div class="week-selector">
-                    <button class="week-btn active" onclick="filterByWeek(1)">
+                    <button class="week-btn active" data-week="1" onclick="filterByWeek(1, this)">
                         <i class="fas fa-calendar"></i> Week 1
                     </button>
-                    <button class="week-btn" onclick="filterByWeek(2)">
+                    <button class="week-btn" data-week="2" onclick="filterByWeek(2, this)">
                         <i class="fas fa-calendar"></i> Week 2
                     </button>
-                    <button class="week-btn" onclick="filterByWeek(3)">
+                    <button class="week-btn" data-week="3" onclick="filterByWeek(3, this)">
                         <i class="fas fa-calendar"></i> Week 3
                     </button>
-                    <button class="week-btn" onclick="filterByWeek(null)">
+                    <button class="week-btn" data-week="all" onclick="filterByWeek(null, this)">
                         <i class="fas fa-calendar-alt"></i> All
                     </button>
                 </div>
@@ -562,9 +562,25 @@
                 Full Timetable
             </h2>
             <div id="timetableDisplay">
-                <div style="text-align: center; padding: 3rem; color: #2E7D32;">
-                    <i class="fas fa-image" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                    <p style="font-size: 1.1rem; font-weight: 600;">Timetable images will be displayed here once uploaded by admin.</p>
+                <!-- Week 1 daily schedule (tutors assigned) -->
+                <div style="margin-bottom: 3rem;">
+                    <h3 style="color: #1B5E20; margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 800;">
+                        <i class="fas fa-calendar-week"></i> Week 1 — Daily Schedule &amp; Tutors
+                    </h3>
+                    <img src="images/temp/5924510087932221633_121.jpg"
+                         alt="GERAMA/26 Week 1 Daily Schedule"
+                         class="timetable-img"
+                         onerror="this.style.display='none'">
+                </div>
+                <!-- Full 3-week timetable -->
+                <div style="margin-bottom: 3rem;">
+                    <h3 style="color: #1B5E20; margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 800;">
+                        <i class="fas fa-calendar-alt"></i> 3-Week Full Timetable
+                    </h3>
+                    <img src="images/temp/5924510087932221634_121.jpg"
+                         alt="GERAMA/26 Full 3-Week Timetable"
+                         class="timetable-img"
+                         onerror="this.style.display='none'">
                 </div>
             </div>
         </div>
@@ -611,9 +627,13 @@
                 if (upcomingError) throw upcomingError;
 
                 allClasses = upcomingData || [];
-                filterByWeek(1);
 
-                // Load settings
+                // Default to Week 1; if no Week 1 data fall back to All
+                const hasWeek1 = allClasses.some(c => c.week_number === 1);
+                const firstWeekBtn = document.querySelector('.week-btn[data-week="1"]');
+                filterByWeek(hasWeek1 ? 1 : null, hasWeek1 ? firstWeekBtn : document.querySelector('.week-btn[data-week="all"]'));
+
+                // Load schedule settings (optional — timetable images already shown statically)
                 const { data: settings } = await supabase
                     .from('vacation_schedule_settings')
                     .select('*')
@@ -624,7 +644,10 @@
                     if (settings.welcome_message) {
                         document.getElementById('welcomeMessage').textContent = settings.welcome_message;
                     }
-                    displayTimetable(settings);
+                    // Only override the static images if the DB has different URLs
+                    if (settings.timetable_image_week1 || settings.timetable_image_week2) {
+                        displayTimetable(settings);
+                    }
                 }
 
             } catch (error) {
@@ -632,18 +655,20 @@
                 document.getElementById('upcomingClasses').innerHTML = `
                     <div class="no-classes">
                         <div class="no-classes-icon">⚠️</div>
-                        <h3>Unable to load classes</h3>
-                        <p>Please make sure you've run the database setup scripts in Supabase.</p>
+                        <h3>Unable to load schedule</h3>
+                        <p>Please run <strong>insert-vacation-classes-all-weeks.sql</strong> in Supabase to populate the schedule.</p>
                     </div>
                 `;
             }
         }
 
-        function filterByWeek(weekNumber) {
+        function filterByWeek(weekNumber, clickedBtn) {
             currentWeekFilter = weekNumber;
 
             document.querySelectorAll('.week-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            // mark the clicked button active; fall back to finding by data attr
+            const target = clickedBtn || document.querySelector(`.week-btn[data-week="${weekNumber === null ? 'all' : weekNumber}"]`);
+            if (target) target.classList.add('active');
 
             let filteredClasses = allClasses;
             if (weekNumber !== null) {
