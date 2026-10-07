@@ -126,6 +126,20 @@
                       <button type="button" class="eye-btn" onclick="var i=document.getElementById('secretCode');i.type=i.type==='password'?'text':'password';this.querySelector('i').className='fas fa-'+(i.type==='password'?'eye':'eye-slash');" title="Show/hide code"><i class="fas fa-eye"></i></button>
                     </div>
                 </div>
+                
+                <!-- Admin Role Selection -->
+                <div class="form-group">
+                    <label>I am logging in as</label>
+                    <select id="loginRole" style="width:100%;padding:0.8rem 1rem;border:2px solid #e2e8f0;border-radius:16px;font-size:1rem;background:white;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.3s;" onfocus="this.style.borderColor='#FFC107';this.style.boxShadow='0 0 0 3px rgba(255,193,7,0.2)';" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';">
+                        <option value="student">Student / Member</option>
+                        <option value="general_admin">General Admin (Full Access)</option>
+                        <option value="materials_admin">Resources Co-Manager (Materials Upload Only)</option>
+                    </select>
+                    <small style="color:#6b7280;font-size:0.78rem;margin-top:0.4rem;display:block;">
+                        <i class="fas fa-info-circle"></i> Choose "Resources Co-Manager" if you only handle materials upload
+                    </small>
+                </div>
+                
                 <button type="submit" class="btn-login">Sign In</button>
                 <div id="errorMsg" class="error-message"></div>
             </form>
@@ -265,6 +279,47 @@
                 }
 
                 localStorage.setItem('gerama_profile', JSON.stringify(profileData));
+                
+                // ─────────────────────────────────────────────────────────────────
+                // HANDLE ADMIN ROLE REGISTRATION
+                // ─────────────────────────────────────────────────────────────────
+                const selectedRole = document.getElementById('loginRole').value;
+                
+                if (selectedRole === 'general_admin' || selectedRole === 'materials_admin') {
+                    // User selected admin role - register them in admin_users table
+                    try {
+                        const adminData = {
+                            email: email,
+                            full_name: profileData.name || email.split('@')[0],
+                            role: selectedRole,
+                            is_active: true,
+                            last_login: new Date().toISOString()
+                        };
+                        
+                        // Insert or update admin_users record
+                        const { error: adminError } = await window.geramaSupabase
+                            .from('admin_users')
+                            .upsert(adminData, { 
+                                onConflict: 'email',
+                                ignoreDuplicates: false 
+                            });
+                        
+                        if (adminError) {
+                            console.warn('Admin registration warning:', adminError);
+                            // Don't block login if admin registration fails
+                        }
+                        
+                        // Redirect to admin dashboard
+                        window.location.href = 'admin-dashboard.html';
+                        return;
+                        
+                    } catch (adminErr) {
+                        console.error('Admin registration error:', adminErr);
+                        // Continue with normal login if admin registration fails
+                    }
+                }
+                
+                // ─────────────────────────────────────────────────────────────────
                 
                 // Link this Supabase user to OneSignal for targeted push notifications
                 if (typeof window.geramaLinkOneSignal === 'function') {
