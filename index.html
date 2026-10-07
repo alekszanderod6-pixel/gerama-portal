@@ -535,7 +535,7 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
     <a href="index.html" class="active">Home</a>
     <a href="resources.html">Resources</a>
     <a href="classroom.html">Classroom</a>
-    <a href="vacation-classes.html" style="background:rgba(251,191,36,0.15);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:20px;"><i class="fas fa-calendar-alt"></i> Vacation Classes</a>
+    <a href="vacation-classes.html" style="background:rgba(251,191,36,0.15);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:20px;"><i class="fas fa-calendar-alt"></i> Tutorial Sessions</a>
     <a href="connect.html" style="color:#0ea5e9;">📡 Connect</a>
     <a href="mall.html" style="background:rgba(255,193,7,0.15);color:#FFC107;border:1px solid rgba(255,193,7,0.3);border-radius:20px;"><i class="fas fa-store"></i> Mall</a>
     <a href="about.html">About</a>
@@ -792,6 +792,60 @@ body { font-family:'Inter',sans-serif; background:var(--light); color:var(--text
       </div>
     </div>
   </div>
+</section>
+
+<!-- TUTORIAL SESSIONS LIVE STRIP -->
+<section style="padding:2.5rem 5%;background:linear-gradient(135deg,#071a12 0%,#0d2b17 50%,#1B5E20 100%);position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.025\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4z\'/%3E%3C/g%3E%3C/svg%3E');pointer-events:none;"></div>
+  <div style="max-width:1200px;margin:0 auto;position:relative;z-index:1;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.35);color:#FFC107;padding:0.3rem 0.9rem;border-radius:30px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:0.6rem;">
+          <span style="width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block;animation:liveblink 1.2s infinite;"></span> GERAMA/26 Tutorial Sessions
+        </div>
+        <h2 style="color:white;font-size:clamp(1.2rem,2.5vw,1.6rem);font-weight:900;line-height:1.2;">Live &amp; Upcoming Classes</h2>
+        <p style="color:rgba(255,255,255,0.65);font-size:0.85rem;margin-top:0.3rem;">Daily online tutorials · 7:30 PM on Google Meet</p>
+      </div>
+      <a href="vacation-classes.html" style="background:linear-gradient(135deg,#FFC107,#e6a800);color:#0a2f1f;padding:0.65rem 1.4rem;border-radius:30px;font-weight:800;font-size:0.88rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.5rem;box-shadow:0 4px 16px rgba(255,193,7,0.4);white-space:nowrap;flex-shrink:0;">
+        <i class="fas fa-calendar-alt"></i> Full Schedule →
+      </a>
+    </div>
+    <!-- Class cards row -->
+    <div id="homeClassStrip" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.9rem;">
+      <!-- Hardcoded Week 1 classes — shown instantly, no DB wait -->
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-left:4px solid #8b5cf6;border-radius:14px;padding:1rem 1.1rem;cursor:pointer;transition:transform 0.2s,background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.13)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.transform=''" onclick="window.location.href='vacation-classes.html'">
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.5);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Tue · Oct 6</div>
+        <div style="color:white;font-weight:800;font-size:0.92rem;line-height:1.25;margin-bottom:0.5rem;">Solid State</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;margin-bottom:0.25rem;"><i class="fas fa-clock" style="color:#8b5cf6;font-size:0.65rem;"></i> 7:30 – 9:00 PM</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;"><i class="fas fa-chalkboard-teacher" style="color:#8b5cf6;font-size:0.65rem;"></i> zANDEROD &amp; Perry</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-left:4px solid #f59e0b;border-radius:14px;padding:1rem 1.1rem;cursor:pointer;transition:transform 0.2s,background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.13)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.transform=''" onclick="window.location.href='vacation-classes.html'">
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.5);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Wed · Oct 7</div>
+        <div style="color:white;font-weight:800;font-size:0.92rem;line-height:1.25;margin-bottom:0.5rem;">DC Machines &amp; Transformers</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;margin-bottom:0.25rem;"><i class="fas fa-clock" style="color:#f59e0b;font-size:0.65rem;"></i> 7:30 – 8:30 PM</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;"><i class="fas fa-chalkboard-teacher" style="color:#f59e0b;font-size:0.65rem;"></i> Jerome &amp; Ray</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-left:4px solid #10b981;border-radius:14px;padding:1rem 1.1rem;cursor:pointer;transition:transform 0.2s,background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.13)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.transform=''" onclick="window.location.href='vacation-classes.html'">
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.5);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Thu · Oct 8</div>
+        <div style="color:white;font-weight:800;font-size:0.92rem;line-height:1.25;margin-bottom:0.5rem;">Electrical Circuits Analysis &amp; Design</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;margin-bottom:0.25rem;"><i class="fas fa-clock" style="color:#10b981;font-size:0.65rem;"></i> 7:30 – 9:00 PM</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;"><i class="fas fa-chalkboard-teacher" style="color:#10b981;font-size:0.65rem;"></i> Azakora &amp; Priscy</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-left:4px solid #3b82f6;border-radius:14px;padding:1rem 1.1rem;cursor:pointer;transition:transform 0.2s,background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.13)';this.style.transform='translateY(-3px)'" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.transform=''" onclick="window.location.href='vacation-classes.html'">
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.5);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.4rem;">Fri · Oct 9</div>
+        <div style="color:white;font-weight:800;font-size:0.92rem;line-height:1.25;margin-bottom:0.5rem;">MATLAB</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;margin-bottom:0.25rem;"><i class="fas fa-clock" style="color:#3b82f6;font-size:0.65rem;"></i> 7:30 – 8:30 PM</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:0.75rem;display:flex;align-items:center;gap:0.3rem;"><i class="fas fa-chalkboard-teacher" style="color:#3b82f6;font-size:0.65rem;"></i> Edem &amp; Prophet</div>
+      </div>
+    </div>
+    <p style="color:rgba(255,255,255,0.45);font-size:0.75rem;text-align:center;margin-top:1rem;">Tap any card to join · <a href="vacation-classes.html" style="color:#FFC107;text-decoration:none;font-weight:700;">See all 23 sessions →</a></p>
+  </div>
+  <style>@keyframes liveblink{0%,100%{opacity:1;}50%{opacity:0.3;}}</style>
+  <!-- Responsive: 2-col on tablet, 1-col on mobile -->
+  <style>
+    @media(max-width:900px){#homeClassStrip{grid-template-columns:repeat(2,1fr) !important;}}
+    @media(max-width:500px){#homeClassStrip{grid-template-columns:1fr !important;}}
+  </style>
 </section>
 
 <!-- WHAT WE OFFER -->
