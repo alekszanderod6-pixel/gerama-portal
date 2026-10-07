@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vacation Classes - GERAMA</title>
+    <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .vacation-hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            border-radius: 15px;
+            margin: 2rem 0;
+        }
+
+        .vacation-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .vacation-hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .schedule-section {
+            margin: 2rem 0;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #6366f1;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            color: #1e293b;
+        }
+
+        .week-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .week-btn {
+            padding: 0.5rem 1.5rem;
+            border: 2px solid #6366f1;
+            background: white;
+            color: #6366f1;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .week-btn.active {
+            background: #6366f1;
+            color: white;
+        }
+
+        .week-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .todays-classes {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .todays-classes h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .today-badge {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .class-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .class-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #6366f1;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .class-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--card-color, #6366f1);
+        }
+
+        .class-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .class-time {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-bottom: 0.8rem;
+        }
+
+        .class-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.8rem;
+        }
+
+        .class-tutor {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #475569;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .class-levels {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .level-badge {
+            background: #e0e7ff;
+            color: #4f46e5;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .join-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .join-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .timetable-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 2rem;
+        }
+
+        .timetable-img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-classes {
+            text-align: center;
+            padding: 3rem;
+            background: #f8fafc;
+            border-radius: 12px;
+            color: #64748b;
+        }
+
+        .no-classes-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: #6366f1;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-scheduled {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-ongoing {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-completed {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .vacation-hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .class-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .week-selector {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .week-btn {
+                flex: 1;
+                padding: 0.5rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation (same as other pages) -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <img src="images/geramalogo.jpg" alt="GERAMA Logo">
+                <span>GERAMA</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="classroom.html">Classroom</a></li>
+                <li><a href="vacation-classes.html" class="active">Vacation Classes</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="login.html" class="login-btn">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+        <!-- Hero Section -->
+        <div class="vacation-hero">
+            <h1>🎓 GERAMA/26 Vacation Classes</h1>
+            <p id="welcomeMessage">Join us for online tutorials covering key courses. All sessions are held on Google Meet.</p>
+        </div>
+
+        <!-- Today's Classes Section -->
+        <div id="todaySection" class="todays-classes" style="display: none;">
+            <h3>
+                📅 Today's Classes
+                <span class="today-badge" id="todayDate"></span>
+            </h3>
+            <div id="todayClasses" class="class-grid"></div>
+        </div>
+
+        <!-- Upcoming Classes -->
+        <div class="schedule-section">
+            <div class="section-header">
+                <h2>📚 Class Schedule</h2>
+                <div class="week-selector">
+                    <button class="week-btn active" onclick="filterByWeek(1)">Week 1</button>
+                    <button class="week-btn" onclick="filterByWeek(2)">Week 2</button>
+                    <button class="week-btn" onclick="filterByWeek(3)">Week 3</button>
+                    <button class="week-btn" onclick="filterByWeek(null)">All Weeks</button>
+                </div>
+            </div>
+            <div id="upcomingClasses" class="loading">Loading classes...</div>
+        </div>
+
+        <!-- Timetable Image -->
+        <div class="timetable-container">
+            <h2 style="margin-bottom: 1.5rem; color: #1e293b;">📋 Full Timetable</h2>
+            <div id="timetableDisplay">
+                <p style="color: #64748b;">Timetable will be displayed here once uploaded by admin.</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/env-config.js"></script>
+    <script>
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(
+            window.ENV_CONFIG.SUPABASE_URL,
+            window.ENV_CONFIG.SUPABASE_ANON_KEY
+        );
+
+        let allClasses = [];
+        let currentWeekFilter = 1;
+
+        // Load vacation classes data
+        async function loadVacationClasses() {
+            try {
+                // Load today's classes
+                const today = new Date().toISOString().split('T')[0];
+                const { data: todayData, error: todayError } = await supabase
+                    .from('vacation_classes')
+                    .select('*')
+                    .eq('class_date', today)
+                    .eq('is_active', true)
+                    .order('start_time');
+
+                if (todayError) throw todayError;
+
+                // Display today's classes if any
+                if (todayData && todayData.length > 0) {
+                    document.getElementById('todaySection').style.display = 'block';
+                    document.getElementById('todayDate').textContent = formatDate(new Date());
+                    displayClasses(todayData, 'todayClasses');
+                }
+
+                // Load all upcoming classes
+                const { data: upcomingData, error: upcomingError } = await supabase
+                    .from('vacation_classes')
+                    .select('*')
+                    .gte('class_date', today)
+                    .eq('is_active', true)
+                    .order('class_date', { ascending: true })
+                    .order('start_time', { ascending: true });
+
+                if (upcomingError) throw upcomingError;
+
+                allClasses = upcomingData || [];
+                filterByWeek(1); // Show Week 1 by default
+
+                // Load schedule settings (welcome message, timetable)
+                const { data: settings, error: settingsError } = await supabase
+                    .from('vacation_schedule_settings')
+                    .select('*')
+                    .eq('is_current', true)
+                    .single();
+
+                if (!settingsError && settings) {
+                    if (settings.welcome_message) {
+                        document.getElementById('welcomeMessage').textContent = settings.welcome_message;
+                    }
+
+                    // Display timetable images
+                    displayTimetable(settings);
+                }
+
+            } catch (error) {
+                console.error('Error loading vacation classes:', error);
+                document.getElementById('upcomingClasses').innerHTML = `
+                    <div class="no-classes">
+                        <div class="no-classes-icon">⚠️</div>
+                        <h3>Unable to load classes</h3>
+                        <p>Please try again later or contact support.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Filter classes by week
+        function filterByWeek(weekNumber) {
+            currentWeekFilter = weekNumber;
+
+            // Update button states
+            document.querySelectorAll('.week-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter classes
+            let filteredClasses = allClasses;
+            if (weekNumber !== null) {
+                filteredClasses = allClasses.filter(c => c.week_number === weekNumber);
+            }
+
+            displayClasses(filteredClasses, 'upcomingClasses');
+        }
+
+        // Display classes in grid
+        function displayClasses(classes, containerId) {
+            const container = document.getElementById(containerId);
+
+            if (!classes || classes.length === 0) {
+                container.innerHTML = `
+                    <div class="no-classes">
+                        <div class="no-classes-icon">📅</div>
+                        <h3>No classes scheduled</h3>
+                        <p>Check back soon for updates!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = classes.map(classItem => {
+                const colorCode = classItem.color_code || '#6366f1';
+                const levels = classItem.target_levels || [];
+                const startTime = formatTime(classItem.start_time);
+                const endTime = formatTime(classItem.end_time);
+                const status = getClassStatus(classItem);
+
+                return `
+                    <div class="class-card" style="border-left-color: ${colorCode};">
+                        <div class="status-badge status-${status.toLowerCase()}">${status}</div>
+                        
+                        <div class="class-time">
+                            ⏰ ${startTime} - ${endTime}
+                        </div>
+                        
+                        <div class="class-name">${classItem.course_name}</div>
+                        
+                        <div class="class-tutor">
+                            👨‍🏫 ${classItem.tutor_names}
+                        </div>
+                        
+                        <div class="class-levels">
+                            ${levels.map(level => `<span class="level-badge">${level}</span>`).join('')}
+                        </div>
+                        
+                        ${classItem.meeting_link ? `
+                            <button class="join-btn" onclick="joinClass('${classItem.meeting_link}')">
+                                🎥 Join Class
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Display timetable images
+        function displayTimetable(settings) {
+            const container = document.getElementById('timetableDisplay');
+            let html = '';
+
+            if (settings.timetable_image_week1) {
+                html += `
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: #1e293b; margin-bottom: 1rem;">Week 1</h3>
+                        <img src="${settings.timetable_image_week1}" alt="Week 1 Timetable" class="timetable-img">
+                    </div>
+                `;
+            }
+
+            if (settings.timetable_image_week2) {
+                html += `
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: #1e293b; margin-bottom: 1rem;">Week 2</h3>
+                        <img src="${settings.timetable_image_week2}" alt="Week 2 Timetable" class="timetable-img">
+                    </div>
+                `;
+            }
+
+            if (settings.timetable_image_week3) {
+                html += `
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: #1e293b; margin-bottom: 1rem;">Week 3</h3>
+                        <img src="${settings.timetable_image_week3}" alt="Week 3 Timetable" class="timetable-img">
+                    </div>
+                `;
+            }
+
+            if (html) {
+                container.innerHTML = html;
+            }
+        }
+
+        // Helper functions
+        function formatTime(timeString) {
+            if (!timeString) return '';
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        function formatDate(date) {
+            const options = { weekday: 'long', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        function getClassStatus(classItem) {
+            const now = new Date();
+            const classDate = new Date(classItem.class_date + 'T' + classItem.start_time);
+            const classEnd = new Date(classItem.class_date + 'T' + classItem.end_time);
+
+            if (now >= classDate && now <= classEnd) {
+                return 'Ongoing';
+            } else if (now > classEnd) {
+                return 'Completed';
+            } else {
+                return 'Scheduled';
+            }
+        }
+
+        function joinClass(link) {
+            window.open(link, '_blank');
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadVacationClasses);
+    </script>
+</body>
+</html>
