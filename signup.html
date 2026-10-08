@@ -320,14 +320,14 @@ document.getElementById('form').addEventListener('submit', async function(e) {
             name: fullName, program: program, level: level, img: null, phone: phone, email: email
         }));
 
-        // Save to Supabase user_profiles table
+        // Save to Supabase profiles table
         try {
-            await window.geramaSupabase.from('user_profiles').upsert({
-                email:     email,
-                full_name: fullName,
-                phone:     phone || null,
-                program:   program || null,
-                level:     level   || null,
+            await window.geramaSupabase.from('profiles').upsert({
+                email:      email,
+                name:       fullName,
+                phone:      phone || null,
+                program:    program || null,
+                level:      level   || null,
                 updated_at: new Date().toISOString()
             }, { onConflict: 'email' });
         } catch(e) { /* non-critical */ }
@@ -345,7 +345,6 @@ document.getElementById('form').addEventListener('submit', async function(e) {
         } else {
             // Fallback: show success and let them sign in
             document.getElementById('welcomeName').textContent  = fullName;
-            document.getElementById('welcomeEmail').textContent = email;
             document.getElementById('signupForm').style.display    = 'none';
             document.getElementById('successScreen').style.display = 'block';
         }
