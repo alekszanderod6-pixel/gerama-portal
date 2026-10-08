@@ -1,8 +1,10 @@
 // GERAMA Service Worker – enables PWA install prompt and offline caching
-const CACHE_NAME = 'gerama-v2';
+const CACHE_NAME = 'gerama-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/admin-dashboard.html',
+  '/admin-manifest.json',
   '/about.html',
   '/resources.html',
   '/contact.html',
@@ -18,10 +20,11 @@ const STATIC_ASSETS = [
   '/js/supabase-config.js',
   '/js/gerama-features.js',
   '/js/onesignal-init.js',
+  '/js/admin-gate.js',
   '/images/geramalogo.jpg',
   '/images/uenr logo.png',
-  '/images/aleks.jpg',
-  '/manifest.json'
+  '/manifest.json',
+  '/admin-manifest.json'
 ];
 
 // Install: cache static assets
@@ -55,11 +58,16 @@ self.addEventListener('fetch', function(event) {
   const url = new URL(event.request.url);
   if (event.request.method !== 'GET') return;
 
-  // For navigation requests (HTML pages) – network first, fallback to cache
+  // For navigation requests (HTML pages) – network first, fallback to correct offline page
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request).catch(function() {
-        return caches.match('/index.html');
+        // Serve the correct fallback based on which page was requested
+        var pathname = new URL(event.request.url).pathname;
+        if (pathname.indexOf('admin-dashboard') !== -1) {
+          return caches.match('/admin-dashboard.html') || caches.match('/index.html');
+        }
+        return caches.match(event.request) || caches.match('/index.html');
       })
     );
     return;

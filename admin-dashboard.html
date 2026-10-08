@@ -3,8 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>GERAMA Admin Dashboard</title>
+<title>GERAMA Admin</title>
 <!-- v2026.06.20 -->
+
+<!-- PWA: Admin App -->
+<link rel="manifest" href="admin-manifest.json">
+<meta name="theme-color" content="#1B5E20">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GERAMA Admin">
+<link rel="apple-touch-icon" href="images/geramalogo.jpg">
+<link rel="apple-touch-startup-image" href="images/geramalogo.jpg">
+
 <link rel="icon" type="image/jpg" href="images/geramalogo.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -240,6 +251,9 @@ tr:hover td{background:#fafcfa;}
 <div class="mobile-topbar" id="mobileTopbar">
   <button class="hamburger" id="sidebarToggle" aria-label="Open menu"><i class="fas fa-bars"></i></button>
   <span class="topbar-title"><i class="fas fa-shield-alt" style="color:#FFC107;margin-right:0.4rem;"></i>Admin Panel</span>
+  <button class="admin-pwa-install-btn" onclick="adminInstallPWA()" style="display:none;align-items:center;gap:0.4rem;background:rgba(255,193,7,0.18);border:1px solid rgba(255,193,7,0.45);color:#FFC107;padding:0.3rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0;" title="Install GERAMA Admin as an app">
+    <i class="fas fa-download"></i> Install App
+  </button>
   <span class="topbar-date" id="mobileDate"></span>
 </div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -293,6 +307,9 @@ tr:hover td{background:#fafcfa;}
   <div class="sidebar-footer">
     <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Site</a>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.5rem 0 0;text-align:center;">Developed by <strong style="color:rgba(255,255,255,0.55);">Alexander O. Dwumaah</strong><br>Editor: <strong style="color:rgba(255,255,255,0.55);">Edem H.K Prince</strong></p>
+    <button class="admin-pwa-install-btn" onclick="adminInstallPWA()" style="display:none;align-items:center;justify-content:center;gap:0.4rem;background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.4);color:#FFC107;padding:0.45rem 1rem;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;width:100%;margin-top:0.6rem;" title="Install GERAMA Admin as an app on your device">
+      <i class="fas fa-download"></i> Install Admin App
+    </button>
     <p style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin:0.4rem 0 0;text-align:center;display:flex;align-items:center;justify-content:center;gap:0.3rem;">
       Powered by &nbsp;
       <a href="#" style="color:rgba(255,255,255,0.6);text-decoration:none;display:inline-flex;align-items:center;gap:0.25rem;" title="zODteck">
@@ -2359,6 +2376,38 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
 <script src="js/admin-dashboard.js"></script>
 <script src="js/admin-extras.js"></script>
 <script src="js/admin-gate.js"></script>
+
+<!-- PWA Install prompt for Admin App -->
+<script>
+(function(){
+  var _deferredInstallPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    _deferredInstallPrompt = e;
+    // Show install button in the mobile topbar and sidebar
+    var btns = document.querySelectorAll('.admin-pwa-install-btn');
+    btns.forEach(function(b){ b.style.display = 'inline-flex'; });
+  });
+
+  window.adminInstallPWA = function(){
+    if(!_deferredInstallPrompt) return;
+    _deferredInstallPrompt.prompt();
+    _deferredInstallPrompt.userChoice.then(function(result){
+      _deferredInstallPrompt = null;
+      var btns = document.querySelectorAll('.admin-pwa-install-btn');
+      if(result.outcome === 'accepted'){
+        btns.forEach(function(b){ b.style.display = 'none'; });
+      }
+    });
+  };
+
+  // Register service worker (reuse main site's sw.js — it now handles admin routes)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  }
+})();
+</script>
 <script>
 // –– Wire switchPanel for quotes panel ––
 (function(){
