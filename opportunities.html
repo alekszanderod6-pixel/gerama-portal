@@ -428,6 +428,8 @@ async function loadOpportunities() {
     var {data, error} = await sb.from('opportunities').select('*').eq('status','approved').order('created_at',{ascending:false});
     if(error) throw new Error(error.message);
     _allOpportunities = data || [];
+    // Try to get signed URLs for any private-bucket images
+    _allOpportunities = await loadSignedUrls(_allOpportunities);
     renderOpportunities();
 
     // Handle deep-link: ?opp=ID
@@ -448,6 +450,41 @@ async function loadOpportunities() {
   }
 }
 
+function fixOppImgUrl(url) {
+  if (!url) return url;
+  // Supabase public bucket URLs work as-is — just return them
+  // The bucket needs to be set to public in Supabase dashboard:
+  // Storage → gerama-materials → Settings → Public bucket ON
+  return url;
+}
+
+async function loadSignedUrls(opps) {
+  // If bucket is still private, try to generate signed URLs for each image
+  // This is a fallback — the real fix is making the bucket public
+  var sb = window.geramaSupabase;
+  if (!sb) return opps;
+  var updated = false;
+  for (var i = 0; i < opps.length; i++) {
+    var o = opps[i];
+    if (!o.image_url) continue;
+    // Only process Supabase storage URLs that don't already have /object/public/
+    if (o.image_url.indexOf('supabase.co/storage/') === -1) continue;
+    if (o.image_url.indexOf('/object/public/') !== -1) continue;
+    // Extract the path from the URL
+    var match = o.image_url.match(/\/storage\/v1\/object\/(?:sign\/)?gerama-materials\/(.+?)(\?|$)/);
+    if (!match) continue;
+    var path = decodeURIComponent(match[1]);
+    try {
+      var res = await sb.storage.from('gerama-materials').createSignedUrl(path, 3600);
+      if (res.data && res.data.signedUrl) {
+        o._signedUrl = res.data.signedUrl;
+        updated = true;
+      }
+    } catch(e) {}
+  }
+  return opps;
+}
+
 function renderOpportunities() {
   var grid = document.getElementById('oppGrid');
   if(!grid) return;
@@ -462,7 +499,7 @@ function renderOpportunities() {
   grid.innerHTML = list.map(function(opp) {
     var badge = '<span class="opp-badge ' + (opp.type||'other') + '">' + getOppTypeLabel(opp.type) + '</span>';
     var img = opp.image_url
-      ? '<img src="' + escAttr(opp.image_url) + '" class="opp-img" alt="' + escAttr(opp.company) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling&&(this.nextElementSibling.style.display=\'flex\');" onclick="event.stopPropagation();openLightbox(\'' + escAttr(opp.image_url) + '\')"><div class="opp-img-placeholder" style="display:none;">' + getOppEmoji(opp.type) + '</div>'
+      ? '<img src="' + escAttr(opp._signedUrl || fixOppImgUrl(opp.image_url)) + '" class="opp-img" alt="' + escAttr(opp.company) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling&&(this.nextElementSibling.style.display=\'flex\');" onclick="event.stopPropagation();openLightbox(\'' + escAttr(opp._signedUrl || fixOppImgUrl(opp.image_url)) + '\')"><div class="opp-img-placeholder" style="display:none;">' + getOppEmoji(opp.type) + '</div>'
       : '<div class="opp-img-placeholder">' + getOppEmoji(opp.type) + '</div>';
     var deadline = opp.deadline ? '<span><i class="fas fa-calendar-alt" style="color:#dc2626;"></i> Deadline: ' + new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + '</span>' : '';
     var mode = opp.mode_of_application ? '<span><i class="fas fa-file-alt" style="color:#6366f1;"></i> ' + escHtml(opp.mode_of_application) + '</span>' : '';
