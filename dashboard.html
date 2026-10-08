@@ -567,8 +567,8 @@ document.getElementById('profilePictureUpload').addEventListener('change', async
           userProfile.img = photoUrl;
           localStorage.setItem('gerama_profile', JSON.stringify(userProfile));
           applyProfileToUI(userProfile);
-          // Save URL to user_profiles for cross-device retrieval
-          await sb.from('user_profiles').upsert({ email: email, photo_url: photoUrl, updated_at: new Date().toISOString() }, { onConflict: 'email' }).catch(function(){});
+          // Save URL to profiles for cross-device retrieval
+          await sb.from('profiles').upsert({ email: email, photo_url: photoUrl, updated_at: new Date().toISOString() }, { onConflict: 'email' }).catch(function(){});
           if(statusEl){ statusEl.textContent = '✅ Photo updated!'; statusEl.style.color = '#059669'; setTimeout(function(){ statusEl.textContent=''; }, 3000); }
           return;
         }
@@ -608,9 +608,9 @@ document.getElementById('saveProfileBtn').addEventListener('click', async functi
   var sb = window.geramaSupabase;
   if(sb && userProfile.email){
     try{
-      await sb.from('user_profiles').upsert({
+      await sb.from('profiles').upsert({
         email: userProfile.email,
-        full_name: name || null,
+        name: name || null,
         program: program || null,
         level: level || null,
         phone: phone || null,
@@ -692,7 +692,7 @@ async function loadDashboardData(){
     sb.from('student_grades').select('*').eq('student_email', email).order('graded_at',{ascending:false}).limit(20),
     sb.from('quizzes').select('title,course,points'),
     sb.from('assignments').select('title,course,points'),
-    sb.from('user_profiles').select('*').eq('email', email).maybeSingle(),
+    sb.from('profiles').select('*').eq('email', email).maybeSingle(),
     sb.from('attendance_records').select('id,class_title,marked_at').eq('student_email', email).order('marked_at',{ascending:false}).limit(10)
   ]);
 
@@ -719,7 +719,7 @@ async function loadDashboardData(){
   // Sync Supabase profile data to localStorage
   if(profRes && profRes.data){
     var p = profRes.data;
-    if(p.full_name)      userProfile.name         = p.full_name;
+    if(p.name)           userProfile.name         = p.name;
     if(p.program)        userProfile.program      = p.program;
     if(p.level)          userProfile.level        = p.level;
     if(p.phone)          userProfile.phone        = p.phone;

@@ -481,9 +481,9 @@ window.showStatus = window.showStatus || function(id, msg, type) {
         }
 
         if(profile.email && typeof window.geramaSupabase !== 'undefined') {
-            window.geramaSupabase.from('user_profiles').upsert({
+            window.geramaSupabase.from('profiles').upsert({
                 email: profile.email,
-                full_name: name,
+                name: name,
                 phone: phone || null,
                 program: program || null,
                 level: level || null,
@@ -1060,31 +1060,19 @@ if(!document.getElementById('confettiStyle')) {
         var email = profile.email || '';
         if(!email) return;
 
-        window.geramaSupabase.from('user_profiles')
-            .select('index_number, is_active, block_reason, full_name, program, level, phone')
+        window.geramaSupabase.from('profiles')
+            .select('index_number, name, program, level, phone, photo_url')
             .eq('email', email)
-            .single()
+            .maybeSingle()
             .then(function(res) {
                 if(!res || !res.data) return;
 
-                // Check if deactivated/blocked
-                if(res.data.is_active === false) {
-                    window.geramaSupabase.auth.signOut();
-                    sessionStorage.clear();
-                    localStorage.removeItem('gerama_profile');
-                    var reason = res.data.block_reason ? '\nReason: '+res.data.block_reason : '';
-                    alert('Your account has been suspended by the admin.'+reason+'\n\nContact GERAMA if you believe this is an error.');
-                    window.location.href = 'login.html';
-                    return;
-                }
-
                 var updated = false;
-                // Always sync ALL fields from Supabase – this is the cross-device fix
                 if(res.data.index_number && res.data.index_number !== profile.index_number) {
                     profile.index_number = res.data.index_number; updated = true;
                 }
-                if(res.data.full_name && res.data.full_name !== profile.name) {
-                    profile.name = res.data.full_name; updated = true;
+                if(res.data.name && res.data.name !== profile.name) {
+                    profile.name = res.data.name; updated = true;
                 }
                 if(res.data.program && res.data.program !== profile.program) {
                     profile.program = res.data.program; updated = true;
@@ -1094,6 +1082,9 @@ if(!document.getElementById('confettiStyle')) {
                 }
                 if(res.data.phone && res.data.phone !== profile.phone) {
                     profile.phone = res.data.phone; updated = true;
+                }
+                if(res.data.photo_url && res.data.photo_url !== profile.img) {
+                    profile.img = res.data.photo_url; updated = true;
                 }
 
                 if(updated) {

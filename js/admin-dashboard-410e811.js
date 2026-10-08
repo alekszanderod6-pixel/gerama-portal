@@ -711,7 +711,7 @@
       safe(function(){ return sb.from('class_requests').select('id',{count:'exact',head:true}).eq('status','pending'); }),
       safe(function(){ return sb.from('quiz_requests').select('id',{count:'exact',head:true}).eq('status','pending'); }),
       safe(function(){ return sb.from('assignment_submissions').select('id',{count:'exact',head:true}); }),
-      safe(function(){ return sb.from('user_profiles').select('id',{count:'exact',head:true}); }),
+      safe(function(){ return sb.from('profiles').select('id',{count:'exact',head:true}); }),
       safe(function(){ return sb.from('materials').select('id',{count:'exact',head:true}); }),
       safe(function(){ return sb.from('announcements').select('id',{count:'exact',head:true}); }),
       safe(function(){ return sb.from('assignment_submissions').select('id',{count:'exact',head:true}).is('score',null); })
@@ -2452,7 +2452,7 @@ window.loadUsers = async function(){
   var el = document.getElementById('usersList'); if(!el) return;
   var sb = window.geramaSupabase; if(!sb){ el.innerHTML='<p style="color:#9ca3af;">Not connected.</p>'; return; }
 
-  var {data, error} = await sb.from('user_profiles')
+  var {data, error} = await sb.from('profiles')
     .select('*').order('created_at',{ascending:false});
 
   if(error){
@@ -2519,7 +2519,7 @@ window.loadUsers = async function(){
         : '<span style="color:#9ca3af;font-size:0.78rem;">Not assigned</span>';
 
       return '<tr id="urow-'+safeId+'">'+
-        '<td><strong>'+window.escHtml(u.full_name||'–')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
+        '<td><strong>'+window.escHtml(u.name||'–')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
         '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'–')+'</td>'+
         '<td style="font-size:0.8rem;">'+window.escHtml(u.phone||'–')+'</td>'+
         '<td style="font-size:0.82rem;">'+window.escHtml(u.program||'–')+'</td>'+
@@ -2543,7 +2543,7 @@ window.loadUsers = async function(){
         '<td style="white-space:nowrap;">'+
           (isActive
             ? '<div style="display:flex;flex-direction:column;gap:0.3rem;">'+
-                '<button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="blockUser(\''+safeEmail+'\',\''+safeId+'\',\''+window.escAttr(u.full_name||u.email||'User')+'\')"><i class="fas fa-ban"></i> Block</button>'+
+                '<button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;" onclick="blockUser(\''+safeEmail+'\',\''+safeId+'\',\''+window.escAttr(u.name||u.email||'User')+'\')"><i class="fas fa-ban"></i> Block</button>'+
                 '<button class="btn-danger" style="font-size:0.72rem;padding:0.25rem 0.5rem;background:#fef3c7;color:#92400e;" onclick="deactivateUser(\''+safeEmail+'\',\''+safeId+'\')"><i class="fas fa-user-slash"></i> Deactivate</button>'+
               '</div>'
             : '<div style="display:flex;flex-direction:column;gap:0.3rem;">'+
@@ -2571,7 +2571,7 @@ window.saveIndexNumber = async function(email, safeId){
   if(statusEl){ statusEl.textContent='Checking uniqueness...'; statusEl.style.color='#6b7280'; }
 
   // ── CHECK UNIQUENESS: no other active user should have this index number ──
-  var {data: existing, error: checkErr} = await sb.from('user_profiles')
+  var {data: existing, error: checkErr} = await sb.from('profiles')
     .select('email, full_name')
     .eq('index_number', indexNum)
     .neq('email', email)  // exclude current user
@@ -2581,7 +2581,7 @@ window.saveIndexNumber = async function(email, safeId){
   if(checkErr){ if(statusEl){ statusEl.textContent='❌ Check failed: '+checkErr.message; statusEl.style.color='#dc2626'; } return; }
 
   if(existing && existing.length > 0){
-    var owner = existing[0].full_name || existing[0].email;
+    var owner = existing[0].name || existing[0].email;
     if(statusEl){
       statusEl.textContent = '❌ "'+indexNum+'" is already assigned to '+owner+'. Each index number must be unique.';
       statusEl.style.color = '#dc2626';
@@ -2593,7 +2593,7 @@ window.saveIndexNumber = async function(email, safeId){
 
   if(statusEl){ statusEl.textContent='Saving...'; statusEl.style.color='#6b7280'; }
 
-  var {error} = await sb.from('user_profiles')
+  var {error} = await sb.from('profiles')
     .update({index_number: indexNum, updated_at: new Date().toISOString()})
     .eq('email', email);
 
@@ -2618,7 +2618,7 @@ window.saveIndexNumber = async function(email, safeId){
 window.deactivateUser = async function(email, safeId){
   if(!confirm('Deactivate '+email+'? They will be logged out and blocked from the portal.')) return;
   var sb = window.geramaSupabase; if(!sb) return;
-  var {error} = await sb.from('user_profiles').update({is_active:false}).eq('email',email);
+  var {error} = await sb.from('profiles').update({is_active:false}).eq('email',email);
   if(error){ alert('Error: '+error.message); return; }
   // Sign out the user via Supabase admin (best effort)
   try{ await sb.auth.admin.deleteUser(email); }catch(e){}
@@ -2628,7 +2628,7 @@ window.deactivateUser = async function(email, safeId){
 
 window.reactivateUser = async function(email, safeId){
   var sb = window.geramaSupabase; if(!sb) return;
-  var {error} = await sb.from('user_profiles').update({is_active:true, block_reason: null}).eq('email',email);
+  var {error} = await sb.from('profiles').update({is_active:true, block_reason: null}).eq('email',email);
   if(error){ alert('Error: '+error.message); return; }
   window.logActivity('Reactivated user: '+email);
   window.loadUsers();
@@ -2646,7 +2646,7 @@ window.blockUser = async function(email, safeId, displayName){
   if(reason === null || reason.trim() === '') return; // cancelled
   var sb = window.geramaSupabase; if(!sb) return;
 
-  var {error} = await sb.from('user_profiles').update({
+  var {error} = await sb.from('profiles').update({
     is_active: false,
     block_reason: reason.trim(),
     blocked_at: new Date().toISOString(),
@@ -2674,7 +2674,7 @@ window.blockUser = async function(email, safeId, displayName){
 // ─── DOWNLOAD USERS TABLE ────────────────────────────────────────
 window.downloadUsersCSV = async function(){
   var sb = window.geramaSupabase; if(!sb){ alert('Not connected.'); return; }
-  var {data} = await sb.from('user_profiles').select('*').order('created_at',{ascending:false});
+  var {data} = await sb.from('profiles').select('*').order('created_at',{ascending:false});
   if(!data||!data.length){ alert('No users to download.'); return; }
 
   // Fetch group memberships
@@ -2692,7 +2692,7 @@ window.downloadUsersCSV = async function(){
     var status = u.is_active === false ? 'Inactive' : 'Active';
     var gm = groupMap[u.email] || {};
     return [
-      u.full_name||'', u.email||'', u.phone||'', u.program||'', u.level||'',
+      u.name||'', u.email||'', u.phone||'', u.program||'', u.level||'',
       u.index_number||'', gm.name||'', gm.role||'', status, dt
     ].map(function(v){ return '"'+String(v).replace(/"/g,'""')+'"'; }).join(',');
   });
@@ -2761,7 +2761,7 @@ window.filterUsers = function(){
   var gMap = window._groupMembersMap || {};
   var filtered = allData.filter(function(u){
     var gm = gMap[u.email] || {};
-    var matchQ = !q || (u.full_name||'').toLowerCase().includes(q) ||
+    var matchQ = !q || (u.name||'').toLowerCase().includes(q) ||
                        (u.email||'').toLowerCase().includes(q) ||
                        (u.index_number||'').toLowerCase().includes(q) ||
                        (u.phone||'').includes(q) ||
@@ -2811,7 +2811,7 @@ function renderUsersTable(data){
           (gmInfo.role==='tutor'?' <span style="background:#fef3c7;color:#92400e;font-size:0.68rem;font-weight:700;padding:0.1rem 0.4rem;border-radius:10px;">Tutor</span>':'')
         : '<span style="color:#9ca3af;font-size:0.78rem;">–</span>';
       return '<tr id="urow-'+safeId+'">'+
-        '<td><strong>'+window.escHtml(u.full_name||'–')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
+        '<td><strong>'+window.escHtml(u.name||'–')+'</strong><br><small style="color:#9ca3af;">Joined '+dt+'</small></td>'+
         '<td style="font-size:0.8rem;color:#6b7280;">'+window.escHtml(u.email||'–')+'</td>'+
         '<td style="font-size:0.8rem;">'+window.escHtml(u.phone||'–')+'</td>'+
         '<td style="font-size:0.82rem;">'+window.escHtml(u.program||'–')+'</td>'+
@@ -2896,9 +2896,9 @@ window.searchAttUser = async function(q){
   if(!q || q.length < 2){ sugEl.style.display='none'; return; }
 
   var sb = window.geramaSupabase; if(!sb) return;
-  var {data} = await sb.from('user_profiles')
+  var {data} = await sb.from('profiles')
     .select('full_name,email,phone,index_number,program,level')
-    .or('full_name.ilike.%'+q+'%,index_number.ilike.%'+q+'%,email.ilike.%'+q+'%')
+    .or('name.ilike.%'+q+'%,index_number.ilike.%'+q+'%,email.ilike.%'+q+'%')
     .eq('is_active', true)
     .limit(8);
 
@@ -2906,10 +2906,10 @@ window.searchAttUser = async function(q){
 
   sugEl.style.display = 'block';
   sugEl.innerHTML = data.map(function(u){
-    return '<div onclick="fillAttUser(\''+window.escAttr(u.full_name||'')+'\',\''+window.escAttr(u.email||'')+'\',\''+window.escAttr(u.index_number||'')+'\')" '+
+    return '<div onclick="fillAttUser(\''+window.escAttr(u.name||'')+'\',\''+window.escAttr(u.email||'')+'\',\''+window.escAttr(u.index_number||'')+'\')" '+
       'style="padding:0.7rem 1rem;cursor:pointer;border-bottom:1px solid #f1f5f9;font-size:0.88rem;" '+
       'onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'white\'">'+
-      '<strong>'+window.escHtml(u.full_name||'–')+'</strong>'+
+      '<strong>'+window.escHtml(u.name||'–')+'</strong>'+
       (u.index_number?'<span style="background:#e8f5e9;color:#1B5E20;font-size:0.72rem;font-weight:700;padding:0.1rem 0.5rem;border-radius:10px;margin-left:0.5rem;">'+window.escHtml(u.index_number)+'</span>':'')+
       '<br><small style="color:#9ca3af;">'+window.escHtml(u.email||'')+(u.program?' · '+u.program:'')+' '+window.escHtml(u.level||'')+'</small>'+
     '</div>';
@@ -3556,11 +3556,11 @@ window.importScoresFromCSV = async function() {
   if(nameRows.length > 0){
     window.showStatus('importStatus','Resolving student names…','info');
     try{
-      var profRes = await sb.from('user_profiles').select('email,full_name');
+      var profRes = await sb.from('profiles').select('email,full_name');
       profiles = profRes.data || [];
       profiles.forEach(function(p){
-        if(p.full_name && p.email){
-          nameMap[p.full_name.toLowerCase().trim()] = p.email.toLowerCase();
+        if(p.name && p.email){
+          nameMap[p.name.toLowerCase().trim()] = p.email.toLowerCase();
         }
       });
     }catch(e){ /* non-fatal */ }
@@ -3701,7 +3701,7 @@ window.loadGroups = async function(){
     allMembers = allMembers || [];
 
     // Fetch all registered users for "Add member" dropdowns
-    var {data: allUsers} = await sb.from('user_profiles').select('email, full_name, level, program, index_number, gender').order('full_name');
+    var {data: allUsers} = await sb.from('profiles').select('email, full_name, level, program, index_number, gender').order('name');
     allUsers = allUsers || [];
 
     // Store globally for use in modal functions
@@ -3845,13 +3845,13 @@ function renderGroupsUI(groups, allMembers, allUsers, container){
       .filter(function(u){ return u.level === 'L100' && membersEmails.indexOf((u.email||'').toLowerCase().trim()) === -1; })
       .map(function(u){
         var idx = u.index_number ? ' ['+u.index_number+']' : '';
-        return '<option value="'+window.escAttr(u.email)+'">'+window.escHtml((u.full_name||u.email)+idx+' L100')+'</option>';
+        return '<option value="'+window.escAttr(u.email)+'">'+window.escHtml((u.name||u.email)+idx+' L100')+'</option>';
       }).join('');
     var otherOpts = allUsers
       .filter(function(u){ return u.level !== 'L100' && membersEmails.indexOf((u.email||'').toLowerCase().trim()) === -1; })
       .map(function(u){
         var idx = u.index_number ? ' ['+u.index_number+']' : '';
-        return '<option value="'+window.escAttr(u.email)+'">'+window.escHtml((u.full_name||u.email)+idx+(u.level?' '+u.level:''))+'</option>';
+        return '<option value="'+window.escAttr(u.email)+'">'+window.escHtml((u.name||u.email)+idx+(u.level?' '+u.level:''))+'</option>';
       }).join('');
     var addOptions = l100Opts + (otherOpts ? '<optgroup label="Other Levels">'+otherOpts+'</optgroup>' : '');
 
@@ -4006,7 +4006,7 @@ window.addMemberToGroup = async function(groupId){
 
   // Get user name + index number
   var user = (window._allUsers||[]).find(function(u){ return u.email === email; });
-  var userName = user ? (user.full_name || email) : email;
+  var userName = user ? (user.name || email) : email;
 
   // Warn if not L100
   if(user && user.level && user.level !== 'L100'){
@@ -4031,7 +4031,7 @@ window.addMemberToGroup = async function(groupId){
   try{
     var group = (window._geramaGroups||[]).find(function(g){ return g.id === groupId; });
     if(group){
-      await sb.from('user_profiles').update({ group_name: group.name }).eq('email', email);
+      await sb.from('profiles').update({ group_name: group.name }).eq('email', email);
     }
   }catch(e){}
 
@@ -4051,7 +4051,7 @@ window.removeMember = async function(memberId){
 
   // Clear group_name from user_profiles
   if(mem && mem.user_email){
-    try{ await sb.from('user_profiles').update({ group_name: null }).eq('email', mem.user_email); }catch(e){}
+    try{ await sb.from('profiles').update({ group_name: null }).eq('email', mem.user_email); }catch(e){}
   }
 
   window.logActivity('Removed member from group');
@@ -4114,7 +4114,7 @@ window.confirmMove = async function(){
     var mem = (window._allGroupMembers||[]).find(function(m){ return m.id === window._movingMemberId; });
     var group = (window._geramaGroups||[]).find(function(g){ return g.id === targetGroupId; });
     if(mem && group){
-      await sb.from('user_profiles').update({ group_name: group.name }).eq('email', mem.user_email);
+      await sb.from('profiles').update({ group_name: group.name }).eq('email', mem.user_email);
     }
   }catch(e){}
 
@@ -4188,7 +4188,7 @@ window.pushGroupsToAllProfiles = async function(){
     var gName = groupMap[m.group_id];
     if(!gName || !m.user_email) continue;
     try{
-      var {error} = await sb.from('user_profiles').update({ group_name: gName }).eq('email', m.user_email);
+      var {error} = await sb.from('profiles').update({ group_name: gName }).eq('email', m.user_email);
       if(!error) ok++; else fail++;
     }catch(e){ fail++; }
   }
@@ -4224,7 +4224,7 @@ window.deleteGroup = async function(groupId, groupName){
   try{
     if(memberCount > 0){
       for(var i=0;i<members.length;i++){
-        try{ await sb.from('user_profiles').update({ group_name: null }).eq('email', members[i].user_email); }catch(e){}
+        try{ await sb.from('profiles').update({ group_name: null }).eq('email', members[i].user_email); }catch(e){}
       }
       await sb.from('gerama_group_members').delete().eq('group_id', groupId);
     }
@@ -4290,9 +4290,9 @@ window.previewBulkAssign = function(groupId){
     var nameLow = name.toLowerCase();
     // Try exact match first, then partial
     var match = allUsers.find(function(u){
-      return (u.full_name||'').toLowerCase() === nameLow;
+      return (u.name||'').toLowerCase() === nameLow;
     }) || allUsers.find(function(u){
-      return (u.full_name||'').toLowerCase().includes(nameLow) || nameLow.includes((u.full_name||'').toLowerCase().split(' ')[0]);
+      return (u.name||'').toLowerCase().includes(nameLow) || nameLow.includes((u.name||'').toLowerCase().split(' ')[0]);
     });
     results.push({ input: name, match: match || null });
   });
@@ -4306,7 +4306,7 @@ window.previewBulkAssign = function(groupId){
     var u = r.match;
     return '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.25rem 0;font-size:0.8rem;">'+
       '<i class="fas fa-user-check" style="color:#059669;"></i>'+
-      '<span style="font-weight:600;">'+window.escHtml(u.full_name||u.email)+'</span>'+
+      '<span style="font-weight:600;">'+window.escHtml(u.name||u.email)+'</span>'+
       (u.index_number?'<span style="color:#9ca3af;font-size:0.72rem;">'+window.escHtml(u.index_number)+'</span>':'')+
       (u.level?'<span style="background:#e8f5e9;color:#1B5E20;font-size:0.68rem;font-weight:700;padding:0.05rem 0.4rem;border-radius:8px;">'+window.escHtml(u.level)+'</span>':'')+
     '</div>';
@@ -4349,7 +4349,7 @@ window.confirmBulkAssign = async function(groupId, groupName){
       // Get current members to clear their profiles
       var {data: current} = await sb.from('gerama_group_members').select('user_email').eq('group_id', groupId);
       (current||[]).forEach(async function(m){
-        try{ await sb.from('user_profiles').update({group_name:null}).eq('email',m.user_email); }catch(e){}
+        try{ await sb.from('profiles').update({group_name:null}).eq('email',m.user_email); }catch(e){}
       });
       await sb.from('gerama_group_members').delete().eq('group_id', groupId);
       window.logActivity('Cleared all members from '+groupName+' for bulk replace');
@@ -4372,11 +4372,11 @@ window.confirmBulkAssign = async function(groupId, groupName){
         await sb.from('gerama_group_members').insert({
           group_id: groupId,
           user_email: u.email,
-          user_name: u.full_name || u.email,
+          user_name: u.name || u.email,
           role: 'member',
           assigned_at: new Date().toISOString()
         });
-        if(group) await sb.from('user_profiles').update({group_name:group.name}).eq('email',u.email);
+        if(group) await sb.from('profiles').update({group_name:group.name}).eq('email',u.email);
         existingSet[emailKey]=true;
         added++;
       }catch(e){ errors++; }
@@ -4502,7 +4502,7 @@ window.executeAttendanceShuffle = async function(){
     if(clearFirst){
       for(var g=0;g<groups.length;g++){
         var {data:cur} = await sb.from('gerama_group_members').select('user_email').eq('group_id',groups[g].id);
-        (cur||[]).forEach(async function(m){ try{ await sb.from('user_profiles').update({group_name:null}).eq('email',m.user_email); }catch(e){} });
+        (cur||[]).forEach(async function(m){ try{ await sb.from('profiles').update({group_name:null}).eq('email',m.user_email); }catch(e){} });
         await sb.from('gerama_group_members').delete().eq('group_id',groups[g].id);
       }
     }
@@ -4524,7 +4524,7 @@ window.executeAttendanceShuffle = async function(){
       try{
         // Get full user details
         var user = (window._allUsers||[]).find(function(u){ return u.email===email; });
-        var name = att.student_name || (user&&user.full_name) || email;
+        var name = att.student_name || (user&&user.name) || email;
         await sb.from('gerama_group_members').insert({
           group_id: targetGroup.id,
           user_email: email,
@@ -4532,7 +4532,7 @@ window.executeAttendanceShuffle = async function(){
           role: 'member',
           assigned_at: new Date().toISOString()
         });
-        await sb.from('user_profiles').update({group_name:targetGroup.name}).eq('email',email);
+        await sb.from('profiles').update({group_name:targetGroup.name}).eq('email',email);
         assigned++;
       }catch(e){ errors++; }
     }
@@ -4639,11 +4639,11 @@ window.randomlyAssignAll = async function(){
       await sb.from('gerama_group_members').insert({
         group_id: targetGroup.id,
         user_email: user.email,
-        user_name: user.full_name || user.email,
+        user_name: user.name || user.email,
         role: 'member',
         assigned_at: new Date().toISOString()
       });
-      try{ await sb.from('user_profiles').update({ group_name: targetGroup.name }).eq('email', user.email); }catch(e){}
+      try{ await sb.from('profiles').update({ group_name: targetGroup.name }).eq('email', user.email); }catch(e){}
       groupCounts[targetGroup.id]++;
       assigned++;
     }catch(e){ errors++; }
@@ -4817,7 +4817,7 @@ window.rebalanceGroups = async function(){
       .update({ group_id: groupF.id, assigned_at: new Date().toISOString() })
       .eq('id', m.id);
     if(!error){
-      try{ await sb.from('user_profiles').update({ group_name: groupF.name }).eq('email', m.user_email); }catch(e){}
+      try{ await sb.from('profiles').update({ group_name: groupF.name }).eq('email', m.user_email); }catch(e){}
       ok++;
     }
   }
@@ -4837,9 +4837,9 @@ window.quickMemberLookup = async function(q) {
   if (!sb) return;
 
   try {
-    var { data } = await sb.from('user_profiles')
+    var { data } = await sb.from('profiles')
       .select('full_name, email, index_number, level, program')
-      .or('full_name.ilike.%' + q + '%,email.ilike.%' + q + '%,index_number.ilike.%' + q + '%')
+      .or('name.ilike.%' + q + '%,email.ilike.%' + q + '%,index_number.ilike.%' + q + '%')
       .eq('is_active', true)
       .limit(6);
 
@@ -4873,11 +4873,11 @@ window.quickMemberLookup = async function(q) {
           : '<span style="background:#f1f5f9;color:#9ca3af;font-size:0.7rem;padding:0.1rem 0.5rem;border-radius:10px;margin-left:0.4rem;">Unassigned</span>';
         return '<div style="background:#f8fafc;border-radius:10px;padding:0.6rem 0.9rem;display:flex;align-items:center;gap:0.8rem;border:1px solid #e5e7eb;">' +
           '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0;">' +
-            window.escHtml((u.full_name || u.email || '?').charAt(0).toUpperCase()) +
+            window.escHtml((u.name || u.email || '?').charAt(0).toUpperCase()) +
           '</div>' +
           '<div style="flex:1;min-width:0;">' +
             '<div style="font-size:0.88rem;font-weight:700;color:#1e2a3e;">' +
-              window.escHtml(u.full_name || '–') + groupBadge +
+              window.escHtml(u.name || '–') + groupBadge +
             '</div>' +
             '<div style="font-size:0.75rem;color:#6b7280;">' +
               window.escHtml(u.email) +
@@ -4927,7 +4927,7 @@ window.loadConnectStats = async function(){
       sb.from('connect_messages').select('id', {count:'exact',head:true}),
       sb.from('connect_statuses').select('id',{count:'exact',head:true}).gte('expires_at',new Date().toISOString()),
       sb.from('connect_groups').select('id',{count:'exact',head:true}),
-      sb.from('user_profiles').select('id',{count:'exact',head:true}).eq('is_active',false)
+      sb.from('profiles').select('id',{count:'exact',head:true}).eq('is_active',false)
     ]);
     var counts = res.map(function(r){ return (r.status==='fulfilled' && r.value && r.value.count != null) ? r.value.count : '–'; });
     ['cStatMsg','cStatStatus','cStatGroups','cStatBlocked'].forEach(function(id,i){
@@ -5500,7 +5500,7 @@ window.runIndexPreview = async function() {
     try {
         // Fresh fetch – include role from gerama_group_members to detect tutors
         var [profRes, gmRes] = await Promise.all([
-            sb.from('user_profiles').select('email, full_name, level, index_number').eq('is_active', true),
+            sb.from('profiles').select('email, full_name, level, index_number').eq('is_active', true),
             sb.from('gerama_group_members').select('user_email, group_id, role')
         ]);
 
@@ -5586,7 +5586,7 @@ window.runIndexPreview = async function() {
             plan.toAssign.forEach(function(u) {
                 var idx = proposed[u.email] || '–';
                 html += '<div style="display:grid;grid-template-columns:1fr 1fr;padding:0.32rem 0.8rem;border-top:1px solid #f1f5f9;font-size:0.82rem;">' +
-                  '<span style="color:#1e2a3e;font-weight:600;">' + window.escHtml(u.full_name || u.email) + '</span>' +
+                  '<span style="color:#1e2a3e;font-weight:600;">' + window.escHtml(u.name || u.email) + '</span>' +
                   '<span style="color:#b45309;font-family:monospace;font-weight:700;">' + window.escHtml(idx) + '</span>' +
                 '</div>';
             });
@@ -5603,7 +5603,7 @@ window.runIndexPreview = async function() {
               '</div>';
             plan.willClear.forEach(function(u) {
                 html += '<div style="display:grid;grid-template-columns:1fr 1fr;padding:0.32rem 0.8rem;border-top:1px solid #f1f5f9;font-size:0.82rem;">' +
-                  '<span style="color:#1e2a3e;font-weight:600;">' + window.escHtml(u.full_name || u.email) + '</span>' +
+                  '<span style="color:#1e2a3e;font-weight:600;">' + window.escHtml(u.name || u.email) + '</span>' +
                   '<span style="color:#dc2626;font-family:monospace;text-decoration:line-through;">' + window.escHtml(u.index_number) + '</span>' +
                 '</div>';
             });
@@ -5615,7 +5615,7 @@ window.runIndexPreview = async function() {
             html += '<div style="font-size:0.78rem;color:#6b7280;padding:0.4rem 0.6rem;background:#f9fdf9;border-radius:8px;display:flex;align-items:flex-start;gap:0.4rem;">' +
               '<i class="fas fa-shield-alt" style="color:#059669;margin-top:0.1rem;"></i>' +
               '<span>Protected tutors (unchanged): ' +
-              plan.protected.map(function(u){ return window.escHtml(u.full_name||u.email) + ' [' + window.escHtml(u.index_number) + ']'; }).join(' · ') +
+              plan.protected.map(function(u){ return window.escHtml(u.name||u.email) + ' [' + window.escHtml(u.index_number) + ']'; }).join(' · ') +
               '</span>' +
             '</div>';
         }
@@ -5664,7 +5664,7 @@ window.commitIndexAssignment = async function() {
     setStatus('Step 1/2 – clearing stale index numbers"¦', true);
     for (var i = 0; i < willClear.length; i++) {
         try {
-            var { error: ce } = await sb.from('user_profiles')
+            var { error: ce } = await sb.from('profiles')
                 .update({ index_number: null, updated_at: new Date().toISOString() })
                 .eq('email', willClear[i]);
             if (!ce) cleared++; else errors++;
@@ -5676,7 +5676,7 @@ window.commitIndexAssignment = async function() {
     var toAssignEmails = Object.keys(proposed || {});
     for (var j = 0; j < toAssignEmails.length; j++) {
         try {
-            await sb.from('user_profiles')
+            await sb.from('profiles')
                 .update({ index_number: null })
                 .eq('email', toAssignEmails[j])
                 .not('index_number', 'is', null);
@@ -5690,14 +5690,14 @@ window.commitIndexAssignment = async function() {
         var newIdx = proposed[email];
         try {
             // Uniqueness check
-            var { data: clash } = await sb.from('user_profiles')
+            var { data: clash } = await sb.from('profiles')
                 .select('email')
                 .eq('index_number', newIdx)
                 .neq('email', email)
                 .limit(1);
             if (clash && clash.length) { errors++; continue; }
 
-            var { error: ae } = await sb.from('user_profiles')
+            var { error: ae } = await sb.from('profiles')
                 .update({ index_number: newIdx, updated_at: new Date().toISOString() })
                 .eq('email', email);
             if (!ae) assigned++; else errors++;
@@ -5747,7 +5747,7 @@ window.filterMemberSearch = function(groupId) {
 
   var matches = allUsers.filter(function(u) {
     if (inGroup[(u.email || '').toLowerCase().trim()]) return false;
-    var name  = (u.full_name  || '').toLowerCase();
+    var name  = (u.name  || '').toLowerCase();
     var email = (u.email      || '').toLowerCase();
     var idx   = (u.index_number || '').toLowerCase();
     return name.indexOf(q) !== -1 || email.indexOf(q) !== -1 || idx.indexOf(q) !== -1;
@@ -5766,11 +5766,11 @@ window.filterMemberSearch = function(groupId) {
     var idxBadge = u.index_number
       ? '<span style="font-size:0.7rem;color:#6b7280;margin-left:0.3rem;font-family:monospace;">' + window.escHtml(u.index_number) + '</span>'
       : '';
-    return '<div data-email="' + window.escAttr(u.email) + '" data-name="' + window.escAttr(u.full_name || u.email) + '"' +
-      ' onmousedown="window.selectMemberSearch(\'' + groupId + '\',\'' + window.escAttr(u.email) + '\',\'' + window.escAttr(u.full_name || u.email) + '\')"' +
+    return '<div data-email="' + window.escAttr(u.email) + '" data-name="' + window.escAttr(u.name || u.email) + '"' +
+      ' onmousedown="window.selectMemberSearch(\'' + groupId + '\',\'' + window.escAttr(u.email) + '\',\'' + window.escAttr(u.name || u.email) + '\')"' +
       ' style="padding:0.5rem 0.8rem;cursor:pointer;font-size:0.83rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:0.3rem;"' +
       ' onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'\'">' +
-      '<span style="font-weight:600;color:#1e2a3e;">' + window.escHtml(u.full_name || u.email) + '</span>' +
+      '<span style="font-weight:600;color:#1e2a3e;">' + window.escHtml(u.name || u.email) + '</span>' +
       lvlBadge + idxBadge +
     '</div>';
   }).join('');
@@ -5842,7 +5842,7 @@ window.addMemberToGroupSearch = async function(groupId) {
 
   try {
     var group = (window._geramaGroups || []).find(function(g){ return g.id === groupId; });
-    if (group) await sb.from('user_profiles').update({ group_name: group.name }).eq('email', email);
+    if (group) await sb.from('profiles').update({ group_name: group.name }).eq('email', email);
   } catch(e) {}
 
   window.logActivity('Admin added ' + name + ' to group via search');
@@ -6020,7 +6020,7 @@ window.executeAttendanceAdd = async function(groupId, groupName) {
     if (!r.student_email) { errors++; continue; }
     try {
       var userInfo = (window._allUsers || []).find(function(u) { return u.email === r.student_email; });
-      var name = r.student_name || (userInfo && userInfo.full_name) || r.student_email;
+      var name = r.student_name || (userInfo && userInfo.name) || r.student_email;
       await sb.from('gerama_group_members').insert({
         group_id:    groupId,
         user_email:  r.student_email,
@@ -6029,7 +6029,7 @@ window.executeAttendanceAdd = async function(groupId, groupName) {
         assigned_at: new Date().toISOString()
       });
       if (group) {
-        try { await sb.from('user_profiles').update({ group_name: group.name }).eq('email', r.student_email); } catch(e) {}
+        try { await sb.from('profiles').update({ group_name: group.name }).eq('email', r.student_email); } catch(e) {}
       }
       added++;
     } catch(e) { errors++; }
@@ -6227,7 +6227,7 @@ window.executeSubmissionAdd = async function(groupId, groupName) {
     if (!email || assignedSet[key]) { skipped++; continue; }
 
     var user = (window._allUsers || []).find(function(u){ return u.email === email; });
-    var name = r.student_name || (user && user.full_name) || email;
+    var name = r.student_name || (user && user.name) || email;
 
     try {
       await sb.from('gerama_group_members').insert({
@@ -6238,7 +6238,7 @@ window.executeSubmissionAdd = async function(groupId, groupName) {
         assigned_at: new Date().toISOString()
       });
       if (group) {
-        try { await sb.from('user_profiles').update({ group_name: group.name }).eq('email', email); } catch(e) {}
+        try { await sb.from('profiles').update({ group_name: group.name }).eq('email', email); } catch(e) {}
       }
       assignedSet[key] = true;
       added++;

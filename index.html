@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1261,12 +1261,12 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
         statTargets.statMaterialsCount = Math.max(700, matRes.count);
 
       // Total registered users (no is_active filter — column may not exist)
-      var userRes = await sb.from('user_profiles').select('id', { count: 'exact', head: true });
+      var userRes = await sb.from('profiles').select('id', { count: 'exact', head: true });
       if(!userRes.error && userRes.count != null && userRes.count > 0)
         statTargets.statStudentsCount = Math.max(300, userRes.count);
 
       // Distinct engineering programs
-      var progRes = await sb.from('user_profiles').select('program').limit(500);
+      var progRes = await sb.from('profiles').select('program').limit(500);
       if(!progRes.error && progRes.data && progRes.data.length) {
         var programs = {};
         progRes.data.forEach(function(r){ if(r.program) programs[r.program] = true; });
@@ -1668,8 +1668,8 @@ async function searchPotwNames(query) {
     try {
       var sb = window.geramaSupabase;
       if (!sb) { sugEl.style.display='none'; return; }
-      var res = await sb.from('user_profiles').select('full_name,program,level').eq('is_active',true).order('full_name',{ascending:true}).limit(200);
-      _potwNamesCache = (res.data || []).filter(function(u){ return u.full_name; });
+      var res = await sb.from('profiles').select('full_name,program,level').eq('is_active',true).order('name',{ascending:true}).limit(200);
+      _potwNamesCache = (res.data || []).filter(function(u){ return u.name; });
     } catch(e) { sugEl.style.display='none'; return; }
   }
 
@@ -1677,17 +1677,17 @@ async function searchPotwNames(query) {
 
   var q = query.toLowerCase();
   var matches = _potwNamesCache.filter(function(u){
-    return u.full_name.toLowerCase().includes(q);
+    return u.name.toLowerCase().includes(q);
   }).slice(0, 8);
 
   if (!matches.length) { sugEl.style.display='none'; return; }
 
   sugEl.innerHTML = matches.map(function(u) {
-    return '<div onclick="selectPotwName(\'' + u.full_name.replace(/'/g,"\\'") + '\')" ' +
+    return '<div onclick="selectPotwName(\'' + u.name.replace(/'/g,"\\'") + '\')" ' +
       'style="padding:0.6rem 1rem;cursor:pointer;font-size:0.9rem;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:0.6rem;" ' +
       'onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'white\'">' +
       '<i class="fas fa-user-circle" style="color:#1B5E20;font-size:0.9rem;"></i>' +
-      '<div><div style="font-weight:600;">' + u.full_name + '</div>' +
+      '<div><div style="font-weight:600;">' + u.name + '</div>' +
       (u.program || u.level ? '<div style="font-size:0.75rem;color:#6b7280;">' + (u.level||'') + (u.level&&u.program?' · ':'') + (u.program||'') + '</div>' : '') +
       '</div></div>';
   }).join('');
@@ -2123,7 +2123,7 @@ if ('serviceWorker' in navigator) {
 
     var userEmail = session.user.email;
     var profile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
-    var fullName = profile.name || session.user.user_metadata && session.user.user_metadata.full_name || userEmail.split('@')[0];
+    var fullName = profile.name || session.user.user_metadata && session.user.user_metadata.name || userEmail.split('@')[0];
     var phone = profile.phone || '';
 
     if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering–'; }
@@ -2139,7 +2139,7 @@ if ('serviceWorker' in navigator) {
         },
         body: JSON.stringify({
           user_email: userEmail,
-          full_name: fullName,
+          name: fullName,
           phone: phone || null,
           size_preference: size,
           colour_preference: colour,

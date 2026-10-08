@@ -1,4 +1,4 @@
-/**
+﻿/**
  * GERAMA Admin Role-Based Access Control
  * This script checks user roles and restricts dashboard access accordingly
  * 
@@ -75,7 +75,7 @@
             return {
                 role: data.role,
                 email: currentUserEmail,
-                name: data.full_name
+                name: data.name
             };
             
         } catch (err) {

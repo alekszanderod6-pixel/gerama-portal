@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -850,7 +850,7 @@ function setActiveBnav(el){
     _sb=window.geramaSupabase;
     var p=JSON.parse(localStorage.getItem('gerama_profile')||'{}');
     _me.email   = p.email   || '';
-    _me.name    = p.name    || p.full_name || 'Student';
+    _me.name    = p.name    || p.name || 'Student';
     _me.img     = p.img     || '';
     _me.level   = p.level   || '';
     _me.program = p.program || '';
@@ -1119,7 +1119,7 @@ async function loadMembers(){
   var grid=document.getElementById('peopleGrid'); if(!grid||!_sb) return;
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted);"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;"></i>Loading members–</div>';
   try{
-    var {data,error}=await _sb.from('user_profiles').select('email,full_name,program,level,img_url,group_name').order('full_name');
+    var {data,error}=await _sb.from('profiles').select('email,full_name,program,level,img_url,group_name').order('name');
     if(error) throw error;
     _allMembers=(data||[]).filter(function(u){return u.email&&u.email!==_me.email;});
   }catch(e){
@@ -1133,7 +1133,7 @@ function renderMemberGrid(list){
   var q=(document.getElementById('memberSearch')||{}).value||'';
   var filtered=list.filter(function(u){
     var matchLevel=_memberLevelFilter==='all'||u.level===_memberLevelFilter;
-    var matchQ=q.length<2||((u.full_name||'').toLowerCase().includes(q.toLowerCase())||(u.program||'').toLowerCase().includes(q.toLowerCase()));
+    var matchQ=q.length<2||((u.name||'').toLowerCase().includes(q.toLowerCase())||(u.program||'').toLowerCase().includes(q.toLowerCase()));
     return matchLevel&&matchQ;
   });
   if(!filtered.length){
@@ -1143,11 +1143,11 @@ function renderMemberGrid(list){
   grid.innerHTML=filtered.map(function(u){
     var av=u.img_url
       ?'<img src="'+esc(u.img_url)+'" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">'
-        +'<div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:white;">'+esc((u.full_name||'?').charAt(0).toUpperCase())+'</div>'
-      :'<div style="font-size:1.4rem;font-weight:800;color:white;">'+esc((u.full_name||'?').charAt(0).toUpperCase())+'</div>';
-    return '<div class="people-card" onclick="openDMWith(\''+esc(u.email)+'\',\''+esc(u.full_name||u.email)+'\')">'+
+        +'<div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;color:white;">'+esc((u.name||'?').charAt(0).toUpperCase())+'</div>'
+      :'<div style="font-size:1.4rem;font-weight:800;color:white;">'+esc((u.name||'?').charAt(0).toUpperCase())+'</div>';
+    return '<div class="people-card" onclick="openDMWith(\''+esc(u.email)+'\',\''+esc(u.name||u.email)+'\')">'+
       '<div class="pc-avatar">'+av+'</div>'+
-      '<div class="pc-name" title="'+esc(u.full_name||u.email)+'">'+esc(u.full_name||u.email)+'</div>'+
+      '<div class="pc-name" title="'+esc(u.name||u.email)+'">'+esc(u.name||u.email)+'</div>'+
       '<div class="pc-prog" title="'+esc(u.program||'UENR')+'">'+esc(u.program||'UENR')+'</div>'+
       (u.level||u.group_name?'<div style="display:flex;gap:0.3rem;justify-content:center;flex-wrap:wrap;margin-top:0.3rem;">'
         +(u.level?'<span class="pc-group">'+esc(u.level)+'</span>':'')
@@ -1875,11 +1875,11 @@ function closeNewDM(){document.getElementById('newDMModal').style.display='none'
 async function searchNewDM(q){
   var res=document.getElementById('newDMResults'); if(!res) return;
   if(!_allMembers.length) await loadMembers();
-  var list=q.length>0?_allMembers.filter(function(u){return (u.full_name||u.email||'').toLowerCase().includes(q.toLowerCase());}):_allMembers.slice(0,20);
+  var list=q.length>0?_allMembers.filter(function(u){return (u.name||u.email||'').toLowerCase().includes(q.toLowerCase());}):_allMembers.slice(0,20);
   res.innerHTML=list.slice(0,15).map(function(u){
-    return '<div class="chat-thread" onclick="openDMWith(\''+esc(u.email)+'\',\''+esc(u.full_name||u.email)+'\');closeNewDM();">'+
-      '<div class="ct-avatar">'+esc((u.full_name||u.email||'?').charAt(0).toUpperCase())+'</div>'+
-      '<div class="ct-info"><div class="ct-name">'+esc(u.full_name||u.email)+'</div><div class="ct-preview">'+esc(u.program||'')+(u.level?' · '+u.level:'')+'</div></div>'+
+    return '<div class="chat-thread" onclick="openDMWith(\''+esc(u.email)+'\',\''+esc(u.name||u.email)+'\');closeNewDM();">'+
+      '<div class="ct-avatar">'+esc((u.name||u.email||'?').charAt(0).toUpperCase())+'</div>'+
+      '<div class="ct-info"><div class="ct-name">'+esc(u.name||u.email)+'</div><div class="ct-preview">'+esc(u.program||'')+(u.level?' · '+u.level:'')+'</div></div>'+
     '</div>';
   }).join('')||'<div style="text-align:center;padding:1rem;color:var(--muted);font-size:0.82rem;">No members found</div>';
 }
@@ -1927,7 +1927,7 @@ async function loadGroupChats(){
     });
 
     // Load user profiles to get level info (and images)
-    var {data:profiles}=await _sb.from('user_profiles').select('email,full_name,level,program,img_url');
+    var {data:profiles}=await _sb.from('profiles').select('email,full_name,level,program,img_url');
     profiles=profiles||[];
     var profMap={};
     profiles.forEach(function(p){ profMap[(p.email||'').toLowerCase().trim()]=p; });
@@ -1999,7 +1999,7 @@ async function loadGroupChats(){
         var isMe=(key===myEmail);
         return '<div class="sgc-member-row" style="'+(isMe?'background:#e8f5e9;border-radius:8px;':'')+'">'+
           '<div class="sgc-member-av" style="background:'+color+';">'+av+'</div>'+
-          '<div class="sgc-member-name">'+esc(m.user_name||prof.full_name||m.user_email||'?')+(isMe?' <span style="font-size:0.62rem;color:#1B5E20;font-weight:700;">(you)</span>':'')+'</div>'+
+          '<div class="sgc-member-name">'+esc(m.user_name||prof.name||m.user_email||'?')+(isMe?' <span style="font-size:0.62rem;color:#1B5E20;font-weight:700;">(you)</span>':'')+'</div>'+
           (isTutor?'<span class="sgc-member-role" style="background:'+color+'22;color:'+color+';">Tutor</span>':'')+
           (!isMe&&_me.email?'<button class="sgc-member-dm" onclick="openDMWith(\''+esc(m.user_email)+'\',\''+esc(m.user_name||m.user_email)+'\');showConnectTab(\'dms\')">Message</button>':'')+
         '</div>';
@@ -2535,7 +2535,7 @@ renderMemberGrid = function(list){
   var filtered = list.filter(function(u){
     var q = (document.getElementById('memberSearch')||{}).value||'';
     var matchLevel = (_memberLevelFilter==='all') || u.level===_memberLevelFilter;
-    var matchQ = q.length<2 || ((u.full_name||'').toLowerCase().includes(q.toLowerCase())||(u.program||'').toLowerCase().includes(q.toLowerCase()));
+    var matchQ = q.length<2 || ((u.name||'').toLowerCase().includes(q.toLowerCase())||(u.program||'').toLowerCase().includes(q.toLowerCase()));
     return matchLevel && matchQ;
   });
   cards.forEach(function(card, i){

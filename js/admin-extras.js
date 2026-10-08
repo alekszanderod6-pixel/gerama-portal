@@ -1,4 +1,4 @@
-// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+﻿// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // GERAMA Admin Extras – Team Management, Multi-image, Attendance cleanup,
 // Sensitive operation codes, and brilliant new features
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
@@ -726,7 +726,7 @@
   window.loadStudentBreakdown = async function(){
     var sb = getSB(); if(!sb) return;
     try{
-      var {data} = await sb.from('user_profiles').select('level').order('level');
+      var {data} = await sb.from('profiles').select('level').order('level');
       if(!data) return;
       var counts = {};
       data.forEach(function(u){ var l=u.level||'Unknown'; counts[l]=(counts[l]||0)+1; });

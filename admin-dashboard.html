@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1537,7 +1537,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
           var dt = m.registered_at ? new Date(m.registered_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '–';
           return '<tr>' +
             '<td>' + (i+1) + '</td>' +
-            '<td><strong>' + window.escHtml(m.full_name||'–') + '</strong></td>' +
+            '<td><strong>' + window.escHtml(m.name||'–') + '</strong></td>' +
             '<td style="font-size:0.8rem;color:#6b7280;">' + window.escHtml(m.user_email||'–') + '</td>' +
             '<td>' + window.escHtml(m.phone||'–') + '</td>' +
             '<td><span style="background:#fef3c7;color:#92400e;font-size:0.75rem;font-weight:700;padding:0.15rem 0.5rem;border-radius:10px;">' + window.escHtml(m.size_preference||'–') + '</span></td>' +
@@ -1560,7 +1560,7 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       var headers = ['#','Full Name','Email','Phone','Size Preference','Colour Preference','Date Registered'];
       var rows = data.map(function(m, i) {
         var dt = m.registered_at ? new Date(m.registered_at).toLocaleDateString('en-GB') : '';
-        return [i+1, m.full_name||'', m.user_email||'', m.phone||'', m.size_preference||'', m.colour_preference||'', dt]
+        return [i+1, m.name||'', m.user_email||'', m.phone||'', m.size_preference||'', m.colour_preference||'', dt]
           .map(function(v){ return '"' + String(v).replace(/"/g,'""') + '"'; }).join(',');
       });
       var csv = [headers.join(',')].concat(rows).join('\n');
