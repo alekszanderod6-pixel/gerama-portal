@@ -127,18 +127,7 @@
                     </div>
                 </div>
                 
-                <!-- Admin Role Selection -->
-                <div class="form-group">
-                    <label>I am logging in as</label>
-                    <select id="loginRole" style="width:100%;padding:0.8rem 1rem;border:2px solid #e2e8f0;border-radius:16px;font-size:1rem;background:white;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.3s;" onfocus="this.style.borderColor='#FFC107';this.style.boxShadow='0 0 0 3px rgba(255,193,7,0.2)';" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';" onchange="document.getElementById('roleHint').innerHTML = this.value === 'materials_admin' ? '<i class=\'fas fa-key\'></i> <strong>Special Code Required:</strong> Resources Co-Managers must use code <strong>GMANAGER2026</strong>' : '<i class=\'fas fa-info-circle\'></i> Choose &quot;Resources Co-Manager&quot; if you only handle materials upload';">
-                        <option value="student">Student / Member</option>
-                        <option value="general_admin">General Admin (Full Access)</option>
-                        <option value="materials_admin">Resources Co-Manager (Materials Upload Only)</option>
-                    </select>
-                    <small id="roleHint" style="color:#6b7280;font-size:0.78rem;margin-top:0.4rem;display:block;">
-                        <i class="fas fa-info-circle"></i> Choose "Resources Co-Manager" if you only handle materials upload
-                    </small>
-                </div>
+                <!-- Role selection removed — students log in directly -->
                 
                 <button type="submit" class="btn-login">Sign In</button>
                 <div id="errorMsg" class="error-message"></div>
@@ -153,229 +142,144 @@
     <script>
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const email = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
+
+            const email      = document.getElementById('username').value.trim();
+            const password   = document.getElementById('password').value;
             const secretCode = document.getElementById('secretCode').value.trim();
-            const errorMsg = document.getElementById('errorMsg');
-            const loginCard = document.getElementById('loginCard');
-            
-            // Check if Supabase is loaded
-            if (typeof window.geramaSupabase === 'undefined') {
-                errorMsg.innerText = 'Authentication service not available. Please refresh.';
-                return;
-            }
-            
-            // Validate secret code based on selected role
-            const selectedRole = document.getElementById('loginRole').value;
-            let expectedCode = window.GERAMA_SECRET_CODE || 'GERAMA2026';
-            let codeMessage = 'Invalid secret code. Please enter the correct GERAMA secret code.';
-            
-            // Resources Co-Manager (materials_admin) requires special code
-            if (selectedRole === 'materials_admin') {
-                expectedCode = 'GMANAGER2026';
-                codeMessage = 'Invalid code. Resources Co-Managers must use the special manager code: GMANAGER2026';
-            } else if (selectedRole === 'general_admin') {
-                // General admin uses regular code
-                expectedCode = window.GERAMA_SECRET_CODE || 'GERAMA2026';
-                codeMessage = 'Invalid secret code. Admins must use the correct GERAMA secret code.';
-            }
-            
-            if (secretCode !== expectedCode) {
-                errorMsg.innerText = codeMessage;
+            const errorMsg   = document.getElementById('errorMsg');
+            const loginCard  = document.getElementById('loginCard');
+
+            function shake(msg) {
+                errorMsg.innerText = msg;
                 loginCard.classList.add('shake');
                 setTimeout(() => loginCard.classList.remove('shake'), 500);
+            }
+
+            // Check Supabase
+            if (typeof window.geramaSupabase === 'undefined') {
+                shake('Authentication service not available. Please refresh.');
+                return;
+            }
+
+            // Validate secret code
+            const expected = window.GERAMA_SECRET_CODE || 'GERAMA2026';
+            if (secretCode !== expected) {
+                shake('Invalid secret code. Please enter the correct GERAMA secret code.');
                 document.getElementById('secretCode').value = '';
                 return;
             }
-            
-            // Show loading state
-            errorMsg.innerText = 'Signing in...';
-            
+
+            errorMsg.style.color = '#6b7280';
+            errorMsg.innerText = 'Signing in…';
+
             try {
-                // Use proper Supabase authentication with email only
                 const { data, error } = await window.geramaSupabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
+                    email, password
                 });
-                
+
                 if (error) {
-                    console.log('Login error details:', error);
-                    if (error.message.toLowerCase().includes('invalid login credentials') || 
-                        error.message.toLowerCase().includes('invalid') || 
-                        error.message.toLowerCase().includes('credentials')) {
-                        errorMsg.innerText = 'Invalid email or password. Please check your credentials and try again.';
-                    } else if (error.message.toLowerCase().includes('email not confirmed') || 
-                             error.message.toLowerCase().includes('not confirmed')) {
-                        errorMsg.innerText = 'Email not confirmed. Please check your email for the confirmation link.';
-                    } else if (error.message.toLowerCase().includes('api') || error.message.toLowerCase().includes('pin')) {
-                        errorMsg.innerText = 'Login temporarily unavailable. Please try again in a few minutes.';
-                    } else if (error.message.toLowerCase().includes('not found')) {
-                        errorMsg.innerText = 'Account not found. Please sign up first.';
+                    const m = error.message.toLowerCase();
+                    if (m.includes('invalid') || m.includes('credentials')) {
+                        shake('Invalid email or password.');
+                    } else if (m.includes('not confirmed')) {
+                        shake('Email not confirmed. Check your inbox for a confirmation link.');
+                    } else if (m.includes('not found')) {
+                        shake('Account not found. Please sign up first.');
                     } else {
-                        errorMsg.innerText = 'Login failed. Please check your credentials and try again.';
+                        shake('Login failed. Please try again.');
                     }
-                    loginCard.classList.add('shake');
-                    setTimeout(() => loginCard.classList.remove('shake'), 500);
+                    errorMsg.style.color = '#dc2626';
                     document.getElementById('password').value = '';
                     return;
                 }
-                
-                // Store session and profile - ALWAYS fetch from Supabase first (cross-device sync)
-                sessionStorage.setItem('gerama_loggedIn', 'true');
-                localStorage.setItem('gerama_loggedIn', 'true'); // also persist for PWA cold-opens
 
-                // Fetch the canonical profile from Supabase
-                var profileData = { email: email };
+                // Persist login state
+                sessionStorage.setItem('gerama_loggedIn', 'true');
+                localStorage.setItem('gerama_loggedIn', 'true');
+
+                // Build profile from metadata + DB (non-blocking)
+                const meta = data.user.user_metadata || {};
+                let profileData = {
+                    email,
+                    name:    meta.full_name || email.split('@')[0],
+                    program: meta.program   || 'GERAMA Member',
+                    level:   meta.level     || '',
+                    phone:   meta.phone     || '',
+                    img:     null
+                };
+
+                // Try to fetch/upsert profile from DB
                 try {
-                    var {data: upData} = await window.geramaSupabase
-                        .from('user_profiles')
-                        .select('full_name, phone, program, level, index_number, is_active')
+                    const { data: p } = await window.geramaSupabase
+                        .from('profiles')
+                        .select('name, phone, program, level, index_number, photo_url')
                         .eq('email', email)
                         .single();
 
-                    if (upData) {
-                        // Check if deactivated
-                        if (upData.is_active === false) {
-                            await window.geramaSupabase.auth.signOut();
-                            sessionStorage.clear();
-                            localStorage.removeItem('gerama_profile');
-                            alert('Your account has been deactivated. Please contact the admin.');
-                            window.location.href = 'login.html';
-                            return;
-                        }
-                        // Use Supabase as source of truth – overrides any stale localStorage
-                        const meta = data.user.user_metadata || {};
+                    if (p) {
                         profileData = {
-                            email:        email,
-                            name:         upData.full_name || meta.full_name || email.split('@')[0],
-                            program:      upData.program   || meta.program   || 'GERAMA Member',
-                            level:        upData.level     || meta.level     || '',
-                            phone:        upData.phone     || meta.phone     || '',
-                            index_number: upData.index_number || null,
-                            img:          JSON.parse(localStorage.getItem('gerama_profile') || '{}').img || null
+                            email,
+                            name:         p.name         || profileData.name,
+                            program:      p.program      || profileData.program,
+                            level:        p.level        || profileData.level,
+                            phone:        p.phone        || profileData.phone,
+                            index_number: p.index_number || null,
+                            img:          p.photo_url    || null
                         };
                     } else {
-                        // No Supabase record yet – create one
-                        const meta = data.user.user_metadata || {};
-                        const existingProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
-                        profileData = {
-                            email:   email,
-                            name:    meta.full_name || email.split('@')[0],
-                            program: meta.program || existingProfile.program || 'GERAMA Member',
-                            level:   meta.level   || existingProfile.level   || '',
-                            phone:   meta.phone   || existingProfile.phone   || '',
-                            img:     existingProfile.img || null
-                        };
-                        // Create the user_profiles record
-                        await window.geramaSupabase.from('user_profiles').upsert({
-                            email:      email,
-                            full_name:  profileData.name,
-                            phone:      profileData.phone  || null,
+                        // Create profile row for new user
+                        await window.geramaSupabase.from('profiles').upsert({
+                            email,
+                            name:       profileData.name,
                             program:    profileData.program || null,
                             level:      profileData.level   || null,
+                            phone:      profileData.phone   || null,
                             updated_at: new Date().toISOString()
                         }, { onConflict: 'email' });
                     }
-                } catch(e) {
-                    // Supabase unreachable – use what we have
-                    const meta = data.user.user_metadata || {};
-                    const existingProfile = JSON.parse(localStorage.getItem('gerama_profile') || '{}');
-                    profileData = {
-                        email:   email,
-                        name:    existingProfile.name    || meta.full_name || email.split('@')[0],
-                        program: existingProfile.program || meta.program   || 'GERAMA Member',
-                        level:   existingProfile.level   || meta.level     || '',
-                        phone:   existingProfile.phone   || meta.phone     || '',
-                        img:     existingProfile.img     || null
-                    };
-                }
+                } catch(e) { /* non-fatal — continue with metadata */ }
 
                 localStorage.setItem('gerama_profile', JSON.stringify(profileData));
-                
-                // ─────────────────────────────────────────────────────────────────
-                // HANDLE ADMIN ROLE REGISTRATION
-                // ─────────────────────────────────────────────────────────────────
-                const selectedRole = document.getElementById('loginRole').value;
-                
-                if (selectedRole === 'general_admin' || selectedRole === 'materials_admin') {
-                    // User selected admin role - register them in admin_users table
-                    try {
-                        const adminData = {
-                            email: email,
-                            full_name: profileData.name || email.split('@')[0],
-                            role: selectedRole,
-                            is_active: true,
-                            last_login: new Date().toISOString()
-                        };
-                        
-                        // Insert or update admin_users record
-                        const { error: adminError } = await window.geramaSupabase
-                            .from('admin_users')
-                            .upsert(adminData, { 
-                                onConflict: 'email',
-                                ignoreDuplicates: false 
-                            });
-                        
-                        if (adminError) {
-                            console.warn('Admin registration warning:', adminError);
-                            // Don't block login if admin registration fails
-                        }
-                        
-                        // Redirect to admin dashboard
-                        window.location.href = 'admin-dashboard.html';
-                        return;
-                        
-                    } catch (adminErr) {
-                        console.error('Admin registration error:', adminErr);
-                        // Continue with normal login if admin registration fails
-                    }
-                }
-                
-                // ─────────────────────────────────────────────────────────────────
-                
-                // Link this Supabase user to OneSignal for targeted push notifications
+
+                // Link OneSignal
                 if (typeof window.geramaLinkOneSignal === 'function') {
                     window.geramaLinkOneSignal();
                 }
 
-                // Redirect to home page
+                // Redirect to home
                 window.location.href = 'index.html';
-                
+
             } catch (err) {
-                errorMsg.innerText = 'Login failed. Please try again.';
-                loginCard.classList.add('shake');
-                setTimeout(() => loginCard.classList.remove('shake'), 500);
+                shake('Login failed. Please try again.');
+                errorMsg.style.color = '#dc2626';
                 document.getElementById('password').value = '';
                 console.error('Login error:', err);
             }
         });
 
-        // Forgot password handler
+        // Forgot password
         document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
             e.preventDefault();
             window.location.href = 'reset-password.html';
         });
 
-        // Show success banner if coming from signup
+        // Banner after signup or password reset
         (function() {
             var params = new URLSearchParams(window.location.search);
+            var msg = document.getElementById('errorMsg');
             if (params.get('signup') === 'success') {
-                var msg = document.getElementById('errorMsg');
                 msg.style.color = '#065f46';
                 msg.style.background = '#d1fae5';
                 msg.style.padding = '0.6rem 1rem';
                 msg.style.borderRadius = '10px';
-                msg.innerText = '✅ Account created! Sign in with your email and password below.';
+                msg.innerText = '✅ Account created! Sign in below.';
             }
-            // Coming from a password reset – pre-fill a helpful message
             if (params.get('reset') === 'success') {
-                var msg2 = document.getElementById('errorMsg');
-                msg2.style.color = '#065f46';
-                msg2.style.background = '#d1fae5';
-                msg2.style.padding = '0.6rem 1rem';
-                msg2.style.borderRadius = '10px';
-                msg2.innerText = '🔐 Password reset! Sign in with your new password.';
+                msg.style.color = '#065f46';
+                msg.style.background = '#d1fae5';
+                msg.style.padding = '0.6rem 1rem';
+                msg.style.borderRadius = '10px';
+                msg.innerText = '🔐 Password reset! Sign in with your new password.';
             }
         })();
     </script>
