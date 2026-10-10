@@ -3,7 +3,7 @@
   "short_name": "GERAMA Admin",
   "description": "GERAMA Admin Dashboard – manage announcements, classes, users and resources.",
   "start_url": "/admin-dashboard.html",
-  "scope": "/admin-dashboard.html",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a2f1f",
   "theme_color": "#1B5E20",
