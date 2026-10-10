@@ -46,13 +46,24 @@
     fetch(SUPA_URL + '/rest/v1/admin_profiles?select=id,name,role,email,photo_url,password_hash&order=name.asc', {
       headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
     })
-    .then(function(r){ return r.json(); })
-    .then(function(data){ _renderProfiles(Array.isArray(data) ? data : []); })
-    .catch(function(){
+    .then(function(r){
+      return r.json().then(function(json){
+        if(!Array.isArray(json)){
+          // API returned an error object — show it for debugging
+          var msg = (json && json.message) ? json.message : (json && json.error ? json.error : JSON.stringify(json).substring(0,120));
+          throw new Error('API error: ' + msg);
+        }
+        return json;
+      });
+    })
+    .then(function(data){ _renderProfiles(data); })
+    .catch(function(err){
+      console.error('[GERAMA Admin Gate] fetch error:', err);
       if(!grid) return;
       grid.innerHTML =
         '<div style="text-align:center;width:100%;padding:1rem;">' +
           '<div style="color:#f87171;font-size:0.85rem;margin-bottom:1rem;"><i class="fas fa-wifi" style="display:block;font-size:2rem;margin-bottom:0.5rem;opacity:0.5;"></i>No connection. Try again or use master password.</div>' +
+          '<div style="color:rgba(255,255,255,0.35);font-size:0.72rem;margin-bottom:0.8rem;">' + (err&&err.message?err.message:'') + '</div>' +
           '<button onclick="_loadProfiles()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;padding:0.5rem 1.3rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.83rem;font-weight:600;margin-right:0.6rem;"><i class="fas fa-redo"></i> Retry</button>' +
           '<button onclick="_agMasterBypass()" style="background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.35);color:#FFC107;padding:0.5rem 1.3rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.83rem;font-weight:600;"><i class="fas fa-key"></i> Emergency Access</button>' +
         '</div>';
