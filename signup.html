@@ -320,11 +320,11 @@ document.getElementById('form').addEventListener('submit', async function(e) {
             name: fullName, program: program, level: level, img: null, phone: phone, email: email
         }));
 
-        // Save to Supabase profiles table
+        // Save to Supabase user_profiles table
         try {
-            await window.geramaSupabase.from('profiles').upsert({
+            await window.geramaSupabase.from('user_profiles').upsert({
                 email:      email,
-                name:       fullName,
+                full_name:  fullName,
                 phone:      phone || null,
                 program:    program || null,
                 level:      level   || null,

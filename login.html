@@ -211,15 +211,15 @@
                 // Try to fetch/upsert profile from DB
                 try {
                     const { data: p } = await window.geramaSupabase
-                        .from('profiles')
-                        .select('name, phone, program, level, index_number, photo_url')
+                        .from('user_profiles')
+                        .select('full_name, phone, program, level, index_number, photo_url')
                         .eq('email', email)
                         .single();
 
                     if (p) {
                         profileData = {
                             email,
-                            name:         p.name         || profileData.name,
+                            name:         p.full_name    || profileData.name,
                             program:      p.program      || profileData.program,
                             level:        p.level        || profileData.level,
                             phone:        p.phone        || profileData.phone,
@@ -228,9 +228,9 @@
                         };
                     } else {
                         // Create profile row for new user
-                        await window.geramaSupabase.from('profiles').upsert({
+                        await window.geramaSupabase.from('user_profiles').upsert({
                             email,
-                            name:       profileData.name,
+                            full_name:  profileData.name,
                             program:    profileData.program || null,
                             level:      profileData.level   || null,
                             phone:      profileData.phone   || null,
