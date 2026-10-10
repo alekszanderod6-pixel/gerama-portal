@@ -1,4 +1,4 @@
-﻿
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1261,12 +1261,12 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
         statTargets.statMaterialsCount = Math.max(700, matRes.count);
 
       // Total registered users (no is_active filter — column may not exist)
-      var userRes = await sb.from('profiles').select('id', { count: 'exact', head: true });
+      var userRes = await sb.from('user_profiles').select('id', { count: 'exact', head: true });
       if(!userRes.error && userRes.count != null && userRes.count > 0)
         statTargets.statStudentsCount = Math.max(300, userRes.count);
 
       // Distinct engineering programs
-      var progRes = await sb.from('profiles').select('program').limit(500);
+      var progRes = await sb.from('user_profiles').select('program').limit(500);
       if(!progRes.error && progRes.data && progRes.data.length) {
         var programs = {};
         progRes.data.forEach(function(r){ if(r.program) programs[r.program] = true; });
@@ -1493,7 +1493,8 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
         }
         if (!res.data || !res.data.length) { 
           log('Query successful but no announcements found', 'warn');
-          localStorage.setItem('gerama_announcements','[]'); 
+          // Do NOT cache empty array — it poisons future loads
+          // Leave existing cache intact so stale data still shows
           renderEmpty(); 
           return; 
         }
@@ -1523,6 +1524,14 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeAnnL
   }
   
   log('Initializing announcements module...');
+  // Clear poisoned empty cache so we always try a fresh DB fetch
+  try {
+    var _cached = JSON.parse(localStorage.getItem('gerama_announcements') || 'null');
+    if (_cached !== null && _cached.length === 0) {
+      localStorage.removeItem('gerama_announcements');
+      log('Cleared empty announcements cache');
+    }
+  } catch(e) {}
   trySupabase();
 
   // Listen for realtime DELETE/INSERT events so announcements update without reload
@@ -1668,7 +1677,7 @@ async function searchPotwNames(query) {
     try {
       var sb = window.geramaSupabase;
       if (!sb) { sugEl.style.display='none'; return; }
-      var res = await sb.from('profiles').select('full_name,program,level').eq('is_active',true).order('name',{ascending:true}).limit(200);
+      var res = await sb.from('user_profiles').select('full_name,program,level').eq('is_active',true).order('name',{ascending:true}).limit(200);
       _potwNamesCache = (res.data || []).filter(function(u){ return u.name; });
     } catch(e) { sugEl.style.display='none'; return; }
   }

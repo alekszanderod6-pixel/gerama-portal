@@ -2062,6 +2062,14 @@ CREATE POLICY "Anon all tshirt_interest" ON tshirt_interest FOR ALL USING (true)
       </div>
 
       <div style="margin-top:1rem;"><button class="btn-primary" id="scheduleClsBtn"><i class="fas fa-calendar-plus"></i> Schedule &amp; Publish</button></div>
+      <!-- Notification option -->
+      <div style="margin-top:0.8rem;display:flex;align-items:center;gap:0.8rem;background:#f0fdf4;border:1px solid #c8e6c9;border-radius:12px;padding:0.8rem 1rem;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.88rem;font-weight:600;color:#1B5E20;flex:1;min-width:200px;">
+          <input type="checkbox" id="clsNotifyStudents" checked style="width:18px;height:18px;accent-color:#1B5E20;cursor:pointer;">
+          📣 Post as announcement &amp; send push notification to all subscribers
+        </label>
+        <span style="font-size:0.75rem;color:#6b7280;">Students will see this class in Announcements &amp; get a push alert</span>
+      </div>
       <div class="status-msg" id="clsStatus"></div>
       <div id="clsLinkBox" style="display:none;margin-top:1rem;background:#e8f5e9;border-radius:12px;padding:1rem 1.2rem;border:1px solid #c8e6c9;">
         <strong style="display:block;color:#1B5E20;margin-bottom:0.5rem;"><i class="fas fa-link"></i> Class Link Generated!</strong>

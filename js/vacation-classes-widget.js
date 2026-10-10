@@ -97,8 +97,16 @@
     }
 
     // ── Show static data immediately, then overlay with DB ──
+    function getTodayLocal() {
+        // Use local date (not UTC) so Ghana timezone shows correct day
+        var d = new Date();
+        var mm = String(d.getMonth() + 1).padStart(2, '0');
+        var dd = String(d.getDate()).padStart(2, '0');
+        return d.getFullYear() + '-' + mm + '-' + dd;
+    }
+
     function paintStaticToday() {
-        var today = new Date().toISOString().split('T')[0];
+        var today = getTodayLocal();
         var todayItems = STATIC_SCHEDULE.filter(function(c) { return c.class_date === today; });
         renderClasses(todayItems);
     }
@@ -110,18 +118,17 @@
                 window.geramaSupabase
                     .from('vacation_classes')
                     .select('*')
-                    .eq('class_date', new Date().toISOString().split('T')[0])
+                    .eq('class_date', getTodayLocal())
                     .eq('is_active', true)
                     .order('start_time')
                     .then(function(res) {
-                        if (!res.error && res.data) renderClasses(res.data);
+                        if (!res.error && res.data && res.data.length > 0) renderClasses(res.data);
                     })
                     .catch(function() { /* static already showing */ });
             } else if (attempt < 30) {
                 attempt++;
                 setTimeout(poll, 400);
             }
-            // after 12s give up — static data is already visible
         }
         poll();
     }

@@ -477,7 +477,8 @@ checkToday();
 document.addEventListener('DOMContentLoaded', loadFromDB);
 
 function checkToday() {
-    const today = new Date().toISOString().split('T')[0];
+    const d = new Date();
+    const today = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     const todayClasses = STATIC_SCHEDULE.filter(c => c.class_date === today);
     if (!todayClasses.length) return;
     const banner = document.getElementById('todayBanner');
@@ -506,7 +507,8 @@ async function loadFromDB() {
             allClasses = data;
             filterByWeek(currentWeekFilter, document.querySelector(`.week-tab[data-week="${currentWeekFilter === null ? 'all' : currentWeekFilter}"]`));
             // Refresh today banner with DB data
-            const today = new Date().toISOString().split('T')[0];
+            const d2 = new Date();
+            const today = d2.getFullYear() + '-' + String(d2.getMonth()+1).padStart(2,'0') + '-' + String(d2.getDate()).padStart(2,'0');
             const todayDB = data.filter(c => c.class_date === today);
             if (todayDB.length > 0) checkTodayFromData(todayDB);
         }
