@@ -2649,8 +2649,7 @@ window.saveClassEdit = async function(classId, classType) {
   var updates = {
     scheduled_at: new Date(dt).toISOString(),
     tutor:        tutor,
-    description:  desc,
-    updated_at:   new Date().toISOString()
+    description:  desc
   };
   if (isInPerson) {
     updates.venue    = venue || null;
