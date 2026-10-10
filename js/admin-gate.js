@@ -7,8 +7,8 @@
   'use strict';
 
   // ── Credentials hardcoded as direct fallback so the gate NEVER fails to connect ──
-  var SUPA_URL = 'https://ykffelsvpopmpeagyhse.supabase.co';
-  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrZmZlbHN2cG9wbXBlYWd5aHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NjE0NTgsImV4cCI6MjEwNzAzNzQ1OH0.zAtMslRU12VFDD93p8oJCao-HoAnDdCaQD3UFFNuwo8';
+  var SUPA_URL = 'https://obfhmyeghurqfxingwtu.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZmhteWVnaHVycWZ4aW5nd3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTIxODMsImV4cCI6MjEwMTM2ODE4M30.mAgIHzhodRXTya-BfhA_ZLD2eoeshle79Zx6isKbXj4';
   var SESSION_KEY = 'gerama_admin_session';
   var MASTER_PASS = '2026GERAMA';
   var INVITE_CODE = 'admin2026';

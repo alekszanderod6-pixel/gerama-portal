@@ -1,4 +1,4 @@
-﻿// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+// –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 // GERAMA Admin Extras – Team Management, Multi-image, Attendance cleanup,
 // Sensitive operation codes, and brilliant new features
 // –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
@@ -6,8 +6,8 @@
 (function(){
   'use strict';
 
-  var SUPA_URL = window.__SUPABASE_URL || 'https://ykffelsvpopmpeagyhse.supabase.co';
-  var SUPA_KEY = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrZmZlbHN2cG9wbXBlYWd5aHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NjE0NTgsImV4cCI6MjEwNzAzNzQ1OH0.zAtMslRU12VFDD93p8oJCao-HoAnDdCaQD3UFFNuwo8';
+  var SUPA_URL = window.__SUPABASE_URL || 'https://obfhmyeghurqfxingwtu.supabase.co';
+  var SUPA_KEY = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9iZmhteWVnaHVycWZ4aW5nd3R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3OTIxODMsImV4cCI6MjEwMTM2ODE4M30.mAgIHzhodRXTya-BfhA_ZLD2eoeshle79Zx6isKbXj4';
   var SENSITIVE_CODE = '2026GERAMA';
   var SUPER_ADMIN_CODE = 'adminGERAMA2026';
   var BUCKET = 'gerama-materials';
