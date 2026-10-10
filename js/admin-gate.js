@@ -6,8 +6,9 @@
 (function(){
   'use strict';
 
-  var SUPA_URL    = window.__SUPABASE_URL || 'https://ykffelsvpopmpeagyhse.supabase.co';
-  var SUPA_KEY    = window.__SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrZmZlbHN2cG9wbXBlYWd5aHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NjE0NTgsImV4cCI6MjEwNzAzNzQ1OH0.zAtMslRU12VFDD93p8oJCao-HoAnDdCaQD3UFFNuwo8';
+  // ── Credentials hardcoded as direct fallback so the gate NEVER fails to connect ──
+  var SUPA_URL = 'https://ykffelsvpopmpeagyhse.supabase.co';
+  var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrZmZlbHN2cG9wbXBlYWd5aHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NjE0NTgsImV4cCI6MjEwNzAzNzQ1OH0.zAtMslRU12VFDD93p8oJCao-HoAnDdCaQD3UFFNuwo8';
   var SESSION_KEY = 'gerama_admin_session';
   var MASTER_PASS = '2026GERAMA';
   var INVITE_CODE = 'admin2026';
@@ -33,13 +34,22 @@
   function getSession(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY)||'null'); }catch(e){ return null; } }
   function setSession(s){ localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
 
-  document.addEventListener('DOMContentLoaded', function(){
+  function _init() {
     var session = getSession();
     if(session && session.id){ _applySession(session); return; }
     _loadProfiles();
-  });
+  }
 
-  function _loadProfiles(){
+  // Handle both cases: script loads before or after DOMContentLoaded
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _init);
+  } else {
+    // DOM already ready — call immediately
+    _init();
+  }
+
+  function _loadProfiles(attempt){
+    attempt = attempt || 1;
     var grid = document.getElementById('agGrid');
     if(grid) grid.innerHTML = '<div style="color:rgba(255,255,255,0.35);text-align:center;padding:1.5rem 0;font-size:0.85rem;width:100%;"><i class="fas fa-circle-notch fa-spin" style="font-size:1.8rem;display:block;margin-bottom:0.6rem;opacity:0.5;"></i>Loading profiles\u2026</div>';
 
@@ -49,21 +59,25 @@
     .then(function(r){
       return r.json().then(function(json){
         if(!Array.isArray(json)){
-          // API returned an error object — show it for debugging
           var msg = (json && json.message) ? json.message : (json && json.error ? json.error : JSON.stringify(json).substring(0,120));
-          throw new Error('API error: ' + msg);
+          throw new Error('API: ' + msg);
         }
         return json;
       });
     })
     .then(function(data){ _renderProfiles(data); })
     .catch(function(err){
-      console.error('[GERAMA Admin Gate] fetch error:', err);
+      console.error('[GERAMA Admin Gate] fetch error (attempt '+attempt+'):', err);
+      // Auto-retry up to 3 times with 1s delay
+      if(attempt < 3){
+        setTimeout(function(){ _loadProfiles(attempt + 1); }, 1000);
+        return;
+      }
       if(!grid) return;
       grid.innerHTML =
         '<div style="text-align:center;width:100%;padding:1rem;">' +
-          '<div style="color:#f87171;font-size:0.85rem;margin-bottom:1rem;"><i class="fas fa-wifi" style="display:block;font-size:2rem;margin-bottom:0.5rem;opacity:0.5;"></i>No connection. Try again or use master password.</div>' +
-          '<div style="color:rgba(255,255,255,0.35);font-size:0.72rem;margin-bottom:0.8rem;">' + (err&&err.message?err.message:'') + '</div>' +
+          '<div style="color:#f87171;font-size:0.85rem;margin-bottom:0.5rem;"><i class="fas fa-wifi" style="display:block;font-size:2rem;margin-bottom:0.5rem;opacity:0.5;"></i>No connection. Try again or use master password.</div>' +
+          '<div style="color:rgba(255,255,255,0.3);font-size:0.7rem;margin-bottom:0.8rem;word-break:break-all;">' + (err&&err.message?err.message:'') + '</div>' +
           '<button onclick="_loadProfiles()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:white;padding:0.5rem 1.3rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.83rem;font-weight:600;margin-right:0.6rem;"><i class="fas fa-redo"></i> Retry</button>' +
           '<button onclick="_agMasterBypass()" style="background:rgba(255,193,7,0.15);border:1px solid rgba(255,193,7,0.35);color:#FFC107;padding:0.5rem 1.3rem;border-radius:20px;cursor:pointer;font-family:\'Inter\',sans-serif;font-size:0.83rem;font-weight:600;"><i class="fas fa-key"></i> Emergency Access</button>' +
         '</div>';
