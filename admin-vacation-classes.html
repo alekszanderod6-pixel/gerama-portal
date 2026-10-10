@@ -655,38 +655,65 @@
         async function handleFileUpload(week, file) {
             if (!file) return;
 
+            const uploadZone = document.getElementById('uploadZone' + week);
+            if (uploadZone) { uploadZone.style.borderColor = '#1B5E20'; uploadZone.innerHTML = '<div style="font-size:1.5rem;">⏳</div><p style="margin:0;font-weight:600;color:#1B5E20;">Uploading...</p>'; }
+
             try {
                 const fileExt = file.name.split('.').pop();
-                const fileName = `timetable-week${week}-${Date.now()}.${fileExt}`;
+                const fileName = `timetables/timetable-week${week}-${Date.now()}.${fileExt}`;
                 
-                const { data, error } = await supabase.storage
-                    .from('timetables')
-                    .upload(fileName, file);
+                // Upload to gerama-materials bucket (already exists and is public)
+                const { data: upData, error } = await supabase.storage
+                    .from('gerama-materials')
+                    .upload(fileName, file, { upsert: true });
 
                 if (error) throw error;
 
                 const { data: { publicUrl } } = supabase.storage
-                    .from('timetables')
+                    .from('gerama-materials')
                     .getPublicUrl(fileName);
 
-                // Update settings with new URL
+                // Update or insert settings with new URL
                 const columnName = `timetable_image_week${week}`;
-                const { error: updateError } = await supabase
-                    .from('vacation_schedule_settings')
-                    .update({ [columnName]: publicUrl })
-                    .eq('is_current', true);
 
-                if (updateError) throw updateError;
+                // Check if a settings row exists
+                const { data: existing } = await supabase
+                    .from('vacation_schedule_settings')
+                    .select('id')
+                    .eq('is_current', true)
+                    .single();
+
+                if (existing) {
+                    await supabase.from('vacation_schedule_settings')
+                        .update({ [columnName]: publicUrl })
+                        .eq('is_current', true);
+                } else {
+                    // Create a default settings row
+                    await supabase.from('vacation_schedule_settings').insert({
+                        schedule_name: 'GERAMA/26 Tutorial Sessions',
+                        start_date: '2026-10-06',
+                        end_date: '2026-10-26',
+                        is_current: true,
+                        [columnName]: publicUrl
+                    });
+                }
 
                 // Show preview
                 document.getElementById(`preview${week}`).innerHTML = `
                     <img src="${publicUrl}" class="preview-img" alt="Week ${week} Timetable">
                 `;
 
+                if (uploadZone) {
+                    uploadZone.innerHTML = '<div style="font-size:1.5rem;">✅</div><p style="margin:0;font-weight:600;color:#1B5E20;">Uploaded! Click to replace.</p>';
+                }
+
                 showAlert(`Week ${week} timetable uploaded successfully!`, 'success');
             } catch (error) {
                 console.error('Error uploading timetable:', error);
-                showAlert('Failed to upload timetable: ' + error.message, 'error');
+                if (uploadZone) {
+                    uploadZone.innerHTML = '<div style="font-size:1.5rem;">📤</div><p style="margin:0;font-weight:600;">Click to upload or drag and drop</p>';
+                }
+                showAlert('Failed to upload timetable: ' + error.message + '. Make sure the gerama-materials storage bucket is public.', 'error');
             }
         }
 
@@ -729,11 +756,25 @@
             };
 
             try {
-                const { error } = await supabase
+                // Check if a row exists first
+                const { data: existing } = await supabase
                     .from('vacation_schedule_settings')
-                    .upsert(settings, { onConflict: 'is_current' });
+                    .select('id')
+                    .eq('is_current', true)
+                    .single();
 
-                if (error) throw error;
+                if (existing) {
+                    const { error } = await supabase
+                        .from('vacation_schedule_settings')
+                        .update(settings)
+                        .eq('is_current', true);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabase
+                        .from('vacation_schedule_settings')
+                        .insert(settings);
+                    if (error) throw error;
+                }
 
                 showAlert('Settings saved successfully!', 'success');
             } catch (error) {

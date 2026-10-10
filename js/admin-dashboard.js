@@ -2320,6 +2320,81 @@ window.copyClsLink = function(){
   alert('Link copied!');
 };
 
+// ── 🔔 Notify Students About a Scheduled Class ─────────────────────
+window.notifyStudentsAboutClass = async function(classId) {
+  // Get the class from cache
+  var c = window._adminClassCache && window._adminClassCache[classId];
+  if (!c) { alert('Class not found. Please refresh the list.'); return; }
+
+  var course   = c.course   || '';
+  var topic    = c.topic    || '';
+  var tutor    = c.tutor    || '';
+  var dt       = new Date(c.scheduled_at);
+  var dateStr  = dt.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  var timeStr  = dt.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  var meetLink = window.getClassMeetLink(c);
+  var isInPerson = c.class_type === 'inperson';
+
+  // Build the notification message
+  var pushTitle = '📅 ' + course + (topic ? ' – ' + topic : '') + ' Tonight!';
+  var pushBody  = 'Hello 👋 Join ' + course + (topic ? ' (' + topic + ')' : '') + ' online tutorial tonight' +
+    ' at ' + timeStr + (tutor ? ' with ' + tutor : '') + '.' +
+    ' Check the portal to access the class link. Thank you. @GERAMA UENR';
+
+  // Build announcement message
+  var annMsg = 'Hello GERAMA Members 👋\n\nJoin us for ' + course +
+    (topic ? ': ' + topic : '') + ' tonight!\n\n' +
+    '📅 Date: ' + dateStr + '\n' +
+    '⏰ Time: ' + timeStr + '\n' +
+    (tutor ? '👨‍🏫 Tutor: ' + tutor + '\n' : '') +
+    (isInPerson ? '📍 Venue: ' + (c.venue || 'TBA') + '\n' : '🔗 Check the portal for the class link\n') +
+    '\nDon\'t miss out — see you there! 🎓\n@GERAMA UENR';
+
+  // Confirm before sending
+  if (!confirm('Send push notification + announcement to all subscribers?\n\n' + pushTitle + '\n\n' + pushBody)) return;
+
+  var sb = window.geramaSupabase;
+  var errors = [];
+
+  // 1. Post as announcement
+  try {
+    var annRes = await sb.from('announcements').insert({
+      title: pushTitle,
+      message: annMsg,
+      priority: 'important',
+      created_at: new Date().toISOString()
+    });
+    if (annRes.error) throw new Error(annRes.error.message);
+  } catch(e) { errors.push('Announcement: ' + e.message); }
+
+  // 2. Send push via OneSignal API
+  try {
+    var pushRes = await fetch('/api/send-push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title:   pushTitle,
+        message: pushBody,
+        url:     window.location.origin + '/classroom.html'
+      })
+    });
+    var pushJson = await pushRes.json();
+    if (!pushRes.ok) throw new Error(pushJson.error || 'Push failed');
+  } catch(e) { errors.push('Push notification: ' + e.message); }
+
+  if (errors.length === 0) {
+    window.showStatus('clsStatus', '✅ Notification sent to all subscribers + posted as announcement!', 'ok');
+    // Show brief toast at the top
+    var toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:80px;right:1.2rem;z-index:99999;background:linear-gradient(135deg,#7c3aed,#a78bfa);color:white;padding:0.8rem 1.4rem;border-radius:14px;font-weight:700;font-size:0.88rem;box-shadow:0 8px 24px rgba(124,58,237,0.4);';
+    toast.innerHTML = '🔔 Notification sent to all subscribers!';
+    document.body.appendChild(toast);
+    setTimeout(function() { toast.remove(); }, 3500);
+  } else {
+    alert('⚠️ Some steps failed:\n' + errors.join('\n'));
+  }
+};
+
 window.getClassMeetLink = function(c){
   return c ? (c.meet_link || c.meeting_link || null) : null;
 };
@@ -2382,6 +2457,8 @@ window.loadClsList = async function(){
     var reopenBtn = isEnded?'<button class="btn-gold" style="font-size:0.78rem;padding:0.4rem 0.9rem;" onclick="setClassStatus(\''+c.id+'\',\'upcoming\')"><i class="fas fa-redo"></i> Reopen</button>':'';
     var editBtn   = !isEnded ? '<button class="btn-primary" style="font-size:0.78rem;padding:0.4rem 0.9rem;background:linear-gradient(135deg,#0369a1,#0ea5e9);" onclick="openEditClassModal(\''+window.escAttr(c.id)+'\')"><i class="fas fa-edit"></i> Edit</button>' : '';
     var deleteBtn = '<button class="btn-danger" onclick="deleteClass(\''+c.id+'\')" style="font-size:0.78rem;padding:0.4rem 0.7rem;"><i class="fas fa-trash"></i></button>';
+    // 🔔 Notify button — sends push + announcement to all subscribers
+    var notifyBtn = !isEnded ? '<button style="background:linear-gradient(135deg,#7c3aed,#a78bfa);color:white;border:none;font-size:0.78rem;padding:0.4rem 0.9rem;border-radius:8px;cursor:pointer;font-family:\'Inter\',sans-serif;font-weight:700;" onclick="notifyStudentsAboutClass(\''+window.escAttr(c.id)+'\')"><i class="fas fa-bell"></i> Notify</button>' : '';
 
     var locationInfo = isInPerson
       ? '<br><i class="fas fa-map-marker-alt" style="color:#dc2626;margin-right:0.3rem;"></i><strong>Venue:</strong> '+window.escHtml(c.venue||'–')+
@@ -2396,7 +2473,7 @@ window.loadClsList = async function(){
         (c.target_group?' | <b>Group:</b> '+window.escHtml(c.target_group):' | <b>Group:</b> All')+
         locationInfo+'</div>'+
       '</div>'+
-      '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+editBtn+deleteBtn+'</div>'+
+      '<div class="sub-actions">'+goLiveBtn+endBtn+reopenBtn+editBtn+notifyBtn+deleteBtn+'</div>'+
     '</div>';
   }
 
