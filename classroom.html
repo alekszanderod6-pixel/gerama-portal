@@ -1532,10 +1532,19 @@ function renderClasses(classes) {
         actionBtn += '<a href="'+c.map_link+'" target="_blank" rel="noopener" class="btn-join" style="background:linear-gradient(135deg,#4285F4,#1a73e8);"><i class="fab fa-google"></i> View Map</a>';
       }
     } else if(meetLink && !isEnded){
-      actionBtn = '<a href="'+meetLink+'" target="_blank" rel="noopener" class="btn-join'+(isLive?' gold':'')+'"><i class="'+(meetPlatform === 'google' ? 'fab fa-google' : 'fas fa-video')+'"></i> '+(isLive?'Join Now':'Join When Live')+'</a>';
+      // Skip placeholder links that point back to classroom.html
+      var isPlaceholder = meetLink.indexOf('classroom.html') !== -1 || meetLink.indexOf('gerama-portal.vercel.app/classroom') !== -1;
+      if(isPlaceholder){
+        actionBtn = '<span style="background:#fef3c7;color:#92400e;padding:0.5rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:700;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-clock"></i> Link coming soon</span>';
+      } else {
+        actionBtn = '<a href="'+meetLink+'" target="_blank" rel="noopener" class="btn-join'+(isLive?' gold':'')+'"><i class="'+(meetPlatform === 'google' ? 'fab fa-google' : 'fas fa-video')+'"></i> '+(isLive?'Join Now':'Join When Live')+'</a>';
+      }
+    } else if(!meetLink && !isInPerson && !isEnded){
+      actionBtn = '<span style="background:#fef3c7;color:#92400e;padding:0.5rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:700;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-clock"></i> Link coming soon</span>';
     }
 
-    var copyBtn = (!isInPerson && meetLink) ? '<button class="btn-copy" onclick="copyLink(\''+meetLink+'\')"><i class="fas fa-copy"></i> Copy Link</button>' : '';
+    var isPlaceholderLink = meetLink && (meetLink.indexOf('classroom.html') !== -1 || meetLink.indexOf('gerama-portal.vercel.app/classroom') !== -1);
+    var copyBtn = (!isInPerson && meetLink && !isPlaceholderLink) ? '<button class="btn-copy" onclick="copyLink(\''+meetLink+'\')"><i class="fas fa-copy"></i> Copy Link</button>' : '';
 
     var countdown = '';
     if(isUpcoming){
