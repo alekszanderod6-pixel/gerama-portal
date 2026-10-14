@@ -1516,6 +1516,10 @@ function renderClasses(classes) {
     var isUpcoming = !isLive && !isEnded;
     var isInPerson = c.class_type === 'inperson';
     var meetLink = c.meet_link || c.meeting_link || '';
+    // Auto-fix missing protocol — if link doesn't start with http, add https://
+    if (meetLink && !meetLink.match(/^https?:\/\//)) {
+        meetLink = 'https://' + meetLink;
+    }
     var meetPlatform = c.meet_platform || (meetLink.toLowerCase().indexOf('meet.google.com') !== -1 ? 'google' : 'jitsi');
     var badgeClass = isLive ? 'live' : (isEnded ? 'ended' : 'upcoming');
     var badgeText = isLive ? '🔴 LIVE NOW' : (isEnded ? 'Ended' : '⏰ Upcoming');

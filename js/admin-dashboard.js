@@ -2234,8 +2234,10 @@ window.scheduleClass = async function(){
         var gmInput = document.getElementById('clsGoogleMeetInput');
         var gmLink = gmInput ? gmInput.value.trim() : '';
         if(!gmLink){ window.showStatus('clsStatus','Please paste your Google Meet link.','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish'; return; }
+        // Auto-add https:// if admin pasted without it
+        if(gmLink && !gmLink.match(/^https?:\/\//)) gmLink = 'https://' + gmLink;
         // Basic validation: must be a meet.google.com link
-        if(gmLink.indexOf('meet.google.com/') === -1){ window.showStatus('clsStatus','Invalid Google Meet link. It should start with https://meet.google.com/','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish'; return; }
+        if(gmLink.indexOf('meet.google.com/') === -1){ window.showStatus('clsStatus','Invalid Google Meet link. It should contain meet.google.com/','err'); btn.disabled=false; btn.innerHTML='<i class="fas fa-calendar-plus"></i> Schedule &amp; Publish'; return; }
         meetLink = gmLink;
       } else {
         var slug = (course+'-'+topic).toLowerCase().replace(/[^a-z0-9]+/g,'-').substring(0,40);
