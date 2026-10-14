@@ -1510,7 +1510,9 @@ function renderClasses(classes) {
   el.innerHTML = classes.map(function(c){
     var dt = new Date(c.scheduled_at);
     var isLive = c.status === 'live';
-    var isEnded = c.status === 'ended' || (dt.getTime() < Date.now()-3600000 && c.status !== 'live');
+    var isEnded = c.status === 'ended';
+    // Only auto-end if explicitly set by admin — don't hide join button based on time alone
+    // This allows students to still join even if class ran slightly over time
     var isUpcoming = !isLive && !isEnded;
     var isInPerson = c.class_type === 'inperson';
     var meetLink = c.meet_link || c.meeting_link || '';
@@ -1537,7 +1539,9 @@ function renderClasses(classes) {
       if(isPlaceholder){
         actionBtn = '<span style="background:#fef3c7;color:#92400e;padding:0.5rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:700;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-clock"></i> Link coming soon</span>';
       } else {
-        actionBtn = '<a href="'+meetLink+'" target="_blank" rel="noopener" class="btn-join'+(isLive?' gold':'')+'"><i class="'+(meetPlatform === 'google' ? 'fab fa-google' : 'fas fa-video')+'"></i> '+(isLive?'Join Now':'Join When Live')+'</a>';
+        // Show Join button for live classes and upcoming ones with a valid link
+        var joinLabel = isLive ? 'Join Now' : 'Join Class';
+        actionBtn = '<a href="'+meetLink+'" target="_blank" rel="noopener" class="btn-join'+(isLive?' gold':'')+'"><i class="'+(meetPlatform === 'google' ? 'fab fa-google' : 'fas fa-video')+'"></i> '+joinLabel+'</a>';
       }
     } else if(!meetLink && !isInPerson && !isEnded){
       actionBtn = '<span style="background:#fef3c7;color:#92400e;padding:0.5rem 1rem;border-radius:20px;font-size:0.82rem;font-weight:700;display:inline-flex;align-items:center;gap:0.4rem;"><i class="fas fa-clock"></i> Link coming soon</span>';
