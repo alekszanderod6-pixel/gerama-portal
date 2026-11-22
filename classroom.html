@@ -1535,7 +1535,6 @@ function renderClasses(classes) {
 }
 
 function renderClassCard(c) {
-function renderClassCard(c) {
     var now = Date.now();
     var userEmail = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email) || '';
     var dt = new Date(c.scheduled_at);
