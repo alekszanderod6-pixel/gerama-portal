@@ -107,7 +107,13 @@
 
     function paintStaticToday() {
         var today = getTodayLocal();
-        var todayItems = STATIC_SCHEDULE.filter(function(c) { return c.class_date === today; });
+        var now = new Date();
+        var todayItems = STATIC_SCHEDULE.filter(function(c) {
+            if (c.class_date !== today) return false;
+            // Check if class time has passed (filter out past classes)
+            var classDateTime = new Date(c.class_date + ' ' + c.end_time);
+            return classDateTime >= now;
+        });
         renderClasses(todayItems);
     }
 
@@ -122,7 +128,15 @@
                     .eq('is_active', true)
                     .order('start_time')
                     .then(function(res) {
-                        if (!res.error && res.data && res.data.length > 0) renderClasses(res.data);
+                        if (!res.error && res.data && res.data.length > 0) {
+                            // Filter out past classes
+                            var now = new Date();
+                            var upcomingClasses = res.data.filter(function(c) {
+                                var classDateTime = new Date(c.class_date + ' ' + c.end_time);
+                                return classDateTime >= now;
+                            });
+                            renderClasses(upcomingClasses);
+                        }
                     })
                     .catch(function() { /* static already showing */ });
             } else if (attempt < 30) {

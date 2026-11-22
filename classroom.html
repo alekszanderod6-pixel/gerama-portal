@@ -535,8 +535,8 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
     <h1>Assignments &amp; <span style="color:var(--gold)">Online Classes</span></h1>
     <p>Submit assignments, join live classes, take quizzes, and stay on top of your coursework  all in one place.</p>
     <div style="display:flex;gap:0.8rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
-      <button onclick="window.location.href='vacation-classes.html'" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:3px solid #FFC107;padding:0.8rem 2rem;border-radius:50px;font-weight:900;font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.7rem;font-family:'Inter',sans-serif;box-shadow:0 6px 20px rgba(27,94,32,0.5);transition:all 0.3s;text-transform:uppercase;letter-spacing:0.5px;animation:vacationPulse 2s infinite;" onmouseover="this.style.transform='translateY(-3px) scale(1.05)';this.style.boxShadow='0 10px 35px rgba(27,94,32,0.7)'" onmouseout="this.style.transform='';this.style.boxShadow='0 6px 20px rgba(27,94,32,0.5)'">
-        <i class="fas fa-calendar-alt"></i> 🎓 Tutorial Sessions
+      <button onclick="showTab('classes')" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);color:white;border:3px solid #FFC107;padding:0.8rem 2rem;border-radius:50px;font-weight:900;font-size:1rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.7rem;font-family:'Inter',sans-serif;box-shadow:0 6px 20px rgba(27,94,32,0.5);transition:all 0.3s;text-transform:uppercase;letter-spacing:0.5px;" onmouseover="this.style.transform='translateY(-3px) scale(1.05)';this.style.boxShadow='0 10px 35px rgba(27,94,32,0.7)'" onmouseout="this.style.transform='';this.style.boxShadow='0 6px 20px rgba(27,94,32,0.5)'">
+        <i class="fas fa-video"></i> Browse Classes
       </button>
       <button onclick="showTab('quizzes')" style="background:linear-gradient(135deg,#6366f1,#4f46e5);color:white;border:none;padding:0.65rem 1.4rem;border-radius:30px;font-weight:700;font-size:0.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:0.5rem;font-family:'Inter',sans-serif;box-shadow:0 4px 15px rgba(99,102,241,0.4);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
         <i class="fas fa-brain"></i> Take a Quiz
@@ -548,12 +548,6 @@ body{font-family:'Inter',sans-serif;background:var(--light);color:var(--text);li
         <i class="fas fa-video"></i> Live Classes
       </button>
     </div>
-    <style>
-      @keyframes vacationPulse {
-        0%, 100% { box-shadow: 0 6px 20px rgba(27,94,32,0.5); }
-        50% { box-shadow: 0 8px 30px rgba(255,193,7,0.6); }
-      }
-    </style>
   </div>
 </section>
 
@@ -1494,12 +1488,20 @@ function renderClasses(classes) {
   var now = Date.now();
   var userEmail = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email) || '';
 
+  // Auto-correct status for past classes (client-side fix)
+  classes.forEach(function(c) {
+    var classTime = new Date(c.scheduled_at).getTime();
+    var oneHourPast = classTime + 3600000; // 1 hour after scheduled time
+    if (c.status === 'upcoming' && now > oneHourPast) {
+      c.status = 'ended'; // Mark as ended if more than 1 hour past scheduled time
+    }
+  });
+
   // Sort: live first – upcoming soonest – ended most-recently last
   classes.sort(function(a,b){
     var aL=a.status==='live', bL=b.status==='live';
-    // A class is "ended" if status==='ended' OR its scheduled_at is more than 1 hour in the past
-    var aE=a.status==='ended'||(new Date(a.scheduled_at).getTime()<Date.now()-3600000&&a.status!=='live');
-    var bE=b.status==='ended'||(new Date(b.scheduled_at).getTime()<Date.now()-3600000&&b.status!=='live');
+    var aE=a.status==='ended';
+    var bE=b.status==='ended';
     if(aL&&!bL) return -1; if(!aL&&bL) return 1;
     if(aE&&!bE) return 1;  if(!aE&&bE) return -1;
     // Both upcoming: soonest first. Both ended: most recent end first (descending)
@@ -3139,7 +3141,11 @@ function downloadQuestionPaperPDF(qid) {
     (studentBar ? studentBar.outerHTML : '') +
     (paperArea ? paperArea.innerHTML.replace(/textarea/g,'div').replace(/input/g,'div') : '') +
     '<p style="font-size:0.75rem;color:#9ca3af;text-align:center;margin-top:2rem;border-top:1px solid #e5e7eb;padding-top:0.8rem;">GERAMA Academic Resources Centre UENR Generated '+new Date().toLocaleDateString('en-GB')+'</p>' +
-    '</body></html>');
+    '  <!-- Geralex AI -->
+  <script src="js/ai-config.js"></script>
+  <script src="js/geralex-client-ai.js"></script>
+  <script src="js/geralex-global.js"></script>
+</body></html>');
   win.document.close();
   win.focus();
   setTimeout(function(){ win.print(); }, 500);
@@ -3790,6 +3796,7 @@ async function loadOpportunities() {
     var {data, error} = await sb.from('opportunities').select('*').eq('status','approved').order('created_at',{ascending:false});
     if(error) throw new Error(error.message);
     _allOpportunities = data || [];
+    _allOpportunities = await loadOpportunityImageUrls(_allOpportunities);
     renderOpportunities();
 
     // Update badge count
@@ -3807,6 +3814,23 @@ async function loadOpportunities() {
   }
 }
 
+async function loadOpportunityImageUrls(opportunities) {
+  var sb = window.geramaSupabase;
+  if (!sb) return opportunities;
+  for (var i = 0; i < opportunities.length; i++) {
+    var opportunity = opportunities[i];
+    var url = opportunity.image_url || '';
+    if (!url || url.indexOf('supabase.co/storage/') === -1 || url.indexOf('/object/public/') !== -1) continue;
+    var match = url.match(/\/storage\/v1\/object\/(?:sign\/)?gerama-materials\/(.+?)(\?|$)/);
+    if (!match) continue;
+    try {
+      var signed = await sb.storage.from('gerama-materials').createSignedUrl(decodeURIComponent(match[1]), 3600);
+      if (signed.data && signed.data.signedUrl) opportunity._signedUrl = signed.data.signedUrl;
+    } catch (e) {}
+  }
+  return opportunities;
+}
+
 function renderOpportunities() {
   var grid = document.getElementById('oppGrid');
   if(!grid) return;
@@ -3822,8 +3846,9 @@ function renderOpportunities() {
 
   grid.innerHTML = list.map(function(opp) {
     var badge = '<span class="opp-badge ' + (opp.type||'other') + '">' + getOppTypeLabel(opp.type) + '</span>';
-    var img = opp.image_url
-      ? '<img src="' + escAttr(opp.image_url) + '" class="opp-img" alt="' + escAttr(opp.company) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling&&(this.nextElementSibling.style.display=\'flex\');" onclick="event.stopPropagation();openLightbox(\'' + escAttr(opp.image_url) + '\')"><div class="opp-img-placeholder" style="display:none;">' + getOppEmoji(opp.type) + '</div>'
+    var opportunityImageUrl = opp._signedUrl || opp.image_url;
+    var img = opportunityImageUrl
+      ? '<img src="' + escAttr(opportunityImageUrl) + '" class="opp-img" alt="' + escAttr(opp.company) + '" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling&&(this.nextElementSibling.style.display=\'flex\');" onclick="event.stopPropagation();openLightbox(\'' + escAttr(opportunityImageUrl) + '\')"><div class="opp-img-placeholder" style="display:none;"><i class="fas fa-image"></i></div>'
       : '<div class="opp-img-placeholder">' + getOppEmoji(opp.type) + '</div>';
     var deadline = opp.deadline ? '<span><i class="fas fa-calendar-alt" style="color:#dc2626;"></i> Deadline: ' + new Date(opp.deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) + '</span>' : '';
     var mode = opp.mode_of_application ? '<span><i class="fas fa-file-alt" style="color:#6366f1;"></i> ' + escHtml(opp.mode_of_application) + '</span>' : '';
@@ -4521,5 +4546,11 @@ function initAssistanceForm() {
   });
 }
 </script>
+<!-- Opportunities Image Fix -->
+<script src="js/opportunities-image-fix.js"></script>
+  <!-- Geralex AI -->
+  <script src="js/ai-config.js"></script>
+  <script src="js/geralex-client-ai.js"></script>
+  <script src="js/geralex-global.js"></script>
 </body>
 </html>
