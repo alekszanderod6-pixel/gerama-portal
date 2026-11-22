@@ -1497,24 +1497,50 @@ function renderClasses(classes) {
     }
   });
 
-  // Sort: live first – upcoming soonest – ended most-recently last
-  classes.sort(function(a,b){
+  // Separate upcoming/live from ended
+  var activeClasses = classes.filter(function(c) { return c.status !== 'ended'; });
+  var endedClasses = classes.filter(function(c) { return c.status === 'ended'; });
+
+  // Sort: live first – upcoming soonest
+  activeClasses.sort(function(a,b){
     var aL=a.status==='live', bL=b.status==='live';
-    var aE=a.status==='ended';
-    var bE=b.status==='ended';
     if(aL&&!bL) return -1; if(!aL&&bL) return 1;
-    if(aE&&!bE) return 1;  if(!aE&&bE) return -1;
-    // Both upcoming: soonest first. Both ended: most recent end first (descending)
-    if(aE&&bE) return new Date(b.scheduled_at)-new Date(a.scheduled_at);
     return new Date(a.scheduled_at)-new Date(b.scheduled_at);
   });
 
-  el.innerHTML = classes.map(function(c){
+  // Sort ended: most recent first
+  endedClasses.sort(function(a,b){
+    return new Date(b.scheduled_at)-new Date(a.scheduled_at);
+  });
+
+  // Render active classes first
+  var html = '';
+  
+  if(activeClasses.length === 0) {
+    html += '<div class="empty-state"><i class="fas fa-video"></i><p>No upcoming classes at the moment.<br>Check the past classes below or check back soon.</p></div>';
+  } else {
+    html += activeClasses.map(renderClassCard).join('');
+  }
+
+  // Add past classes section if there are any
+  if(endedClasses.length > 0) {
+    html += '<div style="grid-column:1/-1;margin-top:2rem;border-top:2px solid #e5e7eb;padding-top:2rem;">' +
+            '<h3 style="font-size:1.1rem;font-weight:700;color:#6b7280;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">' +
+            '<i class="fas fa-history"></i> Past Classes (' + endedClasses.length + ')' +
+            '</h3></div>';
+    html += endedClasses.slice(0, 20).map(renderClassCard).join(''); // Show last 20 past classes
+  }
+
+  el.innerHTML = html;
+}
+
+function renderClassCard(c) {
+function renderClassCard(c) {
+    var now = Date.now();
+    var userEmail = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email) || '';
     var dt = new Date(c.scheduled_at);
     var isLive = c.status === 'live';
     var isEnded = c.status === 'ended';
-    // Only auto-end if explicitly set by admin — don't hide join button based on time alone
-    // This allows students to still join even if class ran slightly over time
     var isUpcoming = !isLive && !isEnded;
     var isInPerson = c.class_type === 'inperson';
     var meetLink = c.meet_link || c.meeting_link || '';
@@ -1591,7 +1617,6 @@ function renderClasses(classes) {
       countdown+
       '<div class="class-actions">'+actionBtn+copyBtn+mgmtBtns+'</div>'+
     '</div>';
-  }).join('');
 }
 
 function isAdmin() {
