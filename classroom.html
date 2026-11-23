@@ -1538,8 +1538,11 @@ function renderClassCard(c) {
     var now = Date.now();
     var userEmail = (JSON.parse(localStorage.getItem('gerama_profile')||'{}').email) || '';
     var dt = new Date(c.scheduled_at);
-    var isLive = c.status === 'live';
-    var isEnded = c.status === 'ended';
+    
+    // Auto-correct status based on actual time (database might be outdated)
+    var timeHasPassed = dt.getTime() < now;
+    var isEnded = c.status === 'ended' || timeHasPassed;
+    var isLive = c.status === 'live' && !timeHasPassed;
     var isUpcoming = !isLive && !isEnded;
     var isInPerson = c.class_type === 'inperson';
     var meetLink = c.meet_link || c.meeting_link || '';
@@ -1595,7 +1598,8 @@ function renderClassCard(c) {
     var isOwner = c.requester_email && userEmail && c.requester_email === userEmail;
     var hoursToClass = (dt.getTime() - now) / 3600000;
     var mgmtBtns = '';
-    if(isOwner || isAdmin()){
+    // ONLY ADMINS can delete classes (not regular students who requested them)
+    if(isAdmin()){
       if(isUpcoming && hoursToClass > 12) mgmtBtns += '<button class="btn-warn-sm" onclick="postponeClass(\''+c.id+'\')"><i class="fas fa-clock"></i> Postpone</button>';
       mgmtBtns += '<button class="btn-danger-sm" onclick="deleteClassFromPage(\''+c.id+'\')"><i class="fas fa-trash"></i> Delete</button>';
     }
@@ -1619,9 +1623,9 @@ function renderClassCard(c) {
 }
 
 function isAdmin() {
-  // Simple check  admin email stored in localStorage when they log in via admin dashboard
+  // Check if user has admin role (set during login or in admin dashboard)
   var profile = JSON.parse(localStorage.getItem('gerama_profile')||'{}');
-  return profile.email === 'gerama.uenr@gmail.com' || profile.isAdmin === true;
+  return profile.role === 'admin' || profile.isAdmin === true;
 }
 
 function postponeClass(id) {
